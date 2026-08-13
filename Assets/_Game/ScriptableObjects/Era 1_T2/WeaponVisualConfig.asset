@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e3cc787d88975541adfb238efcba406, type: 3}
+  m_Name: WeaponVisualConfig
+  m_EditorClassIdentifier: 
+  Levels:
+  - BaseDamage: 4
+    ProjectileSpeed: 50
+    FireRange: 30
+    WeaponMesh: {fileID: 1796690730038784201, guid: ca43118ea9c9bfb408973f5da6269df9, type: 3}
+    WeaponMaterial: {fileID: 2100000, guid: 615ff8929b50c8c43b98c5196976f767, type: 2}
+    ProjectilePrefabOverride: {fileID: 0}
+  - BaseDamage: 9
+    ProjectileSpeed: 50
+    FireRange: 30
+    WeaponMesh: {fileID: 2961440052863809799, guid: ca43118ea9c9bfb408973f5da6269df9, type: 3}
+    WeaponMaterial: {fileID: 2100000, guid: 2cbf5df253faec1448bc78190c62b594, type: 2}
+    ProjectilePrefabOverride: {fileID: 0}
+  - BaseDamage: 14
+    ProjectileSpeed: 50
+    FireRange: 30
+    WeaponMesh: {fileID: -2834994555291241171, guid: ca43118ea9c9bfb408973f5da6269df9, type: 3}
+    WeaponMaterial: {fileID: 2100000, guid: 10fd2cb4b4f9a8046a81d8d6ac742a37, type: 2}
+    ProjectilePrefabOverride: {fileID: 0}

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2450e03bb1d9b24bb5c620b92e47557, type: 3}
+  m_Name: CharacterVisualConfig
+  m_EditorClassIdentifier: 
+  Levels:
+  - ModelPrefab: {fileID: 919132149155446097, guid: 6966e68d3fc33bd4c8a7d069c81855f6, type: 3}
+    MaterialOverride: {fileID: 0}
+  - ModelPrefab: {fileID: 919132149155446097, guid: ed7b5ec907e24d84194d5b3720c6e25d, type: 3}
+    MaterialOverride: {fileID: 0}
+  - ModelPrefab: {fileID: 919132149155446097, guid: 7f1540d60b96ac74190e8b4205b9ebbb, type: 3}
+    MaterialOverride: {fileID: 0}

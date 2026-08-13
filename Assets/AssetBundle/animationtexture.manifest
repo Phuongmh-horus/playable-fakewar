@@ -1,0 +1,33 @@
+ManifestFileVersion: 0
+CRC: 3750048890
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 3af2574b44ec9153f72021efd6e77d98
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 5ad585dd02dfb5016c0dad519eab8f49
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 3af2574b44ec9153f72021efd6e77d98
+HashAppended: 0
+ClassTypes:
+- Class: 49
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/AnimationTexture/New Folder/Character_Crossbow_x.bytes
+- Assets/AnimationTexture/New Folder/Enemy_Basic_big_shield.bytes
+- Assets/ThirdParty/Animation-Instancing/Assets/AnimationTexture/Dude_low_instancing.bytes
+- Assets/AnimationTexture/New Folder/Character_bow_x.bytes
+- Assets/AnimationTexture/New Folder/Enemy_Basic_no_weapon.bytes
+- Assets/AnimationTexture/New Folder/Enemy_Basic_sword.bytes
+- Assets/AnimationTexture/New Folder/Character_Gun_x.bytes
+- Assets/ThirdParty/Animation-Instancing/Assets/AnimationTexture/Unity_Model_instancing.bytes
+- Assets/AnimationTexture/Enemy_t1_a1_v1.bytes
+- Assets/AnimationTexture/Enemy_t1_a1_v2.bytes
+- Assets/AnimationTexture/New Folder/Enemy_Basic_shield.bytes
+- Assets/AnimationTexture/New Folder/Enemy_small_pig.bytes
+- Assets/AnimationTexture/New Folder/Character_Pistol_x.bytes
+- Assets/AnimationTexture/New Folder/Enemy_basic_x.bytes
+Dependencies: []

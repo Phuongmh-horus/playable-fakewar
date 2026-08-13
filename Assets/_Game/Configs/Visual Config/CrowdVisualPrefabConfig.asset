@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b84bdc6d5fcc0d24bbe6209b85ee9f3f, type: 3}
+  m_Name: CrowdVisualPrefabConfig
+  m_EditorClassIdentifier: 
+  allyPrefabs:
+  - typeId: 1
+    prefab: {fileID: 2431696794158915072, guid: 6024f35fa7cb59a49b9610ca0ed23bd9, type: 3}
+    scale: 1
+  - typeId: 2
+    prefab: {fileID: 4755794421302137776, guid: 4eda37b688c47744ab05622c5cd9631d, type: 3}
+    scale: 1
+  - typeId: 3
+    prefab: {fileID: 6700676462867527661, guid: e044116b1978d8f4ba99342d6004ca8e, type: 3}
+    scale: 1
+  - typeId: 4
+    prefab: {fileID: 2355606159357840930, guid: 2f4a342fd5344af408682de6f88024d1, type: 3}
+    scale: 1
+  - typeId: 5
+    prefab: {fileID: 2355606159357840930, guid: 2f4a342fd5344af408682de6f88024d1, type: 3}
+    scale: 1
+  - typeId: 6
+    prefab: {fileID: 2355606159357840930, guid: 2f4a342fd5344af408682de6f88024d1, type: 3}
+    scale: 1
+  enemyPrefabs:
+  - typeId: 1
+    prefab: {fileID: 7736718850092416340, guid: 00a0ae563f2c2f64db42f932749821ae, type: 3}
+    scale: 1
+  - typeId: 2
+    prefab: {fileID: 2963888773350735555, guid: dc2eb04bb9563e243b2baff818ed02ff, type: 3}
+    scale: 1
+  - typeId: 3
+    prefab: {fileID: 4747321649686432834, guid: 9549b427cdcb4bc4e961f4d068efe14c, type: 3}
+    scale: 1
+  - typeId: 4
+    prefab: {fileID: 3258979506533503345, guid: 2ddfe3cdeeb7d62418cd558999afd554, type: 3}
+    scale: 1
+  - typeId: 5
+    prefab: {fileID: 5008055909223121301, guid: cf0f08a4328db6447818ff867d8cac2d, type: 3}
+    scale: 1
+  - typeId: 6
+    prefab: {fileID: 2977846291692160077, guid: 45f9f185a6c165843925c69e394f8348, type: 3}
+    scale: 1
+  bossPrefabs:
+  - typeId: 1
+    prefab: {fileID: 7350721906537872892, guid: 7fcf69397ccbec7498fc2d457b0e5ef0, type: 3}
+    scale: 1
+    attackEffectPrefab: {fileID: 0}
+    attackHitEffectPrefab: {fileID: 2433282508523890284, guid: be0e4efbe6aec3942a9b426a2aff6840, type: 3}
+    diedEffectPrefab: {fileID: 2433282508523890284, guid: 3fe4cc27a5b1377428fb5d9ab471c6f8, type: 3}
+    attackSound: 12
+    attackHitSound: 3
+    diedSound: 9
+  - typeId: 2
+    prefab: {fileID: 3769443965837100017, guid: 6ef2b9a9cb39fb64fa938e88e64e66b9, type: 3}
+    scale: 1
+    attackEffectPrefab: {fileID: 198365768172256552, guid: bbb57dc153279dd4189d06f3e6e5cd3c, type: 3}
+    attackHitEffectPrefab: {fileID: 0}
+    diedEffectPrefab: {fileID: 2433282508523890284, guid: 3fe4cc27a5b1377428fb5d9ab471c6f8, type: 3}
+    attackSound: 21
+    attackHitSound: 3
+    diedSound: 22
