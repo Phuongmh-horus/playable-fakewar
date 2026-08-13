@@ -150,8 +150,9 @@ namespace GamePlay.Enemies
             UpdateImage(current, max);
             UpdateHealthText(current);
             PlayDeathVfx();
-            SoundManager.Instance?.PlayOneShot(AudioClipName.SFX_EnemyDie);
             PlayAnimation(AnimationType.Death, deathAnimationDuration, DespawnInterval);
+            Pack.Effector?.PlayEffect(EffectType.Die, transform.position, transform.rotation);
+            PlayDieEffectOncePerFrame();
         }
 
         private void TryAttackArmy(IAttacker armySource)

@@ -655,7 +655,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 7.8, y: 0.5, z: 35}
-  m_LocalScale: {x: 1.3, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4011011877486309801}
@@ -1294,7 +1294,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6294508013172393185, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -16.85
+      value: -18.25
       objectReference: {fileID: 0}
     - target: {fileID: 6294508013172393185, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1302,7 +1302,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6294508013172393185, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 15.7
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 6294508013172393185, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1336,7 +1336,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bonfire_FX (2)
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7498572824058807586, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -1356,7 +1357,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6294508013172393185, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -16.85
+      value: -18.25
       objectReference: {fileID: 0}
     - target: {fileID: 6294508013172393185, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1364,7 +1365,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6294508013172393185, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -16.5
+      value: -16
       objectReference: {fileID: 0}
     - target: {fileID: 6294508013172393185, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1398,7 +1399,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bonfire_FX
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7498572824058807586, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -1418,7 +1420,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6294508013172393185, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 16.85
+      value: 18.25
       objectReference: {fileID: 0}
     - target: {fileID: 6294508013172393185, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1426,7 +1428,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6294508013172393185, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 16.5
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 6294508013172393185, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1460,7 +1462,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bonfire_FX (3)
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7498572824058807586, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -1611,7 +1614,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6294508013172393185, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 16.85
+      value: 18.25
       objectReference: {fileID: 0}
     - target: {fileID: 6294508013172393185, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1619,7 +1622,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6294508013172393185, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -16.5
+      value: -16
       objectReference: {fileID: 0}
     - target: {fileID: 6294508013172393185, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1653,7 +1656,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bonfire_FX (1)
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7498572824058807586, guid: 9eabbc6338ffafa47a50785a30220c9a, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

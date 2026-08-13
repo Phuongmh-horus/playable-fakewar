@@ -74,15 +74,13 @@ namespace GamePlay.Characters
         [SerializeField] private float dieVfxLifetime = 1.2f;
         [SerializeField] private int maxDeathVfxPerFrame = 20;
         [SerializeField] private bool playDeathVfxOnAttackDespawn = false;
-        [SerializeField] private Renderer _mainRenderer;
         private static float s_lastDeathVfxTime = -999f;
-        private const float DEATH_VFX_COOLDOWN = 0.02f;
         private static int s_lastDeathVfxFrame = -1;
         private static int s_deathVfxCountInFrame = 0;
         private static int s_lastAttackSfxFrame = -1;
         private static int s_attackSfxCountInFrame = 0;
         private static int s_lastAttackVfxFrame = -1;
-        private static int s_attackVfxCountInFrame = 0;
+        private const int AttackEffectFrameInterval = 15;
         private bool _isAttackDespawnScheduled;
 
         public Transform ProjectilePoint => EnsureProjectilePoint();
@@ -228,11 +226,6 @@ namespace GamePlay.Characters
 
                     if (isActive)
                     {
-                        var smr = visualModels[i].GetComponentInChildren<SkinnedMeshRenderer>();
-                        if (smr != null)
-                        {
-                            _mainRenderer = smr;
-                        }
 
                         if (Pack.Animator != null && Pack.Animator is AnimationComponent animComp)
                         {
@@ -339,7 +332,8 @@ namespace GamePlay.Characters
                 return;
             }
 
-            if (effectComponent != null) effectComponent.PlayEffect(EffectType.Attack);
+            if (effectComponent != null && CanPlayAttackVfxThisFrame())
+                effectComponent.PlayEffect(EffectType.Attack);
 
             Pack.Animator?.PlayAnimation(AnimationType.Attack, 0f, null, 1);
             ScheduleAttackDespawn(ResolveAttackDespawnDelay(enemyAttackDespawnDelay), dieVfxPrefab != null);
@@ -369,7 +363,8 @@ namespace GamePlay.Characters
 
         public void PlayAttackEffect()
         {
-            effectComponent?.PlayEffect(EffectType.Attack, transform.position, transform.rotation);
+            if (effectComponent != null && CanPlayAttackVfxThisFrame())
+                effectComponent.PlayEffect(EffectType.Attack, transform.position, transform.rotation);
         }
 
 
@@ -685,17 +680,11 @@ namespace GamePlay.Characters
 
         private bool CanPlayAttackVfxThisFrame()
         {
-            if (Time.frameCount != s_lastAttackVfxFrame)
-            {
-                s_lastAttackVfxFrame = Time.frameCount;
-                s_attackVfxCountInFrame = 0;
-            }
-
-            int cap = Mathf.Max(1, maxAttackVfxPerFrame);
-            if (s_attackVfxCountInFrame >= cap)
+            int currentFrame = Time.frameCount;
+            if (s_lastAttackVfxFrame >= 0 && currentFrame - s_lastAttackVfxFrame < AttackEffectFrameInterval)
                 return false;
 
-            s_attackVfxCountInFrame++;
+            s_lastAttackVfxFrame = currentFrame;
             return true;
         }
 

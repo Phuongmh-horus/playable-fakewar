@@ -17,7 +17,7 @@ MonoBehaviour:
   BackgroundSprite: {fileID: 0}
   CashOnStartEra: 170
   MapData: {fileID: 11400000, guid: a62d6f53020796144bd9d218dae14237, type: 2}
-  Milestone: {fileID: -5449997642435284869, guid: 97c3b4b5644eb034da2747a11d57758e, type: 3}
+  Milestone: {fileID: 0}
   Contents:
   - {fileID: 11400000, guid: 7b05894d45c1d7e4eae16b2ff3a8050f, type: 2}
   Turntable: {fileID: 0}

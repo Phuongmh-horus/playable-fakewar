@@ -227,6 +227,30 @@ PrefabInstance:
       propertyPath: m_ReflectionProbeUsage
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 806853175212667901, guid: 84048d40d6e22a542880a79087b52656, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 806853175212667901, guid: 84048d40d6e22a542880a79087b52656, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 806853175212667901, guid: 84048d40d6e22a542880a79087b52656, type: 3}
+      propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447650499890238117, guid: 84048d40d6e22a542880a79087b52656, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447650499890238117, guid: 84048d40d6e22a542880a79087b52656, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447650499890238117, guid: 84048d40d6e22a542880a79087b52656, type: 3}
+      propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1937712493475958154, guid: 84048d40d6e22a542880a79087b52656, type: 3}
       propertyPath: m_WarningMessage
       value: 
@@ -295,9 +319,33 @@ PrefabInstance:
       propertyPath: m_ReflectionProbeUsage
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8635739386537443547, guid: 84048d40d6e22a542880a79087b52656, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8635739386537443547, guid: 84048d40d6e22a542880a79087b52656, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8635739386537443547, guid: 84048d40d6e22a542880a79087b52656, type: 3}
+      propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8945795331178423522, guid: 84048d40d6e22a542880a79087b52656, type: 3}
       propertyPath: m_Name
       value: CHARACTER
+      objectReference: {fileID: 0}
+    - target: {fileID: 9206075459237334078, guid: 84048d40d6e22a542880a79087b52656, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9206075459237334078, guid: 84048d40d6e22a542880a79087b52656, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9206075459237334078, guid: 84048d40d6e22a542880a79087b52656, type: 3}
+      propertyPath: m_ReflectionProbeUsage
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

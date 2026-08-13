@@ -285,7 +285,9 @@ public class CurrencyAmountText : MonoBehaviour
 
     private Camera GetMainCamera()
     {
-        if (_cachedMainCamera != null && _cachedMainCamera.isActiveAndEnabled)
+        if (_cachedMainCamera != null &&
+            _cachedMainCamera.enabled &&
+            _cachedMainCamera.gameObject.activeInHierarchy)
         {
             return _cachedMainCamera;
         }

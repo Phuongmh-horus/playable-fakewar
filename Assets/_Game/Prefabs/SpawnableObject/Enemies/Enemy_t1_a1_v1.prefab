@@ -272,7 +272,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CacheTransform: {fileID: 6524933506058905331}
   poolEntity: {fileID: 7662387699070818353}
-  effects: []
+  effects:
+  - Type: 12
+    VfxPrefab: {fileID: 0}
+    ParentToTarget: 0
+    SfxClip: {fileID: 8300000, guid: dec430151e9f1c4418bc903ca060b4c0, type: 3}
+    LoopSfx: 0
+    SfxVolume: 0.8
+    WaitForAction: 0
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!114 &401723851735648487
@@ -485,6 +492,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: Kiem
       objectReference: {fileID: 0}
+    - target: {fileID: 8023172756131522475, guid: 233395a025399014082b5637a8548aa8, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8023172756131522475, guid: 233395a025399014082b5637a8548aa8, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8023172756131522475, guid: 233395a025399014082b5637a8548aa8, type: 3}
+      propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8023172756131522475, guid: 233395a025399014082b5637a8548aa8, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: a0084616e4a66f543b0f7a823d56f4df, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -548,6 +571,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 15.5
       objectReference: {fileID: 0}
+    - target: {fileID: -2478052171287065896, guid: 71587165224999544bf5501803871ec0, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -2478052171287065896, guid: 71587165224999544bf5501803871ec0, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -2478052171287065896, guid: 71587165224999544bf5501803871ec0, type: 3}
+      propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -2478052171287065896, guid: 71587165224999544bf5501803871ec0, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: a0084616e4a66f543b0f7a823d56f4df, type: 2}
     - target: {fileID: 919132149155446097, guid: 71587165224999544bf5501803871ec0, type: 3}
       propertyPath: m_Name
       value: Khien
@@ -615,6 +654,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -5663072282631595212, guid: 578022a1a8ff65241931a3fa41382763, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5663072282631595212, guid: 578022a1a8ff65241931a3fa41382763, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5663072282631595212, guid: 578022a1a8ff65241931a3fa41382763, type: 3}
+      propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5663072282631595212, guid: 578022a1a8ff65241931a3fa41382763, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 28bec815ce32df14a9e8c4b5efc68482, type: 2}
     - target: {fileID: 919132149155446097, guid: 578022a1a8ff65241931a3fa41382763, type: 3}
       propertyPath: m_Name
       value: Enemy_Basic_New

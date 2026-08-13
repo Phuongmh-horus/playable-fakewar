@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5758147707504516460}
   - component: {fileID: 5291765111413347149}
-  - component: {fileID: 7378730977685070325}
   - component: {fileID: 4893640322163411761}
   m_Layer: 0
   m_Name: CoinDropItem
@@ -47,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7583438b750a7b499edfaa30005ebde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _transform: {fileID: 0}
+  _transform: {fileID: 5758147707504516460}
   _entityType: 0
   ActiveFlags: 0
   damage: 0
@@ -62,31 +61,12 @@ MonoBehaviour:
   RightOffset: 0
   autoAddHitTextFlyEffectAtRuntime: 1
   Type: 1
-  Amount: 100
+  Amount: 10
   autoClaimOnGround: 1
   randomBonusRange: {x: 0, y: 0}
   claimDelayOnGround: 0.2
   groundY: 0
   canClaim: 0
---- !u!114 &7378730977685070325
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4534439711159034648}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91f10e903d7445fdb9cd35cf919687a7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CacheTransform: {fileID: 5758147707504516460}
-  poolEntity: {fileID: 5291765111413347149}
-  shapeType: 2
-  colliderSize: {x: 2, y: 1, z: 1}
-  isActive: 1
-  isCustomCaster: 0
-  hitTransform: {fileID: 0}
 --- !u!82 &4893640322163411761
 AudioSource:
   m_ObjectHideFlags: 0

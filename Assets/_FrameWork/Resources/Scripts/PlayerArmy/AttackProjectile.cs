@@ -92,7 +92,9 @@ namespace PlayerArmy
                 arcHeight,
                 rotationSpeed,
                 Pack.Attacker,
-                Pack.Mover);
+                Pack.Mover,
+                null,
+                EnemyProjectileSystem.ProjectileSpinAxis.None);
         }
 
         public void DisposeProjectile()

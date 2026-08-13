@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MapName: 
   Description: 
-  RoadSegment: {fileID: 7527074010458380552, guid: 491f44c72f8a37d4cbda80dbbc5100f7, type: 3}
+  RoadSegment: {fileID: 7527074010458380552, guid: 0e19f7f4c9011364baf1952107a7136b, type: 3}
   ContentLength: 400
   FinishLength: 0
   BackGround: {fileID: 7720811976257283693, guid: fcd950eecb7ba6f4bab829ecd92e7a51, type: 3}

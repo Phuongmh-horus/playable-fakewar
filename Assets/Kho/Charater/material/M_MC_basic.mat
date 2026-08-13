@@ -8,10 +8,13 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M_MC_basic
-  m_Shader: {fileID: 4800000, guid: 5f1cbf8a0eb1496c9d2f987b3a17d64e, type: 3}
+  m_Shader: {fileID: 4800000, guid: 124e8c1d64ac24c13aa406f05ca2d222, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - DIFFUSE
+  - _LIGHTMAPUV_UV1
+  m_InvalidKeywords:
   - AMBIENT
   - ANIME_SOFT
   - MATCAP
@@ -24,26 +27,24 @@ Material:
   - _HEIGHTCOLORSBLEND_ALPHA_BLEND
   - _LAYER1BLEND_ALPHA_BLEND
   - _LAYER1UV_UV1
+  - _LAYER1VERTEXCOLOR_ON
   - _LAYER2BLEND_ALPHA_BLEND
   - _LAYER2UV_UV1
   - _LAYER3BLEND_ALPHA_BLEND
   - _LAYER3UV_UV1
-  - _LIGHTMAPUV_UV1
   - _MATCAPBLEND_MULTIPLY
   - _NORMALUV2_UV1
   - _NORMALUV_UV1
-  - _PLANTTYPE_PLANT
-  - _RIMBLEND_ADDITIVE
-  - _SHADOWOVERLAYANIMATION_SCROLL
-  - _SPECULARUV_UV1
-  - _TWOHALFCOLORSMODE_REPLACE
-  m_InvalidKeywords:
-  - _LAYER1VERTEXCOLOR_ON
   - _OPTFALLBACK_ALL
   - _OPTFOG_ALL
   - _OPTLIGHTMAPPING_ALL
   - _OPTPOINTLIGHTS_ALL
   - _OPTSHADOW_ALL
+  - _PLANTTYPE_PLANT
+  - _RIMBLEND_ADDITIVE
+  - _SHADOWOVERLAYANIMATION_SCROLL
+  - _SPECULARUV_UV1
+  - _TWOHALFCOLORSMODE_REPLACE
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -183,7 +184,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DetailUV: 0
     - _DetailVertexColors: 0
-    - _Diffuse: 0
+    - _Diffuse: 1
     - _DiffuseBrightness: 1
     - _DiffuseContrast: 1
     - _DiffusePerPixel: 0

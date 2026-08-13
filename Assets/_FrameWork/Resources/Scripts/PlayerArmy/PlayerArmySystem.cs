@@ -506,7 +506,7 @@ namespace PlayerArmy
                     0f,
                     0f,
                     damage,
-                    EnemyProjectileSystem.ProjectileSpinAxis.Z,
+                    EnemyProjectileSystem.ProjectileSpinAxis.None,
                     EnemyProjectileSystem.ProjectileMotionMode.Straight,
                     null,
                     false))
@@ -1339,9 +1339,9 @@ namespace PlayerArmy
                     distance,
                     Mathf.Max(0.45f, projectileDuration),
                     0f,
-                    Mathf.Min(projectileRotationSpeed, 180f) * Mathf.Deg2Rad,
+                    0f,
                     damage,
-                    EnemyProjectileSystem.ProjectileSpinAxis.Z,
+                    EnemyProjectileSystem.ProjectileSpinAxis.None,
                     EnemyProjectileSystem.ProjectileMotionMode.Straight,
                     null,
                     false))

@@ -97,6 +97,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1899154983266895227}
     m_Modifications:
+    - target: {fileID: -9046090166610438584, guid: 491e147adbd714c40910108ba8a2e153, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -9046090166610438584, guid: 491e147adbd714c40910108ba8a2e153, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -9046090166610438584, guid: 491e147adbd714c40910108ba8a2e153, type: 3}
+      propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 491e147adbd714c40910108ba8a2e153, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -209,9 +221,33 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -6380873019934596588, guid: cc3fc261b86e7c243b4aceaa446423b1, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -6380873019934596588, guid: cc3fc261b86e7c243b4aceaa446423b1, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -6380873019934596588, guid: cc3fc261b86e7c243b4aceaa446423b1, type: 3}
+      propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -6380873019934596588, guid: cc3fc261b86e7c243b4aceaa446423b1, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 92bf8b76ea6ba0f4aa6e696e0021b119, type: 2}
+    - target: {fileID: -3699971643763114865, guid: cc3fc261b86e7c243b4aceaa446423b1, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -3699971643763114865, guid: cc3fc261b86e7c243b4aceaa446423b1, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -3699971643763114865, guid: cc3fc261b86e7c243b4aceaa446423b1, type: 3}
+      propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -3699971643763114865, guid: cc3fc261b86e7c243b4aceaa446423b1, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
@@ -293,6 +329,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 2dbb621f8b045d0438fb3a2709b1d17c, type: 3}
       propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7271851664045463160, guid: 2dbb621f8b045d0438fb3a2709b1d17c, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7271851664045463160, guid: 2dbb621f8b045d0438fb3a2709b1d17c, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7271851664045463160, guid: 2dbb621f8b045d0438fb3a2709b1d17c, type: 3}
+      propertyPath: m_ReflectionProbeUsage
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

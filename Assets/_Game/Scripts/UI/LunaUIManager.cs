@@ -189,7 +189,7 @@ public class LunaUIManager : MonoBehaviour
         {
             StartHandAnimation();
             StartTextPulse();
-            
+
             if (_tutorialInputRoutine != null) StopCoroutine(_tutorialInputRoutine);
             _tutorialInputRoutine = StartCoroutine(CoTutorialInput());
         }
@@ -197,7 +197,7 @@ public class LunaUIManager : MonoBehaviour
         {
             StopHandAnimation();
             StopTextPulse();
-            
+
             if (_tutorialInputRoutine != null)
             {
                 StopCoroutine(_tutorialInputRoutine);

@@ -62,7 +62,7 @@ namespace GamePlay.Enemies
         private static int s_deathVfxCountInFrame = 0;
 
         private static int s_lastDieSfxFrame = -1;
-        private static int s_dieSfxCountInFrame = 0;
+        private const int DieEffectFrameInterval = 15;
 
         private WeaponUnit _currentWeapon;
 
@@ -347,19 +347,7 @@ namespace GamePlay.Enemies
             {
                 // Debug.Log($"[EnemyUnit] Health <= 0. Triggering PlayDeathVfx on {name}");
                 PlayDeathVfx();
-
-                // Play SFX limit to 1 time per frame
-                if (Time.frameCount != s_lastDieSfxFrame)
-                {
-                    s_lastDieSfxFrame = Time.frameCount;
-                    s_dieSfxCountInFrame = 0;
-                }
-
-                if (s_dieSfxCountInFrame < 1 && SoundManager.Instance != null)
-                {
-                    s_dieSfxCountInFrame++;
-                    SoundManager.Instance.PlayOneShot(AudioClipName.SFX_EnemyDie);
-                }
+                PlayDieEffectOncePerFrame();
             }
 
 
@@ -396,6 +384,18 @@ namespace GamePlay.Enemies
             {
                 army.KillCurrentUnitsToRemainingCount((int)heroToRemain);
             }
+        }
+
+        protected void PlayDieEffectOncePerFrame()
+        {
+            int currentFrame = Time.frameCount;
+            if (s_lastDieSfxFrame >= 0 && currentFrame - s_lastDieSfxFrame < DieEffectFrameInterval)
+            {
+                return;
+            }
+
+            s_lastDieSfxFrame = currentFrame;
+            Pack.Effector?.PlayEffect(EffectType.Die, transform.position, transform.rotation);
         }
 
 

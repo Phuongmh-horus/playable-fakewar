@@ -15,6 +15,7 @@ Material:
   m_InvalidKeywords:
   - AMBIENT
   - ANIME_SOFT
+  - DIFFUSE
   - FOG
   - MATCAP_PERSPECTIVE
   - OUTLINE_PASS_DISABLED
@@ -38,8 +39,8 @@ Material:
   - _SPECULARUV_UV1
   - _TWOHALFCOLORSMODE_REPLACE
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 1
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses:
@@ -152,7 +153,7 @@ Material:
     - _AnimeThreshold1: 0.45
     - _AnimeThreshold2: 0.85
     - _BlendOp: 0
-    - _Brightness: 1
+    - _Brightness: 1.2
     - _BumpScale: 1
     - _CameraFadeEnd: 0
     - _CameraFadeStart: 0
@@ -169,7 +170,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DetailUV: 0
     - _DetailVertexColors: 0
-    - _Diffuse: 0
+    - _Diffuse: 1
     - _DiffuseBrightness: 1
     - _DiffuseContrast: 1
     - _DiffusePerPixel: 0
