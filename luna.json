@@ -29856,7 +29856,7 @@
                     },
                     {
                         "name": "rootRaycaster#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ConfigureForEntity",
@@ -40758,9 +40758,9 @@
                     {
                         "maxWidth": 512,
                         "maxHeight": 512,
-                        "format": "png32",
+                        "format": "jpeg",
                         "compression": "none",
-                        "quality": 100,
+                        "quality": 80,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_EN_basic.tga"
@@ -40808,9 +40808,9 @@
                     {
                         "maxWidth": 256,
                         "maxHeight": 256,
-                        "format": "png32",
+                        "format": "jpeg",
                         "compression": "none",
-                        "quality": 100,
+                        "quality": 80,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_EN_pig.tga"
@@ -40898,9 +40898,9 @@
                     {
                         "maxWidth": 512,
                         "maxHeight": 512,
-                        "format": "png32",
+                        "format": "jpeg",
                         "compression": "none",
-                        "quality": 100,
+                        "quality": 80,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_EN_basic_2.tga"
