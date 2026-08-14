@@ -74,6 +74,11 @@ namespace PlayerArmy
         [SerializeField] private InputManager inputManager;
         [SerializeField] private PlayerArmyEffectSystem effectSystem;
 
+        [Header("Runtime Tick")]
+        [SerializeField, Min(1)] private int collisionTickInterval = 2;
+        [SerializeField, Min(1)] private int attackTickInterval = 2;
+        [SerializeField, Min(1)] private int pruneTickInterval = 15;
+
         [Header("Runtime Units")]
         [SerializeField] private List<CharacterUnit> characterUnits = new List<CharacterUnit>();
 
@@ -82,6 +87,7 @@ namespace PlayerArmy
         private PlayerArmyState currentState = PlayerArmyState.Active;
         private float _currentForwardSpeed;
         private float _targetX;
+        private int _tickOffset;
 
         private HashSet<int> _currentEnemyContactIds = new HashSet<int>();
         private HashSet<int> _previousEnemyContactIds = new HashSet<int>();
@@ -161,6 +167,7 @@ namespace PlayerArmy
             CacheDefaultState();
             //ClearSceneUnits();
             ResetRuntimeSpawnState();
+            _tickOffset = Mathf.Abs(GetInstanceID()) % Mathf.Max(1, pruneTickInterval);
 
             var sceneUnits = GetComponentsInChildren<CharacterUnit>(true);
             for (int i = 0; i < sceneUnits.Length; i++)
@@ -349,16 +356,28 @@ namespace PlayerArmy
                 return;
             }
 
-            PruneInactiveSpawnedUnits();
-
             float dt = Time.deltaTime;
 
             UpdateMovement(dt);
 
             if (currentState == PlayerArmyState.Active)
             {
-                UpdateCollisionChecks();
-                UpdateCharacterAttacks();
+                int frame = Time.frameCount + _tickOffset;
+                if (frame % Mathf.Max(1, pruneTickInterval) == 0)
+                {
+                    PruneInactiveSpawnedUnits();
+                }
+
+                if (frame % Mathf.Max(1, collisionTickInterval) == 0)
+                {
+                    UpdateCollisionChecks();
+                }
+
+                if (frame % Mathf.Max(1, attackTickInterval) == 0)
+                {
+                    UpdateCharacterAttacks();
+                }
+
                 UpdatePendingProjectileAttacks();
             }
             else

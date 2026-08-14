@@ -178,11 +178,9 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         }
 
         var waveSys = PlayableWaveDefenseEntitySystem.Instance;
-        var colSys = CollisionSystem.Instance;
         var combatSys = CombatSystem.Instance;
 
         if (waveSys != null) waveSys.ManualUpdate();
-        if (colSys != null) colSys.ManualUpdate();
         if (combatSys != null) combatSys.ManualUpdate();
 
         if (waveSys != null && waveSys.EndGameWhenAllMovingEntitiesCleared)

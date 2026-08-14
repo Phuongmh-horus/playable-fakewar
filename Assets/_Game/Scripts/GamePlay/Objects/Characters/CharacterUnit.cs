@@ -80,7 +80,7 @@ namespace GamePlay.Characters
         private static int s_lastAttackSfxFrame = -1;
         private static int s_attackSfxCountInFrame = 0;
         private static int s_lastAttackVfxFrame = -1;
-        private const int AttackEffectFrameInterval = 15;
+        private const int AttackEffectFrameInterval = 10;
         private bool _isAttackDespawnScheduled;
 
         public Transform ProjectilePoint => EnsureProjectilePoint();

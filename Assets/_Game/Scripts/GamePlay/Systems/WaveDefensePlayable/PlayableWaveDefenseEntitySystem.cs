@@ -27,7 +27,7 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
     private bool _registeredThisRun;
     private bool _completedThisRun;
 
-    private class Entry
+    private struct Entry
     {
         public ItemUnit Item;
         public Transform Transform;
@@ -106,7 +106,7 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
         for (int i = _entries.Count - 1; i >= 0; i--)
         {
             Entry entry = _entries[i];
-            if (entry == null || entry.Item == null || entry.Transform == null || !entry.Item.gameObject.activeInHierarchy)
+            if (entry.Item == null || entry.Transform == null || !entry.Item.gameObject.activeInHierarchy)
             {
                 RemoveAtSwapBack(i);
                 continue;
@@ -186,7 +186,7 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
         for (int i = _entries.Count - 1; i >= 0; i--)
         {
             Entry entry = _entries[i];
-            if (entry != null && entry.Item == item)
+            if (entry.Item == item)
             {
                 RemoveAtSwapBack(i);
             }
@@ -213,7 +213,7 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
 
     private bool TryBlockMovingGate(Entry movingGate, ref Vector3 currentPos)
     {
-        if (movingGate == null || movingGate.Transform == null || _movingGateBlockers.Count == 0)
+        if (movingGate.Transform == null || _movingGateBlockers.Count == 0)
         {
             return false;
         }
