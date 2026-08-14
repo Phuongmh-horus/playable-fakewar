@@ -168,14 +168,14 @@ namespace OptimizedFeature.Scripts.Editor
                 GameObject target = _targetRoots[i];
                 if (target == null) continue;
 
-                SetupSingleCharacter(target, targetMaterials, system);
+                SetupSingleCharacter(target, targetMaterials);
                 successCount++;
             }
 
             Debug.Log($"[VATSetupHelper] Successfully configured {successCount} VAT character(s)!");
         }
 
-        private void SetupSingleCharacter(GameObject target, List<Material> targetMaterials, VATSystem system)
+        private void SetupSingleCharacter(GameObject target, List<Material> targetMaterials)
         {
             Undo.RegisterFullObjectHierarchyUndo(target, "Setup VAT Character");
 
@@ -231,7 +231,7 @@ namespace OptimizedFeature.Scripts.Editor
             }
 
             // 4. Register with VATSystem
-            system.RegisterAnimator(renderComponent);
+            VATSystem.RegisterAnimator(renderComponent);
 
             EditorUtility.SetDirty(target);
 

@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c41ba36745491cd42ad4c4ad47beb1cb, type: 3}
-  m_Name: EraConfig_T2E1_P
+  m_Name: EraConfig_2
   m_EditorClassIdentifier: 
   EraIndex: 8
   EraName: ui_mainmenu_era8
   BackgroundSprite: {fileID: 0}
   CashOnStartEra: 170
-  MapData: {fileID: 11400000, guid: a62d6f53020796144bd9d218dae14237, type: 2}
+  MapData: {fileID: 11400000, guid: 513373675ef93264da538064965b9a7c, type: 2}
   Milestone: {fileID: 0}
   Contents:
   - {fileID: 11400000, guid: 7b05894d45c1d7e4eae16b2ff3a8050f, type: 2}

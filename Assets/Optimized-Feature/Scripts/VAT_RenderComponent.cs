@@ -32,7 +32,11 @@ namespace OptimizedFeature.Scripts
         private bool _isBlending;
 
         // --- Shader Property Cache ---
-        private MaterialPropertyBlock _propertyBlock;
+        // A MeshRenderer has one MaterialPropertyBlock per material slot. Luna's
+        // generic SetPropertyBlock overload only updates the first slot for a
+        // multi-material mesh, leaving every sub-renderer at its material default
+        // frame. Keep a block for each baked material and write it by index.
+        private MaterialPropertyBlock[] _propertyBlocks;
         private int _vatTexId;
         private int _boundingMinId;
         private int _boundingMaxId;
@@ -42,10 +46,8 @@ namespace OptimizedFeature.Scripts
         private int _frameIndexUpperId;
         private int _blendWeightId;
 
-        // --- Visibility & Attachments ---
-        private List<VAT_ObjectMesh> _attachedObjectMeshes = new List<VAT_ObjectMesh>();
+        // --- Visibility ---
         private bool _isVisible = true;
-        private bool _registeredWithVATSystem;
         private readonly List<Renderer> _childRenderers = new List<Renderer>();
 
         // --- Public API ---
@@ -69,8 +71,6 @@ namespace OptimizedFeature.Scripts
             _stateA = new VATAnimStateData(string.Empty, 0, 0, 0);
             _stateB = new VATAnimStateData(string.Empty, 0, 0, 0);
 
-            GetComponentsInChildren(true, _attachedObjectMeshes);
-
             // Cache child Renderers except our own MeshRenderer
             Renderer[] allRenderers = GetComponentsInChildren<Renderer>(true);
             if (allRenderers != null)
@@ -89,11 +89,6 @@ namespace OptimizedFeature.Scripts
 
         private void Start()
         {
-            // OnEnable can run before VATSystem.Awake when both objects are
-            // loaded from a scene. Retry registration after all Awake calls so
-            // the component cannot remain permanently stuck on frame 0.
-            TryRegisterWithVATSystem();
-
             if (_vatAssetData == null)
             {
                 Debug.LogWarning($"[VAT_RenderComponent] '{gameObject.name}' has no VATAssetData assigned! Animation will not play. " +
@@ -109,48 +104,12 @@ namespace OptimizedFeature.Scripts
 
         private void OnEnable()
         {
-            TryRegisterWithVATSystem();
+            VATSystem.RegisterAnimator(this);
         }
 
         private void OnDisable()
         {
-            if (VATSystem.Instance != null)
-            {
-                VATSystem.Instance.UnregisterAnimator(this);
-            }
-            _registeredWithVATSystem = false;
-        }
-
-        private void TryRegisterWithVATSystem()
-        {
-            VATSystem system = VATSystem.Instance;
-            if (system == null)
-            {
-                system = FindObjectOfType<VATSystem>();
-            }
-
-            if (system == null)
-            {
-                _registeredWithVATSystem = false;
-                return;
-            }
-
-            system.RegisterAnimator(this);
-            _registeredWithVATSystem = true;
-        }
-
-        private void Update()
-        {
-            // VATSystem is the normal driver. Keep a local fallback for
-            // isolated prefab tests or scenes that do not contain a manager.
-            if (!_registeredWithVATSystem && VATSystem.Instance != null)
-            {
-                TryRegisterWithVATSystem();
-            }
-            if (_registeredWithVATSystem) return;
-            if (_vatAssetData == null || _currentState == null) return;
-
-            ManualUpdate(Time.deltaTime, true);
+            VATSystem.UnregisterAnimator(this);
         }
 
         // ========================================
@@ -357,17 +316,6 @@ namespace OptimizedFeature.Scripts
             if (updateRenderer)
             {
                 UpdateShaderFrames(frameLower, frameUpper, blendWeight);
-
-                // Synchronize attached equipment socket transforms
-                int activeFrame = _isBlending ? frameUpper : frameLower;
-                int count = _attachedObjectMeshes.Count;
-                for (int i = 0; i < count; i++)
-                {
-                    if (_attachedObjectMeshes[i] != null)
-                    {
-                        _attachedObjectMeshes[i].SynchronizeFrame(activeFrame);
-                    }
-                }
             }
         }
 
@@ -377,7 +325,6 @@ namespace OptimizedFeature.Scripts
 
         private void InitializeShaderPropertyIds()
         {
-            _propertyBlock = new MaterialPropertyBlock();
             _vatTexId = Shader.PropertyToID("_VATTex");
             _boundingMinId = Shader.PropertyToID("_BoundingMin");
             _boundingMaxId = Shader.PropertyToID("_BoundingMax");
@@ -390,8 +337,12 @@ namespace OptimizedFeature.Scripts
 
         private void ApplyVATAssetData()
         {
-            if (_propertyBlock == null) InitializeShaderPropertyIds();
+            if (_vatTexId == 0) InitializeShaderPropertyIds();
             if (_vatAssetData == null) return;
+
+            if (_meshFilter == null) _meshFilter = GetComponent<MeshFilter>();
+            if (_meshRenderer == null) _meshRenderer = GetComponent<MeshRenderer>();
+            if (_meshRenderer == null) return;
 
             if (_meshFilter != null && _vatAssetData.BakedStaticMesh != null)
             {
@@ -404,26 +355,54 @@ namespace OptimizedFeature.Scripts
                 _meshRenderer.sharedMaterials = _vatAssetData.BakedMaterials.ToArray();
             }
 
-            _meshRenderer.GetPropertyBlock(_propertyBlock);
-            if (_vatAssetData.VATTexture != null)
+            EnsurePropertyBlocks(GetBakedMaterialCount());
+            for (int materialIndex = 0; materialIndex < _propertyBlocks.Length; materialIndex++)
             {
-                _propertyBlock.SetTexture(_vatTexId, _vatAssetData.VATTexture);
+                MaterialPropertyBlock propertyBlock = _propertyBlocks[materialIndex];
+                if (_vatAssetData.VATTexture != null)
+                {
+                    propertyBlock.SetTexture(_vatTexId, _vatAssetData.VATTexture);
+                }
+
+                propertyBlock.SetVector(_boundingMinId, _vatAssetData.BoundingMin);
+                propertyBlock.SetVector(_boundingMaxId, _vatAssetData.BoundingMax);
+                propertyBlock.SetFloat(_numFramesId, _vatAssetData.TotalFrames);
+                propertyBlock.SetFloat(_numVerticesId, _vatAssetData.TotalVertices);
+                _meshRenderer.SetPropertyBlock(propertyBlock, materialIndex);
             }
-            _propertyBlock.SetVector(_boundingMinId, _vatAssetData.BoundingMin);
-            _propertyBlock.SetVector(_boundingMaxId, _vatAssetData.BoundingMax);
-            _propertyBlock.SetFloat(_numFramesId, _vatAssetData.TotalFrames);
-            _propertyBlock.SetFloat(_numVerticesId, _vatAssetData.TotalVertices);
-            _meshRenderer.SetPropertyBlock(_propertyBlock);
         }
 
         private void UpdateShaderFrames(int frameLower, int frameUpper, float blendWeight)
         {
-            if (_meshRenderer == null) return;
-            _meshRenderer.GetPropertyBlock(_propertyBlock);
-            _propertyBlock.SetFloat(_frameIndexLowerId, frameLower);
-            _propertyBlock.SetFloat(_frameIndexUpperId, frameUpper);
-            _propertyBlock.SetFloat(_blendWeightId, blendWeight);
-            _meshRenderer.SetPropertyBlock(_propertyBlock);
+            if (_meshRenderer == null || _propertyBlocks == null) return;
+
+            for (int materialIndex = 0; materialIndex < _propertyBlocks.Length; materialIndex++)
+            {
+                MaterialPropertyBlock propertyBlock = _propertyBlocks[materialIndex];
+                propertyBlock.SetFloat(_frameIndexLowerId, frameLower);
+                propertyBlock.SetFloat(_frameIndexUpperId, frameUpper);
+                propertyBlock.SetFloat(_blendWeightId, blendWeight);
+                _meshRenderer.SetPropertyBlock(propertyBlock, materialIndex);
+            }
+        }
+
+        private int GetBakedMaterialCount()
+        {
+            return _vatAssetData != null && _vatAssetData.BakedMaterials != null &&
+                   _vatAssetData.BakedMaterials.Count > 0
+                ? _vatAssetData.BakedMaterials.Count
+                : 1;
+        }
+
+        private void EnsurePropertyBlocks(int materialCount)
+        {
+            if (_propertyBlocks != null && _propertyBlocks.Length == materialCount) return;
+
+            _propertyBlocks = new MaterialPropertyBlock[materialCount];
+            for (int i = 0; i < materialCount; i++)
+            {
+                _propertyBlocks[i] = new MaterialPropertyBlock();
+            }
         }
     }
 }

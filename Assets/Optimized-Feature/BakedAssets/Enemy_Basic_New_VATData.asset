@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   VATTexture: {fileID: 2800000, guid: c736836b457802e48a8d6d7373e77064, type: 3}
   BakedStaticMesh: {fileID: 4300000, guid: 1b31619ec8951ac45be45487522d1271, type: 2}
-  BoundingMin: {x: -0.65176654, y: -0.09034285, z: -0.8873127}
-  BoundingMax: {x: 0.651416, y: 2.0186107, z: 1.2300376}
+  BoundingMin: {x: -0.65019965, y: -0.09044507, z: -0.88531554}
+  BoundingMax: {x: 0.5900488, y: 2.0221202, z: 1.1614692}
   TotalVertices: 1237
   TotalFrames: 66
   Clips:

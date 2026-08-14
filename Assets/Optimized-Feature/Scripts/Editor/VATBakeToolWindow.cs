@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -27,6 +28,14 @@ namespace OptimizedFeature.Scripts.Editor
     /// </summary>
     public class VATBakeToolWindow : EditorWindow
     {
+        // VAT data uses one texel per vertex/frame and importer settings target
+        // 4096 for both Default and WebGL. Exceeding either dimension would
+        // resize the asset and invalidate the vertex-to-texel mapping.
+        private const int MaxVATTextureDimension = 4096;
+        private const string LunaVATTextureFormat = "png32";
+        private const string LunaVATTextureCompression = "none";
+        private const int LunaVATTextureQuality = 100;
+
         [Header("Baking Settings")]
         private string _savePath = "Assets/Optimized-Feature/BakedAssets/";
         private int _sampleFrameRate = 30;
@@ -42,16 +51,23 @@ namespace OptimizedFeature.Scripts.Editor
         private List<AnimationClip> _detectedClips = new List<AnimationClip>();
         private List<bool> _selectedClipToggles = new List<bool>();
 
-        [Header("Baked Results Preview")]
-        private Mesh _outputMesh;
-        private Texture2D _outputTexture;
-        private List<Material> _outputMaterials = new List<Material>();
+        [Header("Baked Output Source Of Truth")]
         private VATAssetDataSO _outputAssetData;
+        private string _cachedLunaTexturePath;
+        private DateTime _cachedLunaJsonWriteTimeUtc = DateTime.MinValue;
+        private bool _cachedLunaOverrideFound;
+        private LunaTextureOverrideSettings _cachedLunaOverrideSettings;
 
         // UI Foldouts
+        private bool _settingsFoldout = true;
+        private bool _inputsFoldout = true;
+        private bool _outputsFoldout = true;
         private bool _meshesFoldout = true;
         private bool _materialsFoldout = true;
         private bool _clipsFoldout = true;
+        private bool _outputPreviewFoldout = true;
+        private bool _vatTextureQualityFoldout = true;
+        private bool _materialTextureQualityFoldout = true;
 
         private sealed class MeshBakeSource
         {
@@ -71,6 +87,16 @@ namespace OptimizedFeature.Scripts.Editor
             public VATAssetDataSO AssetData;
         }
 
+        private struct LunaTextureOverrideSettings
+        {
+            public bool Exists;
+            public int MaxWidth;
+            public int MaxHeight;
+            public string Format;
+            public string Compression;
+            public int Quality;
+        }
+
         [MenuItem("Tools/VAT Bake Tool Simulation")]
         public static void OpenWindow()
         {
@@ -79,44 +105,54 @@ namespace OptimizedFeature.Scripts.Editor
 
         private void OnGUI()
         {
-            // --- 1. SETTINGS AT THE TOP ---
-            EditorGUILayout.LabelField("General Baking Settings", EditorStyles.boldLabel);
+            // --- 1. SETTINGS ---
             EditorGUILayout.BeginVertical("box");
-            _savePath = EditorGUILayout.TextField("Save Path", _savePath);
-            _sampleFrameRate = EditorGUILayout.IntField("Sample FPS", _sampleFrameRate);
-            _shaderPatchMode = (ShaderPatchMode)EditorGUILayout.EnumPopup("Shader Patch Mode", _shaderPatchMode);
-            _outputMode = (VATBakeOutputMode)EditorGUILayout.EnumPopup("VAT Output Mode", _outputMode);
-            if (_outputMode == VATBakeOutputMode.PerSkinnedMesh)
+            _settingsFoldout = EditorGUILayout.Foldout(_settingsFoldout, "1. Settings", true, EditorStyles.foldoutHeader);
+            if (_settingsFoldout)
             {
+                _savePath = EditorGUILayout.TextField("Save Path", _savePath);
+                _sampleFrameRate = EditorGUILayout.IntField("Sample FPS", _sampleFrameRate);
+                _shaderPatchMode = (ShaderPatchMode)EditorGUILayout.EnumPopup("Shader Patch Mode", _shaderPatchMode);
+                _outputMode = (VATBakeOutputMode)EditorGUILayout.EnumPopup("VAT Output Mode", _outputMode);
+                if (_outputMode == VATBakeOutputMode.PerSkinnedMesh)
+                {
+                    EditorGUILayout.HelpBox(
+                        "Each selected SkinnedMeshRenderer contributes its own material slots/submeshes. " +
+                        "All slots still share one static mesh, one VAT texture and one VATAssetDataSO.",
+                        MessageType.Info);
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox(
+                        "All selected SkinnedMeshRenderers are baked into one VAT data set. " +
+                        "Every material slot must use the same Shader and BaseTexture.",
+                        MessageType.Info);
+                }
                 EditorGUILayout.HelpBox(
-                    "Each selected SkinnedMeshRenderer contributes its own material slots/submeshes. " +
-                    "All slots still share one static mesh, one VAT texture and one VATAssetDataSO.",
-                    MessageType.Info);
-            }
-            else
-            {
-                EditorGUILayout.HelpBox(
-                    "All selected SkinnedMeshRenderers are baked into one VAT data set. " +
-                    "Every material slot must use the same Shader and BaseTexture.",
+                    "VAT textures are protected for Luna with a 4096 x 4096 PNG32, compression-none override.",
                     MessageType.Info);
             }
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.Space();
 
-            // --- 2. BAKING INPUT DATA ---
-            EditorGUILayout.LabelField("Baking Input Data", EditorStyles.boldLabel);
+            // --- 2. INPUTS ---
             EditorGUILayout.BeginVertical("box");
-            
-            EditorGUI.BeginChangeCheck();
-            _targetPrefab = (GameObject)EditorGUILayout.ObjectField("Target GameObject", _targetPrefab, typeof(GameObject), true);
-            if (EditorGUI.EndChangeCheck())
+            string inputTitle = _targetPrefab == null
+                ? "2. Inputs"
+                : $"2. Inputs — {_targetPrefab.name}";
+            _inputsFoldout = EditorGUILayout.Foldout(_inputsFoldout, inputTitle, true, EditorStyles.foldoutHeader);
+            if (_inputsFoldout)
             {
-                LoadBakeReferences();
-            }
+                EditorGUI.BeginChangeCheck();
+                _targetPrefab = (GameObject)EditorGUILayout.ObjectField("Target GameObject", _targetPrefab, typeof(GameObject), true);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    LoadBakeReferences();
+                }
 
-            if (_targetPrefab != null)
-            {
+                if (_targetPrefab != null)
+                {
                 // Display detected SkinnedMeshRenderers with optional selection toggles
                 // Sync toggles count to match detected meshes
                 while (_selectedMeshToggles.Count < _detectedSkinnedMeshes.Count)
@@ -193,37 +229,22 @@ namespace OptimizedFeature.Scripts.Editor
                     EditorGUI.indentLevel--;
                 }
 
-            }
-            else
-            {
-                EditorGUILayout.HelpBox("Please drag a target character GameObject to load reference inputs.", MessageType.Info);
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox("Please drag a target character GameObject to load reference inputs.", MessageType.Info);
+                }
             }
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.Space();
 
-            // --- 3. BAKED RESULTS PREVIEW ---
-            EditorGUILayout.LabelField("Baked Results Preview", EditorStyles.boldLabel);
-            EditorGUILayout.BeginVertical("box");
-            _outputMesh = (Mesh)EditorGUILayout.ObjectField("Baked Static Mesh", _outputMesh, typeof(Mesh), false);
-            _outputTexture = (Texture2D)EditorGUILayout.ObjectField("Baked VAT Texture", _outputTexture, typeof(Texture2D), false);
-            
-            // Render list of generated materials
-            for (int i = 0; i < _outputMaterials.Count; i++)
-            {
-                _outputMaterials[i] = (Material)EditorGUILayout.ObjectField($"Baked Material [{i}]", _outputMaterials[i], typeof(Material), false);
-            }
-
-            _outputAssetData = (VATAssetDataSO)EditorGUILayout.ObjectField(
-                "VAT Asset Data SO",
-                _outputAssetData,
-                typeof(VATAssetDataSO),
-                false);
-            EditorGUILayout.EndVertical();
+            // --- 3. OUTPUTS ---
+            DrawOutputsSection();
 
             EditorGUILayout.Space();
 
-            // --- 4. BAKE BUTTON AT THE BOTTOM ---
+            // Bake action for the configured settings and inputs.
             // Compute active mesh count for bake button disabled condition
             int _activeMeshCountForButton = 0;
             for (int i = 0; i < _selectedMeshToggles.Count; i++)
@@ -238,6 +259,322 @@ namespace OptimizedFeature.Scripts.Editor
                 BakeVATSimulation();
             }
             EditorGUI.EndDisabledGroup();
+        }
+
+        private void DrawOutputsSection()
+        {
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginVertical("box");
+            string outputTitle = _outputAssetData == null
+                ? "3. Outputs"
+                : $"3. Outputs — {_outputAssetData.name}";
+            _outputsFoldout = EditorGUILayout.Foldout(_outputsFoldout, outputTitle, true, EditorStyles.foldoutHeader);
+            if (!_outputsFoldout)
+            {
+                EditorGUILayout.EndVertical();
+                return;
+            }
+
+            EditorGUILayout.LabelField("VAT Asset Data SO", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "Source of truth for this output. All preview fields below are read-only and are loaded from this asset.",
+                MessageType.Info);
+
+            EditorGUI.BeginChangeCheck();
+            VATAssetDataSO selectedAsset = (VATAssetDataSO)EditorGUILayout.ObjectField(
+                "VAT Asset Data SO",
+                _outputAssetData,
+                typeof(VATAssetDataSO),
+                false);
+            if (EditorGUI.EndChangeCheck())
+            {
+                _outputAssetData = selectedAsset;
+            }
+
+            if (_outputAssetData == null)
+            {
+                EditorGUILayout.HelpBox("Bake an output or select an existing VATAssetDataSO to inspect its generated data.", MessageType.Info);
+                EditorGUILayout.EndVertical();
+                return;
+            }
+
+            string assetDataPath = AssetDatabase.GetAssetPath(_outputAssetData);
+            EditorGUILayout.LabelField("Asset Path", string.IsNullOrEmpty(assetDataPath) ? "Not saved as an asset" : assetDataPath);
+            _outputPreviewFoldout = EditorGUILayout.Foldout(
+                _outputPreviewFoldout,
+                "Derived Output Preview (Read Only)",
+                true);
+            if (_outputPreviewFoldout)
+            {
+                DrawReadOnlyAssetDataPreview(_outputAssetData);
+            }
+
+            _vatTextureQualityFoldout = EditorGUILayout.Foldout(
+                _vatTextureQualityFoldout,
+                "VAT Texture Quality & Luna Protection",
+                true);
+            if (_vatTextureQualityFoldout)
+            {
+                DrawVATTextureQualityPreview(_outputAssetData.VATTexture);
+            }
+
+            _materialTextureQualityFoldout = EditorGUILayout.Foldout(
+                _materialTextureQualityFoldout,
+                "Material Base Texture Quality & Luna Protection",
+                true);
+            if (_materialTextureQualityFoldout)
+            {
+                DrawMaterialBaseTextureQualityPreview(_outputAssetData);
+            }
+
+            EditorGUILayout.EndVertical();
+        }
+
+        private static void DrawReadOnlyAssetDataPreview(VATAssetDataSO assetData)
+        {
+            EditorGUILayout.Space();
+
+            EditorGUI.BeginDisabledGroup(true);
+            EditorGUILayout.ObjectField("Baked Static Mesh", assetData.BakedStaticMesh, typeof(Mesh), false);
+            EditorGUILayout.ObjectField("Baked VAT Texture", assetData.VATTexture, typeof(Texture2D), false);
+            EditorGUILayout.IntField("Total Vertices", assetData.TotalVertices);
+            EditorGUILayout.IntField("Total Frames", assetData.TotalFrames);
+            EditorGUILayout.Vector3Field("Bounding Min", assetData.BoundingMin);
+            EditorGUILayout.Vector3Field("Bounding Max", assetData.BoundingMax);
+
+            int materialCount = assetData.BakedMaterials != null ? assetData.BakedMaterials.Count : 0;
+            EditorGUILayout.LabelField("Baked Materials", materialCount.ToString());
+            for (int i = 0; i < materialCount; i++)
+            {
+                EditorGUILayout.ObjectField($"Material [{i}]", assetData.BakedMaterials[i], typeof(Material), false);
+            }
+
+            int clipCount = assetData.Clips != null ? assetData.Clips.Count : 0;
+            EditorGUILayout.LabelField("Baked Clips", clipCount.ToString());
+            for (int i = 0; i < clipCount; i++)
+            {
+                VATClipInfo clip = assetData.Clips[i];
+                if (clip == null) continue;
+                EditorGUILayout.LabelField(
+                    $"Clip [{i}]",
+                    $"{clip.ClipName} | Frames {clip.StartFrame}-{clip.EndFrame} | {clip.FrameRate:0.##} FPS");
+            }
+
+            int socketCount = assetData.Sockets != null ? assetData.Sockets.Count : 0;
+            EditorGUILayout.LabelField("Socket Data", socketCount == 0 ? "Disabled" : socketCount.ToString());
+            EditorGUI.EndDisabledGroup();
+        }
+
+        private void DrawVATTextureQualityPreview(Texture2D vatTexture)
+        {
+            EditorGUILayout.Space();
+
+            if (vatTexture == null)
+            {
+                EditorGUILayout.HelpBox("No VAT texture is assigned to this VATAssetDataSO.", MessageType.Error);
+                return;
+            }
+
+            string textureAssetPath = AssetDatabase.GetAssetPath(vatTexture);
+            TextureImporter importer = AssetImporter.GetAtPath(textureAssetPath) as TextureImporter;
+            int requiredDimension = Mathf.Max(vatTexture.width, vatTexture.height);
+
+            EditorGUI.BeginDisabledGroup(true);
+            EditorGUILayout.ObjectField("Texture Asset", vatTexture, typeof(Texture2D), false);
+            EditorGUILayout.LabelField("Dimensions", $"{vatTexture.width} x {vatTexture.height}");
+            EditorGUILayout.LabelField("VAT Limit", $"{MaxVATTextureDimension} x {MaxVATTextureDimension}");
+            EditorGUI.EndDisabledGroup();
+
+            bool unityImporterProtected = IsVATTextureImporterProtected(importer, requiredDimension);
+            string unityStatus = unityImporterProtected
+                ? "Unity importer: Linear, Point, Clamp, no mipmaps, RGBA32 and uncompressed for Default/WebGL."
+                : "Unity importer protection is incomplete. Re-bake this VAT asset to restore the required importer settings.";
+            EditorGUILayout.HelpBox(unityStatus, unityImporterProtected ? MessageType.Info : MessageType.Error);
+
+            LunaTextureOverrideSettings lunaSettings;
+            bool hasLunaOverride = TryGetCachedLunaTextureOverride(textureAssetPath, out lunaSettings);
+            bool lunaProtected = hasLunaOverride && IsLunaTextureProtected(lunaSettings, requiredDimension);
+
+            if (hasLunaOverride)
+            {
+                EditorGUI.BeginDisabledGroup(true);
+                EditorGUILayout.LabelField(
+                    "Luna Override",
+                    $"{lunaSettings.MaxWidth} x {lunaSettings.MaxHeight} | {lunaSettings.Format} | {lunaSettings.Compression} | Quality {lunaSettings.Quality}");
+                EditorGUI.EndDisabledGroup();
+            }
+
+            string lunaStatus = lunaProtected
+                ? "Luna Playground: protected from resize and texture compression for this VAT texture."
+                : "Luna Playground protection is missing or unsafe. This can resize or quantize VAT data during build.";
+            EditorGUILayout.HelpBox(lunaStatus, lunaProtected ? MessageType.Info : MessageType.Error);
+
+            if (!lunaProtected && !string.IsNullOrEmpty(textureAssetPath) &&
+                GUILayout.Button("Apply Luna VAT Texture Protection"))
+            {
+                if (RegisterAssetInLunaJson(textureAssetPath))
+                {
+                    InvalidateLunaTextureOverrideCache();
+                    Repaint();
+                }
+            }
+        }
+
+        private void DrawMaterialBaseTextureQualityPreview(VATAssetDataSO assetData)
+        {
+            EditorGUILayout.Space();
+
+            List<Texture2D> baseTextures = CollectMaterialBaseTextures(assetData != null ? assetData.BakedMaterials : null);
+            if (baseTextures.Count == 0)
+            {
+                EditorGUILayout.HelpBox("The baked materials do not use a Texture2D base texture.", MessageType.Warning);
+                return;
+            }
+
+            bool allProtected = true;
+            for (int i = 0; i < baseTextures.Count; i++)
+            {
+                Texture2D texture = baseTextures[i];
+                string textureAssetPath = AssetDatabase.GetAssetPath(texture);
+                int requiredDimension = Mathf.Max(texture.width, texture.height);
+                LunaTextureOverrideSettings lunaSettings;
+                bool hasLunaOverride = TryGetCachedLunaTextureOverride(textureAssetPath, out lunaSettings);
+                bool isProtected = hasLunaOverride && IsLunaTextureProtected(lunaSettings, requiredDimension);
+                allProtected &= isProtected;
+
+                EditorGUI.BeginDisabledGroup(true);
+                EditorGUILayout.ObjectField($"Base Texture [{i}]", texture, typeof(Texture2D), false);
+                EditorGUILayout.LabelField(
+                    "Luna Export",
+                    hasLunaOverride
+                        ? $"{lunaSettings.MaxWidth} x {lunaSettings.MaxHeight} | {lunaSettings.Format} | {lunaSettings.Compression} | Quality {lunaSettings.Quality}"
+                        : "No per-texture override");
+                EditorGUI.EndDisabledGroup();
+
+                if (!isProtected)
+                {
+                    EditorGUILayout.HelpBox(
+                        $"'{texture.name}' can be resized or quantized by Luna's default texture rule.",
+                        MessageType.Error);
+                }
+            }
+
+            if (allProtected)
+            {
+                EditorGUILayout.HelpBox(
+                    "All VAT material base textures are protected from Luna resize and lossy PNG quantization.",
+                    MessageType.Info);
+                return;
+            }
+
+            if (GUILayout.Button("Apply Luna Material Texture Protection"))
+            {
+                bool success = true;
+                for (int i = 0; i < baseTextures.Count; i++)
+                {
+                    Texture2D texture = baseTextures[i];
+                    string textureAssetPath = AssetDatabase.GetAssetPath(texture);
+                    success &= RegisterTextureInLunaJson(textureAssetPath, Mathf.Max(texture.width, texture.height));
+                }
+
+                InvalidateLunaTextureOverrideCache();
+                if (!success)
+                {
+                    Debug.LogError("[VATBakeTool] Some VAT material base textures could not be protected in luna.json.");
+                }
+
+                Repaint();
+            }
+        }
+
+        private static List<Texture2D> CollectMaterialBaseTextures(List<Material> materials)
+        {
+            List<Texture2D> textures = new List<Texture2D>();
+            if (materials == null) return textures;
+
+            for (int i = 0; i < materials.Count; i++)
+            {
+                Texture2D texture = GetMaterialBaseTexture(materials[i]) as Texture2D;
+                if (texture != null && !textures.Contains(texture))
+                {
+                    textures.Add(texture);
+                }
+            }
+
+            return textures;
+        }
+
+        private static Texture GetMaterialBaseTexture(Material material)
+        {
+            if (material == null) return null;
+
+            Texture texture = material.HasProperty("_BaseMap")
+                ? material.GetTexture("_BaseMap")
+                : null;
+            return texture != null || !material.HasProperty("_MainTex")
+                ? texture
+                : material.GetTexture("_MainTex");
+        }
+
+        private bool TryGetCachedLunaTextureOverride(string assetPath, out LunaTextureOverrideSettings settings)
+        {
+            string normalizedPath = string.IsNullOrEmpty(assetPath) ? string.Empty : assetPath.Replace('\\', '/');
+            string lunaJsonPath = GetLunaJsonPath();
+            DateTime lastWriteTimeUtc = File.Exists(lunaJsonPath)
+                ? File.GetLastWriteTimeUtc(lunaJsonPath)
+                : DateTime.MinValue;
+
+            if (string.Equals(_cachedLunaTexturePath, normalizedPath, StringComparison.Ordinal) &&
+                _cachedLunaJsonWriteTimeUtc == lastWriteTimeUtc)
+            {
+                settings = _cachedLunaOverrideSettings;
+                return _cachedLunaOverrideFound;
+            }
+
+            _cachedLunaTexturePath = normalizedPath;
+            _cachedLunaJsonWriteTimeUtc = lastWriteTimeUtc;
+            _cachedLunaOverrideFound = TryGetLunaTextureOverride(normalizedPath, out _cachedLunaOverrideSettings);
+            settings = _cachedLunaOverrideSettings;
+            return _cachedLunaOverrideFound;
+        }
+
+        private void InvalidateLunaTextureOverrideCache()
+        {
+            _cachedLunaTexturePath = null;
+            _cachedLunaJsonWriteTimeUtc = DateTime.MinValue;
+            _cachedLunaOverrideFound = false;
+            _cachedLunaOverrideSettings = new LunaTextureOverrideSettings();
+        }
+
+        private static bool IsVATTextureImporterProtected(TextureImporter importer, int requiredDimension)
+        {
+            if (importer == null || requiredDimension > MaxVATTextureDimension)
+            {
+                return false;
+            }
+
+            TextureImporterPlatformSettings defaultSettings = importer.GetDefaultPlatformTextureSettings();
+            TextureImporterPlatformSettings webglSettings = importer.GetPlatformTextureSettings("WebGL");
+            bool defaultProtected = IsVATTexturePlatformProtected(defaultSettings, requiredDimension);
+            bool webglProtected = IsVATTexturePlatformProtected(webglSettings, requiredDimension);
+
+            return !importer.sRGBTexture &&
+                   importer.textureCompression == TextureImporterCompression.Uncompressed &&
+                   importer.filterMode == FilterMode.Point &&
+                   importer.wrapMode == TextureWrapMode.Clamp &&
+                   !importer.mipmapEnabled &&
+                   !importer.isReadable &&
+                   defaultProtected &&
+                   webglProtected;
+        }
+
+        private static bool IsVATTexturePlatformProtected(TextureImporterPlatformSettings settings, int requiredDimension)
+        {
+            return settings.overridden &&
+                   settings.format == TextureImporterFormat.RGBA32 &&
+                   settings.textureCompression == TextureImporterCompression.Uncompressed &&
+                   !settings.crunchedCompression &&
+                   settings.maxTextureSize >= requiredDimension;
         }
 
         private void LoadBakeReferences()
@@ -380,9 +717,6 @@ namespace OptimizedFeature.Scripts.Editor
 
             if (output != null)
             {
-                _outputMesh = output.Mesh;
-                _outputTexture = output.Texture;
-                _outputMaterials = output.Materials;
                 _outputAssetData = output.AssetData;
             }
         }
@@ -404,6 +738,14 @@ namespace OptimizedFeature.Scripts.Editor
             if (vatShader == null)
             {
                 Debug.LogError("[VATBakeTool] Could not find shader 'OptimizedFeature/VAT_Unlit_Luna'.");
+                return null;
+            }
+
+            // The VAT position texture is data and must never be changed by Luna.
+            // Base textures are visual data but need the same per-texture protection
+            // to keep multi-material/sub-renderer colors identical in the build.
+            if (!EnsureMaterialBaseTexturesLunaProtected(materialSlots))
+            {
                 return null;
             }
 
@@ -455,8 +797,6 @@ namespace OptimizedFeature.Scripts.Editor
             bakedMesh.uv2 = uv2;
             bakedMesh.colors = colors;
 
-            Mesh outputMesh = SaveMeshAsset(bakedMesh, outputName, existingAsset, overrideMode);
-
             List<int> clipFramesList = new List<int>();
             int sampleRate = Mathf.Max(1, _sampleFrameRate);
             int totalBakeFrames = 0;
@@ -466,6 +806,19 @@ namespace OptimizedFeature.Scripts.Editor
                 clipFramesList.Add(frames);
                 totalBakeFrames += frames;
             }
+
+            if (vertexCount > MaxVATTextureDimension || totalBakeFrames > MaxVATTextureDimension)
+            {
+                DestroyImmediate(bakedMesh);
+                Debug.LogError(
+                    $"[VATBakeTool] Cannot bake '{outputName}': VAT texture would be " +
+                    $"{vertexCount} x {totalBakeFrames}, exceeding the supported " +
+                    $"{MaxVATTextureDimension} x {MaxVATTextureDimension} import limit. " +
+                    "Reduce mesh vertices, bake fewer clips, or lower the sample rate.");
+                return null;
+            }
+
+            Mesh outputMesh = SaveMeshAsset(bakedMesh, outputName, existingAsset, overrideMode);
 
             Vector3 boundsMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
             Vector3 boundsMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
@@ -625,7 +978,23 @@ namespace OptimizedFeature.Scripts.Editor
             File.WriteAllBytes(textureAssetPath, vatTexture.EncodeToPNG());
             AssetDatabase.ImportAsset(textureAssetPath, ImportAssetOptions.ForceUpdate);
             ConfigureVATTextureImporter(textureAssetPath);
-            RegisterAssetInLunaJson(textureAssetPath);
+            TextureImporter vatImporter = AssetImporter.GetAtPath(textureAssetPath) as TextureImporter;
+            if (!IsVATTextureImporterProtected(vatImporter, Mathf.Max(vertexCount, totalBakeFrames)))
+            {
+                DestroyImmediate(vatTexture);
+                Debug.LogError(
+                    $"[VATBakeTool] Unity importer protection could not be verified for '{textureAssetPath}'. " +
+                    "Bake stopped so this VAT texture cannot be exported with altered data.");
+                return null;
+            }
+            if (!RegisterAssetInLunaJson(textureAssetPath))
+            {
+                DestroyImmediate(vatTexture);
+                Debug.LogError(
+                    $"[VATBakeTool] Luna texture protection could not be verified for '{textureAssetPath}'. " +
+                    "Bake stopped so this VAT texture cannot be exported with lossy settings.");
+                return null;
+            }
 
             BakedOutput output = new BakedOutput
             {
@@ -1162,7 +1531,7 @@ namespace OptimizedFeature.Scripts.Editor
             importer.filterMode = FilterMode.Point;
             importer.npotScale = TextureImporterNPOTScale.None;
             importer.mipmapEnabled = false;
-            importer.isReadable = true;
+            importer.isReadable = false;
             importer.wrapMode = TextureWrapMode.Clamp;
 
             TextureImporterPlatformSettings defaultSettings = importer.GetDefaultPlatformTextureSettings();
@@ -1211,6 +1580,7 @@ namespace OptimizedFeature.Scripts.Editor
                 {
                     outputMaterial = existingAsset.BakedMaterials[i];
                     outputMaterial.shader = vatShader;
+                    CopyBaseTextureAndTint(originalMaterial, outputMaterial);
                     outputMaterial.SetTexture(vatTextureId, vatTexture);
                     outputMaterial.SetVector(boundsMinId, boundsMin);
                     outputMaterial.SetVector(boundsMaxId, boundsMax);
@@ -1224,6 +1594,7 @@ namespace OptimizedFeature.Scripts.Editor
                     string materialSuffix = materialSlots.Count > 1 ? "_" + i : string.Empty;
                     outputMaterial.name = originalMaterial.name + "_VAT" + materialSuffix;
                     outputMaterial.shader = vatShader;
+                    CopyBaseTextureAndTint(originalMaterial, outputMaterial);
                     outputMaterial.SetTexture(vatTextureId, vatTexture);
                     outputMaterial.SetVector(boundsMinId, boundsMin);
                     outputMaterial.SetVector(boundsMaxId, boundsMax);
@@ -1240,6 +1611,57 @@ namespace OptimizedFeature.Scripts.Editor
             }
 
             return outputMaterials;
+        }
+
+        private static bool EnsureMaterialBaseTexturesLunaProtected(List<Material> materials)
+        {
+            List<Texture2D> baseTextures = CollectMaterialBaseTextures(materials);
+            for (int i = 0; i < baseTextures.Count; i++)
+            {
+                Texture2D texture = baseTextures[i];
+                string textureAssetPath = AssetDatabase.GetAssetPath(texture);
+                int requiredDimension = Mathf.Max(texture.width, texture.height);
+                if (!RegisterTextureInLunaJson(textureAssetPath, requiredDimension))
+                {
+                    Debug.LogError(
+                        $"[VATBakeTool] Bake stopped: base texture '{texture.name}' could not be protected in luna.json.");
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static void CopyBaseTextureAndTint(Material sourceMaterial, Material destinationMaterial)
+        {
+            if (sourceMaterial == null || destinationMaterial == null || !destinationMaterial.HasProperty("_MainTex"))
+            {
+                return;
+            }
+
+            string sourceTextureProperty = sourceMaterial.HasProperty("_BaseMap") &&
+                                           sourceMaterial.GetTexture("_BaseMap") != null
+                ? "_BaseMap"
+                : "_MainTex";
+            Texture baseTexture = sourceMaterial.HasProperty(sourceTextureProperty)
+                ? sourceMaterial.GetTexture(sourceTextureProperty)
+                : null;
+            if (baseTexture != null)
+            {
+                destinationMaterial.SetTexture("_MainTex", baseTexture);
+                destinationMaterial.SetTextureScale("_MainTex", sourceMaterial.GetTextureScale(sourceTextureProperty));
+                destinationMaterial.SetTextureOffset("_MainTex", sourceMaterial.GetTextureOffset(sourceTextureProperty));
+            }
+
+            if (destinationMaterial.HasProperty("_Color"))
+            {
+                Color tint = sourceMaterial.HasProperty("_BaseColor")
+                    ? sourceMaterial.GetColor("_BaseColor")
+                    : sourceMaterial.HasProperty("_Color")
+                        ? sourceMaterial.GetColor("_Color")
+                        : Color.white;
+                destinationMaterial.SetColor("_Color", tint);
+            }
         }
 
         private VATAssetDataSO SaveVATAssetData(
@@ -1331,32 +1753,495 @@ namespace OptimizedFeature.Scripts.Editor
             return File.Exists(meshPath) || File.Exists(texPath) || File.Exists(soPath);
         }
 
-        private static void RegisterAssetInLunaJson(string assetPath)
+        private static bool RegisterAssetInLunaJson(string assetPath)
         {
-            string lunaJsonPath = Path.Combine(Directory.GetCurrentDirectory(), "luna.json");
-            if (!File.Exists(lunaJsonPath)) return;
+            return RegisterTextureInLunaJson(assetPath, MaxVATTextureDimension);
+        }
+
+        private static bool RegisterTextureInLunaJson(string assetPath, int requiredDimension)
+        {
+            if (string.IsNullOrEmpty(assetPath) || requiredDimension <= 0 || requiredDimension > MaxVATTextureDimension)
+            {
+                return false;
+            }
+
+            string lunaJsonPath = GetLunaJsonPath();
+            if (!File.Exists(lunaJsonPath))
+            {
+                Debug.LogError("[VATBakeTool] luna.json was not found. VAT texture protection cannot be applied.");
+                return false;
+            }
 
             try
             {
                 string jsonText = File.ReadAllText(lunaJsonPath);
                 string normalizedPath = assetPath.Replace('\\', '/');
-                if (!jsonText.Contains($"\"{normalizedPath}\""))
+                bool changed = false;
+
+                if (!TryEnsureLunaAssetInclude(ref jsonText, normalizedPath, ref changed) ||
+                    !TryEnsureLunaTextureOverride(ref jsonText, normalizedPath, requiredDimension, ref changed))
                 {
-                    int includesIndex = jsonText.IndexOf("\"includes\": [");
-                    if (includesIndex != -1)
+                    Debug.LogError(
+                        $"[VATBakeTool] Could not locate the Luna asset include or texture override sections for '{normalizedPath}'.");
+                    return false;
+                }
+
+                if (changed)
+                {
+                    File.WriteAllText(lunaJsonPath, jsonText);
+                    Debug.Log($"[VATBakeTool] Protected '{normalizedPath}' in luna.json for VAT export.");
+                }
+
+                LunaTextureOverrideSettings lunaSettings;
+                bool isProtected = TryGetLunaTextureOverride(normalizedPath, out lunaSettings) &&
+                                   IsLunaTextureProtected(lunaSettings, requiredDimension);
+                if (!isProtected)
+                {
+                    Debug.LogError(
+                        $"[VATBakeTool] Luna override verification failed for '{normalizedPath}'. " +
+                        $"Expected PNG32, no compression and at least a {requiredDimension} x {requiredDimension} limit.");
+                }
+
+                return isProtected;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[VATBakeTool] Failed to protect VAT texture in luna.json: {ex.Message}");
+                return false;
+            }
+        }
+
+        private static bool TryEnsureLunaAssetInclude(ref string jsonText, string assetPath, ref bool changed)
+        {
+            int unityStart;
+            int unityEnd;
+            int assetsStart;
+            int assetsEnd;
+            int includesStart;
+            int includesEnd;
+            if (!TryFindJsonObjectProperty(jsonText, "unity", 0, jsonText.Length, out unityStart, out unityEnd) ||
+                !TryFindJsonObjectProperty(jsonText, "assets", unityStart + 1, unityEnd, out assetsStart, out assetsEnd) ||
+                !TryFindJsonArrayProperty(jsonText, "includes", assetsStart + 1, assetsEnd, out includesStart, out includesEnd))
+            {
+                return false;
+            }
+
+            if (JsonArrayContainsString(jsonText, includesStart, includesEnd, assetPath))
+            {
+                return true;
+            }
+
+            AppendJsonArrayString(ref jsonText, includesStart, includesEnd, assetPath);
+            changed = true;
+            return true;
+        }
+
+        private static bool TryEnsureLunaTextureOverride(
+            ref string jsonText,
+            string assetPath,
+            int requiredDimension,
+            ref bool changed)
+        {
+            int textureStart;
+            int textureEnd;
+            int overridesStart;
+            int overridesEnd;
+            if (!TryFindLunaTextureRulesObject(jsonText, out textureStart, out textureEnd) ||
+                !TryFindJsonArrayProperty(jsonText, "overrides", textureStart + 1, textureEnd, out overridesStart, out overridesEnd))
+            {
+                return false;
+            }
+
+            string newLine = GetJsonNewLine(jsonText);
+            int existingOverrideStart;
+            int existingOverrideEnd;
+            if (TryFindLunaTextureOverrideObject(
+                    jsonText,
+                    overridesStart,
+                    overridesEnd,
+                    assetPath,
+                    out existingOverrideStart,
+                    out existingOverrideEnd))
+            {
+                string existingOverride = jsonText.Substring(
+                    existingOverrideStart,
+                    existingOverrideEnd - existingOverrideStart + 1);
+                string replacement = BuildLunaTextureOverride(
+                    assetPath,
+                    requiredDimension,
+                    GetJsonLineIndentation(jsonText, existingOverrideStart),
+                    newLine);
+                if (!string.Equals(existingOverride, replacement, StringComparison.Ordinal))
+                {
+                    jsonText = jsonText.Remove(existingOverrideStart, existingOverride.Length)
+                                       .Insert(existingOverrideStart, replacement);
+                    changed = true;
+                }
+
+                return true;
+            }
+
+            string objectIndent = GetJsonLineIndentation(jsonText, overridesStart) + "    ";
+            string overrideEntry = BuildLunaTextureOverride(assetPath, requiredDimension, objectIndent, newLine);
+            bool hasExistingEntries = JsonArrayHasValues(jsonText, overridesStart, overridesEnd);
+            int insertPosition = GetJsonLineStart(jsonText, overridesEnd);
+            string insertion;
+            if (hasExistingEntries)
+            {
+                insertPosition = MoveBeforePreviousNewLine(jsonText, insertPosition);
+                insertion = "," + newLine + objectIndent + overrideEntry;
+            }
+            else
+            {
+                insertion = objectIndent + overrideEntry + newLine;
+            }
+
+            jsonText = jsonText.Insert(insertPosition, insertion);
+            changed = true;
+            return true;
+        }
+
+        private static bool TryGetLunaTextureOverride(string assetPath, out LunaTextureOverrideSettings settings)
+        {
+            settings = new LunaTextureOverrideSettings();
+            if (string.IsNullOrEmpty(assetPath)) return false;
+
+            string lunaJsonPath = GetLunaJsonPath();
+            if (!File.Exists(lunaJsonPath)) return false;
+
+            try
+            {
+                JObject root = JObject.Parse(File.ReadAllText(lunaJsonPath));
+                JObject textureRules = root["assets"]?["rules"]?["texture"] as JObject;
+                JArray overrides = textureRules?["overrides"] as JArray;
+                if (overrides == null) return false;
+
+                string normalizedPath = assetPath.Replace('\\', '/');
+                for (int i = 0; i < overrides.Count; i++)
+                {
+                    JObject candidate = overrides[i] as JObject;
+                    if (candidate == null ||
+                        !string.Equals((string)candidate["name"], normalizedPath, StringComparison.Ordinal))
                     {
-                        int insertPos = jsonText.IndexOf('[', includesIndex) + 1;
-                        string entry = $"\n                \"{normalizedPath}\",";
-                        jsonText = jsonText.Insert(insertPos, entry);
-                        File.WriteAllText(lunaJsonPath, jsonText);
-                        Debug.Log($"[VATBakeTool] Auto-registered '{normalizedPath}' into luna.json asset includes list.");
+                        continue;
                     }
+
+                    settings.Exists = true;
+                    settings.MaxWidth = candidate.Value<int?>("maxWidth") ?? 0;
+                    settings.MaxHeight = candidate.Value<int?>("maxHeight") ?? 0;
+                    settings.Format = candidate.Value<string>("format") ?? string.Empty;
+                    settings.Compression = candidate.Value<string>("compression") ?? string.Empty;
+                    settings.Quality = candidate.Value<int?>("quality") ?? 0;
+                    return true;
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"[VATBakeTool] Failed to auto-register asset in luna.json: {ex.Message}");
+                Debug.LogWarning($"[VATBakeTool] Failed to read Luna texture rules: {ex.Message}");
             }
+
+            return false;
+        }
+
+        private static string GetLunaJsonPath()
+        {
+            DirectoryInfo projectRoot = Directory.GetParent(Application.dataPath);
+            return projectRoot != null
+                ? Path.Combine(projectRoot.FullName, "luna.json")
+                : Path.Combine(Directory.GetCurrentDirectory(), "luna.json");
+        }
+
+        private static bool IsLunaTextureProtected(LunaTextureOverrideSettings settings, int requiredDimension)
+        {
+            return settings.Exists &&
+                   settings.MaxWidth >= requiredDimension &&
+                   settings.MaxHeight >= requiredDimension &&
+                   string.Equals(settings.Format, LunaVATTextureFormat, StringComparison.OrdinalIgnoreCase) &&
+                   string.Equals(settings.Compression, LunaVATTextureCompression, StringComparison.OrdinalIgnoreCase) &&
+                   settings.Quality >= LunaVATTextureQuality;
+        }
+
+        private static bool TryFindLunaTextureRulesObject(string jsonText, out int textureStart, out int textureEnd)
+        {
+            textureStart = -1;
+            textureEnd = -1;
+            int searchIndex = 0;
+            int assetsStart;
+            int assetsEnd;
+            while (TryFindJsonObjectProperty(jsonText, "assets", searchIndex, jsonText.Length, out assetsStart, out assetsEnd))
+            {
+                int rulesStart;
+                int rulesEnd;
+                if (TryFindJsonObjectProperty(jsonText, "rules", assetsStart + 1, assetsEnd, out rulesStart, out rulesEnd) &&
+                    TryFindJsonObjectProperty(jsonText, "texture", rulesStart + 1, rulesEnd, out textureStart, out textureEnd))
+                {
+                    return true;
+                }
+
+                searchIndex = assetsEnd + 1;
+            }
+
+            return false;
+        }
+
+        private static bool TryFindLunaTextureOverrideObject(
+            string jsonText,
+            int overridesStart,
+            int overridesEnd,
+            string assetPath,
+            out int objectStart,
+            out int objectEnd)
+        {
+            objectStart = -1;
+            objectEnd = -1;
+            string nameProperty = $"\"name\": \"{assetPath}\"";
+            int searchIndex = overridesStart + 1;
+            while (searchIndex < overridesEnd)
+            {
+                int nameIndex = jsonText.IndexOf(nameProperty, searchIndex, StringComparison.Ordinal);
+                if (nameIndex < 0 || nameIndex >= overridesEnd) return false;
+
+                int candidateStart = jsonText.LastIndexOf('{', nameIndex);
+                int candidateEnd = candidateStart >= 0
+                    ? FindMatchingJsonDelimiter(jsonText, candidateStart, '{', '}')
+                    : -1;
+                if (candidateStart > overridesStart && candidateEnd > candidateStart && candidateEnd < overridesEnd)
+                {
+                    objectStart = candidateStart;
+                    objectEnd = candidateEnd;
+                    return true;
+                }
+
+                searchIndex = nameIndex + nameProperty.Length;
+            }
+
+            return false;
+        }
+
+        private static string BuildLunaTextureOverride(
+            string assetPath,
+            int requiredDimension,
+            string objectIndent,
+            string newLine)
+        {
+            string propertyIndent = objectIndent + "    ";
+            return "{" + newLine +
+                   propertyIndent + "\"maxWidth\": " + requiredDimension + "," + newLine +
+                   propertyIndent + "\"maxHeight\": " + requiredDimension + "," + newLine +
+                   propertyIndent + "\"format\": \"" + LunaVATTextureFormat + "\"," + newLine +
+                   propertyIndent + "\"compression\": \"" + LunaVATTextureCompression + "\"," + newLine +
+                   propertyIndent + "\"quality\": " + LunaVATTextureQuality + "," + newLine +
+                   propertyIndent + "\"script\": \"\"," + newLine +
+                   propertyIndent + "\"ext\": \"\"," + newLine +
+                   propertyIndent + "\"name\": \"" + assetPath + "\"" + newLine +
+                   objectIndent + "}";
+        }
+
+        private static bool TryFindJsonObjectProperty(
+            string jsonText,
+            string propertyName,
+            int searchStart,
+            int searchEnd,
+            out int objectStart,
+            out int objectEnd)
+        {
+            return TryFindJsonCollectionProperty(
+                jsonText,
+                propertyName,
+                searchStart,
+                searchEnd,
+                '{',
+                '}',
+                out objectStart,
+                out objectEnd);
+        }
+
+        private static bool TryFindJsonArrayProperty(
+            string jsonText,
+            string propertyName,
+            int searchStart,
+            int searchEnd,
+            out int arrayStart,
+            out int arrayEnd)
+        {
+            return TryFindJsonCollectionProperty(
+                jsonText,
+                propertyName,
+                searchStart,
+                searchEnd,
+                '[',
+                ']',
+                out arrayStart,
+                out arrayEnd);
+        }
+
+        private static bool TryFindJsonCollectionProperty(
+            string jsonText,
+            string propertyName,
+            int searchStart,
+            int searchEnd,
+            char openingDelimiter,
+            char closingDelimiter,
+            out int valueStart,
+            out int valueEnd)
+        {
+            valueStart = -1;
+            valueEnd = -1;
+            string propertyToken = "\"" + propertyName + "\"";
+            int searchIndex = searchStart;
+            while (searchIndex < searchEnd)
+            {
+                int propertyIndex = jsonText.IndexOf(propertyToken, searchIndex, StringComparison.Ordinal);
+                if (propertyIndex < 0 || propertyIndex >= searchEnd) return false;
+
+                int valueIndex = propertyIndex + propertyToken.Length;
+                while (valueIndex < searchEnd && char.IsWhiteSpace(jsonText[valueIndex])) valueIndex++;
+                if (valueIndex >= searchEnd || jsonText[valueIndex] != ':')
+                {
+                    searchIndex = propertyIndex + propertyToken.Length;
+                    continue;
+                }
+
+                valueIndex++;
+                while (valueIndex < searchEnd && char.IsWhiteSpace(jsonText[valueIndex])) valueIndex++;
+                if (valueIndex < searchEnd && jsonText[valueIndex] == openingDelimiter)
+                {
+                    int matchingIndex = FindMatchingJsonDelimiter(
+                        jsonText,
+                        valueIndex,
+                        openingDelimiter,
+                        closingDelimiter);
+                    if (matchingIndex > valueIndex && matchingIndex <= searchEnd)
+                    {
+                        valueStart = valueIndex;
+                        valueEnd = matchingIndex;
+                        return true;
+                    }
+                }
+
+                searchIndex = propertyIndex + propertyToken.Length;
+            }
+
+            return false;
+        }
+
+        private static int FindMatchingJsonDelimiter(string jsonText, int openingIndex, char openingDelimiter, char closingDelimiter)
+        {
+            int depth = 0;
+            bool insideString = false;
+            bool escaped = false;
+            for (int i = openingIndex; i < jsonText.Length; i++)
+            {
+                char character = jsonText[i];
+                if (insideString)
+                {
+                    if (escaped)
+                    {
+                        escaped = false;
+                    }
+                    else if (character == '\\')
+                    {
+                        escaped = true;
+                    }
+                    else if (character == '"')
+                    {
+                        insideString = false;
+                    }
+
+                    continue;
+                }
+
+                if (character == '"')
+                {
+                    insideString = true;
+                }
+                else if (character == openingDelimiter)
+                {
+                    depth++;
+                }
+                else if (character == closingDelimiter)
+                {
+                    depth--;
+                    if (depth == 0) return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private static bool JsonArrayContainsString(string jsonText, int arrayStart, int arrayEnd, string value)
+        {
+            int valueIndex = jsonText.IndexOf("\"" + value + "\"", arrayStart + 1, StringComparison.Ordinal);
+            return valueIndex >= 0 && valueIndex < arrayEnd;
+        }
+
+        private static bool JsonArrayHasValues(string jsonText, int arrayStart, int arrayEnd)
+        {
+            for (int i = arrayStart + 1; i < arrayEnd; i++)
+            {
+                if (!char.IsWhiteSpace(jsonText[i])) return true;
+            }
+
+            return false;
+        }
+
+        private static void AppendJsonArrayString(ref string jsonText, int arrayStart, int arrayEnd, string value)
+        {
+            string newLine = GetJsonNewLine(jsonText);
+            string entryIndent = GetJsonLineIndentation(jsonText, arrayStart) + "    ";
+            int insertPosition = GetJsonLineStart(jsonText, arrayEnd);
+            bool hasExistingEntries = JsonArrayHasValues(jsonText, arrayStart, arrayEnd);
+            string insertion;
+            if (hasExistingEntries)
+            {
+                insertPosition = MoveBeforePreviousNewLine(jsonText, insertPosition);
+                insertion = "," + newLine + entryIndent + "\"" + value + "\"";
+            }
+            else
+            {
+                insertion = entryIndent + "\"" + value + "\"" + newLine;
+            }
+
+            jsonText = jsonText.Insert(insertPosition, insertion);
+        }
+
+        private static string GetJsonNewLine(string jsonText)
+        {
+            return jsonText.Contains("\r\n") ? "\r\n" : "\n";
+        }
+
+        private static string GetJsonLineIndentation(string jsonText, int index)
+        {
+            int lineStart = GetJsonLineStart(jsonText, index);
+            int indentEnd = lineStart;
+            while (indentEnd < jsonText.Length &&
+                   (jsonText[indentEnd] == ' ' || jsonText[indentEnd] == '\t'))
+            {
+                indentEnd++;
+            }
+
+            return jsonText.Substring(lineStart, indentEnd - lineStart);
+        }
+
+        private static int GetJsonLineStart(string jsonText, int index)
+        {
+            int newLineIndex = jsonText.LastIndexOf('\n', Mathf.Max(0, index - 1));
+            return newLineIndex >= 0 ? newLineIndex + 1 : 0;
+        }
+
+        private static int MoveBeforePreviousNewLine(string jsonText, int lineStart)
+        {
+            int insertionPosition = lineStart;
+            if (insertionPosition > 0 && jsonText[insertionPosition - 1] == '\n')
+            {
+                insertionPosition--;
+                if (insertionPosition > 0 && jsonText[insertionPosition - 1] == '\r')
+                {
+                    insertionPosition--;
+                }
+            }
+
+            return insertionPosition;
         }
     }
 }

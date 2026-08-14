@@ -1561,40 +1561,40 @@ MonoBehaviour:
     - FOG
     - _LIGHTMAPUV_UV1
   - shaderCompilerPlatform: 5
-    shader: {fileID: 4800000, guid: bc57984ea7f8e0b418a6b9077eab5d3e, type: 3}
+    shader: {fileID: 211, guid: 0000000000000000f000000000000000, type: 0}
     passType: 0
-    passId: 0
+    passId: 4
     subShaderIndex: 0
     upToDate: 0
-    keywords: []
+    keywords:
+    - _ALPHABLEND_ON
+    - _FADING_ON
   - shaderCompilerPlatform: 9
-    shader: {fileID: 4800000, guid: bc57984ea7f8e0b418a6b9077eab5d3e, type: 3}
+    shader: {fileID: 211, guid: 0000000000000000f000000000000000, type: 0}
     passType: 0
-    passId: 0
+    passId: 4
     subShaderIndex: 0
     upToDate: 0
-    keywords: []
+    keywords:
+    - _ALPHABLEND_ON
+    - _FADING_ON
   - shaderCompilerPlatform: 5
-    shader: {fileID: 211, guid: 0000000000000000f000000000000000, type: 0}
+    shader: {fileID: 4800000, guid: bc57984ea7f8e0b418a6b9077eab5d3e, type: 3}
     passType: 0
-    passId: 4
+    passId: 0
     subShaderIndex: 0
     upToDate: 0
-    keywords:
-    - _ALPHABLEND_ON
-    - _FADING_ON
+    keywords: []
   - shaderCompilerPlatform: 9
-    shader: {fileID: 211, guid: 0000000000000000f000000000000000, type: 0}
+    shader: {fileID: 4800000, guid: bc57984ea7f8e0b418a6b9077eab5d3e, type: 3}
     passType: 0
-    passId: 4
+    passId: 0
     subShaderIndex: 0
     upToDate: 0
-    keywords:
-    - _ALPHABLEND_ON
-    - _FADING_ON
+    keywords: []
   _includedShaderVariants: []
   _excludedShaderVariants: []
-  version: 2899
+  version: 3279
   _shaderParsedShaders:
   - ParsedSubShaders:
     - Index: 0
@@ -8279,10 +8279,11 @@ MonoBehaviour:
             + _MainTex_ST.zw;\n    return;\n}\n\n"
           FragmentProgram: "\n#version 100\n\n#ifdef GL_FRAGMENT_PRECISION_HIGH\n   
             precision highp float;\n#else\n    precision mediump float;\n#endif\nprecision
-            highp int;\nuniform lowp sampler2D _MainTex;\nvarying highp vec2 vs_TEXCOORD0;\n#define
-            SV_Target0 gl_FragData[0]\nlowp vec4 u_xlat10_0;\nvoid main()\n{\n   
-            u_xlat10_0 = texture2D(_MainTex, vs_TEXCOORD0.xy);\n    SV_Target0 =
-            u_xlat10_0;\n    return;\n}\n\n"
+            highp int;\nuniform \tmediump vec4 _Color;\nuniform lowp sampler2D _MainTex;\nvarying
+            highp vec2 vs_TEXCOORD0;\n#define SV_Target0 gl_FragData[0]\nvec4 u_xlat0;\nlowp
+            vec4 u_xlat10_0;\nvoid main()\n{\n    u_xlat10_0 = texture2D(_MainTex,
+            vs_TEXCOORD0.xy);\n    u_xlat0 = u_xlat10_0 * _Color;\n    SV_Target0
+            = u_xlat0;\n    return;\n}\n\n"
           LOD: 0
           readDepth: 0
           PassId: 0
@@ -8325,13 +8326,16 @@ MonoBehaviour:
             * u_xlat0.wwww + u_xlat1;\n    vs_TEXCOORD0.xy = in_TEXCOORD0.xy * _MainTex_ST.xy
             + _MainTex_ST.zw;\n    return;\n}\n\n"
           FragmentProgram: "\n#version 300 es\n\nprecision highp float;\nprecision
-            highp int;\n#define UNITY_SUPPORTS_UNIFORM_LOCATION 0\n#if UNITY_SUPPORTS_UNIFORM_LOCATION\n#define
+            highp int;\n#define HLSLCC_ENABLE_UNIFORM_BUFFERS 0\n#if HLSLCC_ENABLE_UNIFORM_BUFFERS\n#define
+            UNITY_UNIFORM\n#else\n#define UNITY_UNIFORM uniform\n#endif\n#define
+            UNITY_SUPPORTS_UNIFORM_LOCATION 0\n#if UNITY_SUPPORTS_UNIFORM_LOCATION\n#define
             UNITY_LOCATION(x) layout(location = x)\n#define UNITY_BINDING(x) layout(binding
             = x, std140)\n#else\n#define UNITY_LOCATION(x)\n#define UNITY_BINDING(x)
-            layout(std140)\n#endif\nUNITY_LOCATION(0) uniform mediump sampler2D _MainTex;\nin
-            highp vec2 vs_TEXCOORD0;\nlayout(location = 0) out mediump vec4 SV_Target0;\nmediump
-            vec4 u_xlat16_0;\nvoid main()\n{\n    u_xlat16_0 = texture(_MainTex,
-            vs_TEXCOORD0.xy);\n    SV_Target0 = u_xlat16_0;\n    return;\n}\n\n"
+            layout(std140)\n#endif\nuniform \tmediump vec4 _Color;\nUNITY_LOCATION(0)
+            uniform mediump sampler2D _MainTex;\nin highp vec2 vs_TEXCOORD0;\nlayout(location
+            = 0) out mediump vec4 SV_Target0;\nvec4 u_xlat0;\nmediump vec4 u_xlat16_0;\nvoid
+            main()\n{\n    u_xlat16_0 = texture(_MainTex, vs_TEXCOORD0.xy);\n   
+            u_xlat0 = u_xlat16_0 * _Color;\n    SV_Target0 = u_xlat0;\n    return;\n}\n\n"
           LOD: 0
           readDepth: 0
           PassId: 0

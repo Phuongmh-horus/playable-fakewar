@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c41ba36745491cd42ad4c4ad47beb1cb, type: 3}
+  m_Name: EraConfig_1
+  m_EditorClassIdentifier: 
+  EraIndex: 8
+  EraName: ui_mainmenu_era8
+  BackgroundSprite: {fileID: 0}
+  CashOnStartEra: 170
+  MapData: {fileID: 11400000, guid: a62d6f53020796144bd9d218dae14237, type: 2}
+  Milestone: {fileID: 0}
+  Contents:
+  - {fileID: 11400000, guid: 7b05894d45c1d7e4eae16b2ff3a8050f, type: 2}
+  Turntable: {fileID: 0}
+  EvolutionConfig: {fileID: 11400000, guid: 2aecc8a88bb487143b2a694172a24939, type: 2}
+  CharacterFactoryUpgradeConfig: {fileID: 0}
+  ItemConfig: {fileID: 0}

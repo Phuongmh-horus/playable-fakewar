@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2079c0368c943943aafbc09708e34e6, type: 3}
+  m_Name: WaveDefense_S1
+  m_EditorClassIdentifier: 
+  ContentId: 0
+  ContentName: 
+  Description: 
+  SpawnableObjects:
+  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
+    PositionOnMap: 35.77002
+    PositionOffset: {x: 1.1900024, y: 0, z: 0}
+    Rotation: {x: -0, y: 0, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 5408492523604410368
+    overrideMaxHp: 1
+    maxHp: 15
+  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
+    PositionOnMap: 190.29999
+    PositionOffset: {x: -2.9699707, y: 0.027404785, z: 0}
+    Rotation: {x: -0, y: 0, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 5408492523604410369
+    overrideMaxHp: 1
+    maxHp: 15
+  HasBoss: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 5408492523604410368
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 15
+    - rid: 5408492523604410369
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 15

@@ -12,12 +12,14 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - AMBIENT
-  - ANIME_SOFT
   - DIFFUSE
-  - EMISSIVE_ANIMATED
   - EMISSIVE_MAP
   - FOG
+  - _LIGHTMAPUV_UV1
+  m_InvalidKeywords:
+  - AMBIENT
+  - ANIME_SOFT
+  - EMISSIVE_ANIMATED
   - MATCAP_PERSPECTIVE
   - OUTLINE_PASS_DISABLED
   - SHADOWS_ENABLED
@@ -30,7 +32,6 @@ Material:
   - _LAYER2UV_UV1
   - _LAYER3BLEND_ALPHA_BLEND
   - _LAYER3UV_UV1
-  - _LIGHTMAPUV_UV1
   - _MATCAPBLEND_MULTIPLY
   - _NORMALUV2_UV1
   - _NORMALUV_UV1
@@ -39,7 +40,6 @@ Material:
   - _SHADOWOVERLAYANIMATION_SCROLL
   - _SPECULARUV_UV1
   - _TWOHALFCOLORSMODE_REPLACE
-  m_InvalidKeywords: []
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -155,7 +155,7 @@ Material:
     - _AnimeThreshold1: 0.45
     - _AnimeThreshold2: 0.85
     - _BlendOp: 0
-    - _Brightness: 2
+    - _Brightness: 1
     - _BumpScale: 1
     - _CameraFadeEnd: 0
     - _CameraFadeStart: 0
@@ -300,7 +300,7 @@ Material:
     - _AnimeColor1: {r: 1, g: 1, b: 1, a: 1}
     - _AnimeColor2: {r: 1.35, g: 1.35, b: 1.35, a: 1}
     - _AnimeColor3: {r: 2, g: 2, b: 2, a: 1}
-    - _Color: {r: 0.25454545, g: 0.28636363, b: 0.35, a: 1}
+    - _Color: {r: 0.5176471, g: 0.5686275, b: 0.16078432, a: 1}
     - _DetailColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Emissive: {r: 0.0156, g: 0.020400003, b: 0.03, a: 1}

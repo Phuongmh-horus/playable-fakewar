@@ -1,7 +1,7 @@
 {
     "version": "7.0.0",
     "projectId": "1bc38d6f8d96f394b8b169b9e5a7dcba",
-    "applicationID": 38068,
+    "applicationID": 39501,
     "creativeName": "WS_kichban1_thua",
     "pgServer": "EU",
     "window": {
@@ -134,7 +134,12 @@
                 "Assets/Resources/DOTweenSettings.asset",
                 "Assets/TextMesh Pro/Resources/TMP Settings.asset",
                 "Assets/_Game/Animation/Enemy_Basic/Enemy_Basic_New.fbx",
-                "Assets/_Game/Animation/Small-pig/Small_Pig_Base.fbx"
+                "Assets/_Game/Animation/Small-pig/Small_Pig_Base.fbx",
+                "Assets/Optimized-Feature/BakedAssets/Small_Pig_Base_VAT_Texture.png",
+                "Assets/Kho/Charater/texture/T_EN_pig.tga",
+                "Assets/Kho/Charater/texture/T_EN_basic.tga",
+                "Assets/Kho/Charater/texture/T_EN_basic_2.tga",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_New_VAT_Texture.png"
             ]
         },
         "scenes": [
@@ -17441,7 +17446,7 @@
                     },
                     {
                         "name": "TransformPoint$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "TransformPoint",
@@ -17955,7 +17960,7 @@
                     },
                     {
                         "name": "WorldToScreenPoint",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ScreenToWorldPoint",
@@ -17975,7 +17980,7 @@
                     },
                     {
                         "name": "WorldToViewportPoint",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ScreenToViewportPoint",
@@ -38540,6 +38545,10 @@
                     {
                         "name": "FinishAttackCycle",
                         "excluded": false
+                    },
+                    {
+                        "name": "TryGetClosestActiveArmyAttacker",
+                        "excluded": false
                     }
                 ]
             },
@@ -40441,7 +40450,7 @@
                     },
                     {
                         "name": "IsVisible#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "IsVisible#set",
@@ -40465,14 +40474,6 @@
                     },
                     {
                         "name": "OnDisable",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TryRegisterWithVATSystem",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
                         "excluded": false
                     },
                     {
@@ -40513,11 +40514,11 @@
                     },
                     {
                         "name": "SetVisibility",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetWorldBounds",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ManualUpdate",
@@ -40533,6 +40534,14 @@
                     },
                     {
                         "name": "UpdateShaderFrames",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetBakedMaterialCount",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnsurePropertyBlocks",
                         "excluded": false
                     }
                 ]
@@ -40621,26 +40630,30 @@
                 "instanceMethods": [
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Awake",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RegisterAnimator",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "UnregisterAnimator",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ProcessPendingRequests",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDestroy",
                         "excluded": true
                     }
                 ]
@@ -40745,9 +40758,9 @@
                     {
                         "maxWidth": 512,
                         "maxHeight": 512,
-                        "format": "jpeg",
-                        "compression": "quantSize",
-                        "quality": 65,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_EN_basic.tga"
@@ -40793,11 +40806,11 @@
                         "name": "Assets/Kho/Charater/texture/T_Color.tga"
                     },
                     {
-                        "maxWidth": 512,
-                        "maxHeight": 512,
-                        "format": "jpeg",
-                        "compression": "quantSize",
-                        "quality": 65,
+                        "maxWidth": 256,
+                        "maxHeight": 256,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_EN_pig.tga"
@@ -40885,9 +40898,9 @@
                     {
                         "maxWidth": 512,
                         "maxHeight": 512,
-                        "format": "jpeg",
-                        "compression": "quantSize",
-                        "quality": 65,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_EN_basic_2.tga"
@@ -40923,21 +40936,21 @@
                         "name": "Assets/Kho/Assets/texture/T_FT_cong.tga"
                     },
                     {
-                        "maxWidth": 512,
-                        "maxHeight": 512,
-                        "format": "jpeg",
-                        "compression": "quantSize",
-                        "quality": 65,
+                        "maxWidth": 4096,
+                        "maxHeight": 4096,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Small_Pig_Base_VAT_Texture.png"
                     },
                     {
-                        "maxWidth": 512,
-                        "maxHeight": 512,
-                        "format": "jpeg",
-                        "compression": "quantSize",
-                        "quality": 65,
+                        "maxWidth": 4096,
+                        "maxHeight": 4096,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_New_VAT_Texture.png"

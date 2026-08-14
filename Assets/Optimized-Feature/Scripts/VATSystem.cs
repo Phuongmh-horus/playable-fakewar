@@ -12,9 +12,12 @@ namespace OptimizedFeature.Scripts
     {
         public static VATSystem Instance { get; private set; }
 
-        [SerializeField] private List<VAT_RenderComponent> _registeredAnimators = new List<VAT_RenderComponent>();
-        private readonly List<VAT_RenderComponent> _pendingRegisterAnimators = new List<VAT_RenderComponent>();
-        private readonly List<VAT_RenderComponent> _pendingUnregisterAnimators = new List<VAT_RenderComponent>();
+        // Runtime state must stay out of serialized scene data. VAT_RenderComponent
+        // only communicates through the static queue APIs below, so its lifecycle
+        // does not depend on script execution order or a scene-wide lookup.
+        private readonly List<VAT_RenderComponent> _registeredAnimators = new List<VAT_RenderComponent>();
+        private static readonly List<VAT_RenderComponent> PendingRegisterAnimators = new List<VAT_RenderComponent>();
+        private static readonly List<VAT_RenderComponent> PendingUnregisterAnimators = new List<VAT_RenderComponent>();
 
         private void Awake()
         {
@@ -31,70 +34,104 @@ namespace OptimizedFeature.Scripts
             ProcessPendingRequests();
         }
 
-        public void RegisterAnimator(VAT_RenderComponent animator)
+        /// <summary>
+        /// Queues a VAT renderer for the active system. Safe to call from OnEnable
+        /// even when VATSystem.Awake has not run yet.
+        /// </summary>
+        public static void RegisterAnimator(VAT_RenderComponent animator)
         {
             if (animator == null) return;
 
-            if (!_pendingRegisterAnimators.Contains(animator) && !_registeredAnimators.Contains(animator))
+            if (PendingUnregisterAnimators.Contains(animator))
             {
-                _pendingRegisterAnimators.Add(animator);
+                PendingUnregisterAnimators.Remove(animator);
             }
 
-            if (_pendingUnregisterAnimators.Contains(animator))
+            if (Instance != null && Instance._registeredAnimators.Contains(animator))
             {
-                _pendingUnregisterAnimators.Remove(animator);
+                return;
+            }
+
+            if (!PendingRegisterAnimators.Contains(animator))
+            {
+                PendingRegisterAnimators.Add(animator);
             }
         }
 
-        public void UnregisterAnimator(VAT_RenderComponent animator)
+        /// <summary>
+        /// Cancels a pending registration or queues removal from the active system.
+        /// </summary>
+        public static void UnregisterAnimator(VAT_RenderComponent animator)
         {
             if (animator == null) return;
 
-            if (!_pendingUnregisterAnimators.Contains(animator) && (_registeredAnimators.Contains(animator) || _pendingRegisterAnimators.Contains(animator)))
+            PendingRegisterAnimators.Remove(animator);
+
+            if (Instance != null && Instance._registeredAnimators.Contains(animator) &&
+                !PendingUnregisterAnimators.Contains(animator))
             {
-                _pendingUnregisterAnimators.Add(animator);
+                PendingUnregisterAnimators.Add(animator);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance != this) return;
+
+            // Preserve live components if a replacement manager is created after
+            // a scene transition. Invalid Unity references are filtered and the
+            // static queue is cleared by that manager's first processing pass.
+            int count = _registeredAnimators.Count;
+            for (int i = 0; i < count; i++)
+            {
+                VAT_RenderComponent animator = _registeredAnimators[i];
+                if (animator != null && !PendingRegisterAnimators.Contains(animator))
+                {
+                    PendingRegisterAnimators.Add(animator);
+                }
             }
 
-            if (_pendingRegisterAnimators.Contains(animator))
-            {
-                _pendingRegisterAnimators.Remove(animator);
-            }
+            _registeredAnimators.Clear();
+            Instance = null;
         }
 
         private void ProcessPendingRequests()
         {
             // Process pending unregistrations first
-            int unregCount = _pendingUnregisterAnimators.Count;
+            int unregCount = PendingUnregisterAnimators.Count;
             if (unregCount > 0)
             {
                 for (int i = 0; i < unregCount; i++)
                 {
-                    _registeredAnimators.Remove(_pendingUnregisterAnimators[i]);
+                    _registeredAnimators.Remove(PendingUnregisterAnimators[i]);
                 }
-                _pendingUnregisterAnimators.Clear();
+                PendingUnregisterAnimators.Clear();
             }
 
-            // Process pending registrations
-            int regCount = _pendingRegisterAnimators.Count;
+            // Process and immediately release registrations. The queues are only
+            // an execution-order bridge; keeping entries after completion would
+            // retain stale component references across scene changes.
+            int regCount = PendingRegisterAnimators.Count;
             if (regCount > 0)
             {
                 for (int i = 0; i < regCount; i++)
                 {
-                    VAT_RenderComponent anim = _pendingRegisterAnimators[i];
-                    if (anim != null && !_registeredAnimators.Contains(anim))
+                    VAT_RenderComponent anim = PendingRegisterAnimators[i];
+                    if (anim != null && anim.enabled && anim.gameObject.activeInHierarchy &&
+                        !_registeredAnimators.Contains(anim))
                     {
                         _registeredAnimators.Add(anim);
                     }
                 }
-                _pendingRegisterAnimators.Clear();
+                PendingRegisterAnimators.Clear();
             }
         }
 
         [Header("Frustum Culling Settings")]
         [SerializeField] private bool _enableCulling = true;
         [SerializeField] private float _cullInterval = 0.1f; // 10Hz check to save CPU cycles
-
-        private Camera _mainCamera;
+        [Tooltip("Camera used for VAT frustum culling. If empty or destroyed, VATSystem falls back to Camera.main.")]
+        [SerializeField] private Camera _mainCamera;
         private float _cullTimer = 0f;
 
         private void Update()
@@ -113,6 +150,8 @@ namespace OptimizedFeature.Scripts
                 {
                     _cullTimer = 0f;
                     runCullCheck = true;
+                    // A manually assigned camera has priority. Camera.main is
+                    // only a fallback when no valid explicit reference exists.
                     if (_mainCamera == null)
                     {
                         _mainCamera = Camera.main;

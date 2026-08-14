@@ -3,6 +3,7 @@ Shader "OptimizedFeature/VAT_Unlit_Luna"
     Properties
     {
         _MainTex ("Base Texture", 2D) = "white" {}
+        _Color ("Tint", Color) = (1, 1, 1, 1)
         _VATTex ("VAT Positions (RGB = Offset)", 2D) = "black" {}
         _BoundingMin ("Bounding Min (XYZ)", Vector) = (-1, -1, -1, 0)
         _BoundingMax ("Bounding Max (XYZ)", Vector) = (1, 1, 1, 0)
@@ -40,6 +41,7 @@ Shader "OptimizedFeature/VAT_Unlit_Luna"
             };
 
             sampler2D _MainTex;
+            fixed4 _Color;
             sampler2D _VATTex;
             float4 _MainTex_ST;
             float4 _BoundingMin;
@@ -80,7 +82,7 @@ Shader "OptimizedFeature/VAT_Unlit_Luna"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                fixed4 col = tex2D(_MainTex, i.uv);
+                fixed4 col = tex2D(_MainTex, i.uv) * _Color;
                 return col;
             }
             ENDCG
