@@ -71,6 +71,24 @@ namespace GamePlay.Items
         private bool _isCollectedByArmy;
         private HitTextFlyEffect _flyTextEffect;
 
+        private static void PreparePropertyBlock(Renderer renderer, MaterialPropertyBlock block)
+        {
+            if (block == null) return;
+
+#if LUNA_WEBGL || UNITY_WEBGL
+            block.Clear();
+#else
+            if (renderer != null)
+            {
+                renderer.GetPropertyBlock(block);
+            }
+            else
+            {
+                block.Clear();
+            }
+#endif
+        }
+
         protected override void Awake()
         {
             base.Awake();
@@ -183,9 +201,7 @@ namespace GamePlay.Items
 
             try
             {
-#if !LUNA_WEBGL
-                renderer.GetPropertyBlock(_textDepthMpb);
-#endif
+                PreparePropertyBlock(renderer, _textDepthMpb);
                 _textDepthMpb.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Always);
                 renderer.SetPropertyBlock(_textDepthMpb);
             }
@@ -498,7 +514,7 @@ namespace GamePlay.Items
 
             try
             {
-                gateRenderer.GetPropertyBlock(_propBlock);
+                PreparePropertyBlock(gateRenderer, _propBlock);
                 Color targetColor = Data.Value > 0 ? increaseColor : decreaseColor;
                 _propBlock.SetColor("_Color", targetColor);
                 gateRenderer.SetPropertyBlock(_propBlock);
@@ -579,7 +595,7 @@ namespace GamePlay.Items
 
             try
             {
-                progressSprite.GetPropertyBlock(_progressMpb);
+                PreparePropertyBlock(progressSprite, _progressMpb);
                 _progressMpb.SetFloat(FillAmountProp, fillAmount);
                 progressSprite.SetPropertyBlock(_progressMpb);
             }

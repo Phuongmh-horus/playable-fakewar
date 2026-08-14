@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d31323a8727014542b2e008917036ff6, type: 3}
+  m_Name: Enemy_Basic_New_VATData
+  m_EditorClassIdentifier: 
+  VATTexture: {fileID: 2800000, guid: c736836b457802e48a8d6d7373e77064, type: 3}
+  BakedStaticMesh: {fileID: 4300000, guid: 1b31619ec8951ac45be45487522d1271, type: 2}
+  BoundingMin: {x: -0.65176654, y: -0.09034285, z: -0.8873127}
+  BoundingMax: {x: 0.651416, y: 2.0186107, z: 1.2300376}
+  TotalVertices: 1237
+  TotalFrames: 66
+  Clips:
+  - ClipName: Enemy_basic_Idle_Enemy_basic_Idle_Baked
+    _stateHash: -1573029686
+    StartFrame: 0
+    EndFrame: 44
+    FrameRate: 30
+    IsLooping: 1
+  - ClipName: Enemy_Basic_Run_Enemy_Basic_Run_Baked
+    _stateHash: 721510860
+    StartFrame: 45
+    EndFrame: 65
+    FrameRate: 30
+    IsLooping: 1
+  Sockets: []
+  BakedMaterials:
+  - {fileID: 2100000, guid: d5b4deb7363e2fe409ed564aed723899, type: 2}
+  - {fileID: 2100000, guid: 5a6ab7d6296289349bf1b85c8202a331, type: 2}
+  - {fileID: 2100000, guid: e282d7ef1c4c8b74da52efbfe8768ec7, type: 2}
