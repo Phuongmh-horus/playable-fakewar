@@ -12,6 +12,9 @@ Material:
   m_Parent: {fileID: 2100000, guid: bf02fb73d7d56c54ba8f8b1234c143a3, type: 2}
   m_ModifiedSerializedProperties: 16
   m_ValidKeywords:
+  - DIFFUSE
+  - _LIGHTMAPUV_UV1
+  m_InvalidKeywords:
   - AMBIENT
   - ANIME_SOFT
   - MATCAP_PERSPECTIVE
@@ -26,7 +29,6 @@ Material:
   - _LAYER2UV_UV1
   - _LAYER3BLEND_ALPHA_BLEND
   - _LAYER3UV_UV1
-  - _LIGHTMAPUV_UV1
   - _MATCAPBLEND_MULTIPLY
   - _NORMALUV2_UV1
   - _NORMALUV_UV1
@@ -35,7 +37,6 @@ Material:
   - _SHADOWOVERLAYANIMATION_SCROLL
   - _SPECULARUV_UV1
   - _TWOHALFCOLORSMODE_REPLACE
-  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0

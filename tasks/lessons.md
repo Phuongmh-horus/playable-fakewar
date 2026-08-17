@@ -6,3 +6,5 @@
 - When throttling gameplay VFX/SFX in Unity, verify whether the limit should be "per frame" or "per N frames" and apply the same rule to every call path of that effect, not just one branch.
 - For Luna/WebGL render fixes, avoid `Renderer.GetPropertyBlock` on paths already known to warn in Web builds; prefer clearing a reused `MaterialPropertyBlock` and writing only the properties needed for that renderer.
 - When pooled VAT characters initialize, treat Idle as a pre-game state only; after gameplay starts, every spawn/reinitialize path must explicitly restore the army's current runtime animation.
+- When reusing a VAT gameplay adapter across unit types, verify every shared `AnimationType` intent used by managers (especially `Move`) is mapped to a configurable VAT state and that the VAT asset default matches the required pre-game state.
+- When a previous optimization is reverted, re-read the live source and validate each spawn, activation, and modifier path before reapplying a narrower replacement.

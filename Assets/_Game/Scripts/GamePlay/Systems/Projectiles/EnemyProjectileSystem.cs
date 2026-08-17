@@ -125,6 +125,7 @@ namespace GamePlay.CombatSystems
             public IAttacker Attacker;
             public IAttacker Thrower;
             public IMover Mover;
+            public uint TargetMask;
 
             public float Radius;
             public PoolEntity PoolEntity;
@@ -314,6 +315,7 @@ namespace GamePlay.CombatSystems
                 Attacker = attacker,
                 Thrower = thrower,
                 Mover = mover,
+                TargetMask = attacker != null ? attacker.TargetMask : 0,
                 Radius = radius,
                 PoolEntity = projectileTransform.GetComponent<PoolEntity>()
             };
@@ -377,6 +379,7 @@ namespace GamePlay.CombatSystems
             for (int i = _projectiles.Count - 1; i >= 0; i--)
             {
                 var p = _projectiles[i];
+                uint projectileTargetMask = p.TargetMask;
 
                 // If projectile transform got destroyed -> cleanup
                 if (p.Transform == null)
@@ -431,7 +434,7 @@ namespace GamePlay.CombatSystems
                 if (hasPlayer && p.Attacker != null)
                 {
                     // Mask check: attacker target mask must include player entity bit
-                    if ((p.Attacker.TargetMask & playerBit) != 0)
+                    if ((projectileTargetMask & playerBit) != 0)
                     {
                         if (CheckHitAlongSegment(previousPos, pos, p.Radius, playerPos, playerCol))
                         {
@@ -461,7 +464,7 @@ namespace GamePlay.CombatSystems
                         if (ReferenceEquals(target, _playerHitable)) continue;
 
                         uint targetBit = (uint)(1 << (int)target.EntityType);
-                        if ((p.Attacker.TargetMask & targetBit) == 0) continue;
+                        if ((projectileTargetMask & targetBit) == 0) continue;
 
                         if (CheckHitAlongSegment(previousPos, pos, p.Radius, target.Position, target.GetColliderData()))
                         {
@@ -483,22 +486,19 @@ namespace GamePlay.CombatSystems
                 {
                     for (int k = 0; k < collisionCount; k++)
                     {
-                        var target = collisionSystem.GetTargetBySortedIndex(k);
-                        if (target == null || !target.IsActive) continue;
-                        if (ReferenceEquals(target, _playerHitable)) continue;
-
-                        bool isExtraTarget = _extraTargetSet.Contains(target);
-
-                        if (isExtraTarget) continue;
-
                         uint targetBit = collisionSystem.GetMask(k);
-                        if ((p.Attacker.TargetMask & targetBit) == 0) continue;
+                        if ((projectileTargetMask & targetBit) == 0) continue;
 
                         var targetTr = collisionSystem.GetTransform(k);
                         if (targetTr == null) continue;
 
                         Vector3 targetPos = targetTr.position;
                         if (Mathf.Abs(targetPos.x - pos.x) > 6f || Mathf.Abs(targetPos.z - pos.z) > 6f) continue;
+
+                        var target = collisionSystem.GetTargetBySortedIndex(k);
+                        if (target == null || !target.IsActive) continue;
+                        if (ReferenceEquals(target, _playerHitable)) continue;
+                        if (_extraTargetSet.Contains(target)) continue;
 
                         var colData = collisionSystem.GetColliderData(k);
                         if (CheckHitAlongSegment(previousPos, pos, p.Radius, targetPos, colData))

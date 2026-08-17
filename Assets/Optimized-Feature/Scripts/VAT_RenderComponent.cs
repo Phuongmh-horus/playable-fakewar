@@ -472,7 +472,7 @@ namespace OptimizedFeature.Scripts
                 }
             }
 
-            if (_vatAssetData == null || _vatAssetData.DefaultWeaponAsset == null)
+            if (_vatAssetData == null)
             {
                 return;
             }
@@ -482,8 +482,14 @@ namespace OptimizedFeature.Scripts
                 VATWeaponRenderComponent weapon = _weaponRenderComponents[i];
                 if (weapon != null && weapon.WeaponAsset == null)
                 {
+                    VATWeaponAssetSO weaponAsset = _vatAssetData.GetWeaponAsset(weapon.WeaponName);
+                    if (weaponAsset == null)
+                    {
+                        continue;
+                    }
+
                     weapon.SetFrameSource(this);
-                    weapon.SetWeaponAsset(_vatAssetData.DefaultWeaponAsset);
+                    weapon.SetWeaponAsset(weaponAsset);
                 }
             }
         }
@@ -564,6 +570,11 @@ namespace OptimizedFeature.Scripts
 
         public void SetVisibility(bool visible)
         {
+            if (_isVisible == visible)
+            {
+                return;
+            }
+
             _isVisible = visible;
 
             if (_meshRenderer != null)
@@ -1035,6 +1046,13 @@ namespace OptimizedFeature.Scripts
 
         private void UpdateShaderFrames(int frameLower, int frameUpper, float blendWeight)
         {
+            if (_currentFrameLower == frameLower &&
+                _currentFrameUpper == frameUpper &&
+                Mathf.Approximately(_currentBlendWeight, blendWeight))
+            {
+                return;
+            }
+
             _currentFrameLower = frameLower;
             _currentFrameUpper = frameUpper;
             _currentBlendWeight = blendWeight;

@@ -53,9 +53,11 @@ namespace OptimizedFeature.Scripts.Editor
 
         [Header("Baking Input Data")]
         private GameObject _targetPrefab;
+        private string _outputName;
         private List<SkinnedMeshRenderer> _detectedSkinnedMeshes = new List<SkinnedMeshRenderer>();
         private List<bool> _selectedMeshToggles = new List<bool>(); // Selection toggles for skinned meshes
         private List<VATRendererRole> _meshRoles = new List<VATRendererRole>();
+        private List<string> _weaponOutputNames = new List<string>();
         private List<Material> _detectedMaterials = new List<Material>();
         private Animator _detectedAnimator;
         private List<AnimationClip> _controllerClips = new List<AnimationClip>();
@@ -69,6 +71,7 @@ namespace OptimizedFeature.Scripts.Editor
 
         [Header("Baked Output Source Of Truth")]
         private VATAssetDataSO _outputAssetData;
+        private string _activeOutputDirectory;
         private string _cachedLunaTexturePath;
         private DateTime _cachedLunaJsonWriteTimeUtc = DateTime.MinValue;
         private bool _cachedLunaOverrideFound;
@@ -122,9 +125,18 @@ namespace OptimizedFeature.Scripts.Editor
         private sealed class BakedOutput
         {
             public BakedChannelOutput Body;
-            public BakedChannelOutput Weapon;
             public VATAssetDataSO AssetData;
-            public VATWeaponAssetSO WeaponAsset;
+            public List<VATWeaponAssetSO> WeaponAssets = new List<VATWeaponAssetSO>();
+        }
+
+        private sealed class WeaponBakeGroup
+        {
+            public string Name;
+            public List<SkinnedMeshRenderer> Renderers = new List<SkinnedMeshRenderer>();
+            public List<Material> Materials = new List<Material>();
+            public VATWeaponAssetSO ExistingAsset;
+            public BakedChannelOutput Channel;
+            public VATWeaponAssetSO Asset;
         }
 
         private struct LunaTextureOverrideSettings
@@ -292,6 +304,10 @@ namespace OptimizedFeature.Scripts.Editor
             {
                 LoadBakeReferences();
             }
+            _outputName = EditorGUILayout.TextField("Output Name (Optional)", _outputName);
+            EditorGUILayout.HelpBox(
+                "Leave Output Name empty to use the target GameObject name. All newly created output files are saved in a folder named after the VATAssetDataSO.",
+                MessageType.None);
 
             if (_targetPrefab != null)
             {
@@ -299,7 +315,7 @@ namespace OptimizedFeature.Scripts.Editor
                 int activeMeshCount = GetSelectedMeshCount();
 
                 EditorGUILayout.HelpBox(
-                    "Each selected renderer is baked into either the Body VAT channel or the optional Weapon VAT sub-render. The role popup is shown at the end of each mesh row.",
+                    "Each selected renderer is baked into Body or Weapon. Enter a Weapon Name after the role: matching names are combined into one VATWeaponAssetSO, while different names create separate weapon outputs.",
                     MessageType.None);
                 _meshesFoldout = EditorGUILayout.Foldout(_meshesFoldout, $"Detected Skinned Meshes ({_detectedSkinnedMeshes.Count}) — {activeMeshCount} selected for baking");
                 if (_meshesFoldout)
@@ -315,6 +331,13 @@ namespace OptimizedFeature.Scripts.Editor
                             GUIContent.none,
                             _meshRoles[i],
                             GUILayout.Width(78));
+                        if (_meshRoles[i] == VATRendererRole.Weapon)
+                        {
+                            _weaponOutputNames[i] = EditorGUILayout.TextField(
+                                new GUIContent("", "Weapon output name. Renderers with the same name bake into one VATWeaponAssetSO."),
+                                _weaponOutputNames[i],
+                                GUILayout.Width(120));
+                        }
                         EditorGUI.EndDisabledGroup();
                         EditorGUILayout.EndHorizontal();
                     }
@@ -861,6 +884,11 @@ namespace OptimizedFeature.Scripts.Editor
                 _meshRoles.Add(VATRendererRole.Body);
             while (_meshRoles.Count > _detectedSkinnedMeshes.Count)
                 _meshRoles.RemoveAt(_meshRoles.Count - 1);
+
+            while (_weaponOutputNames.Count < _detectedSkinnedMeshes.Count)
+                _weaponOutputNames.Add("Weapon");
+            while (_weaponOutputNames.Count > _detectedSkinnedMeshes.Count)
+                _weaponOutputNames.RemoveAt(_weaponOutputNames.Count - 1);
         }
 
         private int GetSelectedMeshCount()
@@ -914,16 +942,30 @@ namespace OptimizedFeature.Scripts.Editor
                     $"{clip.ClipName} | Frames {clip.StartFrame}-{clip.EndFrame} | {clip.FrameRate:0.##} FPS");
             }
 
-            VATWeaponAssetSO weaponAsset = assetData.DefaultWeaponAsset;
-            EditorGUILayout.LabelField(
-                "Weapon VAT",
-                weaponAsset == null ? "Disabled" : "Available");
-            if (weaponAsset != null)
+            int weaponAssetCount = assetData.WeaponAssets != null ? assetData.WeaponAssets.Count : 0;
+            EditorGUILayout.LabelField("Weapon VAT Channels", weaponAssetCount.ToString());
+            for (int i = 0; i < weaponAssetCount; i++)
             {
-                EditorGUILayout.ObjectField("Weapon Mesh", weaponAsset.BakedStaticMesh, typeof(Mesh), false);
-                EditorGUILayout.ObjectField("Weapon Texture", weaponAsset.VATTexture, typeof(Texture2D), false);
-                EditorGUILayout.IntField("Weapon Vertices", weaponAsset.TotalVertices);
-                EditorGUILayout.IntField("Weapon Frames", weaponAsset.TotalFrames);
+                VATWeaponAssetEntry entry = assetData.WeaponAssets[i];
+                VATWeaponAssetSO weaponAsset = entry != null ? entry.WeaponAsset : null;
+                string weaponName = entry == null || string.IsNullOrWhiteSpace(entry.WeaponName)
+                    ? "Weapon"
+                    : entry.WeaponName;
+                EditorGUILayout.ObjectField($"Weapon [{weaponName}]", weaponAsset, typeof(VATWeaponAssetSO), false);
+                if (weaponAsset != null)
+                {
+                    EditorGUILayout.IntField($"{weaponName} Vertices", weaponAsset.TotalVertices);
+                    EditorGUILayout.IntField($"{weaponName} Frames", weaponAsset.TotalFrames);
+                }
+            }
+
+            if (weaponAssetCount == 0 && assetData.DefaultWeaponAsset != null)
+            {
+                EditorGUILayout.ObjectField(
+                    "Legacy Default Weapon",
+                    assetData.DefaultWeaponAsset,
+                    typeof(VATWeaponAssetSO),
+                    false);
             }
 
             int socketCount = assetData.Sockets != null ? assetData.Sockets.Count : 0;
@@ -1148,6 +1190,7 @@ namespace OptimizedFeature.Scripts.Editor
             _detectedSkinnedMeshes.Clear();
             _selectedMeshToggles.Clear();
             _meshRoles.Clear();
+            _weaponOutputNames.Clear();
             _detectedMaterials.Clear();
             _controllerClips.Clear();
             _animationMergeOutputs.Clear();
@@ -1167,6 +1210,7 @@ namespace OptimizedFeature.Scripts.Editor
             {
                 _selectedMeshToggles.Add(true);
                 _meshRoles.Add(GuessRendererRole(smrs[i]));
+                _weaponOutputNames.Add("Weapon");
             }
 
             // Fetch materials and shaders
@@ -1203,8 +1247,73 @@ namespace OptimizedFeature.Scripts.Editor
                 : renderer.transform.root.name.ToLowerInvariant() + "/" + path;
             return hierarchyPath.Contains("weapon") || hierarchyPath.Contains("sword") ||
                    hierarchyPath.Contains("bow") || hierarchyPath.Contains("shield")
-                ? VATRendererRole.Weapon
-                : VATRendererRole.Body;
+                   ? VATRendererRole.Weapon
+                   : VATRendererRole.Body;
+        }
+
+        private string GetConfiguredOutputName()
+        {
+            string configuredName = string.IsNullOrWhiteSpace(_outputName)
+                ? _targetPrefab.name
+                : _outputName.Trim();
+            return GetAssetNameToken(configuredName) + "_VAT";
+        }
+
+        private string GetWeaponOutputName(int rendererIndex)
+        {
+            string weaponName = rendererIndex >= 0 && rendererIndex < _weaponOutputNames.Count
+                ? _weaponOutputNames[rendererIndex]
+                : null;
+            return string.IsNullOrWhiteSpace(weaponName) ? "Weapon" : weaponName.Trim();
+        }
+
+        private static string GetAssetNameToken(string value)
+        {
+            string source = string.IsNullOrWhiteSpace(value) ? "Unnamed" : value.Trim();
+            char[] invalidChars = Path.GetInvalidFileNameChars();
+            char[] characters = source.ToCharArray();
+            for (int i = 0; i < characters.Length; i++)
+            {
+                if (Array.IndexOf(invalidChars, characters[i]) >= 0 ||
+                    characters[i] == '/' || characters[i] == '\\')
+                {
+                    characters[i] = '_';
+                }
+            }
+
+            return new string(characters);
+        }
+
+        private void ConfigureActiveOutputDirectory(string outputName, VATAssetDataSO originalAssetData)
+        {
+            string parentDirectory = _savePath.Replace('\\', '/').TrimEnd('/');
+            string assetDataName = outputName + "Data";
+            if (originalAssetData != null)
+            {
+                string originalAssetPath = AssetDatabase.GetAssetPath(originalAssetData);
+                if (!string.IsNullOrEmpty(originalAssetPath))
+                {
+                    string originalParentDirectory = Path.GetDirectoryName(originalAssetPath);
+                    if (!string.IsNullOrEmpty(originalParentDirectory))
+                    {
+                        parentDirectory = originalParentDirectory.Replace('\\', '/');
+                    }
+                    assetDataName = originalAssetData.name;
+                }
+            }
+
+            _activeOutputDirectory = Path.Combine(parentDirectory, GetAssetNameToken(assetDataName))
+                .Replace('\\', '/');
+            if (!Directory.Exists(_activeOutputDirectory))
+            {
+                Directory.CreateDirectory(_activeOutputDirectory);
+                AssetDatabase.Refresh();
+            }
+        }
+
+        private string GetActiveOutputDirectory()
+        {
+            return string.IsNullOrEmpty(_activeOutputDirectory) ? _savePath : _activeOutputDirectory;
         }
 
         private void SetDetectedAnimator(Animator animator)
@@ -1294,9 +1403,11 @@ namespace OptimizedFeature.Scripts.Editor
         {
             if (_targetPrefab == null || _detectedSkinnedMeshes.Count == 0) return;
 
-            // Build the two VAT channels from the selected renderer roles.
+            // Build one Body channel and one named VAT channel for every Weapon group.
             List<SkinnedMeshRenderer> bodyRenderers = new List<SkinnedMeshRenderer>();
-            List<SkinnedMeshRenderer> weaponRenderers = new List<SkinnedMeshRenderer>();
+            Dictionary<string, WeaponBakeGroup> weaponGroupsByName =
+                new Dictionary<string, WeaponBakeGroup>(StringComparer.OrdinalIgnoreCase);
+            List<WeaponBakeGroup> weaponGroups = new List<WeaponBakeGroup>();
             for (int i = 0; i < _detectedSkinnedMeshes.Count; i++)
             {
                 if (i < _selectedMeshToggles.Count && _selectedMeshToggles[i] && _detectedSkinnedMeshes[i] != null)
@@ -1304,7 +1415,16 @@ namespace OptimizedFeature.Scripts.Editor
                     VATRendererRole role = i < _meshRoles.Count ? _meshRoles[i] : VATRendererRole.Body;
                     if (role == VATRendererRole.Weapon)
                     {
-                        weaponRenderers.Add(_detectedSkinnedMeshes[i]);
+                        string weaponName = GetWeaponOutputName(i);
+                        WeaponBakeGroup weaponGroup;
+                        if (!weaponGroupsByName.TryGetValue(weaponName, out weaponGroup))
+                        {
+                            weaponGroup = new WeaponBakeGroup { Name = weaponName };
+                            weaponGroupsByName.Add(weaponName, weaponGroup);
+                            weaponGroups.Add(weaponGroup);
+                        }
+
+                        weaponGroup.Renderers.Add(_detectedSkinnedMeshes[i]);
                     }
                     else
                     {
@@ -1343,14 +1463,12 @@ namespace OptimizedFeature.Scripts.Editor
             bool overrideMode = ResolveOverrideMode(out cancelled);
             if (cancelled) return;
 
-            if (!Directory.Exists(_savePath))
-            {
-                Directory.CreateDirectory(_savePath);
-            }
+            string outputName = GetConfiguredOutputName();
+            ConfigureActiveOutputDirectory(outputName, _outputAssetData);
 
             // The output mode controls material validation independently for each
-            // VAT channel. Body and Weapon have separate meshes/textures/materials
-            // but share the exact same clip frame manifest.
+            // VAT channel. Body and every named Weapon group have separate
+            // meshes/textures/materials but share the exact same clip manifest.
             bool requireUnifiedShaderAndBaseTexture = _outputMode == VATBakeOutputMode.Combined;
             List<Material> bodyMaterialSlots;
             string validationMessage;
@@ -1365,25 +1483,30 @@ namespace OptimizedFeature.Scripts.Editor
                 return;
             }
 
-            List<Material> weaponMaterialSlots = new List<Material>();
-            if (weaponRenderers.Count > 0 && !CollectMaterialSlots(
-                    weaponRenderers,
-                    requireUnifiedShaderAndBaseTexture,
-                    out weaponMaterialSlots,
-                    out validationMessage))
+            for (int i = 0; i < weaponGroups.Count; i++)
             {
-                Debug.LogError($"[VATBakeTool] {validationMessage}");
-                EditorUtility.DisplayDialog("VAT Bake Stopped: Weapon Material Validation", validationMessage, "OK");
-                return;
+                WeaponBakeGroup weaponGroup = weaponGroups[i];
+                if (!CollectMaterialSlots(
+                        weaponGroup.Renderers,
+                        requireUnifiedShaderAndBaseTexture,
+                        out weaponGroup.Materials,
+                        out validationMessage))
+                {
+                    Debug.LogError($"[VATBakeTool] {validationMessage}");
+                    EditorUtility.DisplayDialog(
+                        $"VAT Bake Stopped: Weapon Material Validation ({weaponGroup.Name})",
+                        validationMessage,
+                        "OK");
+                    return;
+                }
             }
 
             BakedOutput output = BakeOutput(
                 bodyRenderers,
                 bodyMaterialSlots,
-                weaponRenderers,
-                weaponMaterialSlots,
+                weaponGroups,
                 clipsToBake,
-                _targetPrefab.name + "_VAT",
+                outputName,
                 _outputAssetData,
                 overrideMode);
 
@@ -1396,8 +1519,7 @@ namespace OptimizedFeature.Scripts.Editor
         private BakedOutput BakeOutput(
             List<SkinnedMeshRenderer> bodyRenderers,
             List<Material> bodyMaterials,
-            List<SkinnedMeshRenderer> weaponRenderers,
-            List<Material> weaponMaterials,
+            List<WeaponBakeGroup> weaponGroups,
             List<AnimationClip> clipsToBake,
             string outputName,
             VATAssetDataSO existingAsset,
@@ -1417,7 +1539,13 @@ namespace OptimizedFeature.Scripts.Editor
             }
 
             List<Material> allMaterials = new List<Material>(bodyMaterials);
-            if (weaponMaterials != null) allMaterials.AddRange(weaponMaterials);
+            if (weaponGroups != null)
+            {
+                for (int i = 0; i < weaponGroups.Count; i++)
+                {
+                    allMaterials.AddRange(weaponGroups[i].Materials);
+                }
+            }
             if (!EnsureMaterialBaseTexturesLunaProtected(allMaterials))
             {
                 return null;
@@ -1471,26 +1599,30 @@ namespace OptimizedFeature.Scripts.Editor
                 return null;
             }
 
-            BakedChannelOutput weapon = null;
-            VATWeaponAssetSO existingWeaponAsset = existingAsset != null
-                ? existingAsset.DefaultWeaponAsset
-                : null;
-            if (weaponRenderers != null && weaponRenderers.Count > 0)
+            if (weaponGroups != null)
             {
-                weapon = BakeVATChannel(
-                    weaponRenderers,
-                    weaponMaterials,
-                    clipsToBake,
-                    clipFramesList,
-                    totalBakeFrames,
-                    outputName + "_Weapon",
-                    existingWeaponAsset != null ? existingWeaponAsset.BakedStaticMesh : null,
-                    existingWeaponAsset != null ? existingWeaponAsset.VATTexture : null,
-                    animationSampleRoot,
-                    overrideMode);
-                if (weapon == null)
+                for (int i = 0; i < weaponGroups.Count; i++)
                 {
-                    return null;
+                    WeaponBakeGroup weaponGroup = weaponGroups[i];
+                    string weaponChannelName = outputName + "_Weapon_" + GetAssetNameToken(weaponGroup.Name);
+                    weaponGroup.ExistingAsset = existingAsset != null
+                        ? existingAsset.GetWeaponAsset(weaponGroup.Name)
+                        : null;
+                    weaponGroup.Channel = BakeVATChannel(
+                        weaponGroup.Renderers,
+                        weaponGroup.Materials,
+                        clipsToBake,
+                        clipFramesList,
+                        totalBakeFrames,
+                        weaponChannelName,
+                        weaponGroup.ExistingAsset != null ? weaponGroup.ExistingAsset.BakedStaticMesh : null,
+                        weaponGroup.ExistingAsset != null ? weaponGroup.ExistingAsset.VATTexture : null,
+                        animationSampleRoot,
+                        overrideMode);
+                    if (weaponGroup.Channel == null)
+                    {
+                        return null;
+                    }
                 }
             }
 
@@ -1511,39 +1643,51 @@ namespace OptimizedFeature.Scripts.Editor
                 return null;
             }
 
-            VATWeaponAssetSO weaponAsset = null;
-            if (weapon != null)
+            List<VATWeaponAssetEntry> weaponEntries = new List<VATWeaponAssetEntry>();
+            if (weaponGroups != null)
             {
-                weapon.Materials = SaveBakedMaterials(
-                    weaponMaterials,
-                    weapon.Texture,
-                    weapon.BoundsMin,
-                    weapon.BoundsMax,
-                    totalBakeFrames,
-                    weapon.VertexCount,
-                    outputName + "_Weapon",
-                    existingWeaponAsset != null ? existingWeaponAsset.BakedMaterials : null,
-                    overrideMode,
-                    vatShader);
-                if (weapon.Materials.Count != weaponMaterials.Count)
+                for (int i = 0; i < weaponGroups.Count; i++)
                 {
-                    Debug.LogError($"[VATBakeTool] Failed to create all Weapon VAT materials for '{outputName}'.");
-                    return null;
-                }
+                    WeaponBakeGroup weaponGroup = weaponGroups[i];
+                    string weaponChannelName = outputName + "_Weapon_" + GetAssetNameToken(weaponGroup.Name);
+                    BakedChannelOutput weapon = weaponGroup.Channel;
+                    weapon.Materials = SaveBakedMaterials(
+                        weaponGroup.Materials,
+                        weapon.Texture,
+                        weapon.BoundsMin,
+                        weapon.BoundsMax,
+                        totalBakeFrames,
+                        weapon.VertexCount,
+                        weaponChannelName,
+                        weaponGroup.ExistingAsset != null ? weaponGroup.ExistingAsset.BakedMaterials : null,
+                        overrideMode,
+                        vatShader);
+                    if (weapon.Materials.Count != weaponGroup.Materials.Count)
+                    {
+                        Debug.LogError(
+                            $"[VATBakeTool] Failed to create all Weapon VAT materials for '{weaponGroup.Name}'.");
+                        return null;
+                    }
 
-                weaponAsset = SaveVATWeaponAssetData(
-                    weapon.Mesh,
-                    weapon.Texture,
-                    weapon.Materials,
-                    weapon.BoundsMin,
-                    weapon.BoundsMax,
-                    totalBakeFrames,
-                    weapon.VertexCount,
-                    clipsToBake,
-                    clipFramesList,
-                    outputName + "_Weapon",
-                    existingWeaponAsset,
-                    overrideMode);
+                    weaponGroup.Asset = SaveVATWeaponAssetData(
+                        weapon.Mesh,
+                        weapon.Texture,
+                        weapon.Materials,
+                        weapon.BoundsMin,
+                        weapon.BoundsMax,
+                        totalBakeFrames,
+                        weapon.VertexCount,
+                        clipsToBake,
+                        clipFramesList,
+                        weaponChannelName,
+                        weaponGroup.ExistingAsset,
+                        overrideMode);
+                    weaponEntries.Add(new VATWeaponAssetEntry
+                    {
+                        WeaponName = weaponGroup.Name,
+                        WeaponAsset = weaponGroup.Asset
+                    });
+                }
             }
 
             VATAssetDataSO assetData = SaveVATAssetData(
@@ -1559,16 +1703,20 @@ namespace OptimizedFeature.Scripts.Editor
                 outputName,
                 existingAsset,
                 overrideMode,
-                weaponAsset);
+                weaponEntries);
 
             AssetDatabase.SaveAssets();
-            return new BakedOutput
+            BakedOutput output = new BakedOutput
             {
                 Body = body,
-                Weapon = weapon,
-                AssetData = assetData,
-                WeaponAsset = weaponAsset
+                AssetData = assetData
             };
+            for (int i = 0; i < weaponEntries.Count; i++)
+            {
+                output.WeaponAssets.Add(weaponEntries[i].WeaponAsset);
+            }
+
+            return output;
         }
 
         private BakedChannelOutput BakeVATChannel(
@@ -1793,7 +1941,7 @@ namespace OptimizedFeature.Scripts.Editor
             string textureAssetPath = overrideMode && existingTexture != null
                 ? AssetDatabase.GetAssetPath(existingTexture)
                 : AssetDatabase.GenerateUniqueAssetPath(
-                    Path.Combine(_savePath, vatTexture.name + ".png").Replace('\\', '/'));
+                    Path.Combine(GetActiveOutputDirectory(), vatTexture.name + ".png").Replace('\\', '/'));
 
             if (string.IsNullOrEmpty(textureAssetPath))
             {
@@ -2232,7 +2380,7 @@ namespace OptimizedFeature.Scripts.Editor
                 "VAT Asset Data Already Exists",
                 $"The output currently contains '{_outputAssetData.name}'.\n\n" +
                 "• Override — Overwrite existing assets in-place (keeps GUIDs and project references).\n" +
-                "• New — Create new asset files in the Save Path folder.\n" +
+                "• New — Create new asset files in the VATAssetDataSO-named output folder.\n" +
                 "• Cancel — Abort.",
                 "Override",
                 "Cancel",
@@ -2266,7 +2414,7 @@ namespace OptimizedFeature.Scripts.Editor
             }
 
             string meshAssetPath = AssetDatabase.GenerateUniqueAssetPath(
-                Path.Combine(_savePath, outputName + "_Static.asset").Replace('\\', '/'));
+                Path.Combine(GetActiveOutputDirectory(), outputName + "_Static.asset").Replace('\\', '/'));
             AssetDatabase.CreateAsset(bakedMesh, meshAssetPath);
             return AssetDatabase.LoadAssetAtPath<Mesh>(meshAssetPath);
         }
@@ -2364,6 +2512,7 @@ namespace OptimizedFeature.Scripts.Editor
                 {
                     outputMaterial = existingMaterials[i];
                     outputMaterial.shader = vatShader;
+                    outputMaterial.enableInstancing = true;
                     CopyBaseTextureAndTint(originalMaterial, outputMaterial);
                     outputMaterial.SetTexture(vatTextureId, vatTexture);
                     outputMaterial.SetVector(boundsMinId, boundsMin);
@@ -2378,6 +2527,7 @@ namespace OptimizedFeature.Scripts.Editor
                     string materialSuffix = materialSlots.Count > 1 ? "_" + i : string.Empty;
                     outputMaterial.name = originalMaterial.name + "_VAT" + materialSuffix;
                     outputMaterial.shader = vatShader;
+                    outputMaterial.enableInstancing = true;
                     CopyBaseTextureAndTint(originalMaterial, outputMaterial);
                     outputMaterial.SetTexture(vatTextureId, vatTexture);
                     outputMaterial.SetVector(boundsMinId, boundsMin);
@@ -2386,7 +2536,7 @@ namespace OptimizedFeature.Scripts.Editor
                     outputMaterial.SetFloat(verticesId, vertexCount);
 
                     string materialAssetPath = AssetDatabase.GenerateUniqueAssetPath(
-                        Path.Combine(_savePath, outputMaterial.name + ".mat").Replace('\\', '/'));
+                        Path.Combine(GetActiveOutputDirectory(), outputMaterial.name + ".mat").Replace('\\', '/'));
                     AssetDatabase.CreateAsset(outputMaterial, materialAssetPath);
                     outputMaterial = AssetDatabase.LoadAssetAtPath<Material>(materialAssetPath);
                 }
@@ -2461,7 +2611,7 @@ namespace OptimizedFeature.Scripts.Editor
             string outputName,
             VATAssetDataSO existingAsset,
             bool overrideMode,
-            VATWeaponAssetSO weaponAsset)
+            List<VATWeaponAssetEntry> weaponEntries)
         {
             VATAssetDataSO assetData = existingAsset;
             if (overrideMode && assetData != null)
@@ -2492,14 +2642,22 @@ namespace OptimizedFeature.Scripts.Editor
                 assetData.BoundingMax = boundsMax;
 
                 string assetPath = AssetDatabase.GenerateUniqueAssetPath(
-                    Path.Combine(_savePath, outputName + "Data.asset").Replace('\\', '/'));
+                    Path.Combine(GetActiveOutputDirectory(), outputName + "Data.asset").Replace('\\', '/'));
                 AssetDatabase.CreateAsset(assetData, assetPath);
             }
 
             if (assetData.Clips == null) assetData.Clips = new List<VATClipInfo>();
             if (assetData.Sockets == null) assetData.Sockets = new List<VATSocketTransformData>();
             SetClipManifest(assetData.Clips, clipsToBake, clipFramesList, _sampleFrameRate);
-            assetData.DefaultWeaponAsset = weaponAsset;
+            if (assetData.WeaponAssets == null) assetData.WeaponAssets = new List<VATWeaponAssetEntry>();
+            assetData.WeaponAssets.Clear();
+            if (weaponEntries != null)
+            {
+                assetData.WeaponAssets.AddRange(weaponEntries);
+            }
+            assetData.DefaultWeaponAsset = assetData.WeaponAssets.Count > 0
+                ? assetData.WeaponAssets[0].WeaponAsset
+                : null;
 
             // Socket baking for VAT_ObjectMesh is intentionally disabled. Clear
             // legacy data when overriding an older VAT asset. Weapon motion is
@@ -2543,7 +2701,7 @@ namespace OptimizedFeature.Scripts.Editor
                 assetData.BakedMaterials.AddRange(outputMaterials);
 
                 string assetPath = AssetDatabase.GenerateUniqueAssetPath(
-                    Path.Combine(_savePath, outputName + "Data.asset").Replace('\\', '/'));
+                    Path.Combine(GetActiveOutputDirectory(), outputName + "Data.asset").Replace('\\', '/'));
                 AssetDatabase.CreateAsset(assetData, assetPath);
             }
 

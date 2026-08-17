@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b2f3707b5b24e26ab0bd36a8f02e1c7, type: 3}
+  m_Name: Character_VAT_Weapon_pistolData
+  m_EditorClassIdentifier: 
+  VATTexture: {fileID: 2800000, guid: 123a5974ce89c87438277c104d12d520, type: 3}
+  BakedStaticMesh: {fileID: 4300000, guid: 8f2512821501b114b98833115e0809ae, type: 2}
+  BoundingMin: {x: -0.5486492, y: 0.85834754, z: -0.01985066}
+  BoundingMax: {x: 0.31035495, y: 1.4883865, z: 0.95958185}
+  TotalVertices: 569
+  TotalFrames: 97
+  Clips:
+  - ClipName: Character_crossbow_Idle_Idle_Baked
+    _stateHash: 586030115
+    StartFrame: 0
+    EndFrame: 44
+    FrameRate: 30
+    IsLooping: 1
+  - ClipName: Standing_Fire
+    _stateHash: -1985706718
+    StartFrame: 45
+    EndFrame: 52
+    FrameRate: 30
+    IsLooping: 1
+  - ClipName: Character_crossbow_Side_Run_Left_Move_Left_Baked
+    _stateHash: -1272907299
+    StartFrame: 53
+    EndFrame: 74
+    FrameRate: 30
+    IsLooping: 1
+  - ClipName: Character_crossbow_Side_Run_Right_Move_Right_Baked
+    _stateHash: 1573560215
+    StartFrame: 75
+    EndFrame: 96
+    FrameRate: 30
+    IsLooping: 1
+  BakedMaterials:
+  - {fileID: 2100000, guid: 3d3da1c191a80ac47bd343a1b42fa216, type: 2}

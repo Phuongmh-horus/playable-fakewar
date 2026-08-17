@@ -24,6 +24,7 @@ Shader "OptimizedFeature/VAT_Unlit_Luna"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_instancing
             #include "UnityCG.cginc"
 
             struct appdata
@@ -32,6 +33,7 @@ Shader "OptimizedFeature/VAT_Unlit_Luna"
                 float4 color : COLOR; // Vertex Color: Reserved for future Animation Layer mask
                 float2 uv : TEXCOORD0;
                 float2 uv2 : TEXCOORD1; // uv2.x = Vertex Index
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct v2f
@@ -48,16 +50,20 @@ Shader "OptimizedFeature/VAT_Unlit_Luna"
             float4 _BoundingMax;
             float _NumFrames;
             float _NumVertices;
-            float _FrameIndexLower;
-            float _FrameIndexUpper;
-            float _BlendWeight;
+
+            UNITY_INSTANCING_BUFFER_START(VATPerInstance)
+                UNITY_DEFINE_INSTANCED_PROP(float, _FrameIndexLower)
+                UNITY_DEFINE_INSTANCED_PROP(float, _FrameIndexUpper)
+                UNITY_DEFINE_INSTANCED_PROP(float, _BlendWeight)
+            UNITY_INSTANCING_BUFFER_END(VATPerInstance)
 
             v2f vert(appdata v)
             {
+                UNITY_SETUP_INSTANCE_ID(v);
                 v2f o;
-                float frameLower = _FrameIndexLower;
-                float frameUpper = _FrameIndexUpper;
-                float blendW = _BlendWeight;
+                float frameLower = UNITY_ACCESS_INSTANCED_PROP(VATPerInstance, _FrameIndexLower);
+                float frameUpper = UNITY_ACCESS_INSTANCED_PROP(VATPerInstance, _FrameIndexUpper);
+                float blendW = UNITY_ACCESS_INSTANCED_PROP(VATPerInstance, _BlendWeight);
 
                 float u = (v.uv2.x + 0.5) / _NumVertices;
                 

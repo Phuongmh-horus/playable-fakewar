@@ -32,13 +32,22 @@ public class ArmyUpgradeManager : MonoBehaviour
 
     public void UpgradeLevel()
     {
-        _currentLevelIndex++;
-        
-        // Cập nhật Asset cho PlayerArmy
+        SetLevel(_currentLevelIndex + 1);
+    }
+
+    public void SetLevel(int levelIndex)
+    {
+        int targetLevel = Mathf.Max(_currentLevelIndex, levelIndex);
+        if (targetLevel == _currentLevelIndex)
+        {
+            return;
+        }
+
+        _currentLevelIndex = targetLevel;
+
         var armySystem = FindObjectOfType<PlayerArmySystem>();
         if (armySystem != null)
         {
-            // Hàm này sẽ được định nghĩa trong PlayerArmySystem
             armySystem.ApplyLevelUpgrade(_currentLevelIndex);
         }
     }

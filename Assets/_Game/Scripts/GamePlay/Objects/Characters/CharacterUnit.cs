@@ -52,6 +52,7 @@ namespace GamePlay.Characters
         private GameObject _currentWeapon;
         private WeaponUnit _currentWeaponUnit;
         private Renderer[] _currentWeaponRenderers;
+        private int _appliedVisualLevel = -1;
         private bool _projectileTargetRegistered;
         private bool _isCountedInRuntime;
         public event Action<IAttacker> OnHitComplete;
@@ -214,8 +215,12 @@ namespace GamePlay.Characters
 
             // Limit level index to avoid out of bounds
             int safeIndex = Mathf.Clamp(levelIndex, 0, visualModels.Length - 1);
+            if (_appliedVisualLevel == safeIndex)
+            {
+                return;
+            }
 
-            Transform oldHolder = weaponHolder;
+            _appliedVisualLevel = safeIndex;
 
             for (int i = 0; i < visualModels.Length; i++)
             {
@@ -226,7 +231,6 @@ namespace GamePlay.Characters
 
                     if (isActive)
                     {
-
                         if (Pack.Animator != null && Pack.Animator is AnimationComponent animComp)
                         {
                             animComp.SetAnimatorLevel(i);

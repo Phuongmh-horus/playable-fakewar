@@ -21,13 +21,18 @@ namespace OptimizedFeature.Scripts
 
         [SerializeField] private MeshFilter _meshFilter;
         [SerializeField] private MeshRenderer _meshRenderer;
+        [SerializeField] private string _weaponName = "Weapon";
         [SerializeField] private VATWeaponAssetSO _weaponAsset;
         [SerializeField] private VAT_RenderComponent _frameSource;
 
         private MaterialPropertyBlock[] _propertyBlocks;
         private bool _isVisible = true;
+        private int _currentFrameLower = -1;
+        private int _currentFrameUpper = -1;
+        private float _currentBlendWeight = -1f;
 
         public VATWeaponAssetSO WeaponAsset => _weaponAsset;
+        public string WeaponName => _weaponName;
         public MeshRenderer Renderer => _meshRenderer;
 
         private void Awake()
@@ -44,6 +49,11 @@ namespace OptimizedFeature.Scripts
         public void SetFrameSource(VAT_RenderComponent frameSource)
         {
             _frameSource = frameSource;
+        }
+
+        public void SetWeaponName(string weaponName)
+        {
+            _weaponName = string.IsNullOrWhiteSpace(weaponName) ? "Weapon" : weaponName.Trim();
         }
 
         public void SetWeaponAsset(VATWeaponAssetSO weaponAsset)
@@ -67,6 +77,11 @@ namespace OptimizedFeature.Scripts
 
         public void SetVisibility(bool visible)
         {
+            if (_isVisible == visible)
+            {
+                return;
+            }
+
             _isVisible = visible;
             if (_meshRenderer != null)
             {
@@ -80,6 +95,17 @@ namespace OptimizedFeature.Scripts
             {
                 return;
             }
+
+            if (_currentFrameLower == frameLower &&
+                _currentFrameUpper == frameUpper &&
+                Mathf.Approximately(_currentBlendWeight, blendWeight))
+            {
+                return;
+            }
+
+            _currentFrameLower = frameLower;
+            _currentFrameUpper = frameUpper;
+            _currentBlendWeight = blendWeight;
 
             for (int materialIndex = 0; materialIndex < _propertyBlocks.Length; materialIndex++)
             {

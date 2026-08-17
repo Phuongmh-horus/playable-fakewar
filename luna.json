@@ -147,7 +147,10 @@
                 "Assets/Optimized-Feature/BakedAssets/Character_Crossbow_VAT_Body_Texture.png",
                 "Assets/Optimized-Feature/BakedAssets/Character_Crossbow_VAT_Weapon_Texture.png",
                 "Assets/Optimized-Feature/BakedAssets/Character_VAT_Body_Texture.png",
-                "Assets/Optimized-Feature/BakedAssets/Character_VAT_Weapon_Texture.png"
+                "Assets/Optimized-Feature/BakedAssets/Character_VAT_Weapon_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_Crossbow_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_Pistol_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_Gun_Texture.png"
             ]
         },
         "scenes": [
@@ -8982,6 +8985,22 @@
             },
             {
                 "name": "GamePlay.AnimationSystems.IAnimationClipLengthProvider",
+                "excluded": false
+            },
+            {
+                "name": "OptimizedFeature.Scripts.VATAnimatorBlendChildData",
+                "excluded": true
+            },
+            {
+                "name": "OptimizedFeature.Scripts.VATAnimatorBlendTreeMode",
+                "excluded": true
+            },
+            {
+                "name": "OptimizedFeature.Scripts.VATAnimatorConditionMode",
+                "excluded": false
+            },
+            {
+                "name": "OptimizedFeature.Scripts.VATAnimatorParameterType",
                 "excluded": false
             }
         ],
@@ -38067,10 +38086,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "ResolveSharedNextAttackTimeForSpawn",
-                        "excluded": false
-                    },
-                    {
                         "name": "PlayEffect",
                         "excluded": false
                     },
@@ -38308,6 +38323,10 @@
                     },
                     {
                         "name": "ResolveRuntimeUnitAnimation",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetAttackPhase",
                         "excluded": false
                     }
                 ]
@@ -40595,6 +40614,214 @@
                     {
                         "name": "EnsurePropertyBlocks",
                         "excluded": false
+                    },
+                    {
+                        "name": "DefaultStateHash#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CurrentBlendTreeId#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CurrentStateNormalizedTime#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CurrentFrameLower#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CurrentFrameUpper#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CurrentBlendWeight#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayDefaultState",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayBlendTree",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CrossFadeBlendTree",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Stop",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HasParameter$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HasParameter",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetTrigger$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetTrigger",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResetTrigger$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResetTrigger",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IsTriggerSet$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IsTriggerSet",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetBool$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetBool",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetBool$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetBool",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetFloat$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetFloat",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetFloat$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetFloat",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetVector2$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetVector2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetVector2$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetVector2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResetAllTriggers",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CrossFadeInternal$1",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RefreshAnimatorData",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RefreshWeaponSubRenders",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetWeaponAsset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IsWeaponFrameManifestCompatible",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RebuildAnimatorRuntimeData",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FindParameterValue$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "FindParameterValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "FindParameterValueById",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FindParameterData",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FindBlendTree",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TryEvaluateTransitions",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsTransitionReady",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HasReachedExitTime",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EvaluateCondition",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ConsumeTransitionTriggers",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TryResolveTransitionTarget",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateCurrentBlendTreeSelection",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolveBlendTreeClip",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResolveBlendChildStateHash",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetNormalizedTime",
+                        "excluded": true
                     }
                 ]
             },
@@ -40650,6 +40877,14 @@
                     },
                     {
                         "name": "GetSocket",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EnsureAnimatorLists",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetWeaponAsset",
                         "excluded": true
                     }
                 ]
@@ -40777,6 +41012,150 @@
                         "excluded": false
                     }
                 ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VAT_RenderComponent.RuntimeParameterValue",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATAnimatorBlendTreeData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATAnimatorConditionData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATAnimatorParameterData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATAnimatorTransitionData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATWeaponAssetEntry",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATWeaponAssetSO",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnValidate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetClip",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATWeaponRenderComponent",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "WeaponAsset#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "WeaponName#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Renderer#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetFrameSource",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetWeaponName",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetWeaponAsset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetVisibility",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyFrame",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetWorldBounds",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnsureComponents",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyWeaponAsset",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnsurePropertyBlocks",
+                        "excluded": false
+                    }
+                ]
             }
         ],
         "stubberDataList": [],
@@ -40858,9 +41237,9 @@
                     {
                         "maxWidth": 256,
                         "maxHeight": 256,
-                        "format": "png32",
+                        "format": "jpeg",
                         "compression": "none",
-                        "quality": 100,
+                        "quality": 70,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_VK_sungtruong.png"
@@ -40870,7 +41249,7 @@
                         "maxHeight": 512,
                         "format": "jpeg",
                         "compression": "quantSize",
-                        "quality": 65,
+                        "quality": 70,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_EN_pigboss.tga"
@@ -40880,7 +41259,7 @@
                         "maxHeight": 512,
                         "format": "jpeg",
                         "compression": "none",
-                        "quality": 80,
+                        "quality": 70,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_EN_basic.tga"
@@ -40918,9 +41297,9 @@
                     {
                         "maxWidth": 512,
                         "maxHeight": 512,
-                        "format": "png32",
+                        "format": "jpeg",
                         "compression": "none",
-                        "quality": 100,
+                        "quality": 70,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_Color.tga"
@@ -40998,9 +41377,9 @@
                     {
                         "maxWidth": 256,
                         "maxHeight": 256,
-                        "format": "png32",
+                        "format": "jpeg",
                         "compression": "none",
-                        "quality": 100,
+                        "quality": 70,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_MC_basic.tga"
@@ -41020,7 +41399,7 @@
                         "maxHeight": 512,
                         "format": "jpeg",
                         "compression": "none",
-                        "quality": 80,
+                        "quality": 70,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_EN_basic_2.tga"
@@ -41088,7 +41467,7 @@
                     {
                         "maxWidth": 512,
                         "maxHeight": 512,
-                        "format": "png32",
+                        "format": "png8",
                         "compression": "quantSize",
                         "quality": 65,
                         "script": "",
@@ -41134,6 +41513,66 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Character_VAT_Weapon_Texture.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png8",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_FrameWork/Resources/Sprites/UI/IconCharacter_Sungtruong.png"
+                    },
+                    {
+                        "maxWidth": 4096,
+                        "maxHeight": 4096,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_Crossbow_Texture.png"
+                    },
+                    {
+                        "maxWidth": 4096,
+                        "maxHeight": 4096,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_Pistol_Texture.png"
+                    },
+                    {
+                        "maxWidth": 4096,
+                        "maxHeight": 4096,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_Gun_Texture.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "quantQuality",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_PlayableAds/Assets/Image/Lose_Panel.png"
+                    },
+                    {
+                        "maxWidth": 4096,
+                        "maxHeight": 4096,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Body_Texture.png"
                     }
                 ]
             },

@@ -11,11 +11,12 @@ namespace GamePlay.AnimationSystems
         [SerializeField] private VAT_RenderComponent vatRenderer;
 
         [Header("VAT State Names")]
-        [SerializeField] private string idleStateName = "Character_crossbow_Idle_Idle_Baked";
+        [SerializeField] private string idleStateName = "";
         [SerializeField] private string attackStateName = "Standing_Fire";
-        [SerializeField] private string moveLeftStateName = "Character_crossbow_Side_Run_Left_Move_Left_Baked";
-        [SerializeField] private string moveRightStateName = "Character_crossbow_Side_Run_Right_Move_Right_Baked";
-        [SerializeField, Min(0f)] private float crossFadeDuration = 0.08f;
+        [SerializeField] private string MoveStateName = "";
+        [SerializeField] private string moveLeftStateName = "Character_Move_Left_Baked";
+        [SerializeField] private string moveRightStateName = "Character_Move_Right_Baked";
+        [SerializeField, Min(0f)] private float crossFadeDuration = 0.1f;
 
         private AnimationType _currentAnimation = AnimationType.None;
         private Action _pendingCompletion;
@@ -107,6 +108,8 @@ namespace GamePlay.AnimationSystems
             {
                 case AnimationType.Idle:
                     return idleStateName;
+                case AnimationType.Move:
+                    return MoveStateName;
                 case AnimationType.Attack:
                     return attackStateName;
                 case AnimationType.MoveLeft:

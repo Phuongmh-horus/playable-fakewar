@@ -50,7 +50,7 @@ namespace OptimizedFeature.Scripts.Editor
             EditorGUILayout.HelpBox(
                 "Drag & drop multiple GameObjects to batch setup VAT components.\n" +
                 "• Adds VAT_RenderComponent + MeshFilter + MeshRenderer on each root\n" +
-                "• Creates an optional VAT Weapon sub-render when the Body asset has DefaultWeaponAsset\n" +
+                "• Creates one VAT Weapon sub-render for each named weapon asset\n" +
                 "• Cleans up legacy child 'MeshRenderer_VAT' objects if found",
                 MessageType.Info);
 
@@ -227,41 +227,9 @@ namespace OptimizedFeature.Scripts.Editor
             renderComponent.SetMaterials(targetMaterials.ToArray());
             renderComponent.SetVATAssetData(vatAssetData);
 
-            // Configure the optional VAT Weapon sub-render. It is driven by the
-            // body component's frame state, so Body and Weapon never advance on
-            // separate clocks.
-            if (vatAssetData.DefaultWeaponAsset != null)
-            {
-                VATWeaponRenderComponent weaponRender =
-                    target.GetComponentInChildren<VATWeaponRenderComponent>(true);
-                if (weaponRender == null)
-                {
-                    GameObject weaponRenderObject = new GameObject("VAT_Weapon_SubRender");
-                    Undo.RegisterCreatedObjectUndo(weaponRenderObject, "Create VAT Weapon Sub-render");
-                    weaponRenderObject.transform.SetParent(target.transform, false);
-                    weaponRender = weaponRenderObject.AddComponent<VATWeaponRenderComponent>();
-                }
-
-                SerializedObject serializedWeapon = new SerializedObject(weaponRender);
-                serializedWeapon.FindProperty("_frameSource").objectReferenceValue = renderComponent;
-                serializedWeapon.FindProperty("_weaponAsset").objectReferenceValue =
-                    vatAssetData.DefaultWeaponAsset;
-                serializedWeapon.ApplyModifiedProperties();
-                weaponRender.SetFrameSource(renderComponent);
-                weaponRender.SetWeaponAsset(vatAssetData.DefaultWeaponAsset);
-                renderComponent.RefreshWeaponSubRenders();
-            }
-            else
-            {
-                VATWeaponRenderComponent existingWeaponRender =
-                    target.GetComponentInChildren<VATWeaponRenderComponent>(true);
-                if (existingWeaponRender != null)
-                {
-                    existingWeaponRender.SetFrameSource(renderComponent);
-                    existingWeaponRender.SetWeaponAsset(null);
-                    renderComponent.RefreshWeaponSubRenders();
-                }
-            }
+            // Configure named VAT Weapon sub-renders. They are driven by the
+            // body component's frame state, so all channels share one clock.
+            SetupWeaponSubRenders(target, renderComponent, vatAssetData);
 
             // 3. Configure Equipment Attachments
             if (attachments != null)
@@ -300,6 +268,97 @@ namespace OptimizedFeature.Scripts.Editor
             }
 
             Debug.Log($"[VATSetupHelper] Configured: {target.name}");
+        }
+
+        private static void SetupWeaponSubRenders(
+            GameObject target,
+            VAT_RenderComponent renderComponent,
+            VATAssetDataSO vatAssetData)
+        {
+            List<VATWeaponAssetEntry> weaponEntries = new List<VATWeaponAssetEntry>();
+            if (vatAssetData.WeaponAssets != null)
+            {
+                for (int i = 0; i < vatAssetData.WeaponAssets.Count; i++)
+                {
+                    VATWeaponAssetEntry entry = vatAssetData.WeaponAssets[i];
+                    if (entry != null && entry.WeaponAsset != null)
+                    {
+                        weaponEntries.Add(entry);
+                    }
+                }
+            }
+
+            // Backward compatibility for data baked before named weapon groups.
+            if (weaponEntries.Count == 0 && vatAssetData.DefaultWeaponAsset != null)
+            {
+                weaponEntries.Add(new VATWeaponAssetEntry
+                {
+                    WeaponName = "Weapon",
+                    WeaponAsset = vatAssetData.DefaultWeaponAsset
+                });
+            }
+
+            VATWeaponRenderComponent[] existingRenders =
+                target.GetComponentsInChildren<VATWeaponRenderComponent>(true);
+            List<VATWeaponRenderComponent> assignedRenders = new List<VATWeaponRenderComponent>();
+            for (int i = 0; i < weaponEntries.Count; i++)
+            {
+                VATWeaponAssetEntry entry = weaponEntries[i];
+                string weaponName = string.IsNullOrWhiteSpace(entry.WeaponName) ? "Weapon" : entry.WeaponName.Trim();
+                VATWeaponRenderComponent weaponRender = FindWeaponRender(existingRenders, assignedRenders, weaponName);
+                if (weaponRender == null && weaponEntries.Count == 1 && existingRenders.Length > 0)
+                {
+                    weaponRender = existingRenders[0];
+                }
+
+                if (weaponRender == null)
+                {
+                    GameObject weaponRenderObject = new GameObject("VAT_Weapon_SubRender_" + weaponName);
+                    Undo.RegisterCreatedObjectUndo(weaponRenderObject, "Create VAT Weapon Sub-render");
+                    weaponRenderObject.transform.SetParent(target.transform, false);
+                    weaponRender = weaponRenderObject.AddComponent<VATWeaponRenderComponent>();
+                }
+
+                SerializedObject serializedWeapon = new SerializedObject(weaponRender);
+                serializedWeapon.FindProperty("_weaponName").stringValue = weaponName;
+                serializedWeapon.FindProperty("_frameSource").objectReferenceValue = renderComponent;
+                serializedWeapon.FindProperty("_weaponAsset").objectReferenceValue = entry.WeaponAsset;
+                serializedWeapon.ApplyModifiedProperties();
+                weaponRender.SetWeaponName(weaponName);
+                weaponRender.SetFrameSource(renderComponent);
+                weaponRender.SetWeaponAsset(entry.WeaponAsset);
+                assignedRenders.Add(weaponRender);
+            }
+
+            for (int i = 0; i < existingRenders.Length; i++)
+            {
+                VATWeaponRenderComponent existingRender = existingRenders[i];
+                if (existingRender != null && !assignedRenders.Contains(existingRender))
+                {
+                    existingRender.SetFrameSource(renderComponent);
+                    existingRender.SetWeaponAsset(null);
+                }
+            }
+
+            renderComponent.RefreshWeaponSubRenders();
+        }
+
+        private static VATWeaponRenderComponent FindWeaponRender(
+            VATWeaponRenderComponent[] existingRenders,
+            List<VATWeaponRenderComponent> assignedRenders,
+            string weaponName)
+        {
+            for (int i = 0; i < existingRenders.Length; i++)
+            {
+                VATWeaponRenderComponent render = existingRenders[i];
+                if (render != null && !assignedRenders.Contains(render) &&
+                    string.Equals(render.WeaponName, weaponName, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return render;
+                }
+            }
+
+            return null;
         }
     }
 }

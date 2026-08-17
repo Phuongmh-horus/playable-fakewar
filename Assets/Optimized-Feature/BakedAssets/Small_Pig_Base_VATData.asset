@@ -34,3 +34,20 @@ MonoBehaviour:
   Sockets: []
   BakedMaterials:
   - {fileID: 2100000, guid: f64d747ac5bbf234ca4cb9736f0009b9, type: 2}
+  WeaponAssets: []
+  DefaultWeaponAsset: {fileID: 0}
+  DefaultStateName: 2021009008
+  AnimatorParameters: []
+  AnimatorTransitions: []
+  AnimatorBlendTrees: []
+  AnimatorGraph:
+    schemaVersion: 5
+    defaultClipKey: 
+    nodes: []
+    edges: []
+    nextNodeId: 1
+    nextParameterId: 1
+    nextConditionId: 1
+    nextTransitionId: 1
+    nextBlendTreeId: 1
+    nextBlendChildId: 1

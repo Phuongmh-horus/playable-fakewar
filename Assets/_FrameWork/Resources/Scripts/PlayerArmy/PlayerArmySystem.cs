@@ -91,7 +91,6 @@ namespace PlayerArmy
         private HashSet<int> _currentEnvironmentContactIds = new HashSet<int>();
         private HashSet<int> _previousEnvironmentContactIds = new HashSet<int>();
         private readonly Queue<CharacterUnit> _activeSpawnedUnits = new Queue<CharacterUnit>();
-        private readonly Dictionary<int, float> _nextAttackTimes = new Dictionary<int, float>();
 
         private struct PendingProjectileAttack
         {
@@ -200,7 +199,7 @@ namespace PlayerArmy
 
             if (characterPrefab != null && !characterPrefab.gameObject.scene.IsValid())
             {
-                yield return PoolSystem.PrewarmAsync(characterPrefab, 60, batchSize);
+                yield return PoolSystem.PrewarmAsync(characterPrefab, 61, batchSize);
 
                 var characterUnit = characterPrefab.GetComponent<CharacterUnit>();
                 if (characterUnit != null && characterUnit.DieVfxPrefab != null)
@@ -215,7 +214,7 @@ namespace PlayerArmy
 
             if (weaponProjectilePrefab != null && !weaponProjectilePrefab.gameObject.scene.IsValid())
             {
-                yield return PoolSystem.PrewarmAsync(weaponProjectilePrefab, 120, batchSize);
+                yield return PoolSystem.PrewarmAsync(weaponProjectilePrefab, 130, batchSize);
             }
         }
 
@@ -402,11 +401,15 @@ namespace PlayerArmy
             else if (!useSceneUnitsOnly)
             {
                 RegisterRuntimeUnit(unit);
-                SetNextAttackTime(unit, Time.time + attackInterval);
+                SetNextAttackTime(unit, Time.time + attackInterval, true);
                 if (!_activeSpawnedUnits.Contains(unit))
                 {
                     _activeSpawnedUnits.Enqueue(unit);
                 }
+            }
+            else
+            {
+                SetNextAttackTime(unit, Time.time + attackInterval, true);
             }
         }
 
@@ -428,7 +431,6 @@ namespace PlayerArmy
 
             characterUnits.Clear();
             _activeSpawnedUnits.Clear();
-            _nextAttackTimes.Clear();
         }
 
         public CharacterUnit SpawnCharacterUnit(int level, Vector3 position, Quaternion rotation, float? nextAttackTime = null, bool playMoveAnimation = false)
@@ -564,35 +566,6 @@ namespace PlayerArmy
             }
         }
 
-        private float ResolveSharedNextAttackTimeForSpawn()
-        {
-            float nextAttackTime = Time.time + attackInterval;
-            bool hasNextAttackTime = false;
-
-            for (int i = 0; i < characterUnits.Count; i++)
-            {
-                var unit = characterUnits[i];
-                if (unit == null || !unit.IsActive)
-                {
-                    continue;
-                }
-
-                int id = unit.GetInstanceID();
-                if (!_nextAttackTimes.TryGetValue(id, out float unitNextAttackTime))
-                {
-                    continue;
-                }
-
-                if (!hasNextAttackTime || unitNextAttackTime < nextAttackTime)
-                {
-                    nextAttackTime = unitNextAttackTime;
-                    hasNextAttackTime = true;
-                }
-            }
-
-            return nextAttackTime;
-        }
-
         public void PlayEffect(EffectType effectType, Transform anchor = null, Action onComplete = null, float waitForAction = 0f)
         {
             effectSystem?.PlayEffect(effectType, anchor != null ? anchor : GetBodyRoot(), onComplete, waitForAction);
@@ -682,7 +655,7 @@ namespace PlayerArmy
                     {
                         characterUnits[i].ShowWeapon();
                         characterUnits[i].PlayAnimation(AnimationType.Attack, 0f, null, 0);
-                        _nextAttackTimes[characterUnits[i].GetInstanceID()] = Time.time; //+ Mathf.Max(0.05f, attackInterval);
+                        SetNextAttackTime(characterUnits[i], Time.time, true);
                     }
                 }
             }
@@ -727,7 +700,6 @@ namespace PlayerArmy
                 return;
             }
 
-            float syncNextAttackTime = ResolveSharedNextAttackTimeForSpawn();
             bool playMoveAnimation = effectType != CardSpawnEffectType.DropWithoutAction;
 
             for (int i = 0; i < requests.Count; i++)
@@ -735,7 +707,7 @@ namespace PlayerArmy
                 var req = requests[i];
                 int level = req.Level > 0 ? req.Level : ResolveCurrentArmyLevel();
                 int amount = Mathf.Max(1, req.Amount);
-                SpawnUnits(level, amount, syncNextAttackTime, playMoveAnimation);
+                SpawnUnits(level, amount, null, playMoveAnimation);
             }
         }
 
@@ -749,11 +721,10 @@ namespace PlayerArmy
             _fireRateBonusPoints += value;
 
             // [FIX] Use multiplier logic to scale down interval without hitting the floor too fast
-            float multiplier = 1f / (1f + _fireRateBonusPoints * 0.005f);
+            float multiplier = 1f / (1f + _fireRateBonusPoints * 0.01f);
             attackInterval = Mathf.Max(0.01f, _baseAttackInterval * multiplier);
             projectileDuration = Mathf.Max(0.01f, _baseProjectileDuration * multiplier);
 
-            float nextAttackTime = Time.time + attackInterval;
             for (int i = 0; i < characterUnits.Count; i++)
             {
                 var unit = characterUnits[i];
@@ -762,7 +733,7 @@ namespace PlayerArmy
                     continue;
                 }
 
-                _nextAttackTimes[unit.GetInstanceID()] = nextAttackTime;
+                SetNextAttackTime(unit, Time.time + attackInterval, true);
             }
         }
 
@@ -802,14 +773,11 @@ namespace PlayerArmy
             return Mathf.Max(1, Mathf.CeilToInt(baseDamage * (percent / 100f)));
         }
 
-        public void UpgradeAllUnitsToLevel(int levelbonus, bool includeWeapon = true)
+        public void UpgradeAllUnitsToLevel(int targetLevel, bool includeWeapon = true)
         {
             if (ArmyUpgradeManager.Instance != null)
             {
-                for (int i = 0; i < levelbonus; i++)
-                {
-                    ArmyUpgradeManager.Instance.UpgradeLevel();
-                }
+                ArmyUpgradeManager.Instance.SetLevel(targetLevel);
             }
         }
 
@@ -945,13 +913,11 @@ namespace PlayerArmy
         //
         //     characterUnits.Clear();
         //     _activeSpawnedUnits.Clear();
-        //     _nextAttackTimes.Clear();
         // }
 
         private void ResetRuntimeSpawnState()
         {
             _activeSpawnedUnits.Clear();
-            _nextAttackTimes.Clear();
         }
 
         private Vector3 GetHoneycombSpawnPosition(Transform root, int index, int totalCount)
@@ -1291,7 +1257,7 @@ namespace PlayerArmy
                 }
 
                 TryPerformAttack(unit);
-                unit.NextAttackTime = now + Mathf.Max(0.05f, attackInterval);
+                SetNextAttackTime(unit, now + Mathf.Max(0.05f, attackInterval));
             }
         }
 
@@ -1622,7 +1588,7 @@ namespace PlayerArmy
             unit.PlayAnimation(ResolveRuntimeUnitAnimation(), 0f, null, 0);
 
             RegisterRuntimeUnit(unit);
-            SetNextAttackTime(unit, nextAttackTime ?? (Time.time + attackInterval));
+            SetNextAttackTime(unit, nextAttackTime ?? (Time.time + attackInterval), !nextAttackTime.HasValue);
 
             if (!_activeSpawnedUnits.Contains(unit))
             {
@@ -1668,7 +1634,6 @@ namespace PlayerArmy
 
             CollisionSystem.Unregister(unit);
             EnemyProjectileSystem.UnregisterTarget(unit);
-            _nextAttackTimes.Remove(unit.GetInstanceID());
 
             if (deactivate && unit.gameObject.activeInHierarchy)
             {
@@ -1787,15 +1752,33 @@ namespace PlayerArmy
             return _activeSpawnedUnits.Count < cap;
         }
 
-        private void SetNextAttackTime(CharacterUnit unit, float nextAttackTime)
+        private void SetNextAttackTime(CharacterUnit unit, float nextAttackTime, bool addIndependentPhase = false)
         {
             if (unit == null)
             {
                 return;
             }
 
+            if (addIndependentPhase)
+            {
+                nextAttackTime += GetAttackPhase(unit) * Mathf.Max(0.05f, attackInterval);
+            }
+
             unit.NextAttackTime = nextAttackTime;
-            _nextAttackTimes[unit.GetInstanceID()] = nextAttackTime;
+        }
+
+        private static float GetAttackPhase(CharacterUnit unit)
+        {
+            unchecked
+            {
+                uint hash = (uint)unit.GetInstanceID();
+                hash ^= hash >> 16;
+                hash *= 0x7FEB352Du;
+                hash ^= hash >> 15;
+                hash *= 0x846CA68Bu;
+                hash ^= hash >> 16;
+                return (hash & 0x00FFFFFFu) * (1f / 16777216f);
+            }
         }
 
         private bool IsEnvironmentTarget(EntityType entityType)
