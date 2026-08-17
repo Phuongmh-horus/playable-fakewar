@@ -1,197 +1,271 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using OptimizedFeature.Scripts;
 
 namespace OptimizedFeature.Editor.VATAnimator
 {
-    public enum VATAnimatorNodeType
+    /// <summary>
+    /// Transient Editor projection of one VATClipInfo. It is never serialized; the source clip
+    /// remains VATAssetDataSO.Clips and all runtime animator data remains on VATAssetDataSO.
+    /// </summary>
+    internal sealed class VATAnimatorClipData
     {
-        Clip,
-        Parameter,
-        Transition,
-        BlendTree
-    }
+        private readonly VATClipInfo source;
 
-    public enum VATAnimatorParameterType
-    {
-        Trigger,
-        Bool,
-        Float,
-        Vector2
-    }
+        public VATAnimatorClipData(VATClipInfo sourceClip)
+        {
+            source = sourceClip;
+        }
 
-    public enum VATAnimatorConditionMode
-    {
-        If,
-        IfNot,
-        Greater,
-        Less,
-        Equals,
-        NotEquals,
-        MagnitudeGreater,
-        MagnitudeLess
-    }
+        public string clipKey
+        {
+            get { return VATAnimatorGraphAsset.MakeClipKey(source); }
+        }
 
-    public enum VATAnimatorBlendTreeMode
-    {
-        OneDimensional,
-        TwoDimensional
-    }
+        public string clipName
+        {
+            get { return source == null ? string.Empty : source.ClipName; }
+        }
 
-    [Serializable]
-    public sealed class VATAnimatorClipData
-    {
-        [Tooltip("Stable editor key. It is kept when a source clip is renamed but keeps the same state hash.")]
-        public string clipKey;
-        public string clipName;
-        public int stateHash;
-        public int startFrame;
-        public int endFrame;
-        public float frameRate = 30f;
-        public bool isLooping = true;
+        public int stateHash
+        {
+            get { return source == null ? 0 : source.StateHash; }
+        }
+
+        public int startFrame
+        {
+            get { return source == null ? 0 : source.StartFrame; }
+        }
+
+        public int endFrame
+        {
+            get { return source == null ? 0 : source.EndFrame; }
+        }
+
+        public float frameRate
+        {
+            get { return source == null ? 0f : source.FrameRate; }
+        }
+
+        public bool isLooping
+        {
+            get { return source != null && source.IsLooping; }
+        }
 
         public int TotalFrames
         {
             get { return Mathf.Max(0, endFrame - startFrame + 1); }
         }
-
-        public void SyncFrom(VATClipInfo source)
-        {
-            if (source == null) return;
-
-            clipName = source.ClipName;
-            stateHash = source.StateHash;
-            startFrame = source.StartFrame;
-            endFrame = source.EndFrame;
-            frameRate = source.FrameRate;
-            isLooping = source.IsLooping;
-        }
-    }
-
-    [Serializable]
-    public sealed class VATAnimatorParameterData
-    {
-        public int id;
-        public string parameterName = "Parameter";
-        public VATAnimatorParameterType type = VATAnimatorParameterType.Float;
-        public bool defaultBool;
-        public float defaultFloat;
-        public Vector2 defaultVector2;
-    }
-
-    [Serializable]
-    public sealed class VATAnimatorConditionData
-    {
-        public int parameterId = -1;
-        public VATAnimatorConditionMode mode = VATAnimatorConditionMode.If;
-        public float threshold;
-        public bool boolThreshold;
-        public Vector2 vectorThreshold;
-    }
-
-    [Serializable]
-    public sealed class VATAnimatorTransitionData
-    {
-        public int id;
-        public string title = "Transition";
-        public bool autoTransition;
-        public bool hasExitTime;
-        [Min(0f)] public float duration = 0.15f;
-        [Min(0f)] public float exitTime = 1f;
-        public List<VATAnimatorConditionData> conditions = new List<VATAnimatorConditionData>();
-    }
-
-    [Serializable]
-    public sealed class VATAnimatorBlendChildData
-    {
-        public string clipKey;
-        public Vector2 threshold;
-    }
-
-    [Serializable]
-    public sealed class VATAnimatorBlendTreeData
-    {
-        public int id;
-        public string title = "Blend Tree";
-        public int parameterId = -1;
-        public VATAnimatorBlendTreeMode mode = VATAnimatorBlendTreeMode.OneDimensional;
-        public bool clampInput = true;
-        public List<VATAnimatorBlendChildData> children = new List<VATAnimatorBlendChildData>();
-    }
-
-    [Serializable]
-    public sealed class VATAnimatorNodeData
-    {
-        public int id;
-        public VATAnimatorNodeType nodeType;
-        public string title;
-        public Vector2 position;
-
-        public string clipKey;
-        public int parameterId = -1;
-        public int transitionId = -1;
-        public int blendTreeId = -1;
-    }
-
-    [Serializable]
-    public sealed class VATAnimatorEdgeData
-    {
-        public int outputNodeId;
-        public string outputPortName;
-        public int inputNodeId;
-        public string inputPortName;
     }
 
     /// <summary>
-    /// Editor-only graph definition for VAT animation.
+    /// Editor adapter over VATAssetDataSO.
     ///
-    /// This asset intentionally references VATAssetDataSO without modifying it. The source
-    /// clips are copied into <see cref="clips"/> so the graph remains inspectable and can keep
-    /// stable editor keys while the bake asset is refreshed.
+    /// This class is intentionally not a persisted graph asset. It exists only to keep the
+    /// GraphView code readable while every serialized value is read from or written to the
+    /// selected VATAssetDataSO.
     /// </summary>
-    [CreateAssetMenu(
-        fileName = "VATAnimatorGraph",
-        menuName = "VAT/VAT Animator Graph",
-        order = 2100)]
-    public sealed class VATAnimatorGraphAsset : ScriptableObject
+    internal sealed class VATAnimatorGraphAsset : ScriptableObject
     {
-        public const int CurrentSchemaVersion = 1;
+        [SerializeField] private VATAssetDataSO _sourceVATAsset;
+        private readonly List<VATAnimatorClipData> _clipProjections = new List<VATAnimatorClipData>();
 
-        public VATAssetDataSO sourceVATAsset;
-        public string defaultClipKey;
-        public int schemaVersion = CurrentSchemaVersion;
+        public VATAssetDataSO sourceVATAsset
+        {
+            get { return _sourceVATAsset; }
+            set { Attach(value); }
+        }
 
-        public List<VATAnimatorClipData> clips = new List<VATAnimatorClipData>();
-        public List<VATAnimatorParameterData> parameters = new List<VATAnimatorParameterData>();
-        public List<VATAnimatorTransitionData> transitions = new List<VATAnimatorTransitionData>();
-        public List<VATAnimatorBlendTreeData> blendTrees = new List<VATAnimatorBlendTreeData>();
-        public List<VATAnimatorNodeData> nodes = new List<VATAnimatorNodeData>();
-        public List<VATAnimatorEdgeData> edges = new List<VATAnimatorEdgeData>();
+        public string defaultClipKey
+        {
+            get { return Graph == null ? string.Empty : Graph.defaultClipKey; }
+            set
+            {
+                if (Graph != null) Graph.defaultClipKey = value;
+            }
+        }
 
-        public int nextNodeId = 1;
-        public int nextParameterId = 1;
-        public int nextTransitionId = 1;
-        public int nextBlendTreeId = 1;
+        public int schemaVersion
+        {
+            get { return Graph == null ? VATAnimatorGraphData.CurrentSchemaVersion : Graph.schemaVersion; }
+            set
+            {
+                if (Graph != null) Graph.schemaVersion = value;
+            }
+        }
 
-        [NonSerialized] private Dictionary<string, VATAnimatorClipData> _clipByKey;
-        [NonSerialized] private Dictionary<int, VATAnimatorClipData> _clipByHash;
+        public List<VATAnimatorClipData> clips
+        {
+            get
+            {
+                RebuildClipProjections();
+                return _clipProjections;
+            }
+        }
+
+        public List<VATAnimatorParameterData> parameters
+        {
+            get { return _sourceVATAsset == null ? null : _sourceVATAsset.AnimatorParameters; }
+        }
+
+        public List<VATAnimatorTransitionData> transitions
+        {
+            get { return _sourceVATAsset == null ? null : _sourceVATAsset.AnimatorTransitions; }
+        }
+
+        public List<VATAnimatorBlendTreeData> blendTrees
+        {
+            get { return _sourceVATAsset == null ? null : _sourceVATAsset.AnimatorBlendTrees; }
+        }
+
+        public List<VATAnimatorNodeData> nodes
+        {
+            get { return Graph == null ? null : Graph.nodes; }
+        }
+
+        public List<VATAnimatorEdgeData> edges
+        {
+            get { return Graph == null ? null : Graph.edges; }
+        }
+
+        private VATAnimatorGraphData Graph
+        {
+            get { return _sourceVATAsset == null ? null : _sourceVATAsset.AnimatorGraph; }
+        }
 
         private void OnEnable()
         {
             EnsureLists();
-            RebuildClipMapping();
+        }
+
+        public void Attach(VATAssetDataSO source)
+        {
+            _sourceVATAsset = source;
+            EnsureLists();
+            RebuildClipProjections();
         }
 
         public void EnsureLists()
         {
-            if (clips == null) clips = new List<VATAnimatorClipData>();
-            if (parameters == null) parameters = new List<VATAnimatorParameterData>();
-            if (transitions == null) transitions = new List<VATAnimatorTransitionData>();
-            if (blendTrees == null) blendTrees = new List<VATAnimatorBlendTreeData>();
-            if (nodes == null) nodes = new List<VATAnimatorNodeData>();
-            if (edges == null) edges = new List<VATAnimatorEdgeData>();
-            if (schemaVersion <= 0) schemaVersion = CurrentSchemaVersion;
+            if (_sourceVATAsset == null) return;
+
+            if (_sourceVATAsset.Clips == null) _sourceVATAsset.Clips = new List<VATClipInfo>();
+            if (_sourceVATAsset.AnimatorParameters == null)
+            {
+                _sourceVATAsset.AnimatorParameters = new List<VATAnimatorParameterData>();
+            }
+            if (_sourceVATAsset.AnimatorTransitions == null)
+            {
+                _sourceVATAsset.AnimatorTransitions = new List<VATAnimatorTransitionData>();
+            }
+            if (_sourceVATAsset.AnimatorBlendTrees == null)
+            {
+                _sourceVATAsset.AnimatorBlendTrees = new List<VATAnimatorBlendTreeData>();
+            }
+
+            if (_sourceVATAsset.AnimatorGraph == null)
+            {
+                _sourceVATAsset.AnimatorGraph = new VATAnimatorGraphData();
+            }
+            if (Graph.nodes == null) Graph.nodes = new List<VATAnimatorNodeData>();
+            if (Graph.edges == null) Graph.edges = new List<VATAnimatorEdgeData>();
+            if (Graph.schemaVersion < VATAnimatorGraphData.CurrentSchemaVersion)
+            {
+                Graph.schemaVersion = VATAnimatorGraphData.CurrentSchemaVersion;
+            }
+
+            if (Graph.nextNodeId < 1) Graph.nextNodeId = 1;
+            if (Graph.nextParameterId < 1) Graph.nextParameterId = 1;
+            if (Graph.nextConditionId < 1) Graph.nextConditionId = 1;
+            if (Graph.nextTransitionId < 1) Graph.nextTransitionId = 1;
+            if (Graph.nextBlendTreeId < 1) Graph.nextBlendTreeId = 1;
+            if (Graph.nextBlendChildId < 1) Graph.nextBlendChildId = 1;
+
+            for (int i = 0; i < _sourceVATAsset.AnimatorParameters.Count; i++)
+            {
+                VATAnimatorParameterData parameter = _sourceVATAsset.AnimatorParameters[i];
+                if (parameter == null) continue;
+                if (parameter.id <= 0) parameter.id = Graph.nextParameterId++;
+                if (parameter.id >= Graph.nextParameterId) Graph.nextParameterId = parameter.id + 1;
+            }
+
+            for (int i = 0; i < _sourceVATAsset.AnimatorTransitions.Count; i++)
+            {
+                VATAnimatorTransitionData transition = _sourceVATAsset.AnimatorTransitions[i];
+                if (transition == null) continue;
+                if (transition.id <= 0) transition.id = Graph.nextTransitionId++;
+                if (transition.id >= Graph.nextTransitionId) Graph.nextTransitionId = transition.id + 1;
+            }
+
+            for (int i = 0; i < _sourceVATAsset.AnimatorBlendTrees.Count; i++)
+            {
+                VATAnimatorBlendTreeData blendTree = _sourceVATAsset.AnimatorBlendTrees[i];
+                if (blendTree == null) continue;
+                if (blendTree.id <= 0) blendTree.id = Graph.nextBlendTreeId++;
+                if (blendTree.id >= Graph.nextBlendTreeId) Graph.nextBlendTreeId = blendTree.id + 1;
+                if (blendTree.children == null) blendTree.children = new List<VATAnimatorBlendChildData>();
+                for (int c = 0; c < blendTree.children.Count; c++)
+                {
+                    VATAnimatorBlendChildData child = blendTree.children[c];
+                    if (child == null) continue;
+                    if (child.id <= 0) child.id = Graph.nextBlendChildId++;
+                    if (child.id >= Graph.nextBlendChildId) Graph.nextBlendChildId = child.id + 1;
+                    VATAnimatorClipData childClip = FindClipByKey(child.clipKey);
+                    if (childClip != null) child.stateHash = childClip.stateHash;
+                }
+            }
+
+            for (int i = 0; i < Graph.nodes.Count; i++)
+            {
+                VATAnimatorNodeData node = Graph.nodes[i];
+                if (node == null) continue;
+                if (node.id <= 0) node.id = Graph.nextNodeId++;
+                if (node.id >= Graph.nextNodeId) Graph.nextNodeId = node.id + 1;
+            }
+
+            EnsureDefaultNode();
+
+            for (int i = 0; i < _sourceVATAsset.AnimatorTransitions.Count; i++)
+            {
+                VATAnimatorTransitionData transition = _sourceVATAsset.AnimatorTransitions[i];
+                if (transition == null || transition.conditions == null) continue;
+                for (int c = 0; c < transition.conditions.Count; c++)
+                {
+                    VATAnimatorConditionData condition = transition.conditions[c];
+                    if (condition == null) continue;
+                    if (condition.id <= 0) condition.id = AllocateConditionId();
+                    if (condition.id >= Graph.nextConditionId) Graph.nextConditionId = condition.id + 1;
+                }
+            }
+
+            for (int i = 0; i < Graph.edges.Count; i++)
+            {
+                VATAnimatorEdgeData edge = Graph.edges[i];
+                if (edge == null) continue;
+
+                VATAnimatorNodeData outputNode = FindNode(edge.outputNodeId);
+                if (outputNode != null && outputNode.nodeType == VATAnimatorNodeType.Parameter &&
+                    edge.outputPortName == "Value")
+                {
+                    VATAnimatorParameterData parameter = FindParameter(outputNode.parameterId);
+                    if (parameter != null) edge.outputPortName = parameter.type.ToString();
+                }
+
+                VATAnimatorNodeData inputNode = FindNode(edge.inputNodeId);
+                if (inputNode != null && inputNode.nodeType == VATAnimatorNodeType.Transition &&
+                    edge.inputPortName == "Conditions")
+                {
+                    VATAnimatorTransitionData transition = FindTransition(inputNode.transitionId);
+                    if (transition != null && transition.conditions != null && transition.conditions.Count > 0)
+                    {
+                        VATAnimatorConditionData condition = transition.conditions[0];
+                        if (condition != null) edge.inputPortName = GetConditionPortName(condition.id);
+                    }
+                }
+            }
+
         }
 
         public static string MakeClipKey(VATClipInfo clip)
@@ -200,41 +274,45 @@ namespace OptimizedFeature.Editor.VATAnimator
             return clip.StateHash.ToString() + ":" + (clip.ClipName ?? string.Empty);
         }
 
-        public void RebuildClipMapping()
+        private void RebuildClipProjections()
         {
-            EnsureLists();
-            _clipByKey = new Dictionary<string, VATAnimatorClipData>(StringComparer.Ordinal);
-            _clipByHash = new Dictionary<int, VATAnimatorClipData>();
+            _clipProjections.Clear();
+            if (_sourceVATAsset == null || _sourceVATAsset.Clips == null) return;
 
-            for (int i = 0; i < clips.Count; i++)
+            for (int i = 0; i < _sourceVATAsset.Clips.Count; i++)
             {
-                VATAnimatorClipData clip = clips[i];
-                if (clip == null) continue;
-                if (!string.IsNullOrEmpty(clip.clipKey)) _clipByKey[clip.clipKey] = clip;
-                _clipByHash[clip.stateHash] = clip;
+                VATClipInfo clip = _sourceVATAsset.Clips[i];
+                if (clip != null && !string.IsNullOrEmpty(clip.ClipName))
+                {
+                    _clipProjections.Add(new VATAnimatorClipData(clip));
+                }
             }
         }
 
         public VATAnimatorClipData FindClipByKey(string clipKey)
         {
-            if (_clipByKey == null) RebuildClipMapping();
             if (string.IsNullOrEmpty(clipKey)) return null;
-
-            VATAnimatorClipData result;
-            return _clipByKey.TryGetValue(clipKey, out result) ? result : null;
+            List<VATAnimatorClipData> allClips = clips;
+            for (int i = 0; i < allClips.Count; i++)
+            {
+                if (allClips[i].clipKey == clipKey) return allClips[i];
+            }
+            return null;
         }
 
         public VATAnimatorClipData FindClipByHash(int stateHash)
         {
-            if (_clipByHash == null) RebuildClipMapping();
-
-            VATAnimatorClipData result;
-            return _clipByHash.TryGetValue(stateHash, out result) ? result : null;
+            List<VATAnimatorClipData> allClips = clips;
+            for (int i = 0; i < allClips.Count; i++)
+            {
+                if (allClips[i].stateHash == stateHash) return allClips[i];
+            }
+            return null;
         }
 
         public VATAnimatorParameterData FindParameter(int id)
         {
-            EnsureLists();
+            if (parameters == null) return null;
             for (int i = 0; i < parameters.Count; i++)
             {
                 if (parameters[i] != null && parameters[i].id == id) return parameters[i];
@@ -244,7 +322,7 @@ namespace OptimizedFeature.Editor.VATAnimator
 
         public VATAnimatorTransitionData FindTransition(int id)
         {
-            EnsureLists();
+            if (transitions == null) return null;
             for (int i = 0; i < transitions.Count; i++)
             {
                 if (transitions[i] != null && transitions[i].id == id) return transitions[i];
@@ -254,7 +332,7 @@ namespace OptimizedFeature.Editor.VATAnimator
 
         public VATAnimatorBlendTreeData FindBlendTree(int id)
         {
-            EnsureLists();
+            if (blendTrees == null) return null;
             for (int i = 0; i < blendTrees.Count; i++)
             {
                 if (blendTrees[i] != null && blendTrees[i].id == id) return blendTrees[i];
@@ -269,11 +347,6 @@ namespace OptimizedFeature.Editor.VATAnimator
             return clips.Count > 0 ? clips[0] : null;
         }
 
-        /// <summary>
-        /// Resolves the nearest clip case for a BlendTree using the parameter value.
-        /// This is an editor-side mapping helper; runtime integration can later use the same
-        /// serialized thresholds without changing VATAssetDataSO.
-        /// </summary>
         public VATAnimatorClipData ResolveBlendTreeClip(int blendTreeId, float floatValue, Vector2 vectorValue)
         {
             VATAnimatorBlendTreeData tree = FindBlendTree(blendTreeId);
@@ -295,10 +368,7 @@ namespace OptimizedFeature.Editor.VATAnimator
                     min = Mathf.Min(min, child.threshold.x);
                     max = Mathf.Max(max, child.threshold.x);
                 }
-                if (min != float.PositiveInfinity)
-                {
-                    input.x = Mathf.Clamp(input.x, min, max);
-                }
+                if (min != float.PositiveInfinity) input.x = Mathf.Clamp(input.x, min, max);
             }
 
             VATAnimatorBlendChildData closest = null;
@@ -323,7 +393,7 @@ namespace OptimizedFeature.Editor.VATAnimator
 
         public VATAnimatorNodeData FindNode(int id)
         {
-            EnsureLists();
+            if (nodes == null) return null;
             for (int i = 0; i < nodes.Count; i++)
             {
                 if (nodes[i] != null && nodes[i].id == id) return nodes[i];
@@ -331,86 +401,95 @@ namespace OptimizedFeature.Editor.VATAnimator
             return null;
         }
 
+        public VATAnimatorNodeData FindDefaultNode()
+        {
+            if (nodes == null) return null;
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                VATAnimatorNodeData node = nodes[i];
+                if (node != null && node.nodeType == VATAnimatorNodeType.Default) return node;
+            }
+            return null;
+        }
+
+        private VATAnimatorNodeData EnsureDefaultNode()
+        {
+            VATAnimatorNodeData existing = FindDefaultNode();
+            if (existing != null) return existing;
+
+            VATAnimatorNodeData node = new VATAnimatorNodeData
+            {
+                id = AllocateNodeId(),
+                nodeType = VATAnimatorNodeType.Default,
+                title = "Default",
+                position = new Vector2(-320f, 80f)
+            };
+            nodes.Add(node);
+            return node;
+        }
+
         public int AllocateNodeId()
         {
-            if (nextNodeId < 1) nextNodeId = 1;
-            return nextNodeId++;
+            if (Graph.nextNodeId < 1) Graph.nextNodeId = 1;
+            return Graph.nextNodeId++;
         }
 
         public int AllocateParameterId()
         {
-            if (nextParameterId < 1) nextParameterId = 1;
-            return nextParameterId++;
+            if (Graph.nextParameterId < 1) Graph.nextParameterId = 1;
+            return Graph.nextParameterId++;
+        }
+
+        public int AllocateConditionId()
+        {
+            if (Graph.nextConditionId < 1) Graph.nextConditionId = 1;
+            return Graph.nextConditionId++;
         }
 
         public int AllocateTransitionId()
         {
-            if (nextTransitionId < 1) nextTransitionId = 1;
-            return nextTransitionId++;
+            if (Graph.nextTransitionId < 1) Graph.nextTransitionId = 1;
+            return Graph.nextTransitionId++;
         }
 
         public int AllocateBlendTreeId()
         {
-            if (nextBlendTreeId < 1) nextBlendTreeId = 1;
-            return nextBlendTreeId++;
+            if (Graph.nextBlendTreeId < 1) Graph.nextBlendTreeId = 1;
+            return Graph.nextBlendTreeId++;
         }
 
-        /// <summary>
-        /// Copies every VATAssetDataSO clip field into the graph and creates one Clip node
-        /// per source clip. Existing nodes keep their positions and stable keys.
-        /// </summary>
+        public int AllocateBlendChildId()
+        {
+            if (Graph.nextBlendChildId < 1) Graph.nextBlendChildId = 1;
+            return Graph.nextBlendChildId++;
+        }
+
         public int SyncFromVATAssetData(bool removeMissingClips = true)
         {
             EnsureLists();
-            if (sourceVATAsset == null) return 0;
+            if (_sourceVATAsset == null) return 0;
 
-            Dictionary<string, VATAnimatorClipData> oldByKey = new Dictionary<string, VATAnimatorClipData>(StringComparer.Ordinal);
-            Dictionary<int, VATAnimatorClipData> oldByHash = new Dictionary<int, VATAnimatorClipData>();
-            for (int i = 0; i < clips.Count; i++)
-            {
-                VATAnimatorClipData oldClip = clips[i];
-                if (oldClip == null) continue;
-                if (!string.IsNullOrEmpty(oldClip.clipKey)) oldByKey[oldClip.clipKey] = oldClip;
-                oldByHash[oldClip.stateHash] = oldClip;
-            }
-
-            List<VATAnimatorClipData> refreshedClips = new List<VATAnimatorClipData>();
             HashSet<string> validKeys = new HashSet<string>(StringComparer.Ordinal);
-            if (sourceVATAsset.Clips != null)
+            for (int i = 0; i < _sourceVATAsset.Clips.Count; i++)
             {
-                for (int i = 0; i < sourceVATAsset.Clips.Count; i++)
+                VATClipInfo clip = _sourceVATAsset.Clips[i];
+                if (clip != null && !string.IsNullOrEmpty(clip.ClipName))
                 {
-                    VATClipInfo sourceClip = sourceVATAsset.Clips[i];
-                    if (sourceClip == null || string.IsNullOrEmpty(sourceClip.ClipName)) continue;
-
-                    string sourceKey = MakeClipKey(sourceClip);
-                    VATAnimatorClipData graphClip;
-                    if (!oldByKey.TryGetValue(sourceKey, out graphClip))
-                    {
-                        oldByHash.TryGetValue(sourceClip.StateHash, out graphClip);
-                    }
-                    if (graphClip == null)
-                    {
-                        graphClip = new VATAnimatorClipData { clipKey = sourceKey };
-                    }
-
-                    if (string.IsNullOrEmpty(graphClip.clipKey)) graphClip.clipKey = sourceKey;
-                    graphClip.SyncFrom(sourceClip);
-                    refreshedClips.Add(graphClip);
-                    validKeys.Add(graphClip.clipKey);
+                    string clipKey = MakeClipKey(clip);
+                    validKeys.Add(clipKey);
                 }
             }
 
-            clips = refreshedClips;
-            if (string.IsNullOrEmpty(defaultClipKey) || !validKeys.Contains(defaultClipKey))
+            if (!string.IsNullOrEmpty(defaultClipKey) && !validKeys.Contains(defaultClipKey))
             {
-                defaultClipKey = clips.Count > 0 ? clips[0].clipKey : string.Empty;
+                defaultClipKey = string.Empty;
             }
 
             if (removeMissingClips)
             {
                 nodes.RemoveAll(node => node == null ||
-                    (node.nodeType == VATAnimatorNodeType.Clip && !validKeys.Contains(node.clipKey)));
+                    (node.nodeType == VATAnimatorNodeType.Clip && !validKeys.Contains(node.clipKey)) ||
+                    (node.nodeType == VATAnimatorNodeType.Parameter && FindParameter(node.parameterId) == null));
 
                 for (int i = 0; i < blendTrees.Count; i++)
                 {
@@ -430,9 +509,10 @@ namespace OptimizedFeature.Editor.VATAnimator
                 }
             }
 
-            for (int i = 0; i < clips.Count; i++)
+            List<VATAnimatorClipData> sourceClips = clips;
+            for (int i = 0; i < sourceClips.Count; i++)
             {
-                VATAnimatorClipData clip = clips[i];
+                VATAnimatorClipData clip = sourceClips[i];
                 if (clip == null || existingClipNodes.Contains(clip.clipKey)) continue;
 
                 int column = i % 4;
@@ -448,20 +528,325 @@ namespace OptimizedFeature.Editor.VATAnimator
             }
 
             PruneDanglingEdges();
-            RebuildClipMapping();
-            return clips.Count;
+            EnsureDefaultEdge(validKeys);
+            PruneBlendChildrenWithoutEdges();
+            SyncRuntimeMappingsFromGraph();
+            return sourceClips.Count;
         }
 
-        public VATAnimatorNodeData AddParameterNode(string parameterName = null)
+        private void EnsureDefaultEdge(HashSet<string> validKeys)
+        {
+            VATAnimatorNodeData defaultNode = FindDefaultNode();
+            if (defaultNode == null) return;
+
+            VATAnimatorEdgeData existingEdge = edges.FirstOrDefault(edge => edge != null &&
+                edge.outputNodeId == defaultNode.id && edge.outputPortName == "Out");
+            if (existingEdge != null)
+            {
+                VATAnimatorNodeData targetNode = FindNode(existingEdge.inputNodeId);
+                if (targetNode != null && targetNode.nodeType == VATAnimatorNodeType.Clip &&
+                    validKeys.Contains(targetNode.clipKey))
+                {
+                    defaultClipKey = targetNode.clipKey;
+                    SyncRuntimeDefaultState();
+                }
+                else
+                {
+                    edges.Remove(existingEdge);
+                    defaultClipKey = string.Empty;
+                    _sourceVATAsset.DefaultStateName = 0;
+                }
+                return;
+            }
+
+            if (string.IsNullOrEmpty(defaultClipKey)) return;
+            VATAnimatorNodeData clipNode = nodes.FirstOrDefault(node => node != null &&
+                node.nodeType == VATAnimatorNodeType.Clip && node.clipKey == defaultClipKey);
+            if (clipNode == null) return;
+
+            edges.Add(new VATAnimatorEdgeData
+            {
+                outputNodeId = defaultNode.id,
+                outputPortName = "Out",
+                inputNodeId = clipNode.id,
+                inputPortName = "In"
+            });
+            SyncRuntimeDefaultState();
+        }
+
+        private void SyncRuntimeDefaultState()
+        {
+            if (_sourceVATAsset == null) return;
+            VATAnimatorClipData clip = FindClipByKey(defaultClipKey);
+            _sourceVATAsset.DefaultStateName = clip == null ? 0 : clip.stateHash;
+        }
+
+        public void SyncRuntimeMappingsFromGraph()
+        {
+            if (_sourceVATAsset == null) return;
+
+            for (int i = 0; i < transitions.Count; i++)
+            {
+                VATAnimatorTransitionData transition = transitions[i];
+                if (transition == null) continue;
+                transition.fromStateHash = 0;
+                transition.toStateHash = 0;
+                transition.toBlendTreeId = -1;
+            }
+
+            bool hasDefaultEdge = false;
+            for (int i = 0; i < edges.Count; i++)
+            {
+                VATAnimatorEdgeData edge = edges[i];
+                ApplyRuntimeEdgeMapping(edge);
+                if (edge != null && edge.outputPortName == "Out" && edge.inputPortName == "In")
+                {
+                    VATAnimatorNodeData outputNode = FindNode(edge.outputNodeId);
+                    VATAnimatorNodeData inputNode = FindNode(edge.inputNodeId);
+                    hasDefaultEdge = hasDefaultEdge ||
+                        outputNode != null && outputNode.nodeType == VATAnimatorNodeType.Default &&
+                        inputNode != null && inputNode.nodeType == VATAnimatorNodeType.Clip;
+                }
+            }
+
+            if (!hasDefaultEdge)
+            {
+                defaultClipKey = string.Empty;
+                _sourceVATAsset.DefaultStateName = 0;
+            }
+        }
+
+        public bool ApplyRuntimeEdgeMapping(VATAnimatorEdgeData edge)
+        {
+            if (edge == null) return false;
+            VATAnimatorNodeData outputNode = FindNode(edge.outputNodeId);
+            VATAnimatorNodeData inputNode = FindNode(edge.inputNodeId);
+            if (outputNode == null || inputNode == null) return false;
+
+            if (outputNode.nodeType == VATAnimatorNodeType.Clip &&
+                inputNode.nodeType == VATAnimatorNodeType.Transition &&
+                edge.outputPortName == "Out" && edge.inputPortName == "From")
+            {
+                VATAnimatorTransitionData transition = FindTransition(inputNode.transitionId);
+                VATAnimatorClipData clip = FindClipByKey(outputNode.clipKey);
+                if (transition == null || clip == null) return false;
+                transition.fromStateHash = clip.stateHash;
+                return true;
+            }
+
+            if (outputNode.nodeType == VATAnimatorNodeType.Transition &&
+                edge.outputPortName == "To")
+            {
+                VATAnimatorTransitionData transition = FindTransition(outputNode.transitionId);
+                if (transition == null) return false;
+
+                if (inputNode.nodeType == VATAnimatorNodeType.Clip && edge.inputPortName == "In")
+                {
+                    VATAnimatorClipData clip = FindClipByKey(inputNode.clipKey);
+                    if (clip == null) return false;
+                    transition.toStateHash = clip.stateHash;
+                    transition.toBlendTreeId = -1;
+                    return true;
+                }
+
+                if (inputNode.nodeType == VATAnimatorNodeType.BlendTree && edge.inputPortName == "Entry")
+                {
+                    transition.toStateHash = 0;
+                    transition.toBlendTreeId = inputNode.blendTreeId;
+                    return true;
+                }
+            }
+
+            if (outputNode.nodeType == VATAnimatorNodeType.Default &&
+                inputNode.nodeType == VATAnimatorNodeType.Clip &&
+                edge.outputPortName == "Out" && edge.inputPortName == "In")
+            {
+                defaultClipKey = inputNode.clipKey;
+                SyncRuntimeDefaultState();
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool ClearRuntimeEdgeMapping(VATAnimatorEdgeData edge)
+        {
+            if (edge == null) return false;
+            VATAnimatorNodeData outputNode = FindNode(edge.outputNodeId);
+            VATAnimatorNodeData inputNode = FindNode(edge.inputNodeId);
+            if (outputNode == null || inputNode == null) return false;
+
+            if (outputNode.nodeType == VATAnimatorNodeType.Clip &&
+                inputNode.nodeType == VATAnimatorNodeType.Transition &&
+                edge.outputPortName == "Out" && edge.inputPortName == "From")
+            {
+                VATAnimatorTransitionData transition = FindTransition(inputNode.transitionId);
+                if (transition == null) return false;
+                transition.fromStateHash = 0;
+                return true;
+            }
+
+            if (outputNode.nodeType == VATAnimatorNodeType.Transition &&
+                inputNode.nodeType == VATAnimatorNodeType.Clip &&
+                edge.outputPortName == "To" && edge.inputPortName == "In")
+            {
+                VATAnimatorTransitionData transition = FindTransition(outputNode.transitionId);
+                if (transition == null) return false;
+                transition.toStateHash = 0;
+                transition.toBlendTreeId = -1;
+                return true;
+            }
+
+            if (outputNode.nodeType == VATAnimatorNodeType.Transition &&
+                inputNode.nodeType == VATAnimatorNodeType.BlendTree &&
+                edge.outputPortName == "To" && edge.inputPortName == "Entry")
+            {
+                VATAnimatorTransitionData transition = FindTransition(outputNode.transitionId);
+                if (transition == null) return false;
+                transition.toStateHash = 0;
+                transition.toBlendTreeId = -1;
+                return true;
+            }
+
+            if (outputNode.nodeType == VATAnimatorNodeType.Default &&
+                inputNode.nodeType == VATAnimatorNodeType.Clip &&
+                edge.outputPortName == "Out" && edge.inputPortName == "In")
+            {
+                defaultClipKey = string.Empty;
+                if (_sourceVATAsset != null) _sourceVATAsset.DefaultStateName = 0;
+                return true;
+            }
+
+            return false;
+        }
+
+        public VATAnimatorNodeData AddClipNode(string clipKey, Vector2 position)
+        {
+            EnsureLists();
+            VATAnimatorClipData clip = FindClipByKey(clipKey);
+            if (clip == null) return null;
+
+            VATAnimatorNodeData node = new VATAnimatorNodeData
+            {
+                id = AllocateNodeId(),
+                nodeType = VATAnimatorNodeType.Clip,
+                title = clip.clipName,
+                clipKey = clipKey,
+                position = position
+            };
+            nodes.Add(node);
+            return node;
+        }
+
+        public VATAnimatorNodeData AddDefaultNode()
+        {
+            EnsureLists();
+            return EnsureDefaultNode();
+        }
+
+        public VATAnimatorParameterData CreateParameter(VATAnimatorParameterType type, string parameterName = null)
         {
             EnsureLists();
             int parameterId = AllocateParameterId();
             VATAnimatorParameterData parameter = new VATAnimatorParameterData
             {
                 id = parameterId,
-                parameterName = string.IsNullOrEmpty(parameterName) ? "Parameter " + parameterId : parameterName
+                parameterName = string.IsNullOrEmpty(parameterName)
+                    ? type + " " + parameterId
+                    : parameterName,
+                type = type
             };
             parameters.Add(parameter);
+            return parameter;
+        }
+
+        public bool RenameParameter(int parameterId, string parameterName)
+        {
+            VATAnimatorParameterData parameter = FindParameter(parameterId);
+            if (parameter == null) return false;
+            parameter.parameterName = string.IsNullOrWhiteSpace(parameterName)
+                ? parameter.type + " " + parameter.id
+                : parameterName;
+            return true;
+        }
+
+        public bool ChangeParameterType(int parameterId, VATAnimatorParameterType type)
+        {
+            VATAnimatorParameterData parameter = FindParameter(parameterId);
+            if (parameter == null) return false;
+            if (parameter.type == type) return false;
+
+            parameter.type = type;
+            string parameterPortName = type.ToString();
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                VATAnimatorNodeData node = nodes[i];
+                if (node == null || node.nodeType != VATAnimatorNodeType.Parameter ||
+                    node.parameterId != parameterId) continue;
+                for (int e = 0; e < edges.Count; e++)
+                {
+                    if (edges[e] != null && edges[e].outputNodeId == node.id)
+                    {
+                        edges[e].outputPortName = parameterPortName;
+                    }
+                }
+            }
+
+            for (int i = 0; i < transitions.Count; i++)
+            {
+                VATAnimatorTransitionData transition = transitions[i];
+                if (transition == null || transition.conditions == null) continue;
+                for (int c = 0; c < transition.conditions.Count; c++)
+                {
+                    VATAnimatorConditionData condition = transition.conditions[c];
+                    if (condition != null && condition.parameterId == parameterId)
+                    {
+                        NormalizeCondition(condition, type);
+                    }
+                }
+            }
+
+            for (int i = 0; i < blendTrees.Count; i++)
+            {
+                VATAnimatorBlendTreeData tree = blendTrees[i];
+                if (tree == null || tree.parameterId != parameterId) continue;
+                if (type != VATAnimatorParameterType.Float && type != VATAnimatorParameterType.Vector2)
+                {
+                    tree.parameterId = -1;
+                    tree.mode = VATAnimatorBlendTreeMode.OneDimensional;
+                    int blendTreeNodeId = FindNodeForBlendTree(tree.id);
+                    edges.RemoveAll(edge => edge != null && edge.inputNodeId == blendTreeNodeId &&
+                        edge.inputPortName == "Parameter");
+                }
+                else
+                {
+                    tree.mode = type == VATAnimatorParameterType.Vector2
+                        ? VATAnimatorBlendTreeMode.TwoDimensional
+                        : VATAnimatorBlendTreeMode.OneDimensional;
+                }
+            }
+            return true;
+        }
+
+        private int FindNodeForBlendTree(int blendTreeId)
+        {
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                VATAnimatorNodeData node = nodes[i];
+                if (node != null && node.nodeType == VATAnimatorNodeType.BlendTree &&
+                    node.blendTreeId == blendTreeId)
+                {
+                    return node.id;
+                }
+            }
+            return -1;
+        }
+
+        public VATAnimatorNodeData AddParameterReferenceNode(int parameterId, Vector2 position)
+        {
+            EnsureLists();
+            VATAnimatorParameterData parameter = FindParameter(parameterId);
+            if (parameter == null) return null;
 
             VATAnimatorNodeData node = new VATAnimatorNodeData
             {
@@ -469,11 +854,114 @@ namespace OptimizedFeature.Editor.VATAnimator
                 nodeType = VATAnimatorNodeType.Parameter,
                 title = parameter.parameterName,
                 parameterId = parameterId,
-                position = new Vector2(60f + (parameters.Count - 1) * 30f, 680f)
+                position = position
             };
             nodes.Add(node);
             return node;
         }
+
+        public bool RemoveParameter(int parameterId)
+        {
+            EnsureLists();
+            VATAnimatorParameterData parameter = FindParameter(parameterId);
+            if (parameter == null) return false;
+
+            parameters.Remove(parameter);
+            for (int i = nodes.Count - 1; i >= 0; i--)
+            {
+                VATAnimatorNodeData node = nodes[i];
+                if (node != null && node.nodeType == VATAnimatorNodeType.Parameter &&
+                    node.parameterId == parameterId)
+                {
+                    RemoveNode(node.id);
+                }
+            }
+
+            for (int i = 0; i < transitions.Count; i++)
+            {
+                VATAnimatorTransitionData transition = transitions[i];
+                if (transition == null || transition.conditions == null) continue;
+                transition.conditions.RemoveAll(condition => condition == null || condition.parameterId == parameterId);
+            }
+
+            for (int i = 0; i < blendTrees.Count; i++)
+            {
+                if (blendTrees[i] != null && blendTrees[i].parameterId == parameterId)
+                {
+                    blendTrees[i].parameterId = -1;
+                    blendTrees[i].mode = VATAnimatorBlendTreeMode.OneDimensional;
+                }
+            }
+
+            PruneDanglingEdges();
+            return true;
+        }
+
+        public VATAnimatorConditionData AddTransitionCondition(int transitionId)
+        {
+            EnsureLists();
+            VATAnimatorTransitionData transition = FindTransition(transitionId);
+            if (transition == null) return null;
+            if (transition.conditions == null) transition.conditions = new List<VATAnimatorConditionData>();
+
+            VATAnimatorConditionData condition = new VATAnimatorConditionData
+            {
+                id = AllocateConditionId(),
+                parameterId = -1
+            };
+            transition.conditions.Add(condition);
+            return condition;
+        }
+
+        public VATAnimatorConditionData FindCondition(int transitionId, int conditionId)
+        {
+            VATAnimatorTransitionData transition = FindTransition(transitionId);
+            if (transition == null || transition.conditions == null) return null;
+            for (int i = 0; i < transition.conditions.Count; i++)
+            {
+                VATAnimatorConditionData condition = transition.conditions[i];
+                if (condition != null && condition.id == conditionId) return condition;
+            }
+            return null;
+        }
+
+        public bool RemoveTransitionCondition(int transitionId, int conditionId)
+        {
+            VATAnimatorTransitionData transition = FindTransition(transitionId);
+            if (transition == null || transition.conditions == null) return false;
+            int removed = transition.conditions.RemoveAll(condition => condition == null || condition.id == conditionId);
+            edges.RemoveAll(edge => edge != null && edge.inputNodeId == FindNodeForTransition(transitionId) &&
+                edge.inputPortName == GetConditionPortName(conditionId));
+            return removed > 0;
+        }
+
+        private int FindNodeForTransition(int transitionId)
+        {
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                VATAnimatorNodeData node = nodes[i];
+                if (node != null && node.nodeType == VATAnimatorNodeType.Transition &&
+                    node.transitionId == transitionId)
+                {
+                    return node.id;
+                }
+            }
+            return -1;
+        }
+
+        public static string GetConditionPortName(int conditionId)
+        {
+            return "Condition:" + conditionId;
+        }
+
+        public const string NewConditionPortName = "[New]";
+
+        public static string GetBlendCasePortName(int childId)
+        {
+            return "Case:" + childId;
+        }
+
+        public const string NewBlendCasePortName = "[New]";
 
         public VATAnimatorNodeData AddTransitionNode()
         {
@@ -506,14 +994,6 @@ namespace OptimizedFeature.Editor.VATAnimator
                 id = blendTreeId,
                 title = "Blend Tree " + blendTreeId
             };
-            if (clips.Count > 0)
-            {
-                blendTree.children.Add(new VATAnimatorBlendChildData
-                {
-                    clipKey = clips[0].clipKey,
-                    threshold = Vector2.zero
-                });
-            }
             blendTrees.Add(blendTree);
 
             VATAnimatorNodeData node = new VATAnimatorNodeData
@@ -528,30 +1008,158 @@ namespace OptimizedFeature.Editor.VATAnimator
             return node;
         }
 
+        public VATAnimatorBlendChildData FindBlendChild(int blendTreeId, int childId)
+        {
+            VATAnimatorBlendTreeData tree = FindBlendTree(blendTreeId);
+            if (tree == null || tree.children == null) return null;
+            for (int i = 0; i < tree.children.Count; i++)
+            {
+                VATAnimatorBlendChildData child = tree.children[i];
+                if (child != null && child.id == childId) return child;
+            }
+            return null;
+        }
+
+        public bool TryCreateTransitionConditionEdge(VATAnimatorEdgeData edge)
+        {
+            if (edge == null || edge.inputPortName != NewConditionPortName) return false;
+
+            VATAnimatorNodeData outputNode = FindNode(edge.outputNodeId);
+            VATAnimatorNodeData inputNode = FindNode(edge.inputNodeId);
+            if (outputNode == null || inputNode == null ||
+                outputNode.nodeType != VATAnimatorNodeType.Parameter ||
+                inputNode.nodeType != VATAnimatorNodeType.Transition)
+            {
+                return false;
+            }
+
+            VATAnimatorParameterData parameter = FindParameter(outputNode.parameterId);
+            if (parameter == null) return false;
+            VATAnimatorConditionData condition = AddTransitionCondition(inputNode.transitionId);
+            if (condition == null) return false;
+
+            condition.parameterId = parameter.id;
+            NormalizeCondition(condition, parameter.type);
+            edge.inputPortName = GetConditionPortName(condition.id);
+            return true;
+        }
+
+        public bool TryBindBlendTreeCaseEdge(VATAnimatorEdgeData edge)
+        {
+            if (edge == null || edge.inputPortName != "In") return false;
+
+            VATAnimatorNodeData outputNode = FindNode(edge.outputNodeId);
+            VATAnimatorNodeData inputNode = FindNode(edge.inputNodeId);
+            if (outputNode == null || inputNode == null ||
+                outputNode.nodeType != VATAnimatorNodeType.BlendTree ||
+                inputNode.nodeType != VATAnimatorNodeType.Clip)
+            {
+                return false;
+            }
+
+            VATAnimatorBlendTreeData tree = FindBlendTree(outputNode.blendTreeId);
+            if (tree == null) return false;
+            if (tree.children == null) tree.children = new List<VATAnimatorBlendChildData>();
+
+            VATAnimatorBlendChildData child = null;
+            if (edge.outputPortName == NewBlendCasePortName)
+            {
+                child = new VATAnimatorBlendChildData
+                {
+                    id = AllocateBlendChildId(),
+                    clipKey = inputNode.clipKey,
+                    stateHash = GetClipStateHash(inputNode.clipKey),
+                    threshold = GetNextBlendThreshold(tree)
+                };
+                tree.children.Add(child);
+                edge.outputPortName = GetBlendCasePortName(child.id);
+            }
+            else
+            {
+                int childId;
+                if (!TryParseBlendCasePort(edge.outputPortName, out childId)) return false;
+                child = FindBlendChild(tree.id, childId);
+                if (child == null) return false;
+                child.clipKey = inputNode.clipKey;
+                child.stateHash = GetClipStateHash(inputNode.clipKey);
+            }
+
+            return true;
+        }
+
+        private int GetClipStateHash(string clipKey)
+        {
+            VATAnimatorClipData clip = FindClipByKey(clipKey);
+            return clip == null ? 0 : clip.stateHash;
+        }
+
+        private static Vector2 GetNextBlendThreshold(VATAnimatorBlendTreeData tree)
+        {
+            if (tree == null || tree.children == null) return Vector2.zero;
+            float next = tree.children.Count;
+            return tree.mode == VATAnimatorBlendTreeMode.TwoDimensional
+                ? new Vector2(next, 0f)
+                : new Vector2(next, 0f);
+        }
+
+        public bool RemoveBlendChildForEdge(VATAnimatorEdgeData edge)
+        {
+            if (edge == null || edge.inputPortName != "In") return false;
+            VATAnimatorNodeData outputNode = FindNode(edge.outputNodeId);
+            if (outputNode == null || outputNode.nodeType != VATAnimatorNodeType.BlendTree) return false;
+
+            int childId;
+            if (!TryParseBlendCasePort(edge.outputPortName, out childId)) return false;
+            VATAnimatorBlendTreeData tree = FindBlendTree(outputNode.blendTreeId);
+            return tree != null && tree.children != null &&
+                tree.children.RemoveAll(child => child == null || child.id == childId) > 0;
+        }
+
+        private static bool TryParseBlendCasePort(string portName, out int childId)
+        {
+            childId = -1;
+            return !string.IsNullOrEmpty(portName) &&
+                   portName.StartsWith("Case:", StringComparison.Ordinal) &&
+                   int.TryParse(portName.Substring("Case:".Length), out childId) &&
+                   childId > 0;
+        }
+
+        private void PruneBlendChildrenWithoutEdges()
+        {
+            for (int i = 0; i < blendTrees.Count; i++)
+            {
+                VATAnimatorBlendTreeData tree = blendTrees[i];
+                if (tree == null || tree.children == null) continue;
+                int nodeId = FindNodeForBlendTree(tree.id);
+                tree.children.RemoveAll(child => child == null || nodeId < 0 ||
+                    !edges.Any(edge => edge != null && edge.outputNodeId == nodeId &&
+                        edge.outputPortName == GetBlendCasePortName(child.id)));
+            }
+        }
+
         public void RemoveNode(int nodeId)
         {
             VATAnimatorNodeData node = FindNode(nodeId);
             if (node == null) return;
 
             nodes.Remove(node);
-            edges.RemoveAll(edge => edge == null || edge.outputNodeId == nodeId || edge.inputNodeId == nodeId);
+            for (int i = edges.Count - 1; i >= 0; i--)
+            {
+                VATAnimatorEdgeData edge = edges[i];
+                if (edge == null) continue;
+                if (edge.outputNodeId == nodeId || edge.inputNodeId == nodeId)
+                {
+                    RemoveBlendChildForEdge(edge);
+                    ClearRuntimeEdgeMapping(edge);
+                    ClearDefaultEdge(edge);
+                    ClearParameterEdge(edge);
+                    edges.RemoveAt(i);
+                }
+            }
 
             if (node.nodeType == VATAnimatorNodeType.Parameter)
             {
-                parameters.RemoveAll(parameter => parameter == null || parameter.id == node.parameterId);
-                for (int i = 0; i < transitions.Count; i++)
-                {
-                    VATAnimatorTransitionData transition = transitions[i];
-                    if (transition == null || transition.conditions == null) continue;
-                    transition.conditions.RemoveAll(condition => condition == null || condition.parameterId == node.parameterId);
-                }
-                for (int i = 0; i < blendTrees.Count; i++)
-                {
-                    if (blendTrees[i] != null && blendTrees[i].parameterId == node.parameterId)
-                    {
-                        blendTrees[i].parameterId = -1;
-                    }
-                }
+                // A Parameter node is only a visual reference. Its data is owned by the Blackboard.
             }
             else if (node.nodeType == VATAnimatorNodeType.Transition)
             {
@@ -561,11 +1169,18 @@ namespace OptimizedFeature.Editor.VATAnimator
             {
                 blendTrees.RemoveAll(tree => tree == null || tree.id == node.blendTreeId);
             }
+            else if (node.nodeType == VATAnimatorNodeType.Default)
+            {
+                defaultClipKey = string.Empty;
+                if (_sourceVATAsset != null) _sourceVATAsset.DefaultStateName = 0;
+            }
+
+            SyncRuntimeMappingsFromGraph();
         }
 
         public bool AddEdge(VATAnimatorEdgeData edge)
         {
-            if (edge == null || FindNode(edge.outputNodeId) == null || FindNode(edge.inputNodeId) == null)
+            if (!CanAddEdge(edge))
             {
                 return false;
             }
@@ -586,14 +1201,95 @@ namespace OptimizedFeature.Editor.VATAnimator
             return true;
         }
 
-        public void RemoveEdge(VATAnimatorEdgeData edge)
+        public bool CanAddEdge(VATAnimatorEdgeData edge)
         {
-            if (edge != null) edges.Remove(edge);
+            if (edge == null) return false;
+            VATAnimatorNodeData outputNode = FindNode(edge.outputNodeId);
+            VATAnimatorNodeData inputNode = FindNode(edge.inputNodeId);
+            if (outputNode == null || inputNode == null || outputNode.id == inputNode.id) return false;
+
+            if (outputNode.nodeType == VATAnimatorNodeType.Parameter)
+            {
+                VATAnimatorParameterData parameter = FindParameter(outputNode.parameterId);
+                if (parameter == null) return false;
+                if (inputNode.nodeType == VATAnimatorNodeType.Transition &&
+                    (edge.inputPortName == NewConditionPortName ||
+                     IsConditionPortName(edge.inputPortName)))
+                {
+                    return edge.outputPortName == parameter.type.ToString() || edge.outputPortName == "Value";
+                }
+
+                return inputNode.nodeType == VATAnimatorNodeType.BlendTree &&
+                       edge.inputPortName == "Parameter" &&
+                       (parameter.type == VATAnimatorParameterType.Float ||
+                        parameter.type == VATAnimatorParameterType.Vector2) &&
+                       (edge.outputPortName == parameter.type.ToString() || edge.outputPortName == "Value");
+            }
+
+            if (outputNode.nodeType == VATAnimatorNodeType.Clip &&
+                inputNode.nodeType == VATAnimatorNodeType.Transition)
+            {
+                return edge.outputPortName == "Out" && edge.inputPortName == "From";
+            }
+
+            if (outputNode.nodeType == VATAnimatorNodeType.Transition &&
+                (inputNode.nodeType == VATAnimatorNodeType.Clip ||
+                 inputNode.nodeType == VATAnimatorNodeType.BlendTree))
+            {
+                return edge.outputPortName == "To" &&
+                       ((inputNode.nodeType == VATAnimatorNodeType.Clip && edge.inputPortName == "In") ||
+                        (inputNode.nodeType == VATAnimatorNodeType.BlendTree && edge.inputPortName == "Entry"));
+            }
+
+            if (outputNode.nodeType == VATAnimatorNodeType.BlendTree &&
+                inputNode.nodeType == VATAnimatorNodeType.Clip)
+            {
+                return edge.inputPortName == "In" &&
+                       (edge.outputPortName == NewBlendCasePortName ||
+                        IsBlendCasePortName(edge.outputPortName));
+            }
+
+            if (outputNode.nodeType == VATAnimatorNodeType.Default &&
+                inputNode.nodeType == VATAnimatorNodeType.Clip)
+            {
+                return edge.outputPortName == "Out" && edge.inputPortName == "In";
+            }
+
+            return false;
         }
 
-        public void PruneDanglingEdges()
+        public bool HandleDefaultEdge(VATAnimatorEdgeData edge)
         {
-            edges.RemoveAll(edge => edge == null || FindNode(edge.outputNodeId) == null || FindNode(edge.inputNodeId) == null);
+            if (edge == null || edge.outputPortName != "Out" || edge.inputPortName != "In") return false;
+            VATAnimatorNodeData outputNode = FindNode(edge.outputNodeId);
+            VATAnimatorNodeData inputNode = FindNode(edge.inputNodeId);
+            if (outputNode == null || inputNode == null ||
+                outputNode.nodeType != VATAnimatorNodeType.Default ||
+                inputNode.nodeType != VATAnimatorNodeType.Clip)
+            {
+                return false;
+            }
+
+            defaultClipKey = inputNode.clipKey;
+            SyncRuntimeDefaultState();
+            return true;
+        }
+
+        public bool ClearDefaultEdge(VATAnimatorEdgeData edge)
+        {
+            if (edge == null || edge.outputPortName != "Out" || edge.inputPortName != "In") return false;
+            VATAnimatorNodeData outputNode = FindNode(edge.outputNodeId);
+            VATAnimatorNodeData inputNode = FindNode(edge.inputNodeId);
+            if (outputNode == null || inputNode == null ||
+                outputNode.nodeType != VATAnimatorNodeType.Default ||
+                inputNode.nodeType != VATAnimatorNodeType.Clip)
+            {
+                return false;
+            }
+
+            bool changed = !string.IsNullOrEmpty(defaultClipKey);
+            defaultClipKey = string.Empty;
+            return changed;
         }
 
         public void HandleParameterEdge(int parameterId, int targetNodeId, string targetPortName)
@@ -601,30 +1297,154 @@ namespace OptimizedFeature.Editor.VATAnimator
             VATAnimatorNodeData targetNode = FindNode(targetNodeId);
             if (targetNode == null) return;
 
+            VATAnimatorParameterData parameter = FindParameter(parameterId);
+            if (parameter == null) return;
+
             if (targetNode.nodeType == VATAnimatorNodeType.BlendTree && targetPortName == "Parameter")
             {
                 VATAnimatorBlendTreeData tree = FindBlendTree(targetNode.blendTreeId);
-                if (tree != null) tree.parameterId = parameterId;
+                if (tree != null)
+                {
+                    tree.parameterId = parameterId;
+                    tree.mode = parameter.type == VATAnimatorParameterType.Vector2
+                        ? VATAnimatorBlendTreeMode.TwoDimensional
+                        : VATAnimatorBlendTreeMode.OneDimensional;
+                }
             }
-            else if (targetNode.nodeType == VATAnimatorNodeType.Transition && targetPortName == "Conditions")
+            else if (targetNode.nodeType == VATAnimatorNodeType.Transition &&
+                     targetPortName.StartsWith("Condition:", StringComparison.Ordinal))
             {
                 VATAnimatorTransitionData transition = FindTransition(targetNode.transitionId);
                 if (transition == null) return;
+                if (transition.conditions == null) transition.conditions = new List<VATAnimatorConditionData>();
 
-                bool alreadyPresent = false;
-                for (int i = 0; i < transition.conditions.Count; i++)
+                int conditionId;
+                if (int.TryParse(targetPortName.Substring("Condition:".Length), out conditionId))
                 {
-                    if (transition.conditions[i] != null && transition.conditions[i].parameterId == parameterId)
+                    VATAnimatorConditionData condition = FindCondition(targetNode.transitionId, conditionId);
+                    if (condition != null)
                     {
-                        alreadyPresent = true;
-                        break;
+                        condition.parameterId = parameterId;
+                        NormalizeCondition(condition, parameter.type);
                     }
                 }
-                if (!alreadyPresent)
+            }
+        }
+
+        public bool ClearParameterEdge(VATAnimatorEdgeData edge)
+        {
+            if (edge == null) return false;
+            VATAnimatorNodeData targetNode = FindNode(edge.inputNodeId);
+            if (targetNode == null) return false;
+
+            if (targetNode.nodeType == VATAnimatorNodeType.BlendTree && edge.inputPortName == "Parameter")
+            {
+                VATAnimatorBlendTreeData tree = FindBlendTree(targetNode.blendTreeId);
+                if (tree != null)
                 {
-                    transition.conditions.Add(new VATAnimatorConditionData { parameterId = parameterId });
+                    bool changed = tree.parameterId != -1;
+                    tree.parameterId = -1;
+                    tree.mode = VATAnimatorBlendTreeMode.OneDimensional;
+                    return changed;
                 }
             }
+            else if (targetNode.nodeType == VATAnimatorNodeType.Transition &&
+                     edge.inputPortName.StartsWith("Condition:", StringComparison.Ordinal))
+            {
+                int conditionId;
+                if (int.TryParse(edge.inputPortName.Substring("Condition:".Length), out conditionId))
+                {
+                    VATAnimatorTransitionData transition = FindTransition(targetNode.transitionId);
+                    if (transition == null || transition.conditions == null) return false;
+
+                    int conditionIndex = -1;
+                    for (int i = 0; i < transition.conditions.Count; i++)
+                    {
+                        VATAnimatorConditionData condition = transition.conditions[i];
+                        if (condition != null && condition.id == conditionId)
+                        {
+                            conditionIndex = i;
+                            break;
+                        }
+                    }
+
+                    // Keep the first condition slot as the reusable anchor. Conditions
+                    // created after it are represented entirely by their connected edges.
+                    if (conditionIndex > 0)
+                    {
+                        transition.conditions.RemoveAll(condition => condition == null || condition.id == conditionId);
+                        return true;
+                    }
+                    else
+                    {
+                        VATAnimatorConditionData condition = FindCondition(targetNode.transitionId, conditionId);
+                        if (condition != null)
+                        {
+                            bool changed = condition.parameterId != -1;
+                            condition.parameterId = -1;
+                            return changed;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsConditionPortName(string portName)
+        {
+            int conditionId;
+            return portName != null && portName.StartsWith("Condition:", StringComparison.Ordinal) &&
+                   int.TryParse(portName.Substring("Condition:".Length), out conditionId) && conditionId > 0;
+        }
+
+        private static bool IsBlendCasePortName(string portName)
+        {
+            int childId;
+            return TryParseBlendCasePort(portName, out childId);
+        }
+
+        private static void NormalizeCondition(
+            VATAnimatorConditionData condition,
+            VATAnimatorParameterType parameterType)
+        {
+            VATAnimatorConditionMode[] modes = GetConditionModes(parameterType);
+            if (Array.IndexOf(modes, condition.mode) < 0) condition.mode = modes[0];
+        }
+
+        private static VATAnimatorConditionMode[] GetConditionModes(VATAnimatorParameterType type)
+        {
+            switch (type)
+            {
+                case VATAnimatorParameterType.Trigger:
+                    return new[] { VATAnimatorConditionMode.If };
+                case VATAnimatorParameterType.Bool:
+                    return new[] { VATAnimatorConditionMode.If, VATAnimatorConditionMode.IfNot };
+                case VATAnimatorParameterType.Float:
+                    return new[]
+                    {
+                        VATAnimatorConditionMode.Greater,
+                        VATAnimatorConditionMode.Less,
+                        VATAnimatorConditionMode.Equals,
+                        VATAnimatorConditionMode.NotEquals
+                    };
+                case VATAnimatorParameterType.Vector2:
+                    return new[]
+                    {
+                        VATAnimatorConditionMode.MagnitudeGreater,
+                        VATAnimatorConditionMode.MagnitudeLess,
+                        VATAnimatorConditionMode.Equals,
+                        VATAnimatorConditionMode.NotEquals
+                    };
+                default:
+                    return new[] { VATAnimatorConditionMode.If };
+            }
+        }
+
+        public void PruneDanglingEdges()
+        {
+            if (edges == null) return;
+            edges.RemoveAll(edge => edge == null || FindNode(edge.outputNodeId) == null || FindNode(edge.inputNodeId) == null);
         }
 
         public bool ValidateGraph(List<string> messages)
@@ -633,8 +1453,8 @@ namespace OptimizedFeature.Editor.VATAnimator
             if (messages == null) throw new ArgumentNullException("messages");
             messages.Clear();
 
-            if (sourceVATAsset == null) messages.Add("No VATAssetDataSO input is assigned.");
-            if (clips.Count == 0) messages.Add("The graph has no source clips. Sync it from VATAssetDataSO.Clips.");
+            if (_sourceVATAsset == null) messages.Add("No VATAssetDataSO input is assigned.");
+            if (clips.Count == 0) messages.Add("The VATAssetDataSO has no source clips.");
             if (string.IsNullOrEmpty(defaultClipKey) && clips.Count > 0) messages.Add("No default clip is selected.");
 
             HashSet<int> hashes = new HashSet<int>();
@@ -651,7 +1471,16 @@ namespace OptimizedFeature.Editor.VATAnimator
             {
                 VATAnimatorTransitionData transition = transitions[i];
                 if (transition == null) continue;
+                if (transition.conditions == null) transition.conditions = new List<VATAnimatorConditionData>();
                 if (transition.duration < 0f) messages.Add("Transition duration cannot be negative: " + transition.title);
+                if (transition.fromStateHash == 0)
+                {
+                    messages.Add("Transition has no source Clip edge: " + transition.title);
+                }
+                if (transition.toStateHash == 0 && transition.toBlendTreeId <= 0)
+                {
+                    messages.Add("Transition has no target Clip or BlendTree edge: " + transition.title);
+                }
                 if (transition.conditions.Count == 0 && !transition.autoTransition && !transition.hasExitTime)
                 {
                     messages.Add("Transition has no condition, auto mode, or exit time: " + transition.title);
@@ -692,6 +1521,15 @@ namespace OptimizedFeature.Editor.VATAnimator
                             messages.Add("Blend tree contains a missing child clip: " + tree.title);
                         }
                     }
+                }
+            }
+
+            for (int i = 0; i < edges.Count; i++)
+            {
+                VATAnimatorEdgeData edge = edges[i];
+                if (edge == null || !CanAddEdge(edge))
+                {
+                    messages.Add("Graph contains an incompatible edge.");
                 }
             }
 

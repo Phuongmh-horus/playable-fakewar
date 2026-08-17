@@ -50,6 +50,7 @@ namespace OptimizedFeature.Scripts.Editor
             EditorGUILayout.HelpBox(
                 "Drag & drop multiple GameObjects to batch setup VAT components.\n" +
                 "• Adds VAT_RenderComponent + MeshFilter + MeshRenderer on each root\n" +
+                "• Creates an optional VAT Weapon sub-render when the Body asset has DefaultWeaponAsset\n" +
                 "• Cleans up legacy child 'MeshRenderer_VAT' objects if found",
                 MessageType.Info);
 
@@ -135,16 +136,29 @@ namespace OptimizedFeature.Scripts.Editor
 
         private void SetupAllVATCharacters()
         {
-            if (_vatAssetData == null) return;
+            SetupAllVATCharacters(_targetRoots, _vatAssetData, _vatMaterial, _attachments);
+        }
+
+        /// <summary>
+        /// Shared VAT setup operation used by both the standalone helper and the
+        /// Runtime Setup tab in VATBakeToolWindow.
+        /// </summary>
+        public static void SetupAllVATCharacters(
+            IList<GameObject> targetRoots,
+            VATAssetDataSO vatAssetData,
+            Material vatMaterial,
+            IList<SocketAttachmentSetup> attachments)
+        {
+            if (vatAssetData == null || targetRoots == null) return;
 
             List<Material> targetMaterials = new List<Material>();
-            if (_vatMaterial != null)
+            if (vatMaterial != null)
             {
-                targetMaterials.Add(_vatMaterial);
+                targetMaterials.Add(vatMaterial);
             }
-            else if (_vatAssetData.BakedMaterials != null && _vatAssetData.BakedMaterials.Count > 0)
+            else if (vatAssetData.BakedMaterials != null && vatAssetData.BakedMaterials.Count > 0)
             {
-                targetMaterials.AddRange(_vatAssetData.BakedMaterials);
+                targetMaterials.AddRange(vatAssetData.BakedMaterials);
             }
 
             if (targetMaterials.Count == 0)
@@ -163,19 +177,23 @@ namespace OptimizedFeature.Scripts.Editor
             }
 
             int successCount = 0;
-            for (int i = 0; i < _targetRoots.Count; i++)
+            for (int i = 0; i < targetRoots.Count; i++)
             {
-                GameObject target = _targetRoots[i];
+                GameObject target = targetRoots[i];
                 if (target == null) continue;
 
-                SetupSingleCharacter(target, targetMaterials);
+                SetupSingleCharacter(target, vatAssetData, targetMaterials, attachments);
                 successCount++;
             }
 
             Debug.Log($"[VATSetupHelper] Successfully configured {successCount} VAT character(s)!");
         }
 
-        private void SetupSingleCharacter(GameObject target, List<Material> targetMaterials)
+        private static void SetupSingleCharacter(
+            GameObject target,
+            VATAssetDataSO vatAssetData,
+            List<Material> targetMaterials,
+            IList<SocketAttachmentSetup> attachments)
         {
             Undo.RegisterFullObjectHierarchyUndo(target, "Setup VAT Character");
 
@@ -202,32 +220,71 @@ namespace OptimizedFeature.Scripts.Editor
             var serializedComponent = new SerializedObject(renderComponent);
             serializedComponent.FindProperty("_meshFilter").objectReferenceValue = meshFilter;
             serializedComponent.FindProperty("_meshRenderer").objectReferenceValue = meshRenderer;
-            serializedComponent.FindProperty("_vatAssetData").objectReferenceValue = _vatAssetData;
+            serializedComponent.FindProperty("_vatAssetData").objectReferenceValue = vatAssetData;
             serializedComponent.ApplyModifiedProperties();
 
             // Apply data and material configurations
             renderComponent.SetMaterials(targetMaterials.ToArray());
-            renderComponent.SetVATAssetData(_vatAssetData);
+            renderComponent.SetVATAssetData(vatAssetData);
 
-            // 3. Configure Equipment Attachments
-            foreach (var setup in _attachments)
+            // Configure the optional VAT Weapon sub-render. It is driven by the
+            // body component's frame state, so Body and Weapon never advance on
+            // separate clocks.
+            if (vatAssetData.DefaultWeaponAsset != null)
             {
-                if (setup.EquipmentObject == null) continue;
-
-                setup.EquipmentObject.transform.SetParent(target.transform, false);
-
-                VAT_ObjectMesh objectMeshBridge = setup.EquipmentObject.GetComponent<VAT_ObjectMesh>();
-                if (objectMeshBridge == null)
+                VATWeaponRenderComponent weaponRender =
+                    target.GetComponentInChildren<VATWeaponRenderComponent>(true);
+                if (weaponRender == null)
                 {
-                    objectMeshBridge = setup.EquipmentObject.AddComponent<VAT_ObjectMesh>();
+                    GameObject weaponRenderObject = new GameObject("VAT_Weapon_SubRender");
+                    Undo.RegisterCreatedObjectUndo(weaponRenderObject, "Create VAT Weapon Sub-render");
+                    weaponRenderObject.transform.SetParent(target.transform, false);
+                    weaponRender = weaponRenderObject.AddComponent<VATWeaponRenderComponent>();
                 }
 
-                var serializedObjMesh = new SerializedObject(objectMeshBridge);
-                serializedObjMesh.FindProperty("_socketName").stringValue = setup.SocketName;
-                serializedObjMesh.FindProperty("_animatorBridge").objectReferenceValue = renderComponent;
-                serializedObjMesh.ApplyModifiedProperties();
+                SerializedObject serializedWeapon = new SerializedObject(weaponRender);
+                serializedWeapon.FindProperty("_frameSource").objectReferenceValue = renderComponent;
+                serializedWeapon.FindProperty("_weaponAsset").objectReferenceValue =
+                    vatAssetData.DefaultWeaponAsset;
+                serializedWeapon.ApplyModifiedProperties();
+                weaponRender.SetFrameSource(renderComponent);
+                weaponRender.SetWeaponAsset(vatAssetData.DefaultWeaponAsset);
+                renderComponent.RefreshWeaponSubRenders();
+            }
+            else
+            {
+                VATWeaponRenderComponent existingWeaponRender =
+                    target.GetComponentInChildren<VATWeaponRenderComponent>(true);
+                if (existingWeaponRender != null)
+                {
+                    existingWeaponRender.SetFrameSource(renderComponent);
+                    existingWeaponRender.SetWeaponAsset(null);
+                    renderComponent.RefreshWeaponSubRenders();
+                }
+            }
 
-                objectMeshBridge.BindSocketData();
+            // 3. Configure Equipment Attachments
+            if (attachments != null)
+            {
+                foreach (SocketAttachmentSetup setup in attachments)
+                {
+                    if (setup == null || setup.EquipmentObject == null) continue;
+
+                    setup.EquipmentObject.transform.SetParent(target.transform, false);
+
+                    VAT_ObjectMesh objectMeshBridge = setup.EquipmentObject.GetComponent<VAT_ObjectMesh>();
+                    if (objectMeshBridge == null)
+                    {
+                        objectMeshBridge = setup.EquipmentObject.AddComponent<VAT_ObjectMesh>();
+                    }
+
+                    var serializedObjMesh = new SerializedObject(objectMeshBridge);
+                    serializedObjMesh.FindProperty("_socketName").stringValue = setup.SocketName;
+                    serializedObjMesh.FindProperty("_animatorBridge").objectReferenceValue = renderComponent;
+                    serializedObjMesh.ApplyModifiedProperties();
+
+                    objectMeshBridge.BindSocketData();
+                }
             }
 
             // 4. Register with VATSystem

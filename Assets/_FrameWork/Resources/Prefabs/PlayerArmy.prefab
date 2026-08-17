@@ -92,6 +92,9 @@ MonoBehaviour:
   weaponProjectilePrefab: {fileID: 1917486832313472047, guid: 4ef0b5594cca6b44ebc2a66c188f553d, type: 3}
   inputManager: {fileID: 5783931141563337667}
   effectSystem: {fileID: 16920303580411128}
+  collisionTickInterval: 2
+  attackTickInterval: 2
+  pruneTickInterval: 15
   characterUnits:
   - {fileID: 7977750878149802929}
 --- !u!114 &5783931141563337667
@@ -191,6 +194,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4003252130411642508}
     m_Modifications:
+    - target: {fileID: 334311279555372917, guid: 84048d40d6e22a542880a79087b52656, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 334311279555372917, guid: 84048d40d6e22a542880a79087b52656, type: 3}
       propertyPath: mappings.Array.size
       value: 4
@@ -302,6 +309,10 @@ PrefabInstance:
     - target: {fileID: 7133771577144448769, guid: 84048d40d6e22a542880a79087b52656, type: 3}
       propertyPath: targetPreset
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7319165371583514864, guid: 84048d40d6e22a542880a79087b52656, type: 3}
+      propertyPath: m_ReflectionProbeUsage
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7901223495316508402, guid: 84048d40d6e22a542880a79087b52656, type: 3}
       propertyPath: m_CastShadows

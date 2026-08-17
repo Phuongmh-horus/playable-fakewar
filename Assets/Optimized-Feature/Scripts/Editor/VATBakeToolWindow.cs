@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.UIElements;
 
 namespace OptimizedFeature.Scripts.Editor
 {
@@ -17,9 +18,15 @@ namespace OptimizedFeature.Scripts.Editor
 
     public enum VATBakeOutputMode
     {
-        // Splits source renderer material slots only; it does not split VAT data.
+        // Controls material validation within each Body/Weapon VAT channel.
         PerSkinnedMesh,
         Combined
+    }
+
+    public enum VATRendererRole
+    {
+        Body,
+        Weapon
     }
 
     /// <summary>
@@ -35,21 +42,30 @@ namespace OptimizedFeature.Scripts.Editor
         private const string LunaVATTextureFormat = "png32";
         private const string LunaVATTextureCompression = "none";
         private const int LunaVATTextureQuality = 100;
+        private const float SectionTabHeight = 24f;
+        private const float CommonFooterHeight = 210f;
 
         [Header("Baking Settings")]
         private string _savePath = "Assets/Optimized-Feature/BakedAssets/";
         private int _sampleFrameRate = 30;
         private ShaderPatchMode _shaderPatchMode = ShaderPatchMode.AutoPatchIfMissing;
-        private VATBakeOutputMode _outputMode = VATBakeOutputMode.Combined;
+        private VATBakeOutputMode _outputMode = VATBakeOutputMode.PerSkinnedMesh;
 
         [Header("Baking Input Data")]
         private GameObject _targetPrefab;
         private List<SkinnedMeshRenderer> _detectedSkinnedMeshes = new List<SkinnedMeshRenderer>();
         private List<bool> _selectedMeshToggles = new List<bool>(); // Selection toggles for skinned meshes
+        private List<VATRendererRole> _meshRoles = new List<VATRendererRole>();
         private List<Material> _detectedMaterials = new List<Material>();
         private Animator _detectedAnimator;
+        private List<AnimationClip> _controllerClips = new List<AnimationClip>();
+        private List<AnimationClip> _animationMergeOutputs = new List<AnimationClip>();
         private List<AnimationClip> _detectedClips = new List<AnimationClip>();
         private List<bool> _selectedClipToggles = new List<bool>();
+        private bool _usingAnimationMergeOutputs;
+        private bool _embeddedAnimationMergeGraphLoaded;
+        private AnimationMergeGraphWindow.EmbeddedGraphHandle _embeddedAnimationMergeGraph;
+        private VisualElement _embeddedAnimationMergeSurface;
 
         [Header("Baked Output Source Of Truth")]
         private VATAssetDataSO _outputAssetData;
@@ -58,10 +74,23 @@ namespace OptimizedFeature.Scripts.Editor
         private bool _cachedLunaOverrideFound;
         private LunaTextureOverrideSettings _cachedLunaOverrideSettings;
 
-        // UI Foldouts
-        private bool _settingsFoldout = true;
-        private bool _inputsFoldout = true;
-        private bool _outputsFoldout = true;
+        [Header("Runtime Setup Data")]
+        [SerializeField] private List<GameObject> _setupTargetRoots = new List<GameObject>();
+        [SerializeField] private VATAssetDataSO _setupVATAssetData;
+        [SerializeField] private Material _setupVATMaterial;
+        [SerializeField] private List<VATSetupHelper.SocketAttachmentSetup> _setupAttachments =
+            new List<VATSetupHelper.SocketAttachmentSetup>();
+        private SerializedObject _setupSerializedObject;
+        private SerializedProperty _setupTargetRootsProperty;
+        private SerializedProperty _setupAttachmentsProperty;
+
+        // UI Navigation / Foldouts
+        private static readonly string[] SectionTabs =
+        {
+            "1. Settings", "2. Inputs", "3. Outputs", "4. Runtime Setup"
+        };
+        private int _selectedSectionTab;
+        private Vector2 _sectionScrollPosition;
         private bool _meshesFoldout = true;
         private bool _materialsFoldout = true;
         private bool _clipsFoldout = true;
@@ -79,12 +108,23 @@ namespace OptimizedFeature.Scripts.Editor
             public bool UsesHierarchyTransform;
         }
 
-        private sealed class BakedOutput
+        private sealed class BakedChannelOutput
         {
             public Mesh Mesh;
             public Texture2D Texture;
             public List<Material> Materials = new List<Material>();
+            public Vector3 BoundsMin;
+            public Vector3 BoundsMax;
+            public int VertexCount;
+            public int TotalFrames;
+        }
+
+        private sealed class BakedOutput
+        {
+            public BakedChannelOutput Body;
+            public BakedChannelOutput Weapon;
             public VATAssetDataSO AssetData;
+            public VATWeaponAssetSO WeaponAsset;
         }
 
         private struct LunaTextureOverrideSettings
@@ -100,70 +140,167 @@ namespace OptimizedFeature.Scripts.Editor
         [MenuItem("Tools/VAT Bake Tool Simulation")]
         public static void OpenWindow()
         {
-            GetWindow<VATBakeToolWindow>("VAT Bake Tool");
+            VATBakeToolWindow window = GetWindow<VATBakeToolWindow>("VAT Bake Tool");
+            window.minSize = new Vector2(480f, 440f);
         }
 
-        private void OnGUI()
+        private void OnEnable()
         {
-            // --- 1. SETTINGS ---
-            EditorGUILayout.BeginVertical("box");
-            _settingsFoldout = EditorGUILayout.Foldout(_settingsFoldout, "1. Settings", true, EditorStyles.foldoutHeader);
-            if (_settingsFoldout)
+            minSize = new Vector2(480f, 440f);
+            InitializeSetupSerializedProperties();
+        }
+
+        private void OnDisable()
+        {
+            DisposeEmbeddedAnimationMergeGraph();
+        }
+
+        private void CreateGUI()
+        {
+            IMGUIContainer legacyContent = new IMGUIContainer(DrawWindowGUI)
             {
-                _savePath = EditorGUILayout.TextField("Save Path", _savePath);
-                _sampleFrameRate = EditorGUILayout.IntField("Sample FPS", _sampleFrameRate);
-                _shaderPatchMode = (ShaderPatchMode)EditorGUILayout.EnumPopup("Shader Patch Mode", _shaderPatchMode);
-                _outputMode = (VATBakeOutputMode)EditorGUILayout.EnumPopup("VAT Output Mode", _outputMode);
-                if (_outputMode == VATBakeOutputMode.PerSkinnedMesh)
-                {
-                    EditorGUILayout.HelpBox(
-                        "Each selected SkinnedMeshRenderer contributes its own material slots/submeshes. " +
-                        "All slots still share one static mesh, one VAT texture and one VATAssetDataSO.",
-                        MessageType.Info);
-                }
-                else
-                {
-                    EditorGUILayout.HelpBox(
-                        "All selected SkinnedMeshRenderers are baked into one VAT data set. " +
-                        "Every material slot must use the same Shader and BaseTexture.",
-                        MessageType.Info);
-                }
+                name = "VATBakeLegacyContent"
+            };
+            legacyContent.style.flexGrow = 1f;
+            rootVisualElement.Add(legacyContent);
+        }
+
+        private void DrawWindowGUI()
+        {
+            Rect tabRect = new Rect(0f, 0f, position.width, SectionTabHeight);
+            int selectedTab = GUI.Toolbar(tabRect, _selectedSectionTab, SectionTabs);
+            if (selectedTab != _selectedSectionTab)
+            {
+                _selectedSectionTab = selectedTab;
+                _sectionScrollPosition = Vector2.zero;
+            }
+
+            float contentTop = SectionTabHeight + 4f;
+            float footerHeight = Mathf.Min(CommonFooterHeight, Mathf.Max(120f, position.height - contentTop));
+            Rect contentRect = new Rect(
+                0f,
+                contentTop,
+                position.width,
+                Mathf.Max(1f, position.height - contentTop - footerHeight - 4f));
+            Rect footerRect = new Rect(
+                0f,
+                position.height - footerHeight,
+                position.width,
+                footerHeight);
+
+            GUILayout.BeginArea(contentRect);
+            _sectionScrollPosition = EditorGUILayout.BeginScrollView(_sectionScrollPosition);
+            switch (_selectedSectionTab)
+            {
+                case 0:
+                    DrawSettingsPage();
+                    break;
+                case 1:
+                    DrawInputsPage();
+                    break;
+                case 2:
+                    DrawOutputsPage();
+                    break;
+                case 3:
+                    DrawVATSetupPage();
+                    break;
+            }
+            EditorGUILayout.EndScrollView();
+            GUILayout.EndArea();
+
+            GUILayout.BeginArea(footerRect);
+            if (_selectedSectionTab == 3)
+            {
+                DrawVATSetupFooter();
+            }
+            else
+            {
+                DrawCommonFooter();
+            }
+            GUILayout.EndArea();
+
+            UpdateEmbeddedAnimationMergeSurface(footerHeight);
+        }
+
+        private void UpdateEmbeddedAnimationMergeSurface(float footerHeight)
+        {
+            if (_embeddedAnimationMergeSurface == null)
+            {
+                return;
+            }
+
+            _embeddedAnimationMergeSurface.style.position = Position.Absolute;
+            _embeddedAnimationMergeSurface.style.left = 0f;
+            _embeddedAnimationMergeSurface.style.right = 0f;
+            _embeddedAnimationMergeSurface.style.top = SectionTabHeight + 4f;
+            _embeddedAnimationMergeSurface.style.bottom = footerHeight + 4f;
+            _embeddedAnimationMergeSurface.style.display =
+                _embeddedAnimationMergeGraphLoaded && _selectedSectionTab == 1
+                    ? DisplayStyle.Flex
+                    : DisplayStyle.None;
+        }
+
+        private void DisposeEmbeddedAnimationMergeGraph()
+        {
+            if (_embeddedAnimationMergeGraph != null)
+            {
+                _embeddedAnimationMergeGraph.Dispose();
+                _embeddedAnimationMergeGraph = null;
+            }
+
+            _embeddedAnimationMergeSurface = null;
+            _embeddedAnimationMergeGraphLoaded = false;
+        }
+
+        private void DrawSettingsPage()
+        {
+            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.LabelField("Baking Settings", EditorStyles.boldLabel);
+            _savePath = EditorGUILayout.TextField("Save Path", _savePath);
+            _sampleFrameRate = EditorGUILayout.IntField("Sample FPS", _sampleFrameRate);
+            _shaderPatchMode = (ShaderPatchMode)EditorGUILayout.EnumPopup("Shader Patch Mode", _shaderPatchMode);
+            _outputMode = (VATBakeOutputMode)EditorGUILayout.EnumPopup("VAT Output Mode", _outputMode);
+            if (_outputMode == VATBakeOutputMode.PerSkinnedMesh)
+            {
                 EditorGUILayout.HelpBox(
-                    "VAT textures are protected for Luna with a 4096 x 4096 PNG32, compression-none override.",
+                    "Per SkinnedMesh allows different source shaders and base textures. " +
+                    "The result uses a Body VAT channel and an optional Weapon VAT sub-render channel.",
                     MessageType.Info);
             }
-            EditorGUILayout.EndVertical();
-
-            EditorGUILayout.Space();
-
-            // --- 2. INPUTS ---
-            EditorGUILayout.BeginVertical("box");
-            string inputTitle = _targetPrefab == null
-                ? "2. Inputs"
-                : $"2. Inputs — {_targetPrefab.name}";
-            _inputsFoldout = EditorGUILayout.Foldout(_inputsFoldout, inputTitle, true, EditorStyles.foldoutHeader);
-            if (_inputsFoldout)
+            else
             {
-                EditorGUI.BeginChangeCheck();
-                _targetPrefab = (GameObject)EditorGUILayout.ObjectField("Target GameObject", _targetPrefab, typeof(GameObject), true);
-                if (EditorGUI.EndChangeCheck())
-                {
-                    LoadBakeReferences();
-                }
+                EditorGUILayout.HelpBox(
+                    "Combined requires every material slot to share the same Shader and BaseTexture.",
+                    MessageType.Info);
+            }
+            EditorGUILayout.HelpBox(
+                "Assign each detected renderer to Body or Weapon. Both channels are sampled from the same clip/frame manifest; Weapon is optional.",
+                MessageType.Info);
+            EditorGUILayout.HelpBox(
+                "VAT textures are protected for Luna with a 4096 x 4096 PNG32, compression-none override.",
+                MessageType.Info);
+            EditorGUILayout.EndVertical();
+        }
 
-                if (_targetPrefab != null)
-                {
-                // Display detected SkinnedMeshRenderers with optional selection toggles
-                // Sync toggles count to match detected meshes
-                while (_selectedMeshToggles.Count < _detectedSkinnedMeshes.Count)
-                    _selectedMeshToggles.Add(true);
-                while (_selectedMeshToggles.Count > _detectedSkinnedMeshes.Count)
-                    _selectedMeshToggles.RemoveAt(_selectedMeshToggles.Count - 1);
+        private void DrawInputsPage()
+        {
+            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.LabelField("Baking Inputs", EditorStyles.boldLabel);
+            EditorGUI.BeginChangeCheck();
+            _targetPrefab = (GameObject)EditorGUILayout.ObjectField("Target GameObject", _targetPrefab, typeof(GameObject), true);
+            if (EditorGUI.EndChangeCheck())
+            {
+                LoadBakeReferences();
+            }
 
-                int activeMeshCount = 0;
-                for (int i = 0; i < _selectedMeshToggles.Count; i++)
-                    if (_selectedMeshToggles[i]) activeMeshCount++;
+            if (_targetPrefab != null)
+            {
+                SyncMeshSelectionToggles();
+                int activeMeshCount = GetSelectedMeshCount();
 
+                EditorGUILayout.HelpBox(
+                    "Each selected renderer is baked into either the Body VAT channel or the optional Weapon VAT sub-render. The role popup is shown at the end of each mesh row.",
+                    MessageType.None);
                 _meshesFoldout = EditorGUILayout.Foldout(_meshesFoldout, $"Detected Skinned Meshes ({_detectedSkinnedMeshes.Count}) — {activeMeshCount} selected for baking");
                 if (_meshesFoldout)
                 {
@@ -174,10 +311,27 @@ namespace OptimizedFeature.Scripts.Editor
                         _selectedMeshToggles[i] = EditorGUILayout.Toggle(_selectedMeshToggles[i], GUILayout.Width(20));
                         EditorGUI.BeginDisabledGroup(!_selectedMeshToggles[i]);
                         EditorGUILayout.ObjectField($"Mesh [{i}]", _detectedSkinnedMeshes[i], typeof(SkinnedMeshRenderer), true);
+                        _meshRoles[i] = (VATRendererRole)EditorGUILayout.EnumPopup(
+                            GUIContent.none,
+                            _meshRoles[i],
+                            GUILayout.Width(78));
                         EditorGUI.EndDisabledGroup();
                         EditorGUILayout.EndHorizontal();
                     }
                     EditorGUI.indentLevel--;
+                }
+
+                if (_detectedSkinnedMeshes.Count == 0)
+                {
+                    EditorGUILayout.HelpBox(
+                        "The selected GameObject has no SkinnedMeshRenderer to bake.",
+                        MessageType.Warning);
+                }
+                else if (activeMeshCount == 0)
+                {
+                    EditorGUILayout.HelpBox(
+                        "All detected SkinnedMeshRenderers are ignored. Select at least one mesh to bake.",
+                        MessageType.Warning);
                 }
 
                 // Display detected Materials and Shaders
@@ -196,30 +350,55 @@ namespace OptimizedFeature.Scripts.Editor
                     EditorGUI.indentLevel--;
                 }
 
-                // Display detected Animator and controller clips with ignore toggles
-                _detectedAnimator = (Animator)EditorGUILayout.ObjectField("Detected Animator", _detectedAnimator, typeof(Animator), true);
-                _clipsFoldout = EditorGUILayout.Foldout(_clipsFoldout, $"Select Animation Clips to Bake ({_detectedClips.Count})");
+                // Display detected Animator and route its clips through Animation Merge
+                // before they become VAT bake candidates.
+                EditorGUI.BeginChangeCheck();
+                Animator selectedAnimator = (Animator)EditorGUILayout.ObjectField(
+                    "Detected Animator",
+                    _detectedAnimator,
+                    typeof(Animator),
+                    true);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    SetDetectedAnimator(selectedAnimator);
+                }
+
+                DrawAnimationMergeInput();
+
+                string clipSourceLabel = _usingAnimationMergeOutputs
+                    ? "Animator + Animation Merge outputs"
+                    : "Detected Animator controller";
+                _clipsFoldout = EditorGUILayout.Foldout(
+                    _clipsFoldout,
+                    $"Select Animation Clips to Bake ({_detectedClips.Count}) • {clipSourceLabel}");
                 if (_clipsFoldout)
                 {
                     EditorGUI.indentLevel++;
                     if (_detectedClips.Count == 0)
                     {
                         EditorGUILayout.HelpBox(
-                            "No AnimationClip was found on the detected Animator controller.",
+                            "No AnimationClip candidate was found from the detected Animator or Animation Merge outputs.",
                             MessageType.Info);
                     }
 
                     for (int i = 0; i < _detectedClips.Count; i++)
                     {
                         EditorGUILayout.BeginHorizontal();
-                        _selectedClipToggles[i] = EditorGUILayout.Toggle(
+                        bool selected = EditorGUILayout.Toggle(
                             _selectedClipToggles[i],
                             GUILayout.Width(20));
+                        if (selected != _selectedClipToggles[i])
+                        {
+                            SetClipBakeSelection(_detectedClips[i], selected);
+                        }
                         EditorGUILayout.ObjectField(
                             $"Clip [{i}]",
                             _detectedClips[i],
                             typeof(AnimationClip),
                             false);
+                        EditorGUILayout.LabelField(
+                            IsAnimationMergeOutput(_detectedClips[i]) ? "Merged" : "Animator",
+                            GUILayout.Width(58));
                         if (!_selectedClipToggles[i])
                         {
                             EditorGUILayout.LabelField("Ignored", GUILayout.Width(55));
@@ -229,52 +408,213 @@ namespace OptimizedFeature.Scripts.Editor
                     EditorGUI.indentLevel--;
                 }
 
-                }
-                else
+                if (_detectedClips.Count > 0 && GetSelectedClipCount() == 0)
                 {
-                    EditorGUILayout.HelpBox("Please drag a target character GameObject to load reference inputs.", MessageType.Info);
+                    EditorGUILayout.HelpBox(
+                        "All detected animation clips are ignored. Select at least one clip to bake.",
+                        MessageType.Warning);
                 }
+            }
+            else
+            {
+                EditorGUILayout.HelpBox(
+                    "Drag a target character GameObject here to load meshes, materials and animation clips.",
+                    MessageType.Warning);
             }
             EditorGUILayout.EndVertical();
+        }
+        private void DrawAnimationMergeInput()
+        {
+            bool hasMergeInput = _detectedAnimator != null &&
+                                 _detectedAnimator.runtimeAnimatorController != null;
+            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.LabelField("Animation Merge Graph", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "This section hosts the original Animation Merge graph, including node connections, Merge inspector, Preview and session actions. The graph is created only after loading.",
+                MessageType.Info);
 
-            EditorGUILayout.Space();
-
-            // --- 3. OUTPUTS ---
-            DrawOutputsSection();
-
-            EditorGUILayout.Space();
-
-            // Bake action for the configured settings and inputs.
-            // Compute active mesh count for bake button disabled condition
-            int _activeMeshCountForButton = 0;
-            for (int i = 0; i < _selectedMeshToggles.Count; i++)
-                if (_selectedMeshToggles[i]) _activeMeshCountForButton++;
-            EditorGUI.BeginDisabledGroup(_targetPrefab == null || _activeMeshCountForButton == 0);
-
-            // Button label hints that a dialog will appear if existing SO data is detected
-            string buttonLabel = _outputAssetData != null ? "Bake VAT Assets..." : "Simulate VAT Baking Pipeline";
-
-            if (GUILayout.Button(buttonLabel, GUILayout.Height(30)))
+            EditorGUI.BeginDisabledGroup(!hasMergeInput);
+            if (GUILayout.Button(
+                    _embeddedAnimationMergeGraphLoaded
+                        ? "Reload Original Animation Merge Graph"
+                        : "Load Original Animation Merge Graph"))
             {
-                BakeVATSimulation();
+                LoadEmbeddedAnimationMergeGraph();
             }
             EditorGUI.EndDisabledGroup();
+
+            if (_detectedAnimator == null)
+            {
+                EditorGUILayout.HelpBox(
+                    "A detected Animator with a runtime controller is required before Animation Merge can preprocess clips.",
+                    MessageType.Warning);
+            }
+            else if (!hasMergeInput)
+            {
+                EditorGUILayout.HelpBox(
+                    "The detected Animator has no runtime Animator Controller to export.",
+                    MessageType.Warning);
+            }
+            else if (_usingAnimationMergeOutputs)
+            {
+                EditorGUILayout.HelpBox(
+                    $"{_animationMergeOutputs.Count} generated output(s) are available alongside {_controllerClips.Count} original controller clip(s). Use the Bake toggle on graph nodes or Select Animation Clips to Bake below.",
+                    MessageType.Info);
+            }
+
+            if (_embeddedAnimationMergeGraphLoaded)
+            {
+                EditorGUILayout.HelpBox(
+                    "The original graph is displayed in the embedded graph surface above. Its Animation node Bake toggles drive the bake clip selection. Use Exit Graph on the graph toolbar to return to VAT Bake Inputs; the temporary graph session remains available while this tool is open.",
+                    MessageType.Info);
+            }
+            else
+            {
+                EditorGUILayout.HelpBox(
+                    "Animation Merge Graph is not loaded. Press Load Original Animation Merge Graph to open it. If you exited an existing graph, its temporary session will be restored while this tool remains open.",
+                    MessageType.None);
+            }
+
+            EditorGUILayout.EndVertical();
         }
 
-        private void DrawOutputsSection()
+        private void LoadEmbeddedAnimationMergeGraph()
         {
-            EditorGUILayout.Space();
-            EditorGUILayout.BeginVertical("box");
-            string outputTitle = _outputAssetData == null
-                ? "3. Outputs"
-                : $"3. Outputs — {_outputAssetData.name}";
-            _outputsFoldout = EditorGUILayout.Foldout(_outputsFoldout, outputTitle, true, EditorStyles.foldoutHeader);
-            if (!_outputsFoldout)
+            if (_detectedAnimator == null || _detectedAnimator.runtimeAnimatorController == null)
             {
-                EditorGUILayout.EndVertical();
                 return;
             }
 
+            // Exiting the graph only hides its view. Reattach the same in-memory
+            // session so merge nodes, connections and Bake toggles survive while
+            // the VAT Bake Tool remains open.
+            if (_embeddedAnimationMergeGraph != null &&
+                !_embeddedAnimationMergeGraph.IsDisposed)
+            {
+                _embeddedAnimationMergeSurface = _embeddedAnimationMergeGraph.Root;
+                _embeddedAnimationMergeGraph.Show(rootVisualElement);
+                _embeddedAnimationMergeGraphLoaded = true;
+                Repaint();
+                return;
+            }
+
+            DisposeEmbeddedAnimationMergeGraph();
+            Animator sourceAnimator = _detectedAnimator;
+            _embeddedAnimationMergeGraph = AnimationMergeGraphWindow.CreateEmbeddedGraph(
+                sourceAnimator,
+                selection => HandleAnimationMergeSelection(sourceAnimator, selection),
+                ExitEmbeddedAnimationMergeGraph);
+            _embeddedAnimationMergeSurface = _embeddedAnimationMergeGraph.Root;
+            _embeddedAnimationMergeSurface.name = "AnimationMergeGraphSurface";
+            _embeddedAnimationMergeSurface.style.position = Position.Absolute;
+            _embeddedAnimationMergeSurface.style.backgroundColor = new Color(0.08f, 0.09f, 0.11f, 1f);
+            _embeddedAnimationMergeGraph.Show(rootVisualElement);
+            _embeddedAnimationMergeGraphLoaded = true;
+            _embeddedAnimationMergeGraph.LoadAnimator(sourceAnimator);
+            Repaint();
+        }
+
+        private void ExitEmbeddedAnimationMergeGraph()
+        {
+            if (_embeddedAnimationMergeGraph == null ||
+                _embeddedAnimationMergeGraph.IsDisposed)
+            {
+                return;
+            }
+
+            _embeddedAnimationMergeSurface = null;
+            _embeddedAnimationMergeGraphLoaded = false;
+            Repaint();
+        }
+
+        private void SetClipBakeSelection(AnimationClip clip, bool selected)
+        {
+            for (int i = 0; i < _detectedClips.Count; i++)
+            {
+                if (_detectedClips[i] == clip && i < _selectedClipToggles.Count)
+                {
+                    _selectedClipToggles[i] = selected;
+                }
+            }
+
+            if (_embeddedAnimationMergeGraph != null)
+            {
+                _embeddedAnimationMergeGraph.SetClipBakeSelection(clip, selected);
+            }
+        }
+
+        private void HandleAnimationMergeSelection(
+            Animator sourceAnimator,
+            AnimationMergeBakeSelection selection)
+        {
+            // Ignore output from a merge session that belongs to a previous target.
+            if (_detectedAnimator != sourceAnimator || selection == null ||
+                (selection.SourceAnimator != null && selection.SourceAnimator != _detectedAnimator))
+            {
+                return;
+            }
+
+            Dictionary<AnimationClip, bool> previousSelections =
+                new Dictionary<AnimationClip, bool>();
+            for (int i = 0; i < _detectedClips.Count; i++)
+            {
+                AnimationClip clip = _detectedClips[i];
+                if (clip != null && !previousSelections.ContainsKey(clip))
+                {
+                    previousSelections.Add(
+                        clip,
+                        i < _selectedClipToggles.Count && _selectedClipToggles[i]);
+                }
+            }
+
+            List<AnimationClip> candidates = new List<AnimationClip>();
+            for (int i = 0; i < selection.Candidates.Count; i++)
+            {
+                AnimationClip clip = selection.Candidates[i];
+                if (clip != null && !candidates.Contains(clip))
+                {
+                    candidates.Add(clip);
+                }
+            }
+
+            for (int i = 0; i < _controllerClips.Count; i++)
+            {
+                AnimationClip clip = _controllerClips[i];
+                if (clip != null && !candidates.Contains(clip))
+                {
+                    candidates.Add(clip);
+                }
+            }
+
+            _animationMergeOutputs.Clear();
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                if (!_controllerClips.Contains(candidates[i]))
+                {
+                    _animationMergeOutputs.Add(candidates[i]);
+                }
+            }
+
+            HashSet<AnimationClip> selectedClips = new HashSet<AnimationClip>(selection.Selected);
+            _detectedClips = candidates;
+            _selectedClipToggles = new List<bool>();
+            for (int i = 0; i < _detectedClips.Count; i++)
+            {
+                AnimationClip clip = _detectedClips[i];
+                bool selected = selection.Candidates.Contains(clip)
+                    ? selectedClips.Contains(clip)
+                    : previousSelections.TryGetValue(clip, out bool previous) && previous;
+                _selectedClipToggles.Add(selected);
+            }
+
+            _usingAnimationMergeOutputs = _animationMergeOutputs.Count > 0;
+            _clipsFoldout = true;
+            Repaint();
+        }
+
+        private void DrawOutputsPage()
+        {
+            EditorGUILayout.BeginVertical("box");
             EditorGUILayout.LabelField("VAT Asset Data SO", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox(
                 "Source of truth for this output. All preview fields below are read-only and are loaded from this asset.",
@@ -300,6 +640,9 @@ namespace OptimizedFeature.Scripts.Editor
 
             string assetDataPath = AssetDatabase.GetAssetPath(_outputAssetData);
             EditorGUILayout.LabelField("Asset Path", string.IsNullOrEmpty(assetDataPath) ? "Not saved as an asset" : assetDataPath);
+            EditorGUILayout.HelpBox(
+                $"Bake will update the existing output '{_outputAssetData.name}' after confirmation.",
+                MessageType.Warning);
             _outputPreviewFoldout = EditorGUILayout.Foldout(
                 _outputPreviewFoldout,
                 "Derived Output Preview (Read Only)",
@@ -330,13 +673,224 @@ namespace OptimizedFeature.Scripts.Editor
             EditorGUILayout.EndVertical();
         }
 
+        private void DrawVATSetupPage()
+        {
+            InitializeSetupSerializedProperties();
+
+            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.LabelField("VAT Runtime Setup Helper", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "Batch-configure baked VAT characters directly from this tool. " +
+                "Each target receives VAT_RenderComponent, MeshFilter and MeshRenderer; " +
+                "legacy 'MeshRenderer_VAT' children are cleaned up.",
+                MessageType.Info);
+
+            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.LabelField("Shared Settings", EditorStyles.boldLabel);
+            _setupVATAssetData = (VATAssetDataSO)EditorGUILayout.ObjectField(
+                "VAT Asset Data SO",
+                _setupVATAssetData,
+                typeof(VATAssetDataSO),
+                false);
+            _setupVATMaterial = (Material)EditorGUILayout.ObjectField(
+                "VAT Material (Optional)",
+                _setupVATMaterial,
+                typeof(Material),
+                false);
+
+            if (_setupVATAssetData == null && _outputAssetData != null &&
+                GUILayout.Button("Use VAT Asset Data from Outputs"))
+            {
+                _setupVATAssetData = _outputAssetData;
+            }
+            EditorGUILayout.EndVertical();
+
+            _setupSerializedObject.Update();
+            EditorGUILayout.PropertyField(_setupTargetRootsProperty, new GUIContent("Target GameObjects"), true);
+
+            if (GUILayout.Button("+ Add Selected Objects from Hierarchy"))
+            {
+                AddSelectedSetupObjects();
+                _setupSerializedObject.Update();
+            }
+
+            EditorGUILayout.Space();
+            EditorGUILayout.PropertyField(
+                _setupAttachmentsProperty,
+                new GUIContent("Equipment Attachments (Applied to All)"),
+                true);
+            _setupSerializedObject.ApplyModifiedProperties();
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawVATSetupFooter()
+        {
+            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.LabelField("Runtime Setup Action & Validation", EditorStyles.boldLabel);
+
+            int validTargetCount = GetValidSetupTargetCount();
+            bool hasVATMaterial = _setupVATMaterial != null ||
+                                  (_setupVATAssetData != null &&
+                                   _setupVATAssetData.BakedMaterials != null &&
+                                   _setupVATAssetData.BakedMaterials.Count > 0);
+            bool canSetup = validTargetCount > 0 && _setupVATAssetData != null && hasVATMaterial;
+
+            if (_setupVATAssetData == null)
+            {
+                EditorGUILayout.HelpBox("Assign a VATAssetDataSO in the Runtime Setup tab.", MessageType.Warning);
+            }
+            else if (validTargetCount == 0)
+            {
+                EditorGUILayout.HelpBox("Add at least one target GameObject for runtime setup.", MessageType.Warning);
+            }
+            else if (!hasVATMaterial)
+            {
+                EditorGUILayout.HelpBox(
+                    "Assign a VAT Material or use a VATAssetDataSO containing baked materials.",
+                    MessageType.Warning);
+            }
+            else
+            {
+                EditorGUILayout.HelpBox(
+                    $"Ready to set up {validTargetCount} VAT character(s). A VATSystem is created automatically if missing.",
+                    MessageType.Info);
+            }
+
+            EditorGUI.BeginDisabledGroup(!canSetup);
+            if (GUILayout.Button($"Setup {validTargetCount} VAT Character(s)", GUILayout.Height(30)))
+            {
+                VATSetupHelper.SetupAllVATCharacters(
+                    _setupTargetRoots,
+                    _setupVATAssetData,
+                    _setupVATMaterial,
+                    _setupAttachments);
+            }
+            EditorGUI.EndDisabledGroup();
+            EditorGUILayout.EndVertical();
+        }
+
+        private void InitializeSetupSerializedProperties()
+        {
+            if (_setupSerializedObject != null &&
+                _setupSerializedObject.targetObject == this &&
+                _setupTargetRootsProperty != null &&
+                _setupAttachmentsProperty != null)
+            {
+                return;
+            }
+
+            if (_setupTargetRoots == null) _setupTargetRoots = new List<GameObject>();
+            if (_setupAttachments == null) _setupAttachments = new List<VATSetupHelper.SocketAttachmentSetup>();
+
+            _setupSerializedObject = new SerializedObject(this);
+            _setupTargetRootsProperty = _setupSerializedObject.FindProperty("_setupTargetRoots");
+            _setupAttachmentsProperty = _setupSerializedObject.FindProperty("_setupAttachments");
+        }
+
+        private void AddSelectedSetupObjects()
+        {
+            GameObject[] selectedObjects = Selection.gameObjects;
+            if (selectedObjects == null || selectedObjects.Length == 0)
+            {
+                Debug.LogWarning("[VATBakeTool] No GameObjects selected in the Hierarchy.");
+                return;
+            }
+
+            int addedCount = 0;
+            for (int i = 0; i < selectedObjects.Length; i++)
+            {
+                GameObject selectedObject = selectedObjects[i];
+                if (selectedObject != null && !_setupTargetRoots.Contains(selectedObject))
+                {
+                    _setupTargetRoots.Add(selectedObject);
+                    addedCount++;
+                }
+            }
+
+            Debug.Log($"[VATBakeTool] Added {addedCount} setup target(s) from the Hierarchy selection.");
+        }
+
+        private int GetValidSetupTargetCount()
+        {
+            int validTargetCount = 0;
+            for (int i = 0; i < _setupTargetRoots.Count; i++)
+            {
+                if (_setupTargetRoots[i] != null) validTargetCount++;
+            }
+
+            return validTargetCount;
+        }
+
+        private void DrawCommonFooter()
+        {
+            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.LabelField("Bake Action & Validation", EditorStyles.boldLabel);
+
+            int activeMeshCount = GetSelectedMeshCount();
+            int selectedClipCount = GetSelectedClipCount();
+            bool isReadyToBake = _targetPrefab != null && activeMeshCount > 0 && selectedClipCount > 0;
+
+            if (!isReadyToBake)
+            {
+                string blockingError = _targetPrefab == null
+                    ? "[Error] Bake is blocked: select a target GameObject in the Inputs tab."
+                    : activeMeshCount == 0
+                        ? "[Error] Bake is blocked: select at least one SkinnedMeshRenderer in the Inputs tab."
+                        : "[Error] Bake is blocked: select at least one animation clip in the Inputs tab.";
+                EditorGUILayout.HelpBox(blockingError, MessageType.Error);
+            }
+
+            string buttonLabel = _outputAssetData != null ? "Bake VAT Assets..." : "Simulate VAT Baking Pipeline";
+            EditorGUI.BeginDisabledGroup(!isReadyToBake);
+            if (GUILayout.Button(buttonLabel, GUILayout.Height(30)))
+            {
+                BakeVATSimulation();
+            }
+            EditorGUI.EndDisabledGroup();
+            EditorGUILayout.EndVertical();
+        }
+
+        private void SyncMeshSelectionToggles()
+        {
+            while (_selectedMeshToggles.Count < _detectedSkinnedMeshes.Count)
+                _selectedMeshToggles.Add(true);
+            while (_selectedMeshToggles.Count > _detectedSkinnedMeshes.Count)
+                _selectedMeshToggles.RemoveAt(_selectedMeshToggles.Count - 1);
+
+            while (_meshRoles.Count < _detectedSkinnedMeshes.Count)
+                _meshRoles.Add(VATRendererRole.Body);
+            while (_meshRoles.Count > _detectedSkinnedMeshes.Count)
+                _meshRoles.RemoveAt(_meshRoles.Count - 1);
+        }
+
+        private int GetSelectedMeshCount()
+        {
+            int selectedCount = 0;
+            for (int i = 0; i < _selectedMeshToggles.Count; i++)
+            {
+                if (_selectedMeshToggles[i]) selectedCount++;
+            }
+
+            return selectedCount;
+        }
+
+        private int GetSelectedClipCount()
+        {
+            int selectedCount = 0;
+            for (int i = 0; i < _selectedClipToggles.Count; i++)
+            {
+                if (_selectedClipToggles[i]) selectedCount++;
+            }
+
+            return selectedCount;
+        }
+
         private static void DrawReadOnlyAssetDataPreview(VATAssetDataSO assetData)
         {
             EditorGUILayout.Space();
 
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.ObjectField("Baked Static Mesh", assetData.BakedStaticMesh, typeof(Mesh), false);
-            EditorGUILayout.ObjectField("Baked VAT Texture", assetData.VATTexture, typeof(Texture2D), false);
             EditorGUILayout.IntField("Total Vertices", assetData.TotalVertices);
             EditorGUILayout.IntField("Total Frames", assetData.TotalFrames);
             EditorGUILayout.Vector3Field("Bounding Min", assetData.BoundingMin);
@@ -358,6 +912,18 @@ namespace OptimizedFeature.Scripts.Editor
                 EditorGUILayout.LabelField(
                     $"Clip [{i}]",
                     $"{clip.ClipName} | Frames {clip.StartFrame}-{clip.EndFrame} | {clip.FrameRate:0.##} FPS");
+            }
+
+            VATWeaponAssetSO weaponAsset = assetData.DefaultWeaponAsset;
+            EditorGUILayout.LabelField(
+                "Weapon VAT",
+                weaponAsset == null ? "Disabled" : "Available");
+            if (weaponAsset != null)
+            {
+                EditorGUILayout.ObjectField("Weapon Mesh", weaponAsset.BakedStaticMesh, typeof(Mesh), false);
+                EditorGUILayout.ObjectField("Weapon Texture", weaponAsset.VATTexture, typeof(Texture2D), false);
+                EditorGUILayout.IntField("Weapon Vertices", weaponAsset.TotalVertices);
+                EditorGUILayout.IntField("Weapon Frames", weaponAsset.TotalFrames);
             }
 
             int socketCount = assetData.Sockets != null ? assetData.Sockets.Count : 0;
@@ -581,10 +1147,15 @@ namespace OptimizedFeature.Scripts.Editor
         {
             _detectedSkinnedMeshes.Clear();
             _selectedMeshToggles.Clear();
+            _meshRoles.Clear();
             _detectedMaterials.Clear();
+            _controllerClips.Clear();
+            _animationMergeOutputs.Clear();
             _detectedClips.Clear();
             _selectedClipToggles.Clear();
             _detectedAnimator = null;
+            _usingAnimationMergeOutputs = false;
+            DisposeEmbeddedAnimationMergeGraph();
 
             if (_targetPrefab == null) return;
 
@@ -595,6 +1166,7 @@ namespace OptimizedFeature.Scripts.Editor
             for (int i = 0; i < smrs.Length; i++)
             {
                 _selectedMeshToggles.Add(true);
+                _meshRoles.Add(GuessRendererRole(smrs[i]));
             }
 
             // Fetch materials and shaders
@@ -618,10 +1190,37 @@ namespace OptimizedFeature.Scripts.Editor
 
         }
 
+        private static VATRendererRole GuessRendererRole(SkinnedMeshRenderer renderer)
+        {
+            if (renderer == null)
+            {
+                return VATRendererRole.Body;
+            }
+
+            string path = renderer.transform.name.ToLowerInvariant();
+            string hierarchyPath = renderer.transform.root == null
+                ? path
+                : renderer.transform.root.name.ToLowerInvariant() + "/" + path;
+            return hierarchyPath.Contains("weapon") || hierarchyPath.Contains("sword") ||
+                   hierarchyPath.Contains("bow") || hierarchyPath.Contains("shield")
+                ? VATRendererRole.Weapon
+                : VATRendererRole.Body;
+        }
+
+        private void SetDetectedAnimator(Animator animator)
+        {
+            _detectedAnimator = animator;
+            DisposeEmbeddedAnimationMergeGraph();
+            DetectAnimationClips();
+        }
+
         private void DetectAnimationClips()
         {
+            _controllerClips.Clear();
+            _animationMergeOutputs.Clear();
             _detectedClips.Clear();
             _selectedClipToggles.Clear();
+            _usingAnimationMergeOutputs = false;
 
             if (_detectedAnimator == null || _detectedAnimator.runtimeAnimatorController == null)
             {
@@ -632,31 +1231,91 @@ namespace OptimizedFeature.Scripts.Editor
             for (int i = 0; i < controllerClips.Length; i++)
             {
                 AnimationClip clip = controllerClips[i];
-                if (clip != null && !_detectedClips.Contains(clip))
+                if (clip != null && !_controllerClips.Contains(clip))
                 {
-                    _detectedClips.Add(clip);
-                    _selectedClipToggles.Add(true);
+                    _controllerClips.Add(clip);
                 }
             }
+
+            RebuildDetectedClipCandidates();
+        }
+
+        private void RebuildDetectedClipCandidates()
+        {
+            Dictionary<AnimationClip, bool> previousSelections =
+                new Dictionary<AnimationClip, bool>();
+            for (int i = 0; i < _detectedClips.Count; i++)
+            {
+                AnimationClip clip = _detectedClips[i];
+                if (clip != null && !previousSelections.ContainsKey(clip))
+                {
+                    bool isSelected = i < _selectedClipToggles.Count && _selectedClipToggles[i];
+                    previousSelections.Add(clip, isSelected);
+                }
+            }
+
+            _detectedClips.Clear();
+            _selectedClipToggles.Clear();
+            AddClipCandidates(_controllerClips, previousSelections);
+            AddClipCandidates(_animationMergeOutputs, previousSelections);
+            _usingAnimationMergeOutputs = _animationMergeOutputs.Count > 0;
+        }
+
+        private void AddClipCandidates(
+            IList<AnimationClip> clips,
+            Dictionary<AnimationClip, bool> previousSelections)
+        {
+            if (clips == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < clips.Count; i++)
+            {
+                AnimationClip clip = clips[i];
+                if (clip == null || _detectedClips.Contains(clip))
+                {
+                    continue;
+                }
+
+                _detectedClips.Add(clip);
+                bool isSelected;
+                _selectedClipToggles.Add(
+                    previousSelections.TryGetValue(clip, out isSelected) ? isSelected : true);
+            }
+        }
+
+        private bool IsAnimationMergeOutput(AnimationClip clip)
+        {
+            return clip != null && _animationMergeOutputs.Contains(clip);
         }
 
         private void BakeVATSimulation()
         {
             if (_targetPrefab == null || _detectedSkinnedMeshes.Count == 0) return;
 
-            // Build active meshes list based on selection toggles
-            List<SkinnedMeshRenderer> activeMeshes = new List<SkinnedMeshRenderer>();
+            // Build the two VAT channels from the selected renderer roles.
+            List<SkinnedMeshRenderer> bodyRenderers = new List<SkinnedMeshRenderer>();
+            List<SkinnedMeshRenderer> weaponRenderers = new List<SkinnedMeshRenderer>();
             for (int i = 0; i < _detectedSkinnedMeshes.Count; i++)
             {
                 if (i < _selectedMeshToggles.Count && _selectedMeshToggles[i] && _detectedSkinnedMeshes[i] != null)
                 {
-                    activeMeshes.Add(_detectedSkinnedMeshes[i]);
+                    VATRendererRole role = i < _meshRoles.Count ? _meshRoles[i] : VATRendererRole.Body;
+                    if (role == VATRendererRole.Weapon)
+                    {
+                        weaponRenderers.Add(_detectedSkinnedMeshes[i]);
+                    }
+                    else
+                    {
+                        bodyRenderers.Add(_detectedSkinnedMeshes[i]);
+                    }
                 }
             }
 
-            if (activeMeshes.Count == 0)
+            if (bodyRenderers.Count == 0)
             {
-                Debug.LogError("[VATBakeTool] No Skinned Mesh selected for baking! Please tick at least one mesh in Detected Skinned Meshes.");
+                Debug.LogError("[VATBakeTool] No Body renderer selected for baking. Assign at least one selected renderer to the Body role.");
                 return;
             }
 
@@ -689,17 +1348,16 @@ namespace OptimizedFeature.Scripts.Editor
                 Directory.CreateDirectory(_savePath);
             }
 
-            // Both output modes produce one VATAssetDataSO and one VAT texture.
-            // The mode only controls material validation: PerSkinnedMesh allows
-            // each source renderer/material slot to retain its own source shader
-            // and BaseTexture; Combined requires those inputs to match.
+            // The output mode controls material validation independently for each
+            // VAT channel. Body and Weapon have separate meshes/textures/materials
+            // but share the exact same clip frame manifest.
             bool requireUnifiedShaderAndBaseTexture = _outputMode == VATBakeOutputMode.Combined;
-            List<Material> materialSlots;
+            List<Material> bodyMaterialSlots;
             string validationMessage;
             if (!CollectMaterialSlots(
-                    activeMeshes,
+                    bodyRenderers,
                     requireUnifiedShaderAndBaseTexture,
-                    out materialSlots,
+                    out bodyMaterialSlots,
                     out validationMessage))
             {
                 Debug.LogError($"[VATBakeTool] {validationMessage}");
@@ -707,9 +1365,23 @@ namespace OptimizedFeature.Scripts.Editor
                 return;
             }
 
+            List<Material> weaponMaterialSlots = new List<Material>();
+            if (weaponRenderers.Count > 0 && !CollectMaterialSlots(
+                    weaponRenderers,
+                    requireUnifiedShaderAndBaseTexture,
+                    out weaponMaterialSlots,
+                    out validationMessage))
+            {
+                Debug.LogError($"[VATBakeTool] {validationMessage}");
+                EditorUtility.DisplayDialog("VAT Bake Stopped: Weapon Material Validation", validationMessage, "OK");
+                return;
+            }
+
             BakedOutput output = BakeOutput(
-                activeMeshes,
-                materialSlots,
+                bodyRenderers,
+                bodyMaterialSlots,
+                weaponRenderers,
+                weaponMaterialSlots,
                 clipsToBake,
                 _targetPrefab.name + "_VAT",
                 _outputAssetData,
@@ -722,14 +1394,17 @@ namespace OptimizedFeature.Scripts.Editor
         }
 
         private BakedOutput BakeOutput(
-            List<SkinnedMeshRenderer> renderers,
-            List<Material> materialSlots,
+            List<SkinnedMeshRenderer> bodyRenderers,
+            List<Material> bodyMaterials,
+            List<SkinnedMeshRenderer> weaponRenderers,
+            List<Material> weaponMaterials,
             List<AnimationClip> clipsToBake,
             string outputName,
             VATAssetDataSO existingAsset,
             bool overrideMode)
         {
-            if (renderers == null || renderers.Count == 0 || materialSlots == null || materialSlots.Count == 0)
+            if (bodyRenderers == null || bodyRenderers.Count == 0 ||
+                bodyMaterials == null || bodyMaterials.Count == 0)
             {
                 return null;
             }
@@ -741,38 +1416,198 @@ namespace OptimizedFeature.Scripts.Editor
                 return null;
             }
 
-            // The VAT position texture is data and must never be changed by Luna.
-            // Base textures are visual data but need the same per-texture protection
-            // to keep multi-material/sub-renderer colors identical in the build.
-            if (!EnsureMaterialBaseTexturesLunaProtected(materialSlots))
+            List<Material> allMaterials = new List<Material>(bodyMaterials);
+            if (weaponMaterials != null) allMaterials.AddRange(weaponMaterials);
+            if (!EnsureMaterialBaseTexturesLunaProtected(allMaterials))
             {
                 return null;
             }
 
             HashSet<Material> patchedMaterials = new HashSet<Material>();
-            for (int i = 0; i < materialSlots.Count; i++)
+            for (int i = 0; i < allMaterials.Count; i++)
             {
-                Material material = materialSlots[i];
+                Material material = allMaterials[i];
                 if (material != null && patchedMaterials.Add(material))
                 {
                     ValidateAndPatchMaterialShader(material);
                 }
             }
 
+            List<int> clipFramesList = new List<int>();
+            int sampleRate = Mathf.Max(1, _sampleFrameRate);
+            int totalBakeFrames = 0;
+            for (int i = 0; i < clipsToBake.Count; i++)
+            {
+                int frames = Mathf.Max(1, Mathf.RoundToInt(clipsToBake[i].length * sampleRate));
+                clipFramesList.Add(frames);
+                totalBakeFrames += frames;
+            }
+
+            if (totalBakeFrames > MaxVATTextureDimension)
+            {
+                Debug.LogError(
+                    $"[VATBakeTool] Cannot bake '{outputName}': the shared frame manifest has " +
+                    $"{totalBakeFrames} rows, exceeding the supported {MaxVATTextureDimension} rows. " +
+                    "Reduce clips or lower the sample rate.");
+                return null;
+            }
+
+            GameObject animationSampleRoot = _detectedAnimator != null
+                ? _detectedAnimator.gameObject
+                : _targetPrefab;
+            BakedChannelOutput body = BakeVATChannel(
+                bodyRenderers,
+                bodyMaterials,
+                clipsToBake,
+                clipFramesList,
+                totalBakeFrames,
+                outputName + "_Body",
+                existingAsset != null ? existingAsset.BakedStaticMesh : null,
+                existingAsset != null ? existingAsset.VATTexture : null,
+                animationSampleRoot,
+                overrideMode);
+            if (body == null)
+            {
+                return null;
+            }
+
+            BakedChannelOutput weapon = null;
+            VATWeaponAssetSO existingWeaponAsset = existingAsset != null
+                ? existingAsset.DefaultWeaponAsset
+                : null;
+            if (weaponRenderers != null && weaponRenderers.Count > 0)
+            {
+                weapon = BakeVATChannel(
+                    weaponRenderers,
+                    weaponMaterials,
+                    clipsToBake,
+                    clipFramesList,
+                    totalBakeFrames,
+                    outputName + "_Weapon",
+                    existingWeaponAsset != null ? existingWeaponAsset.BakedStaticMesh : null,
+                    existingWeaponAsset != null ? existingWeaponAsset.VATTexture : null,
+                    animationSampleRoot,
+                    overrideMode);
+                if (weapon == null)
+                {
+                    return null;
+                }
+            }
+
+            body.Materials = SaveBakedMaterials(
+                bodyMaterials,
+                body.Texture,
+                body.BoundsMin,
+                body.BoundsMax,
+                totalBakeFrames,
+                body.VertexCount,
+                outputName + "_Body",
+                existingAsset != null ? existingAsset.BakedMaterials : null,
+                overrideMode,
+                vatShader);
+            if (body.Materials.Count != bodyMaterials.Count)
+            {
+                Debug.LogError($"[VATBakeTool] Failed to create all Body VAT materials for '{outputName}'.");
+                return null;
+            }
+
+            VATWeaponAssetSO weaponAsset = null;
+            if (weapon != null)
+            {
+                weapon.Materials = SaveBakedMaterials(
+                    weaponMaterials,
+                    weapon.Texture,
+                    weapon.BoundsMin,
+                    weapon.BoundsMax,
+                    totalBakeFrames,
+                    weapon.VertexCount,
+                    outputName + "_Weapon",
+                    existingWeaponAsset != null ? existingWeaponAsset.BakedMaterials : null,
+                    overrideMode,
+                    vatShader);
+                if (weapon.Materials.Count != weaponMaterials.Count)
+                {
+                    Debug.LogError($"[VATBakeTool] Failed to create all Weapon VAT materials for '{outputName}'.");
+                    return null;
+                }
+
+                weaponAsset = SaveVATWeaponAssetData(
+                    weapon.Mesh,
+                    weapon.Texture,
+                    weapon.Materials,
+                    weapon.BoundsMin,
+                    weapon.BoundsMax,
+                    totalBakeFrames,
+                    weapon.VertexCount,
+                    clipsToBake,
+                    clipFramesList,
+                    outputName + "_Weapon",
+                    existingWeaponAsset,
+                    overrideMode);
+            }
+
+            VATAssetDataSO assetData = SaveVATAssetData(
+                body.Mesh,
+                body.Texture,
+                body.Materials,
+                body.BoundsMin,
+                body.BoundsMax,
+                totalBakeFrames,
+                body.VertexCount,
+                clipsToBake,
+                clipFramesList,
+                outputName,
+                existingAsset,
+                overrideMode,
+                weaponAsset);
+
+            AssetDatabase.SaveAssets();
+            return new BakedOutput
+            {
+                Body = body,
+                Weapon = weapon,
+                AssetData = assetData,
+                WeaponAsset = weaponAsset
+            };
+        }
+
+        private BakedChannelOutput BakeVATChannel(
+            List<SkinnedMeshRenderer> renderers,
+            List<Material> materialSlots,
+            List<AnimationClip> clipsToBake,
+            List<int> clipFramesList,
+            int totalBakeFrames,
+            string channelName,
+            Mesh existingMesh,
+            Texture2D existingTexture,
+            GameObject animationSampleRoot,
+            bool overrideMode)
+        {
             List<MeshBakeSource> sources = BuildMeshBakeSources(renderers, materialSlots);
             if (sources.Count == 0)
             {
-                Debug.LogError($"[VATBakeTool] No valid mesh source found for '{outputName}'.");
+                Debug.LogError($"[VATBakeTool] No valid mesh source found for '{channelName}'.");
                 return null;
             }
 
             Mesh bakedMesh = BuildCombinedStaticMesh(sources);
-            bakedMesh.name = outputName + "_Static";
+            bakedMesh.name = channelName + "_Static";
             int vertexCount = bakedMesh.vertexCount;
             if (vertexCount == 0)
             {
                 DestroyImmediate(bakedMesh);
-                Debug.LogError($"[VATBakeTool] Mesh '{outputName}' has no vertices.");
+                Debug.LogError($"[VATBakeTool] Mesh '{channelName}' has no vertices.");
+                return null;
+            }
+
+            if (vertexCount > MaxVATTextureDimension)
+            {
+                DestroyImmediate(bakedMesh);
+                Debug.LogError(
+                    $"[VATBakeTool] Cannot bake '{channelName}': VAT texture would be " +
+                    $"{vertexCount} x {totalBakeFrames}, exceeding the supported " +
+                    $"{MaxVATTextureDimension} x {MaxVATTextureDimension} import limit. " +
+                    "Reduce mesh vertices or lower the sample rate.");
                 return null;
             }
 
@@ -797,48 +1632,22 @@ namespace OptimizedFeature.Scripts.Editor
             bakedMesh.uv2 = uv2;
             bakedMesh.colors = colors;
 
-            List<int> clipFramesList = new List<int>();
-            int sampleRate = Mathf.Max(1, _sampleFrameRate);
-            int totalBakeFrames = 0;
-            for (int i = 0; i < clipsToBake.Count; i++)
-            {
-                int frames = Mathf.Max(1, Mathf.RoundToInt(clipsToBake[i].length * sampleRate));
-                clipFramesList.Add(frames);
-                totalBakeFrames += frames;
-            }
-
-            if (vertexCount > MaxVATTextureDimension || totalBakeFrames > MaxVATTextureDimension)
-            {
-                DestroyImmediate(bakedMesh);
-                Debug.LogError(
-                    $"[VATBakeTool] Cannot bake '{outputName}': VAT texture would be " +
-                    $"{vertexCount} x {totalBakeFrames}, exceeding the supported " +
-                    $"{MaxVATTextureDimension} x {MaxVATTextureDimension} import limit. " +
-                    "Reduce mesh vertices, bake fewer clips, or lower the sample rate.");
-                return null;
-            }
-
-            Mesh outputMesh = SaveMeshAsset(bakedMesh, outputName, existingAsset, overrideMode);
-
+            Mesh outputMesh = SaveMeshAsset(bakedMesh, channelName, existingMesh, overrideMode);
             Vector3 boundsMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
             Vector3 boundsMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
             Vector3[] frameVertices = new Vector3[vertexCount];
             Vector3[] firstFrameVertices = new Vector3[vertexCount];
             bool hasFirstFrame = false;
             float maxFrameMotion = 0f;
-            GameObject animationSampleRoot = _detectedAnimator != null
-                ? _detectedAnimator.gameObject
-                : _targetPrefab;
             bool animatorWasEnabled = _detectedAnimator != null && _detectedAnimator.enabled;
-            Vector3 boundsSize = Vector3.one;
             Texture2D vatTexture = null;
+            bool startedAnimationMode = false;
+            bool samplingStarted = false;
             if (_detectedAnimator != null)
             {
                 _detectedAnimator.enabled = false;
             }
 
-            bool startedAnimationMode = false;
-            bool samplingStarted = false;
             try
             {
                 if (!AnimationMode.InAnimationMode())
@@ -849,7 +1658,6 @@ namespace OptimizedFeature.Scripts.Editor
 
                 AnimationMode.BeginSampling();
                 samplingStarted = true;
-
                 for (int clipIndex = 0; clipIndex < clipsToBake.Count; clipIndex++)
                 {
                     AnimationClip clip = clipsToBake[clipIndex];
@@ -877,7 +1685,7 @@ namespace OptimizedFeature.Scripts.Editor
                             }
                         }
 
-                        for (int vertex = 0; vertex < frameVertices.Length; vertex++)
+                        for (int vertex = 0; vertex < vertexCount; vertex++)
                         {
                             boundsMin = Vector3.Min(boundsMin, frameVertices[vertex]);
                             boundsMax = Vector3.Max(boundsMax, frameVertices[vertex]);
@@ -888,15 +1696,14 @@ namespace OptimizedFeature.Scripts.Editor
                 Vector3 padding = (boundsMax - boundsMin) * 0.03f;
                 boundsMin -= padding;
                 boundsMax += padding;
-                boundsSize = boundsMax - boundsMin;
+                Vector3 boundsSize = boundsMax - boundsMin;
                 if (boundsSize.x <= 0f) boundsSize.x = 1f;
                 if (boundsSize.y <= 0f) boundsSize.y = 1f;
                 if (boundsSize.z <= 0f) boundsSize.z = 1f;
 
                 vatTexture = new Texture2D(vertexCount, totalBakeFrames, TextureFormat.RGBAHalf, false);
-                vatTexture.name = outputName + "_Texture";
+                vatTexture.name = channelName + "_Texture";
                 int globalFrame = 0;
-
                 for (int clipIndex = 0; clipIndex < clipsToBake.Count; clipIndex++)
                 {
                     AnimationClip clip = clipsToBake[clipIndex];
@@ -908,7 +1715,6 @@ namespace OptimizedFeature.Scripts.Editor
                             : 0f;
                         AnimationMode.SampleAnimationClip(animationSampleRoot, clip, time);
                         BakeFrameVertices(sources, frameVertices);
-
                         for (int vertex = 0; vertex < vertexCount; vertex++)
                         {
                             Vector3 position = frameVertices[vertex];
@@ -918,7 +1724,6 @@ namespace OptimizedFeature.Scripts.Editor
                                 Mathf.Clamp01((position.z - boundsMin.z) / boundsSize.z),
                                 1f));
                         }
-
                         globalFrame++;
                     }
                 }
@@ -927,10 +1732,7 @@ namespace OptimizedFeature.Scripts.Editor
             {
                 try
                 {
-                    if (samplingStarted)
-                    {
-                        AnimationMode.EndSampling();
-                    }
+                    if (samplingStarted) AnimationMode.EndSampling();
                 }
                 finally
                 {
@@ -951,27 +1753,51 @@ namespace OptimizedFeature.Scripts.Editor
             if (maxFrameMotion <= 0.00001f)
             {
                 Debug.LogWarning(
-                    $"[VATBakeTool] No vertex motion was detected while sampling '{outputName}'. " +
+                    $"[VATBakeTool] No vertex motion was detected while sampling '{channelName}'. " +
                     $"Animation root: '{animationSampleRoot.name}'. Check that the selected clips bind to this hierarchy.");
             }
 
             vatTexture.Apply();
+            Texture2D outputTexture = SaveVATTextureAsset(
+                vatTexture,
+                channelName,
+                existingTexture,
+                vertexCount,
+                totalBakeFrames,
+                overrideMode);
+            DestroyImmediate(vatTexture);
+            if (outputTexture == null)
+            {
+                return null;
+            }
 
-            string textureAssetPath;
-            if (overrideMode && existingAsset != null && existingAsset.VATTexture != null)
+            return new BakedChannelOutput
             {
-                textureAssetPath = AssetDatabase.GetAssetPath(existingAsset.VATTexture);
-            }
-            else
-            {
-                textureAssetPath = AssetDatabase.GenerateUniqueAssetPath(
+                Mesh = outputMesh,
+                Texture = outputTexture,
+                BoundsMin = boundsMin,
+                BoundsMax = boundsMax,
+                VertexCount = vertexCount,
+                TotalFrames = totalBakeFrames
+            };
+        }
+
+        private Texture2D SaveVATTextureAsset(
+            Texture2D vatTexture,
+            string channelName,
+            Texture2D existingTexture,
+            int vertexCount,
+            int totalBakeFrames,
+            bool overrideMode)
+        {
+            string textureAssetPath = overrideMode && existingTexture != null
+                ? AssetDatabase.GetAssetPath(existingTexture)
+                : AssetDatabase.GenerateUniqueAssetPath(
                     Path.Combine(_savePath, vatTexture.name + ".png").Replace('\\', '/'));
-            }
 
             if (string.IsNullOrEmpty(textureAssetPath))
             {
-                DestroyImmediate(vatTexture);
-                Debug.LogError($"[VATBakeTool] Could not resolve texture path for '{outputName}'.");
+                Debug.LogError($"[VATBakeTool] Could not resolve texture path for '{channelName}'.");
                 return null;
             }
 
@@ -979,9 +1805,9 @@ namespace OptimizedFeature.Scripts.Editor
             AssetDatabase.ImportAsset(textureAssetPath, ImportAssetOptions.ForceUpdate);
             ConfigureVATTextureImporter(textureAssetPath);
             TextureImporter vatImporter = AssetImporter.GetAtPath(textureAssetPath) as TextureImporter;
-            if (!IsVATTextureImporterProtected(vatImporter, Mathf.Max(vertexCount, totalBakeFrames)))
+            int requiredDimension = Mathf.Max(vertexCount, totalBakeFrames);
+            if (!IsVATTextureImporterProtected(vatImporter, requiredDimension))
             {
-                DestroyImmediate(vatTexture);
                 Debug.LogError(
                     $"[VATBakeTool] Unity importer protection could not be verified for '{textureAssetPath}'. " +
                     "Bake stopped so this VAT texture cannot be exported with altered data.");
@@ -989,54 +1815,13 @@ namespace OptimizedFeature.Scripts.Editor
             }
             if (!RegisterAssetInLunaJson(textureAssetPath))
             {
-                DestroyImmediate(vatTexture);
                 Debug.LogError(
                     $"[VATBakeTool] Luna texture protection could not be verified for '{textureAssetPath}'. " +
                     "Bake stopped so this VAT texture cannot be exported with lossy settings.");
                 return null;
             }
 
-            BakedOutput output = new BakedOutput
-            {
-                Mesh = outputMesh,
-                Texture = AssetDatabase.LoadAssetAtPath<Texture2D>(textureAssetPath)
-            };
-            DestroyImmediate(vatTexture);
-
-            output.Materials = SaveBakedMaterials(
-                materialSlots,
-                output.Texture,
-                boundsMin,
-                boundsMax,
-                totalBakeFrames,
-                vertexCount,
-                outputName,
-                existingAsset,
-                overrideMode,
-                vatShader);
-
-            if (output.Texture == null || output.Materials.Count != materialSlots.Count)
-            {
-                Debug.LogError($"[VATBakeTool] Failed to create all VAT output assets for '{outputName}'.");
-                return null;
-            }
-
-            output.AssetData = SaveVATAssetData(
-                outputMesh,
-                output.Texture,
-                output.Materials,
-                boundsMin,
-                boundsMax,
-                totalBakeFrames,
-                vertexCount,
-                clipsToBake,
-                clipFramesList,
-                outputName,
-                existingAsset,
-                overrideMode);
-
-            AssetDatabase.SaveAssets();
-            return output;
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(textureAssetPath);
         }
 
         private List<MeshBakeSource> BuildMeshBakeSources(
@@ -1469,12 +2254,11 @@ namespace OptimizedFeature.Scripts.Editor
         private Mesh SaveMeshAsset(
             Mesh bakedMesh,
             string outputName,
-            VATAssetDataSO existingAsset,
+            Mesh existingMesh,
             bool overrideMode)
         {
-            if (overrideMode && existingAsset != null && existingAsset.BakedStaticMesh != null)
+            if (overrideMode && existingMesh != null)
             {
-                Mesh existingMesh = existingAsset.BakedStaticMesh;
                 CopyMeshData(existingMesh, bakedMesh);
                 EditorUtility.SetDirty(existingMesh);
                 DestroyImmediate(bakedMesh);
@@ -1558,7 +2342,7 @@ namespace OptimizedFeature.Scripts.Editor
             int totalBakeFrames,
             int vertexCount,
             string outputName,
-            VATAssetDataSO existingAsset,
+            List<Material> existingMaterials,
             bool overrideMode,
             Shader vatShader)
         {
@@ -1574,11 +2358,11 @@ namespace OptimizedFeature.Scripts.Editor
                 Material originalMaterial = materialSlots[i];
                 Material outputMaterial = null;
 
-                if (overrideMode && existingAsset != null &&
-                    i < existingAsset.BakedMaterials.Count &&
-                    existingAsset.BakedMaterials[i] != null)
+                if (overrideMode && existingMaterials != null &&
+                    i < existingMaterials.Count &&
+                    existingMaterials[i] != null)
                 {
-                    outputMaterial = existingAsset.BakedMaterials[i];
+                    outputMaterial = existingMaterials[i];
                     outputMaterial.shader = vatShader;
                     CopyBaseTextureAndTint(originalMaterial, outputMaterial);
                     outputMaterial.SetTexture(vatTextureId, vatTexture);
@@ -1676,13 +2460,18 @@ namespace OptimizedFeature.Scripts.Editor
             List<int> clipFramesList,
             string outputName,
             VATAssetDataSO existingAsset,
-            bool overrideMode)
+            bool overrideMode,
+            VATWeaponAssetSO weaponAsset)
         {
             VATAssetDataSO assetData = existingAsset;
             if (overrideMode && assetData != null)
             {
                 assetData.BakedStaticMesh = outputMesh;
                 assetData.VATTexture = outputTexture;
+                if (assetData.BakedMaterials == null)
+                {
+                    assetData.BakedMaterials = new List<Material>();
+                }
                 assetData.BakedMaterials.Clear();
                 assetData.BakedMaterials.AddRange(outputMaterials);
                 assetData.TotalVertices = vertexCount;
@@ -1695,6 +2484,7 @@ namespace OptimizedFeature.Scripts.Editor
                 assetData = ScriptableObject.CreateInstance<VATAssetDataSO>();
                 assetData.BakedStaticMesh = outputMesh;
                 assetData.VATTexture = outputTexture;
+                assetData.BakedMaterials = new List<Material>();
                 assetData.BakedMaterials.AddRange(outputMaterials);
                 assetData.TotalVertices = vertexCount;
                 assetData.TotalFrames = totalBakeFrames;
@@ -1706,29 +2496,95 @@ namespace OptimizedFeature.Scripts.Editor
                 AssetDatabase.CreateAsset(assetData, assetPath);
             }
 
-            assetData.Clips.Clear();
+            if (assetData.Clips == null) assetData.Clips = new List<VATClipInfo>();
+            if (assetData.Sockets == null) assetData.Sockets = new List<VATSocketTransformData>();
+            SetClipManifest(assetData.Clips, clipsToBake, clipFramesList, _sampleFrameRate);
+            assetData.DefaultWeaponAsset = weaponAsset;
+
+            // Socket baking for VAT_ObjectMesh is intentionally disabled. Clear
+            // legacy data when overriding an older VAT asset. Weapon motion is
+            // now stored in the separate VATWeaponAssetSO channel.
+            assetData.Sockets.Clear();
+            EditorUtility.SetDirty(assetData);
+            return assetData;
+        }
+
+        private VATWeaponAssetSO SaveVATWeaponAssetData(
+            Mesh outputMesh,
+            Texture2D outputTexture,
+            List<Material> outputMaterials,
+            Vector3 boundsMin,
+            Vector3 boundsMax,
+            int totalBakeFrames,
+            int vertexCount,
+            List<AnimationClip> clipsToBake,
+            List<int> clipFramesList,
+            string outputName,
+            VATWeaponAssetSO existingAsset,
+            bool overrideMode)
+        {
+            VATWeaponAssetSO assetData = existingAsset;
+            if (overrideMode && assetData != null)
+            {
+                assetData.BakedStaticMesh = outputMesh;
+                assetData.VATTexture = outputTexture;
+                if (assetData.BakedMaterials == null)
+                {
+                    assetData.BakedMaterials = new List<Material>();
+                }
+                assetData.BakedMaterials.Clear();
+                assetData.BakedMaterials.AddRange(outputMaterials);
+            }
+            else
+            {
+                assetData = ScriptableObject.CreateInstance<VATWeaponAssetSO>();
+                assetData.BakedStaticMesh = outputMesh;
+                assetData.VATTexture = outputTexture;
+                assetData.BakedMaterials.AddRange(outputMaterials);
+
+                string assetPath = AssetDatabase.GenerateUniqueAssetPath(
+                    Path.Combine(_savePath, outputName + "Data.asset").Replace('\\', '/'));
+                AssetDatabase.CreateAsset(assetData, assetPath);
+            }
+
+            assetData.BoundingMin = boundsMin;
+            assetData.BoundingMax = boundsMax;
+            assetData.TotalFrames = totalBakeFrames;
+            assetData.TotalVertices = vertexCount;
+            if (assetData.Clips == null) assetData.Clips = new List<VATClipInfo>();
+            SetClipManifest(assetData.Clips, clipsToBake, clipFramesList, _sampleFrameRate);
+            EditorUtility.SetDirty(assetData);
+            return assetData;
+        }
+
+        private static void SetClipManifest(
+            List<VATClipInfo> target,
+            List<AnimationClip> clipsToBake,
+            List<int> clipFramesList,
+            int sampleRate)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            target.Clear();
             int startFrame = 0;
-            int sampleRate = Mathf.Max(1, _sampleFrameRate);
+            sampleRate = Mathf.Max(1, sampleRate);
             for (int i = 0; i < clipsToBake.Count; i++)
             {
                 int endFrame = startFrame + clipFramesList[i] - 1;
-                assetData.Clips.Add(new VATClipInfo
+                target.Add(new VATClipInfo
                 {
                     ClipName = clipsToBake[i].name,
                     StateHash = VATClipInfo.GenerateHash(clipsToBake[i].name),
                     StartFrame = startFrame,
                     EndFrame = endFrame,
-                    FrameRate = sampleRate
+                    FrameRate = sampleRate,
+                    IsLooping = true
                 });
                 startFrame = endFrame + 1;
             }
-
-            // Socket baking for VAT_ObjectMesh is intentionally disabled. Clear
-            // legacy data when overriding an older VAT asset so the output stays
-            // limited to mesh animation data.
-            assetData.Sockets.Clear();
-            EditorUtility.SetDirty(assetData);
-            return assetData;
         }
 
         private void ValidateAndPatchMaterialShader(Material mat)
@@ -1749,8 +2605,12 @@ namespace OptimizedFeature.Scripts.Editor
             string meshPath = Path.Combine(_savePath, _targetPrefab.name + "_VAT_Static.asset");
             string texPath = Path.Combine(_savePath, _targetPrefab.name + "_VAT_Texture.png");
             string soPath = Path.Combine(_savePath, _targetPrefab.name + "_VATData.asset");
+            string bodyMeshPath = Path.Combine(_savePath, _targetPrefab.name + "_VAT_Body_Static.asset");
+            string bodyTexPath = Path.Combine(_savePath, _targetPrefab.name + "_VAT_Body_Texture.png");
+            string weaponSoPath = Path.Combine(_savePath, _targetPrefab.name + "_VAT_WeaponData.asset");
 
-            return File.Exists(meshPath) || File.Exists(texPath) || File.Exists(soPath);
+            return File.Exists(meshPath) || File.Exists(texPath) || File.Exists(soPath) ||
+                   File.Exists(bodyMeshPath) || File.Exists(bodyTexPath) || File.Exists(weaponSoPath);
         }
 
         private static bool RegisterAssetInLunaJson(string assetPath)

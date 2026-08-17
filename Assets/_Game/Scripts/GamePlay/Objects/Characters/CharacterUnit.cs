@@ -603,10 +603,10 @@ namespace GamePlay.Characters
         private float ResolveAttackDespawnDelay(float configuredDelay)
         {
             float delay = Mathf.Max(0f, configuredDelay);
-            if (!(Pack.Animator is AnimationComponent animationComponent))
+            if (!(Pack.Animator is IAnimationClipLengthProvider clipLengthProvider))
                 return delay;
 
-            float attackClipLength = animationComponent.GetAnimationClipLength(AnimationType.Attack);
+            float attackClipLength = clipLengthProvider.GetAnimationClipLength(AnimationType.Attack);
             if (attackClipLength <= 0f)
                 return delay;
 

@@ -28,7 +28,7 @@ Material:
     m_Floats:
     - _DstBlend: 10
     - _GradientPower: 2
-    - _HeadZ: 1
+    - _HeadZ: 2
     - _RenderMode: 0
     - _SrcBlend: 5
     - _TailZ: -3

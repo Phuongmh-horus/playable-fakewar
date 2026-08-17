@@ -37,9 +37,6 @@ public class UICapacityBar : MonoBehaviour
     private int _previousLevel = -1;
     private int _previousPoints = -1;
     private bool _isFirstSetup = true;
-    private Coroutine _updateCoroutine;
-    private float _lastUpdateTime;
-    private const float UPDATE_THROTTLE = 0.016f;
     private const float FALLBACK_POLL_INTERVAL = 0.2f;
     private float _lastFallbackPollTime;
     private int _lastObservedCapacity = int.MinValue;
@@ -113,27 +110,7 @@ public class UICapacityBar : MonoBehaviour
 
     private void UpdateDataThrottled()
     {
-        if (_updateCoroutine != null) return;
-
-        float timeSinceLastUpdate = Time.time - _lastUpdateTime;
-
-        if (timeSinceLastUpdate >= UPDATE_THROTTLE)
-        {
-            UpdateData();
-            _lastUpdateTime = Time.time;
-        }
-        else
-        {
-            _updateCoroutine = StartCoroutine(DelayedUpdate(UPDATE_THROTTLE - timeSinceLastUpdate));
-        }
-    }
-
-    private IEnumerator DelayedUpdate(float waitTime)
-    {
-        yield return GetWait(waitTime);
-        _updateCoroutine = null;
         UpdateData();
-        _lastUpdateTime = Time.time;
     }
 
     public void UpdateData()

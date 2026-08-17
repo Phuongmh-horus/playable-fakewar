@@ -20,6 +20,7 @@ namespace GamePlay.Enemies
         private float _nextAttackTime;
         private bool _deathHandled;
         private bool _hasEngagedArmy;
+        private IHitable _pendingArmyHitTarget;
 
         public override void Initialize()
         {
@@ -47,6 +48,7 @@ namespace GamePlay.Enemies
             _deathHandled = false;
             _isAttacked = false;
             _hasEngagedArmy = false;
+            _pendingArmyHitTarget = null;
         }
 
         protected override void DespawnInterval()
@@ -95,21 +97,7 @@ namespace GamePlay.Enemies
             PlayableWaveDefenseEntitySystem.Instance?.Unregister(this);
             SoundManager.Instance?.PlayOneShot(AudioClipName.SFX_EnemyAttack);
 
-            PlayAnimation(AnimationType.Attack, waitForAction: waitAttackAnimation, onComplete: () =>
-            {
-                if (_deathHandled || (Pack.Healable?.IsDead ?? false))
-                {
-                    return;
-                }
-
-                HandleKillHero();
-                if (!isHandleKillHero)
-                {
-                    OnWheelCollision?.Invoke();
-                }
-
-                FinishAttackCycle();
-            });
+            PlayAnimation(AnimationType.Attack, waitForAction: waitAttackAnimation, onComplete: CompleteWheelAttack);
         }
 
         public override void HandlePlayerArmyMeleeContact(IAttacker armySource)
@@ -152,35 +140,56 @@ namespace GamePlay.Enemies
 
             _isAttacked = true;
             _hasEngagedArmy = true;
+            _pendingArmyHitTarget = armySource as IHitable;
             PlayableWaveDefenseEntitySystem.Instance?.Unregister(this);
             SoundManager.Instance?.PlayOneShot(AudioClipName.SFX_EnemyAttack);
 
-            PlayAnimation(AnimationType.Attack, waitForAction: waitAttackAnimation, onComplete: () =>
+            PlayAnimation(AnimationType.Attack, waitForAction: waitAttackAnimation, onComplete: CompleteArmyAttack);
+        }
+
+        private void CompleteWheelAttack()
+        {
+            if (_deathHandled || (Pack.Healable?.IsDead ?? false))
             {
-                if (_deathHandled || (Pack.Healable?.IsDead ?? false))
-                {
-                    return;
-                }
+                return;
+            }
 
-                HandleKillHero();
-                if (!isHandleKillHero)
+            HandleKillHero();
+            if (!isHandleKillHero)
+            {
+                OnWheelCollision?.Invoke();
+            }
+
+            FinishAttackCycle();
+        }
+
+        private void CompleteArmyAttack()
+        {
+            if (_deathHandled || (Pack.Healable?.IsDead ?? false))
+            {
+                _pendingArmyHitTarget = null;
+                return;
+            }
+
+            HandleKillHero();
+            if (!isHandleKillHero)
+            {
+                if (_pendingArmyHitTarget != null)
                 {
-                    if (armySource is IHitable hitableArmy)
+                    _pendingArmyHitTarget.OnHit(this);
+                }
+                else if (GameplayManager.Instance != null && GameplayManager.Instance.ActiveArmy != null)
+                {
+                    var army = GameplayManager.Instance.ActiveArmy;
+                    if (army.Units.Count > 0)
                     {
-                        hitableArmy.OnHit(this);
-                    }
-                    else if (GameplayManager.Instance != null && GameplayManager.Instance.ActiveArmy != null)
-                    {
-                        var army = GameplayManager.Instance.ActiveArmy;
-                        if (army.Units.Count > 0)
-                        {
-                            army.Units[0].OnHit(this);
-                        }
+                        army.Units[0].OnHit(this);
                     }
                 }
+            }
 
-                FinishAttackCycle();
-            });
+            _pendingArmyHitTarget = null;
+            FinishAttackCycle();
         }
 
         private bool TryGetClosestActiveArmyAttacker(bool allowAnyDistance, out IAttacker armyAttacker)
@@ -228,6 +237,7 @@ namespace GamePlay.Enemies
 
         private void FinishAttackCycle()
         {
+            _pendingArmyHitTarget = null;
             _isAttacked = false;
             _nextAttackTime = Time.time + Mathf.Max(0f, delayBetweenAttacks);
         }

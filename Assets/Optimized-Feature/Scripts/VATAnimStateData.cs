@@ -28,13 +28,14 @@ namespace OptimizedFeature.Scripts
             CurrentFrameNormalized = 0f;
         }
 
-        public int TotalFrames => EndFrame - StartFrame + 1;
+        public int TotalFrames => Mathf.Max(1, EndFrame - StartFrame + 1);
 
         public int CalculateFrameIndex(float time)
         {
-            float totalTime = TotalFrames / FrameRate;
+            float safeFrameRate = Mathf.Max(0.0001f, FrameRate);
+            float totalTime = TotalFrames / safeFrameRate;
             float timeInClip = IsLooping ? Mathf.Repeat(time, totalTime) : Mathf.Clamp(time, 0f, totalTime);
-            int frameOffset = Mathf.FloorToInt(timeInClip * FrameRate) % TotalFrames;
+            int frameOffset = Mathf.FloorToInt(timeInClip * safeFrameRate) % TotalFrames;
             return StartFrame + frameOffset;
         }
 

@@ -39,6 +39,15 @@ namespace OptimizedFeature.Scripts.Editor
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Animation Control Deck", EditorStyles.boldLabel);
 
+            EditorGUILayout.HelpBox(
+                "Animator data demo: create a Trigger parameter named 'IsRun' and connect it " +
+                "to a Transition in the VAT Animator graph. Press R or use the button below.",
+                MessageType.Info);
+            if (Application.isPlaying && GUILayout.Button("SetTrigger (IsRun)"))
+            {
+                tester.SetRunTrigger();
+            }
+
             if (GUILayout.Button("Populate States from Asset"))
             {
                 tester.AutoPopulateClips();

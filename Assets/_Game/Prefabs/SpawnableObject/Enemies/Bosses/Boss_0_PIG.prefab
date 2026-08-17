@@ -198,6 +198,7 @@ MonoBehaviour:
   maxDeathVfxPerFrame: 8
   _healthOverriddenFromContent: 0
   delayBetweenAttacks: 1
+  armyAttackRange: 1
   deathAnimationDuration: 1
 --- !u!114 &7079246473552049795
 MonoBehaviour:

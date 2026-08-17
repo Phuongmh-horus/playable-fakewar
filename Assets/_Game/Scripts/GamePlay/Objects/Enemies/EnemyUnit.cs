@@ -29,6 +29,7 @@ namespace GamePlay.Enemies
         [SerializeField] protected bool isKillHeroAsPercent;
         [SerializeField] protected float heroToRemain = 3f;
         protected bool _isAttacked;
+        private IHitable _pendingArmyHitTarget;
 
         public WeaponUnit WeaponPrefab;
         public Transform HandTransform;
@@ -204,6 +205,7 @@ namespace GamePlay.Enemies
             EnsureHitTextEffect(false);
             _despawnHandled = false;
             _isAttacked = false;
+            _pendingArmyHitTarget = null;
 
             if (hitTextFlyEffect != null)
                 hitTextFlyEffect.enabled = true;
@@ -237,6 +239,7 @@ namespace GamePlay.Enemies
             if (_despawnHandled) return;
 
             _despawnHandled = true;
+            _pendingArmyHitTarget = null;
 
 
 
@@ -285,23 +288,27 @@ namespace GamePlay.Enemies
             if (_isAttacked) return;
 
             _isAttacked = true;
-            PlayAnimation(AnimationType.Attack, waitAttackAnimation, () =>
+            _pendingArmyHitTarget = armySource as IHitable;
+            PlayAnimation(AnimationType.Attack, waitAttackAnimation, CompleteArmyMeleeAttack, 0);
+        }
+
+        private void CompleteArmyMeleeAttack()
+        {
+            if (_pendingArmyHitTarget != null)
             {
-                // [FIX] Melee attack: deal damage to player army directly
-                if (armySource is IHitable hitableArmy)
+                _pendingArmyHitTarget.OnHit(this);
+            }
+            else if (GameplayManager.Instance != null && GameplayManager.Instance.ActiveArmy != null)
+            {
+                var army = GameplayManager.Instance.ActiveArmy;
+                if (army.Units.Count > 0)
                 {
-                    hitableArmy.OnHit(this);
+                    army.Units[0].OnHit(this);
                 }
-                else if (GameplayManager.Instance != null && GameplayManager.Instance.ActiveArmy != null)
-                {
-                    var army = GameplayManager.Instance.ActiveArmy;
-                    if (army.Units.Count > 0)
-                    {
-                        army.Units[0].OnHit(this);
-                    }
-                }
-                DespawnInterval();
-            }, 0);
+            }
+
+            _pendingArmyHitTarget = null;
+            DespawnInterval();
         }
 
 

@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2922126766466691769}
-  - component: {fileID: 5564043313254325846}
   m_Layer: 0
   m_Name: Character_Gun_x
   m_TagString: Untagged
@@ -34,26 +33,6 @@ Transform:
   - {fileID: 2542589012880898505}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5564043313254325846
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2355606159357840930}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f47bf4169ec5dd4cbf530cf6929eeab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  prototype: {fileID: 2355606159357840930}
-  animationData: {fileID: 4900000, guid: 6b01ad8576a591c4f9ecb9640bcd6ff6, type: 3}
-  playSpeed: 1
-  DefaultAnimIndex: 3
-  shadowCastingMode: 0
-  receiveShadow: 0
-  applyRootMotion: 0
-  bonePerVertex: 4
 --- !u!1001 &6492628636225777885
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -64,7 +43,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -9015112253638031699, guid: 36da1c45eb0a3e94e83187b0803831f1, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -9015112253638031699, guid: 36da1c45eb0a3e94e83187b0803831f1, type: 3}
       propertyPath: m_CastShadows
@@ -128,7 +107,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -1762483103825564906, guid: 36da1c45eb0a3e94e83187b0803831f1, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -1762483103825564906, guid: 36da1c45eb0a3e94e83187b0803831f1, type: 3}
       propertyPath: m_CastShadows
@@ -250,7 +229,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7056395785727273658, guid: c9ec53aa341b5a9408204ca66c3f4544, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -7056395785727273658, guid: c9ec53aa341b5a9408204ca66c3f4544, type: 3}
       propertyPath: m_CastShadows

@@ -317,7 +317,10 @@ namespace GamePlay.Items
                 GameplayManager.Instance?.ChangeStatModifierData(copyData);
 
             }
-
+            if (_flyTextEffect != null && Data != null)
+            {
+                _flyTextEffect.ShowCustomText("+" + Data.Value.ToString(), Color.yellow);
+            }
             Pack.Effector?.PlayEffect(EffectType.Land);
             DespawnInterval();
         }

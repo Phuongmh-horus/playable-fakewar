@@ -23,8 +23,6 @@ namespace PlayerArmy
     [DisallowMultipleComponent]
     public class PlayerArmySystem : MonoBehaviour, IAttacker
     {
-        private static readonly int StrafeBlendAnimatorHash = Animator.StringToHash("Strafe Blend");
-
         [Header("Movement")]
         [SerializeField] private Transform bodyRoot;
         [SerializeField] private float fallbackForwardSpeed = 6f;
@@ -36,9 +34,8 @@ namespace PlayerArmy
         [SerializeField] private float collisionCheckRangeZ = 25f;
         [SerializeField] private Vector2 collisionSize = new Vector2(3f, 3f);
 
-        private const float StrafeBlendUpdateThreshold = 0.01f;
-        private float _currentStrafeBlend = 0f;
-        private float _lastAppliedStrafeBlend = float.NaN;
+        private const float LateralAnimationThreshold = 0.05f;
+        private AnimationType _currentMovementAnimation = AnimationType.None;
 
         [Header("Spawn")]
         [SerializeField] private CharacterUnit characterPrefab;
@@ -61,7 +58,7 @@ namespace PlayerArmy
         [SerializeField] private int _baseProjectileDamage = 5;
         private int attackDamage = 5;
 
-        [Header("Audio")]
+        [Header("Projectile")]
         [SerializeField, Min(0.05f)] private float attackInterval = 0.75f;
         [SerializeField, Min(0.1f)] private float projectileDistance = 6f;
         [SerializeField, Min(0.05f)] private float projectileDuration = 0.55f;
@@ -218,7 +215,7 @@ namespace PlayerArmy
 
             if (weaponProjectilePrefab != null && !weaponProjectilePrefab.gameObject.scene.IsValid())
             {
-                yield return PoolSystem.PrewarmAsync(weaponProjectilePrefab, 150, batchSize);
+                yield return PoolSystem.PrewarmAsync(weaponProjectilePrefab, 120, batchSize);
             }
         }
 
@@ -479,7 +476,7 @@ namespace PlayerArmy
             return Mathf.Max(1, requestedLevel > 0 ? requestedLevel : fallbackCharacterLevel);
         }
 
-        private class DelayedSwordSkill
+        private struct DelayedSwordSkill
         {
             public WeaponUnit WeaponPrefab;
             public CardSystem.Data.SamuraiSkillConfigSO SamuraiConfig;
@@ -659,6 +656,7 @@ namespace PlayerArmy
         public void SetIdle()
         {
             currentState = PlayerArmyState.Idle;
+            _currentMovementAnimation = AnimationType.Idle;
             ClearPendingProjectileAttacks();
             ClearContactState();
             foreach (var unit in characterUnits)
@@ -673,6 +671,7 @@ namespace PlayerArmy
         public void SetActive()
         {
             currentState = PlayerArmyState.Active;
+            _currentMovementAnimation = AnimationType.Attack;
             ClearPendingProjectileAttacks();
             ClearContactState();
             if (characterUnits != null)
@@ -682,8 +681,7 @@ namespace PlayerArmy
                     if (characterUnits[i] != null)
                     {
                         characterUnits[i].ShowWeapon();
-                        characterUnits[i].PlayAnimation(AnimationType.Strafe, 0f, null, 0); // [FIX] Switch to Strafe when game starts
-                        //characterUnits[i].PlayAnimation(AnimationType.Attack, 0f, null, 1); // Play Attack on layer 1
+                        characterUnits[i].PlayAnimation(AnimationType.Attack, 0f, null, 0);
                         _nextAttackTimes[characterUnits[i].GetInstanceID()] = Time.time; //+ Mathf.Max(0.05f, attackInterval);
                     }
                 }
@@ -724,6 +722,7 @@ namespace PlayerArmy
                     unit.Initialize(targetLevel, true);
                     unit.Setup(targetLevel, GameplayManager.IsGameStarted);
                     unit.ShowWeapon();
+                    unit.PlayAnimation(ResolveRuntimeUnitAnimation(), 0f, null, 0);
                 }
                 return;
             }
@@ -751,8 +750,8 @@ namespace PlayerArmy
 
             // [FIX] Use multiplier logic to scale down interval without hitting the floor too fast
             float multiplier = 1f / (1f + _fireRateBonusPoints * 0.005f);
-            attackInterval = Mathf.Max(0.05f, _baseAttackInterval * multiplier);
-            projectileDuration = Mathf.Max(0.05f, _baseProjectileDuration * multiplier);
+            attackInterval = Mathf.Max(0.01f, _baseAttackInterval * multiplier);
+            projectileDuration = Mathf.Max(0.01f, _baseProjectileDuration * multiplier);
 
             float nextAttackTime = Time.time + attackInterval;
             for (int i = 0; i < characterUnits.Count; i++)
@@ -1086,25 +1085,27 @@ namespace PlayerArmy
             root.localPosition = new Vector3(newX, localPos.y, localPos.z);
 
             float lateralVelocity = (dt > 0f) ? (newX - localPos.x) / dt : 0f;
-            float targetStrafeBlend = Mathf.Clamp(lateralVelocity * 0.25f, -1f, 1f);
-            _currentStrafeBlend = Mathf.Lerp(_currentStrafeBlend, targetStrafeBlend, dt * 15f);
-
             _targetX = tempTargetX;
 
-            if (!float.IsNaN(_lastAppliedStrafeBlend) &&
-                Mathf.Abs(_currentStrafeBlend - _lastAppliedStrafeBlend) < StrafeBlendUpdateThreshold)
+            AnimationType targetAnimation = lateralVelocity < -LateralAnimationThreshold
+                ? AnimationType.MoveLeft
+                : lateralVelocity > LateralAnimationThreshold
+                    ? AnimationType.MoveRight
+                    : AnimationType.Attack;
+
+            if (_currentMovementAnimation == targetAnimation)
             {
                 return;
             }
 
-            _lastAppliedStrafeBlend = _currentStrafeBlend;
+            _currentMovementAnimation = targetAnimation;
 
             for (int i = 0; i < characterUnits.Count; i++)
             {
                 var unit = characterUnits[i];
-                if (unit != null && unit.IsActive && unit.Pack.Animator is AnimationComponent animComp)
+                if (unit != null && unit.IsActive)
                 {
-                    animComp.SetFloat(StrafeBlendAnimatorHash, _currentStrafeBlend);
+                    unit.PlayAnimation(targetAnimation, 0f, null, 0);
                 }
             }
         }
@@ -1177,6 +1178,13 @@ namespace PlayerArmy
 
                 bool hitX = absDistX <= (myHalfX + tHalfX);
                 bool hitZ = absDistZ <= (myHalfZ + tHalfZ);
+
+                if (target.EntityType == EntityType.MovingGate &&
+                    TryCollectFireSoldierWithUnit(target, targetTr, tPos, tHalfX, tHalfZ))
+                {
+                    continue;
+                }
+
                 if (!hitX || !hitZ)
                 {
                     continue;
@@ -1215,6 +1223,50 @@ namespace PlayerArmy
             var tmpEnv = _previousEnvironmentContactIds;
             _previousEnvironmentContactIds = _currentEnvironmentContactIds;
             _currentEnvironmentContactIds = tmpEnv;
+        }
+
+        private bool TryCollectFireSoldierWithUnit(
+            IHitable target,
+            Transform targetTransform,
+            Vector3 targetPosition,
+            float targetHalfX,
+            float targetHalfZ)
+        {
+            var gate = targetTransform.GetComponentInParent<GamePlay.Items.StatModifierGate>();
+            if (gate == null || gate.Data == null || gate.Data.Type != GamePlay.Items.StatType.Character)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < characterUnits.Count; i++)
+            {
+                var unit = characterUnits[i];
+                if (unit == null || !unit.IsActive)
+                {
+                    continue;
+                }
+
+                var unitCollider = unit.GetColliderData();
+                float unitHalfX = Mathf.Abs(unitCollider.Size.x);
+                float unitHalfZ = Mathf.Abs(unitCollider.Size.z);
+                if (unitCollider.Type != ShapeType.Box)
+                {
+                    unitHalfZ = Mathf.Max(unitHalfX, unitHalfZ);
+                    unitHalfX = unitHalfZ;
+                }
+
+                Vector3 unitPosition = unit.Position;
+                if (Mathf.Abs(unitPosition.x - targetPosition.x) > unitHalfX + targetHalfX ||
+                    Mathf.Abs(unitPosition.z - targetPosition.z) > unitHalfZ + targetHalfZ)
+                {
+                    continue;
+                }
+
+                gate.CollectByArmy();
+                return true;
+            }
+
+            return false;
         }
 
         private void UpdateCharacterAttacks()
@@ -1567,11 +1619,7 @@ namespace PlayerArmy
             {
                 if (GameplayManager.IsGameStarted) unit.ShowWeapon(); else unit.HideWeapon();
             }
-            unit.PlayAnimation(playMoveAnimation ? AnimationType.Strafe : AnimationType.Idle, 0f, null, 0);
-            if (playMoveAnimation)
-            {
-                //unit.PlayAnimation(AnimationType.Attack, 0f, null, 1);
-            }
+            unit.PlayAnimation(ResolveRuntimeUnitAnimation(), 0f, null, 0);
 
             RegisterRuntimeUnit(unit);
             SetNextAttackTime(unit, nextAttackTime ?? (Time.time + attackInterval));
@@ -1579,6 +1627,24 @@ namespace PlayerArmy
             if (!_activeSpawnedUnits.Contains(unit))
             {
                 _activeSpawnedUnits.Enqueue(unit);
+            }
+        }
+
+        private AnimationType ResolveRuntimeUnitAnimation()
+        {
+            if (!GameplayManager.IsGameStarted || currentState != PlayerArmyState.Active)
+            {
+                return AnimationType.Idle;
+            }
+
+            switch (_currentMovementAnimation)
+            {
+                case AnimationType.MoveLeft:
+                case AnimationType.MoveRight:
+                case AnimationType.Attack:
+                    return _currentMovementAnimation;
+                default:
+                    return AnimationType.Attack;
             }
         }
 

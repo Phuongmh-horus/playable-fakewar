@@ -139,7 +139,15 @@
                 "Assets/Kho/Charater/texture/T_EN_pig.tga",
                 "Assets/Kho/Charater/texture/T_EN_basic.tga",
                 "Assets/Kho/Charater/texture/T_EN_basic_2.tga",
-                "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_New_VAT_Texture.png"
+                "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_New_VAT_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_VAT_Texture.png",
+                "Assets/Kho/Charater/texture/T_MC_basic.tga",
+                "Assets/Kho/Charater/texture/T_Color.tga",
+                "Assets/Kho/Charater/texture/T_VK_sungtruong.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_Crossbow_VAT_Body_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_Crossbow_VAT_Weapon_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VAT_Body_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VAT_Weapon_Texture.png"
             ]
         },
         "scenes": [
@@ -7961,10 +7969,6 @@
                 "excluded": true
             },
             {
-                "name": "PlayableWaveDefenseEntitySystem.Entry",
-                "excluded": false
-            },
-            {
                 "name": "PlayerArmy.ArmyUnit.WeaponPoolMarker",
                 "excluded": true
             },
@@ -8974,6 +8978,10 @@
             },
             {
                 "name": "OptimizedFeature.Scripts.VATSocketTransformData",
+                "excluded": false
+            },
+            {
+                "name": "GamePlay.AnimationSystems.IAnimationClipLengthProvider",
                 "excluded": false
             }
         ],
@@ -18954,7 +18962,7 @@
                     },
                     {
                         "name": "highlightedColor#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "highlightedColor#set",
@@ -18962,7 +18970,7 @@
                     },
                     {
                         "name": "pressedColor#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "pressedColor#set",
@@ -18970,7 +18978,7 @@
                     },
                     {
                         "name": "selectedColor#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "selectedColor#set",
@@ -19066,7 +19074,7 @@
                     },
                     {
                         "name": "mode#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "mode#set",
@@ -19166,7 +19174,7 @@
                     },
                     {
                         "name": "highlightedSprite#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "highlightedSprite#set",
@@ -19174,7 +19182,7 @@
                     },
                     {
                         "name": "pressedSprite#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "pressedSprite#set",
@@ -19182,7 +19190,7 @@
                     },
                     {
                         "name": "selectedSprite#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "selectedSprite#set",
@@ -27054,7 +27062,7 @@
                     },
                     {
                         "name": "Invoke",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Invoke$1",
@@ -29556,7 +29564,7 @@
                     },
                     {
                         "name": "highlightedTrigger#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "highlightedTrigger#set",
@@ -29564,7 +29572,7 @@
                     },
                     {
                         "name": "pressedTrigger#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "pressedTrigger#set",
@@ -29572,7 +29580,7 @@
                     },
                     {
                         "name": "selectedTrigger#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "selectedTrigger#set",
@@ -30440,7 +30448,7 @@
                     },
                     {
                         "name": "OnPointerClick",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnSubmit",
@@ -30448,7 +30456,7 @@
                     },
                     {
                         "name": "Press",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnFinishSubmit",
@@ -36564,6 +36572,26 @@
                 "instanceMethods": [
                     {
                         "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
                         "excluded": true
                     }
                 ]
@@ -37165,6 +37193,10 @@
                     {
                         "name": "ComputeAnimationClipLength",
                         "excluded": true
+                    },
+                    {
+                        "name": "InvokePendingCompletion",
+                        "excluded": false
                     }
                 ]
             },
@@ -38269,6 +38301,14 @@
                     {
                         "name": "GetBodyRoot",
                         "excluded": false
+                    },
+                    {
+                        "name": "TryCollectFireSoldierWithUnit",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolveRuntimeUnitAnimation",
+                        "excluded": false
                     }
                 ]
             },
@@ -38499,6 +38539,10 @@
                     {
                         "name": "PlayDieEffectOncePerFrame",
                         "excluded": false
+                    },
+                    {
+                        "name": "CompleteArmyMeleeAttack",
+                        "excluded": true
                     }
                 ]
             },
@@ -38548,6 +38592,14 @@
                     },
                     {
                         "name": "TryGetClosestActiveArmyAttacker",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CompleteWheelAttack",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CompleteArmyAttack",
                         "excluded": false
                     }
                 ]
@@ -38758,7 +38810,7 @@
                     },
                     {
                         "name": "CollectByArmy",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "PlayScalePulse",
@@ -40482,7 +40534,7 @@
                     },
                     {
                         "name": "Play",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "PlayInternal",
@@ -40494,11 +40546,11 @@
                     },
                     {
                         "name": "CrossFade",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CrossFadeInternal",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetVATAssetData",
@@ -40657,6 +40709,74 @@
                         "excluded": true
                     }
                 ]
+            },
+            {
+                "className": "PlayableWaveDefenseEntitySystem.Entry",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.AnimationSystems.VATAnimationComponent",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Initialize",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Dispose",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayAnimation",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetAnimationClipLength",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResolveStateName",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolveVATRenderer",
+                        "excluded": false
+                    },
+                    {
+                        "name": "InvokePendingCompletion",
+                        "excluded": false
+                    }
+                ]
             }
         ],
         "stubberDataList": [],
@@ -40736,11 +40856,11 @@
                         "name": "Assets/Kho/Assets/texture/color.png"
                     },
                     {
-                        "maxWidth": 512,
-                        "maxHeight": 512,
-                        "format": "jpeg",
-                        "compression": "quantSize",
-                        "quality": 65,
+                        "maxWidth": 256,
+                        "maxHeight": 256,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_VK_sungtruong.png"
@@ -40798,9 +40918,9 @@
                     {
                         "maxWidth": 512,
                         "maxHeight": 512,
-                        "format": "jpeg",
-                        "compression": "quantSize",
-                        "quality": 65,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_Color.tga"
@@ -40810,7 +40930,7 @@
                         "maxHeight": 256,
                         "format": "jpeg",
                         "compression": "none",
-                        "quality": 80,
+                        "quality": 70,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_EN_pig.tga"
@@ -40876,11 +40996,11 @@
                         "name": "Assets/Kho/Evironment/ENV_02/texture/T_ENV_02_water.tga"
                     },
                     {
-                        "maxWidth": 512,
-                        "maxHeight": 512,
-                        "format": "jpeg",
-                        "compression": "quantQuality",
-                        "quality": 65,
+                        "maxWidth": 256,
+                        "maxHeight": 256,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_MC_basic.tga"
@@ -40954,6 +41074,66 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_New_VAT_Texture.png"
+                    },
+                    {
+                        "maxWidth": 4096,
+                        "maxHeight": 4096,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Enemy_VAT_Texture.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_FrameWork/Resources/Sprites/UI/IconCharacter_Sungngan.png"
+                    },
+                    {
+                        "maxWidth": 4096,
+                        "maxHeight": 4096,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_Crossbow_VAT_Body_Texture.png"
+                    },
+                    {
+                        "maxWidth": 4096,
+                        "maxHeight": 4096,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_Crossbow_VAT_Weapon_Texture.png"
+                    },
+                    {
+                        "maxWidth": 4096,
+                        "maxHeight": 4096,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VAT_Body_Texture.png"
+                    },
+                    {
+                        "maxWidth": 4096,
+                        "maxHeight": 4096,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VAT_Weapon_Texture.png"
                     }
                 ]
             },
