@@ -125,7 +125,9 @@
                 "Stubs/MoreMountains.NiceVibrations",
                 "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset",
                 "Assets/Font/MUSEOSANSROUNDED-1000 SDF.asset",
-                "Assets/TextMesh Pro/Sprites/EmojiOne.png"
+                "Assets/TextMesh Pro/Sprites/EmojiOne.png",
+                "Assets/Kho/Assets/texture/T_road.png",
+                "Assets/Kho/Assets/texture/T_road_side.png"
             ],
             "includes": [
                 "Assets/Kho/Charater/mesh/EN_basic.fbx",
@@ -34528,6 +34530,10 @@
                     {
                         "name": "UpgradeLevel",
                         "excluded": false
+                    },
+                    {
+                        "name": "SetLevel",
+                        "excluded": false
                     }
                 ]
             },
@@ -38562,6 +38568,10 @@
                     {
                         "name": "CompleteArmyMeleeAttack",
                         "excluded": true
+                    },
+                    {
+                        "name": "SetHealthBarVisible",
+                        "excluded": false
                     }
                 ]
             },
@@ -41409,7 +41419,7 @@
                         "maxHeight": 512,
                         "format": "jpeg",
                         "compression": "quantSize",
-                        "quality": 65,
+                        "quality": 70,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/EN_kybinh.tga"
@@ -41465,10 +41475,10 @@
                         "name": "Assets/Optimized-Feature/BakedAssets/Enemy_VAT_Texture.png"
                     },
                     {
-                        "maxWidth": 512,
-                        "maxHeight": 512,
-                        "format": "png8",
-                        "compression": "quantSize",
+                        "maxWidth": 256,
+                        "maxHeight": 256,
+                        "format": "png32",
+                        "compression": "quantQuality",
                         "quality": 65,
                         "script": "",
                         "ext": "",
@@ -41515,10 +41525,10 @@
                         "name": "Assets/Optimized-Feature/BakedAssets/Character_VAT_Weapon_Texture.png"
                     },
                     {
-                        "maxWidth": 512,
-                        "maxHeight": 512,
-                        "format": "png8",
-                        "compression": "quantSize",
+                        "maxWidth": 256,
+                        "maxHeight": 256,
+                        "format": "png32",
+                        "compression": "quantQuality",
                         "quality": 65,
                         "script": "",
                         "ext": "",
@@ -41573,6 +41583,36 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Body_Texture.png"
+                    },
+                    {
+                        "maxWidth": 4096,
+                        "maxHeight": 4096,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_pistol_Texture.png"
+                    },
+                    {
+                        "maxWidth": 4096,
+                        "maxHeight": 4096,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_crossbow_Texture.png"
+                    },
+                    {
+                        "maxWidth": 4096,
+                        "maxHeight": 4096,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_gun_Texture.png"
                     }
                 ]
             },

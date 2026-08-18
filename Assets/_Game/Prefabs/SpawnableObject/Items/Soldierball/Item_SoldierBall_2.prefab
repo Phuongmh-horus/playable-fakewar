@@ -81,7 +81,7 @@ MeshRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 1
+  m_MotionVectors: 2
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 2
@@ -603,7 +603,7 @@ MonoBehaviour:
     Value: 0
     Armor: 0
     ChangeType: 1
-    Level: 1
+    Level: 2
   slot: {fileID: 2641733773760044025}
   soldierScale: 1
   unitHorizontalSpace: 1.2
@@ -761,6 +761,10 @@ PrefabInstance:
     - target: {fileID: -7285214734427454430, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_CastShadows
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7285214734427454430, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
+      propertyPath: m_MotionVectors
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -7285214734427454430, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_ReceiveShadows

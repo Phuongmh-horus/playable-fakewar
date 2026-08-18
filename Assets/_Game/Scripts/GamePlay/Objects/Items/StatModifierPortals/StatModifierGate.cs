@@ -550,7 +550,7 @@ namespace GamePlay.Items
         private void UpdateText()
         {
             if (valueText != null)
-                valueText.text = Data.Value.ToString();
+                valueText.text = "+ " + Data.Value.ToString();
 
             ApplyDepthToAllTexts();
         }

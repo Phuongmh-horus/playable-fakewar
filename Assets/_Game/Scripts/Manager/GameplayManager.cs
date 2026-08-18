@@ -186,7 +186,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         if (waveSys != null && waveSys.EndGameWhenAllMovingEntitiesCleared)
         {
             if (waveSys.IsCompleted() &&
-                (GamePlay.Enemies.EnemyManager.Instance == null || GamePlay.Enemies.EnemyManager.Instance.EnemyCount == 0))
+                (EnemyManager.Instance == null || EnemyManager.Instance.EnemyCount == 0))
             {
                 EndGame(true);
                 return;
@@ -328,6 +328,8 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
     private IEnumerator CoPhase1_MapContentAndArmy()
     {
+        bool isMemoryConstrained = Application.platform == RuntimePlatform.WebGLPlayer || Application.isMobilePlatform;
+
         // Generate Map
         bool hasPrebakedMap = mapGenerator.GetActiveSegments().Count > 0;
         bool shouldRegenerateMap = !hasPrebakedMap || (mapGenerator != null && mapGenerator.CurrentMapData != null && playableEra != null && mapGenerator.CurrentMapData != playableEra.MapData);
@@ -402,7 +404,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
                         {
                             if (prewarmedVfx.Add(enemyUnit.DieVfxPrefab))
                             {
-                                yield return PoolSystem.PrewarmAsync(enemyUnit.DieVfxPrefab.transform, 20, batchSize);
+                                yield return PoolSystem.PrewarmAsync(enemyUnit.DieVfxPrefab.transform, isMemoryConstrained ? 8 : 20, batchSize);
                             }
                         }
                     }
@@ -429,7 +431,9 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             if (prefab != null)
             {
                 // [FIX] Reduce prewarm count for vfx_hero_upgrade to optimize performance
-                int prewarmCount = prefab.name.ToLower().Contains("upgrade") ? 2 : 20;
+                int prewarmCount = prefab.name.ToLower().Contains("upgrade")
+                    ? (isMemoryConstrained ? 1 : 2)
+                    : (isMemoryConstrained ? 8 : 20);
                 yield return PoolSystem.PrewarmAsync(prefab.transform, prewarmCount, Mathf.Max(1, spawnItemsPerFrame));
             }
         }
@@ -935,7 +939,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
                         {
                             ActiveArmy.UpgradeAllUnitsToLevel(levelBonus);
                             // [FIX] Play Upgrade effect on the army
-                            ActiveArmy.PlayEffect(GamePlay.ComponentSystems.EffectType.Upgrade);
+                            ActiveArmy.PlayEffect(EffectType.Upgrade);
                         }
                     }
 
@@ -1137,7 +1141,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             {
                 ActiveArmy.UpgradeAllUnitsToLevel(targetLevel);
                 // [FIX] Play Upgrade effect on the army, not on the SoldierBall prefab
-                ActiveArmy.PlayEffect(GamePlay.ComponentSystems.EffectType.Upgrade);
+                ActiveArmy.PlayEffect(EffectType.Upgrade);
             }
         }
     }

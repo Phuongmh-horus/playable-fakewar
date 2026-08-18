@@ -40,6 +40,7 @@ namespace GamePlay.Enemies
 
 
         [Header("HP Bar Settings")]
+        [SerializeField] private GameObject _healthBarRoot;
 
         [SerializeField] private int defaultMaxHealth = 3;
 
@@ -76,7 +77,6 @@ namespace GamePlay.Enemies
         private Vector3 _originalBarScale;
 
         private Vector3 _originalLocalPos;
-
         [SerializeField, HideInInspector] private bool _healthOverriddenFromContent;
 
 
@@ -212,12 +212,14 @@ namespace GamePlay.Enemies
 
             if (hpBarRenderer != null)
             {
-                hpBarRenderer.gameObject.SetActive(true);
-                hpBarRenderer.enabled = true;
                 hpBarRenderer.sortingOrder = 50;
 
                 // Cache Scale FIRST
                 _originalBarScale = hpBarRenderer.transform.localScale;
+                _originalLocalPos = hpBarRenderer.transform.localPosition;
+                _healthBarRoot = hpBarRenderer.transform.parent != null
+                    ? hpBarRenderer.transform.parent.gameObject
+                    : hpBarRenderer.gameObject;
 
                 // Initialize Visuals
                 if (_healthComponent != null)
@@ -402,7 +404,7 @@ namespace GamePlay.Enemies
             }
 
             s_lastDieSfxFrame = currentFrame;
-            Pack.Effector?.PlayEffect(EffectType.Die, transform.position, transform.rotation);
+            Pack.Effector?.PlayEffect(EffectType.Die, transform.position + Vector3.up * 1f, transform.rotation);
         }
 
 
@@ -411,6 +413,8 @@ namespace GamePlay.Enemies
         {
 
             if (hpBarRenderer == null) return;
+
+            SetHealthBarVisible(maxHealth > 0 && currentHealth < maxHealth);
 
 
 
@@ -470,6 +474,21 @@ namespace GamePlay.Enemies
 
             }
 
+        }
+
+        private void SetHealthBarVisible(bool visible)
+        {
+            if (_healthBarRoot == null)
+            {
+                _healthBarRoot = hpBarRenderer.transform.parent != null
+                    ? hpBarRenderer.transform.parent.gameObject
+                    : hpBarRenderer.gameObject;
+            }
+
+            if (_healthBarRoot.activeSelf != visible)
+            {
+                _healthBarRoot.SetActive(visible);
+            }
         }
 
 

@@ -63,7 +63,6 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: d5b4deb7363e2fe409ed564aed723899, type: 2}
-  - {fileID: 2100000, guid: 5a6ab7d6296289349bf1b85c8202a331, type: 2}
   - {fileID: 2100000, guid: e282d7ef1c4c8b74da52efbfe8768ec7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -101,7 +100,6 @@ MonoBehaviour:
   _meshFilter: {fileID: 2125304441124156939}
   _meshRenderer: {fileID: 383017991681250992}
   _vatAssetData: {fileID: 11400000, guid: c9a8cf544b74e1b4e8ef5131d7039213, type: 2}
-  _defaultStateName: Enemy_Basic_Run_Enemy_Basic_Run_Baked
   _speed: 1
 --- !u!1 &1157737138313645664
 GameObject:
@@ -202,7 +200,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7645983136263762198
 Transform:
   m_ObjectHideFlags: 0
@@ -293,8 +291,9 @@ MonoBehaviour:
   hpBarRenderer: {fileID: 7375257029540412116}
   healthText: {fileID: 0}
   hitTextFlyEffect: {fileID: 0}
+  _healthBarRoot: {fileID: 5092033588395912544}
   defaultMaxHealth: 15
-  dieVfxPrefab: {fileID: 3658844881536662745, guid: d6dec12e7220e8f4c9d3d1c9f4ef1311, type: 3}
+  dieVfxPrefab: {fileID: 0}
   dieVfxOffset: {x: 0, y: 3, z: 0}
   dieVfxLifetime: 1.2
   maxDeathVfxPerFrame: 8
@@ -349,8 +348,8 @@ MonoBehaviour:
   poolEntity: {fileID: 7662387699070818353}
   effects:
   - Type: 12
-    VfxPrefab: {fileID: 0}
-    ParentToTarget: 0
+    VfxPrefab: {fileID: 3658844881536662745, guid: d6dec12e7220e8f4c9d3d1c9f4ef1311, type: 3}
+    ParentToTarget: 1
     SfxClip: {fileID: 8300000, guid: dec430151e9f1c4418bc903ca060b4c0, type: 3}
     LoopSfx: 0
     SfxVolume: 0.8

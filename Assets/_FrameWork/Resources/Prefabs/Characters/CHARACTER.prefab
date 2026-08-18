@@ -183,7 +183,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5904689087181943483
 Transform:
   m_ObjectHideFlags: 0
@@ -448,10 +448,7 @@ MonoBehaviour:
   - {fileID: 2143205822662595853}
   - {fileID: 9095532253404502705}
   - {fileID: 2828541445556698869}
-  weaponHolders:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  weaponHolders: []
   projectilePoint: {fileID: 4885795292978896481}
   bodyscalable: {fileID: 1774609010017332696}
   effectComponent: {fileID: 1085602945083619314}
@@ -535,11 +532,11 @@ MonoBehaviour:
   CacheTransform: {fileID: 4839683856078174234}
   poolEntity: {fileID: 6269225836784746350}
   vatRenderer: {fileID: 3253096590581294857}
-  idleStateName: Character_crossbow_Idle_Idle_Baked
+  idleStateName: Character_Idle_Baked
   attackStateName: Standing_Fire
   MoveStateName: 
-  moveLeftStateName: Character_crossbow_Side_Run_Left_Move_Left_Baked
-  moveRightStateName: Character_crossbow_Side_Run_Right_Move_Right_Baked
+  moveLeftStateName: Character_Move_Left_Baked
+  moveRightStateName: Character_Move_Right_Baked
   crossFadeDuration: 0.1
 --- !u!1 &9095532253404502705
 GameObject:
@@ -559,7 +556,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3764707306734404747
 Transform:
   m_ObjectHideFlags: 0

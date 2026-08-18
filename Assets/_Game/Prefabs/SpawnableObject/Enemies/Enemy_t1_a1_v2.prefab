@@ -199,7 +199,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7645983136263762198
 Transform:
   m_ObjectHideFlags: 0
@@ -291,8 +291,9 @@ MonoBehaviour:
   hpBarRenderer: {fileID: 7375257029540412116}
   healthText: {fileID: 0}
   hitTextFlyEffect: {fileID: 0}
+  _healthBarRoot: {fileID: 5092033588395912544}
   defaultMaxHealth: 15
-  dieVfxPrefab: {fileID: 3658844881536662745, guid: d6dec12e7220e8f4c9d3d1c9f4ef1311, type: 3}
+  dieVfxPrefab: {fileID: 0}
   dieVfxOffset: {x: 0, y: 3, z: 0}
   dieVfxLifetime: 1.2
   maxDeathVfxPerFrame: 8
@@ -347,8 +348,8 @@ MonoBehaviour:
   poolEntity: {fileID: 7662387699070818353}
   effects:
   - Type: 12
-    VfxPrefab: {fileID: 0}
-    ParentToTarget: 0
+    VfxPrefab: {fileID: 3658844881536662745, guid: d6dec12e7220e8f4c9d3d1c9f4ef1311, type: 3}
+    ParentToTarget: 1
     SfxClip: {fileID: 8300000, guid: e4e21ff8c56cce442905240c5cadbda3, type: 3}
     LoopSfx: 0
     SfxVolume: 1

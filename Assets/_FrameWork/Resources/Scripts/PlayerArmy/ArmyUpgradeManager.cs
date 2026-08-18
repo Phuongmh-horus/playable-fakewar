@@ -7,9 +7,9 @@ public class ArmyUpgradeManager : MonoBehaviour
     public static ArmyUpgradeManager Instance { get; private set; }
 
     [SerializeField] private CharacterVisualConfigSO characterVisualConfig;
-    
+
     [SerializeField] private int startLevelIndex = 0;
-    
+
     private int _currentLevelIndex;
     public int CurrentLevel => _currentLevelIndex;
 

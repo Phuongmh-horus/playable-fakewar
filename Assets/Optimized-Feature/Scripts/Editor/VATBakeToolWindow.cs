@@ -81,7 +81,8 @@ namespace OptimizedFeature.Scripts.Editor
         [SerializeField] private List<GameObject> _setupTargetRoots = new List<GameObject>();
         [SerializeField] private VATAssetDataSO _setupVATAssetData;
         [SerializeField] private Material _setupVATMaterial;
-        [SerializeField] private List<VATSetupHelper.SocketAttachmentSetup> _setupAttachments =
+        [SerializeField]
+        private List<VATSetupHelper.SocketAttachmentSetup> _setupAttachments =
             new List<VATSetupHelper.SocketAttachmentSetup>();
         private SerializedObject _setupSerializedObject;
         private SerializedProperty _setupTargetRootsProperty;

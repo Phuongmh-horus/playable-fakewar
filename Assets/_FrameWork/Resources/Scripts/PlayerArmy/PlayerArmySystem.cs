@@ -109,7 +109,7 @@ namespace PlayerArmy
         private float _fireRangeBonus;
         private static readonly Dictionary<int, Vector2Int[]> s_honeycombRingCache = new Dictionary<int, Vector2Int[]>(16);
 
-        private const int HardMaxActiveSpawnedUnits = 60;
+        private const int HardMaxActiveSpawnedUnits = 65;
         private const float HoneycombForwardStepFactor = 0.8660254f;
         private static readonly Vector2Int[] HoneycombDirections = new Vector2Int[6]
         {
@@ -196,10 +196,11 @@ namespace PlayerArmy
         public IEnumerator PrewarmArmyPrefabsAsync(int maxPerFrame)
         {
             int batchSize = Mathf.Max(1, maxPerFrame);
+            bool isMemoryConstrained = Application.platform == RuntimePlatform.WebGLPlayer || Application.isMobilePlatform;
 
-            if (characterPrefab != null && !characterPrefab.gameObject.scene.IsValid())
+            if (!useSceneUnitsOnly && characterPrefab != null && !characterPrefab.gameObject.scene.IsValid())
             {
-                yield return PoolSystem.PrewarmAsync(characterPrefab, 61, batchSize);
+                yield return PoolSystem.PrewarmAsync(characterPrefab, isMemoryConstrained ? 24 : 62, batchSize);
 
                 var characterUnit = characterPrefab.GetComponent<CharacterUnit>();
                 if (characterUnit != null && characterUnit.DieVfxPrefab != null)
@@ -207,14 +208,14 @@ namespace PlayerArmy
                     var dieVfxTransform = characterUnit.DieVfxPrefab.transform;
                     if (dieVfxTransform != null && !characterUnit.DieVfxPrefab.scene.IsValid())
                     {
-                        yield return PoolSystem.PrewarmAsync(dieVfxTransform, 20, batchSize);
+                        yield return PoolSystem.PrewarmAsync(dieVfxTransform, isMemoryConstrained ? 8 : 20, batchSize);
                     }
                 }
             }
 
             if (weaponProjectilePrefab != null && !weaponProjectilePrefab.gameObject.scene.IsValid())
             {
-                yield return PoolSystem.PrewarmAsync(weaponProjectilePrefab, 130, batchSize);
+                yield return PoolSystem.PrewarmAsync(weaponProjectilePrefab, isMemoryConstrained ? 48 : 96, batchSize);
             }
         }
 

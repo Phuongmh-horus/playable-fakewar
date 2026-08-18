@@ -160,11 +160,11 @@ Material:
     - _AnimeThreshold1: 0.45
     - _AnimeThreshold2: 0.85
     - _BlendOp: 0
-    - _Brightness: 1.5
+    - _Brightness: 1.8
     - _BumpScale: 1
     - _CameraFadeEnd: 0
     - _CameraFadeStart: 0
-    - _Contrast: 1
+    - _Contrast: 1.4
     - _Cull: 2
     - _Cutoff: 0.5
     - _Cutout: 0

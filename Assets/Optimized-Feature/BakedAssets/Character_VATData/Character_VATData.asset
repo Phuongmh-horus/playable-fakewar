@@ -55,7 +55,7 @@ MonoBehaviour:
   - WeaponName: gun
     WeaponAsset: {fileID: 11400000, guid: 1f8755dfe880142448caeedda9408652, type: 2}
   DefaultWeaponAsset: {fileID: 11400000, guid: 974355aa9601a7c4bb21498733534857, type: 2}
-  DefaultStateName: 1899044031
+  DefaultStateName: -1985706718
   AnimatorParameters:
   - id: 1
     parameterName: isStart

@@ -1980,7 +1980,7 @@ MonoBehaviour:
         overrideValue: 1
         ChangeType: 1
         Value: 0
-        Level: 1
+        Level: 2
         LeftOffset: 0
         RightOffset: 0
     - rid: 5408492523604410677
