@@ -359,11 +359,11 @@ namespace GamePlay.Items
                 CollisionSystem.Unregister(Pack.Hitable);
             }
 
-            if ((ActiveFlags & CapabilityFlags.Hit) != 0) Pack.Hitable.Dispose();
-            if ((ActiveFlags & CapabilityFlags.Heal) != 0) Pack.Healable.Dispose();
-            if ((ActiveFlags & CapabilityFlags.Animator) != 0) Pack.Animator.Dispose();
-            if ((ActiveFlags & CapabilityFlags.Oscillate) != 0) Pack.Oscillator.Dispose();
-            if ((ActiveFlags & CapabilityFlags.Effector) != 0) Pack.Effector.Dispose();
+            if ((ActiveFlags & CapabilityFlags.Hit) != 0 && Pack.Hitable != null) Pack.Hitable.Dispose();
+            if ((ActiveFlags & CapabilityFlags.Heal) != 0 && Pack.Healable != null) Pack.Healable.Dispose();
+            if ((ActiveFlags & CapabilityFlags.Animator) != 0 && Pack.Animator != null) Pack.Animator.Dispose();
+            if ((ActiveFlags & CapabilityFlags.Oscillate) != 0 && Pack.Oscillator != null) Pack.Oscillator.Dispose();
+            if ((ActiveFlags & CapabilityFlags.Effector) != 0 && Pack.Effector != null) Pack.Effector.Dispose();
 
             Despawn();
         }

@@ -338,7 +338,7 @@ namespace WeaponCraft
             UpdateCollectVisual();
             if (progressSprite.sharedMaterials == null || progressSprite.sharedMaterials.Length == 0) return;
             if (_progressMpb == null) _progressMpb = new MaterialPropertyBlock();
-            progressSprite.GetPropertyBlock(_progressMpb);
+            _progressMpb.Clear();
             _progressMpb.SetFloat(FillAmountProp, fillAmount);
             progressSprite.SetPropertyBlock(_progressMpb);
         }

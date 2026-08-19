@@ -1,7 +1,7 @@
 {
     "version": "7.0.0",
     "projectId": "1bc38d6f8d96f394b8b169b9e5a7dcba",
-    "applicationID": 39501,
+    "applicationID": 42014,
     "creativeName": "WS_kichban1_thua",
     "pgServer": "EU",
     "window": {
@@ -152,7 +152,21 @@
                 "Assets/Optimized-Feature/BakedAssets/Character_VAT_Weapon_Texture.png",
                 "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_Crossbow_Texture.png",
                 "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_Pistol_Texture.png",
-                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_Gun_Texture.png"
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_Gun_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Body_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_crossbow_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_pistol_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_gun_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_pisstol_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_VATData/Enemy_Basic_VAT_Body_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_VATData/Enemy_Basic_VAT_Item_crossbow_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_VATData/Enemy_Basic_VAT_Item_pistol_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_VATData/Enemy_Basic_VAT_Item_gun_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_baked_VATData/Character_baked_VAT_Body_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_baked_VATData/Character_baked_VAT_Item_crossbow_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_baked_VATData/Character_baked_VAT_Item_pistol_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_baked_VATData/Character_baked_VAT_Item_gun_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_baked_VATData/Enemy_baked_VAT_Body_Texture.png"
             ]
         },
         "scenes": [
@@ -5139,7 +5153,7 @@
             },
             {
                 "name": "UnityEngine.RuntimePlatform",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.ScaleMode",
@@ -23246,6 +23260,10 @@
                     {
                         "name": "ShouldApplyAoeToTarget",
                         "excluded": true
+                    },
+                    {
+                        "name": "RemoveExtraTargetAtSwapBack",
+                        "excluded": false
                     }
                 ]
             },
@@ -23633,7 +23651,7 @@
                     },
                     {
                         "name": "ExecuteWinEndFlow",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ExecuteLoseEndFlow",
@@ -27537,7 +27555,7 @@
                     },
                     {
                         "name": "Clear",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetParameter$3",
@@ -34952,6 +34970,18 @@
                     {
                         "name": "GetSqrDistanceToPoint",
                         "excluded": false
+                    },
+                    {
+                        "name": "AddObject",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RemoveObject",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetMaxCullDistance",
+                        "excluded": false
                     }
                 ]
             },
@@ -35551,7 +35581,7 @@
                     },
                     {
                         "name": "OnDestroy",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetTargetBySortedIndex",
@@ -36712,6 +36742,14 @@
                     {
                         "name": "GetOrCreateRoot",
                         "excluded": false
+                    },
+                    {
+                        "name": "EnsurePrewarmAsync",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetInactiveCount",
+                        "excluded": true
                     }
                 ]
             },
@@ -38061,7 +38099,7 @@
                     },
                     {
                         "name": "AddUnit$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RemoveUnit",
@@ -38177,7 +38215,7 @@
                     },
                     {
                         "name": "PlayAnimationForAllUnits",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetQueuedCardRequests",
@@ -38333,6 +38371,18 @@
                     },
                     {
                         "name": "GetAttackPhase",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CountActiveSceneUnits",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BuildOccupiedArmyIndices",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FindNextAvailableArmyIndex",
                         "excluded": false
                     }
                 ]
@@ -38562,15 +38612,15 @@
                         "excluded": false
                     },
                     {
-                        "name": "PlayDieEffectOncePerFrame",
-                        "excluded": false
-                    },
-                    {
                         "name": "CompleteArmyMeleeAttack",
                         "excluded": true
                     },
                     {
                         "name": "SetHealthBarVisible",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayDieEffectPerFrame",
                         "excluded": false
                     }
                 ]
@@ -38740,10 +38790,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "OnDisable",
-                        "excluded": false
-                    },
-                    {
                         "name": "Initialize",
                         "excluded": false
                     },
@@ -38760,18 +38806,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "GetCharacterUnitPrefab",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SpawnSoldier",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ClearBelts",
-                        "excluded": false
-                    },
-                    {
                         "name": "UpdateHealthText",
                         "excluded": false
                     },
@@ -38781,6 +38815,10 @@
                     },
                     {
                         "name": "DespawnInterval",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayHitFeedback",
                         "excluded": false
                     }
                 ]
@@ -40315,7 +40353,7 @@
                 "instanceMethods": [
                     {
                         "name": "Reset",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetFrom$1",
@@ -40507,7 +40545,7 @@
                     },
                     {
                         "name": "Renderer#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Speed#get",
@@ -40832,6 +40870,14 @@
                     {
                         "name": "GetNormalizedTime",
                         "excluded": true
+                    },
+                    {
+                        "name": "SetCullingVisible",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyVisibility",
+                        "excluded": false
                     }
                 ]
             },
@@ -41575,44 +41621,144 @@
                         "name": "Assets/_PlayableAds/Assets/Image/Lose_Panel.png"
                     },
                     {
-                        "maxWidth": 4096,
-                        "maxHeight": 4096,
+                        "maxWidth": 1030,
+                        "maxHeight": 97,
                         "format": "png32",
                         "compression": "none",
-                        "quality": 65,
+                        "quality": 100,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Body_Texture.png"
                     },
                     {
-                        "maxWidth": 4096,
-                        "maxHeight": 4096,
+                        "maxWidth": 569,
+                        "maxHeight": 97,
                         "format": "png32",
                         "compression": "none",
-                        "quality": 65,
+                        "quality": 100,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_pistol_Texture.png"
                     },
                     {
-                        "maxWidth": 4096,
-                        "maxHeight": 4096,
+                        "maxWidth": 537,
+                        "maxHeight": 97,
                         "format": "png32",
                         "compression": "none",
-                        "quality": 65,
+                        "quality": 100,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_crossbow_Texture.png"
                     },
                     {
-                        "maxWidth": 4096,
-                        "maxHeight": 4096,
+                        "maxWidth": 178,
+                        "maxHeight": 97,
                         "format": "png32",
                         "compression": "none",
-                        "quality": 65,
+                        "quality": 100,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_gun_Texture.png"
+                    },
+                    {
+                        "maxWidth": 569,
+                        "maxHeight": 97,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Weapon_pisstol_Texture.png"
+                    },
+                    {
+                        "maxWidth": 1030,
+                        "maxHeight": 97,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_VATData/Enemy_Basic_VAT_Body_Texture.png"
+                    },
+                    {
+                        "maxWidth": 537,
+                        "maxHeight": 97,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_VATData/Enemy_Basic_VAT_Item_crossbow_Texture.png"
+                    },
+                    {
+                        "maxWidth": 569,
+                        "maxHeight": 97,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_VATData/Enemy_Basic_VAT_Item_pistol_Texture.png"
+                    },
+                    {
+                        "maxWidth": 178,
+                        "maxHeight": 97,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_VATData/Enemy_Basic_VAT_Item_gun_Texture.png"
+                    },
+                    {
+                        "maxWidth": 1030,
+                        "maxHeight": 97,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_baked_VATData/Character_baked_VAT_Body_Texture.png"
+                    },
+                    {
+                        "maxWidth": 537,
+                        "maxHeight": 97,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_baked_VATData/Character_baked_VAT_Item_crossbow_Texture.png"
+                    },
+                    {
+                        "maxWidth": 569,
+                        "maxHeight": 97,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_baked_VATData/Character_baked_VAT_Item_pistol_Texture.png"
+                    },
+                    {
+                        "maxWidth": 178,
+                        "maxHeight": 97,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_baked_VATData/Character_baked_VAT_Item_gun_Texture.png"
+                    },
+                    {
+                        "maxWidth": 1189,
+                        "maxHeight": 66,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Enemy_baked_VATData/Enemy_baked_VAT_Body_Texture.png"
                     }
                 ]
             },
@@ -41630,8 +41776,8 @@
                     {
                         "channels": 1,
                         "startTime": "00:00.000",
-                        "endTime": "00:15.137",
-                        "lengthInSeconds": 15.13700008392334,
+                        "endTime": "00:19.500",
+                        "lengthInSeconds": 19.5,
                         "bitrate": 64,
                         "script": "",
                         "ext": "",
@@ -41650,8 +41796,8 @@
                     {
                         "channels": 1,
                         "startTime": "00:00.000",
-                        "endTime": "00:01.500",
-                        "lengthInSeconds": 1.5,
+                        "endTime": "00:01.449",
+                        "lengthInSeconds": 1.4490000009536744,
                         "bitrate": 64,
                         "script": "",
                         "ext": "",

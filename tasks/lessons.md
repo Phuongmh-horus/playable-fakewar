@@ -8,3 +8,4 @@
 - When pooled VAT characters initialize, treat Idle as a pre-game state only; after gameplay starts, every spawn/reinitialize path must explicitly restore the army's current runtime animation.
 - When reusing a VAT gameplay adapter across unit types, verify every shared `AnimationType` intent used by managers (especially `Move`) is mapped to a configurable VAT state and that the VAT asset default matches the required pre-game state.
 - When a previous optimization is reverted, re-read the live source and validate each spawn, activation, and modifier path before reapplying a narrower replacement.
+- For scene-seeded pooled armies, do not let a serialized unit list bypass runtime invariants: assign valid formation indices and attack timing to every scene unit, and prewarm the shared prefab pool independently of the scene-only seed flag.

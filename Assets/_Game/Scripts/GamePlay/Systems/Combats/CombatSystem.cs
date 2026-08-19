@@ -217,12 +217,10 @@ namespace GamePlay.CombatSystems
                 return false;
             }
 
+            float maxDx = broadPhaseRangeX + attackerSize + broadPhasePadding;
+            float maxDz = broadPhaseRangeZ + attackerSize + broadPhasePadding;
             for (int idx = 0; idx < targetCount; idx++)
             {
-                var target = collisionSystem.GetTargetBySortedIndex(idx);
-                if (target == null || !target.IsActive) continue;
-
-                // Fast mask check from cached category bits before touching collider data.
                 uint targetMask = collisionSystem.GetMask(idx);
                 if ((attackerMask & targetMask) == 0) continue;
 
@@ -231,16 +229,17 @@ namespace GamePlay.CombatSystems
 
                 // Coarse culling: skip far targets before narrow phase math.
                 Vector3 targetPos = targetTr.position;
-                float maxDx = broadPhaseRangeX + attackerSize + broadPhasePadding;
-                float maxDz = broadPhaseRangeZ + attackerSize + broadPhasePadding;
                 if (Mathf.Abs(targetPos.x - actorPos.x) > maxDx) continue;
                 if (Mathf.Abs(targetPos.z - actorPos.z) > maxDz) continue;
+
+                var target = collisionSystem.GetTargetBySortedIndex(idx);
+                if (target == null || !target.IsActive) continue;
 
                 var col = collisionSystem.GetColliderData(idx);
 
                 // Improved Collision Logic for Box Shapes (Fixes "Wide but Thin" detection)
                 bool isHit = false;
-                
+
                 if (col.Type == ShapeType.Box)
                 {
                     // AABB Check (Axis-Aligned Bounding Box)
@@ -313,7 +312,7 @@ namespace GamePlay.CombatSystems
         private void RemoveAtSwapBack(int index)
         {
             int lastIndex = _actors.Count - 1;
-            
+
             var removedRef = _actors[index];
             ReturnActorRef(removedRef);
 

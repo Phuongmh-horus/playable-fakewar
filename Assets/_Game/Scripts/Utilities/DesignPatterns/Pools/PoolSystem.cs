@@ -12,7 +12,7 @@ namespace Pools
         private class Pool
         {
             public readonly Stack<IPoolable> Inactive = new Stack<IPoolable>();
-            public readonly List<IPoolable> Active = new List<IPoolable>();
+            public readonly HashSet<IPoolable> Active = new HashSet<IPoolable>();
             public Component PrefabComponent;
             public Transform Root;
         }
@@ -65,6 +65,32 @@ namespace Pools
                 if ((i + 1) % batchSize == 0)
                     yield return null;
             }
+        }
+
+        public static IEnumerator EnsurePrewarmAsync<T>(T prefab, int inactiveCount, int maxPerFrame) where T : Component
+        {
+            if (prefab == null || inactiveCount <= 0) yield break;
+            if (!Application.isPlaying) yield break;
+
+            var pool = GetOrCreatePool(prefab);
+            int missingCount = Mathf.Max(0, inactiveCount - pool.Inactive.Count);
+            int batchSize = Mathf.Max(1, maxPerFrame);
+
+            for (int i = 0; i < missingCount; i++)
+            {
+                PrewarmOne(pool);
+
+                if ((i + 1) % batchSize == 0)
+                    yield return null;
+            }
+        }
+
+        public static int GetInactiveCount<T>(T prefab) where T : Component
+        {
+            if (prefab == null) return 0;
+
+            int key = prefab.gameObject.GetInstanceID();
+            return Pools.TryGetValue(key, out var pool) ? pool.Inactive.Count : 0;
         }
 
         public static T Spawn<T>(T prefab, Vector3 pos, Quaternion rot, Transform parent = null) where T : Component
@@ -175,10 +201,10 @@ namespace Pools
         private static void PrewarmOne(Pool pool)
         {
             GameObject go = null;
-            try 
+            try
             {
                 go = Object.Instantiate(pool.PrefabComponent.gameObject, pool.Root);
-            } 
+            }
             catch { return; }
 
             if (go == null) return;
@@ -216,12 +242,16 @@ namespace Pools
                 return;
             }
 
+            if (!pool.Active.Remove(poolable))
+            {
+                return;
+            }
+
             poolable.Free();
 
             poolableComp.gameObject.SetActive(false);
             poolableComp.transform.SetParent(pool.Root, false);
 
-            pool.Active.Remove(poolable);
             pool.Inactive.Push(poolable);
         }
 

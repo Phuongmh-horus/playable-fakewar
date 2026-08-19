@@ -57,18 +57,17 @@ namespace GamePlay.Enemies
 
         [SerializeField] private int maxDeathVfxPerFrame = 8;
 
-        private Renderer _mainRenderer;
-
         private static int s_lastDeathVfxFrame = -1;
 
         private static int s_deathVfxCountInFrame = 0;
 
         private static int s_lastDieSfxFrame = -1;
-        private const int DieEffectFrameInterval = 15;
+        private const int DieEffectFrameInterval = 20;
 
         private WeaponUnit _currentWeapon;
 
         private bool _despawnHandled;
+        private bool _deathVfxHandled;
 
         private bool _initialized; // [FIX] Prevent double initialization in Luna
 
@@ -204,6 +203,7 @@ namespace GamePlay.Enemies
             _healthComponent = Pack.Healable as HealthComponent;
             EnsureHitTextEffect(false);
             _despawnHandled = false;
+            _deathVfxHandled = false;
             _isAttacked = false;
             _pendingArmyHitTarget = null;
 
@@ -321,8 +321,6 @@ namespace GamePlay.Enemies
 
         }
 
-
-
         public void AttachWeapon(WeaponUnit weaponUnit)
 
         {
@@ -330,8 +328,6 @@ namespace GamePlay.Enemies
             _currentWeapon = weaponUnit;
 
         }
-
-
 
         public void ThrowWeapon()
 
@@ -341,11 +337,8 @@ namespace GamePlay.Enemies
 
         }
 
-
-
         protected override void HandleHealthChange(int current, int max)
         {
-            // Debug.Log($"[EnemyUnit] HandleHealthChange: {current}/{max}");
             UpdateImage(current, max);
             UpdateHealthText(current);
 
@@ -354,9 +347,8 @@ namespace GamePlay.Enemies
 
             if (current <= 0)
             {
-                // Debug.Log($"[EnemyUnit] Health <= 0. Triggering PlayDeathVfx on {name}");
                 PlayDeathVfx();
-                PlayDieEffectOncePerFrame();
+                PlayDieEffectPerFrame();
             }
 
 
@@ -395,7 +387,7 @@ namespace GamePlay.Enemies
             }
         }
 
-        protected void PlayDieEffectOncePerFrame()
+        protected void PlayDieEffectPerFrame()
         {
             int currentFrame = Time.frameCount;
             if (s_lastDieSfxFrame >= 0 && currentFrame - s_lastDieSfxFrame < DieEffectFrameInterval)
@@ -513,6 +505,12 @@ namespace GamePlay.Enemies
             if (dieVfxPrefab == null)
 
                 return;
+
+            if (_deathVfxHandled)
+
+                return;
+
+            _deathVfxHandled = true;
 
             if (!CanSpawnDeathVfxThisFrame())
 

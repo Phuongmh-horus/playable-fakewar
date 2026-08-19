@@ -51,7 +51,7 @@ MeshRenderer:
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
+  m_DynamicOccludee: 0
   m_StaticShadowCaster: 0
   m_MotionVectors: 2
   m_LightProbeUsage: 0
@@ -197,7 +197,7 @@ MeshRenderer:
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
+  m_DynamicOccludee: 0
   m_StaticShadowCaster: 0
   m_MotionVectors: 2
   m_LightProbeUsage: 0
@@ -207,7 +207,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8313916626228410150, guid: 14b0a4803365bd840b56fbce186c9ff9, type: 2}
+  - {fileID: 2100000, guid: 8a36bf0801d2c1845a90aaa020d145c5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -252,7 +252,7 @@ MonoBehaviour:
   m_text: Fire range
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 14b0a4803365bd840b56fbce186c9ff9, type: 2}
-  m_sharedMaterial: {fileID: -8313916626228410150, guid: 14b0a4803365bd840b56fbce186c9ff9, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 8a36bf0801d2c1845a90aaa020d145c5, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -509,6 +509,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
+    MaxVfxPerFrame: 0
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!1 &5693978707386011338
@@ -679,7 +680,7 @@ MeshRenderer:
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
+  m_DynamicOccludee: 0
   m_StaticShadowCaster: 0
   m_MotionVectors: 2
   m_LightProbeUsage: 0
@@ -689,7 +690,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: cb98f7a31ccd09a4a84bc08171206a1d, type: 2}
+  - {fileID: 2100000, guid: 28a92e39cc3498341a37a2097dcac57e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -758,7 +759,7 @@ MeshRenderer:
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
+  m_DynamicOccludee: 0
   m_StaticShadowCaster: 0
   m_MotionVectors: 2
   m_LightProbeUsage: 0
@@ -768,7 +769,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8313916626228410150, guid: 14b0a4803365bd840b56fbce186c9ff9, type: 2}
+  - {fileID: 2100000, guid: 8a36bf0801d2c1845a90aaa020d145c5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -815,7 +816,7 @@ MonoBehaviour:
 '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 14b0a4803365bd840b56fbce186c9ff9, type: 2}
-  m_sharedMaterial: {fileID: -8313916626228410150, guid: 14b0a4803365bd840b56fbce186c9ff9, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 8a36bf0801d2c1845a90aaa020d145c5, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -936,7 +937,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 271930816aa30c04ba172f5b9c79cd86, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1075,6 +1076,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -4247520328850652888, guid: 9b995afa0fe9ea949ac169c5c20e637f, type: 3}
       propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -4247520328850652888, guid: 9b995afa0fe9ea949ac169c5c20e637f, type: 3}
+      propertyPath: m_DynamicOccludee
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -4247520328850652888, guid: 9b995afa0fe9ea949ac169c5c20e637f, type: 3}

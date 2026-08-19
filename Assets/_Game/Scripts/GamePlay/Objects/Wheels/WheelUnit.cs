@@ -637,17 +637,9 @@ namespace GamePlay.Crushers
 
                 for (int i = 0; i < count; i++)
                 {
-                    var target = collisionSystem.GetTargetBySortedIndex(i);
-                    if (target == null) continue;
+                    uint targetMask = collisionSystem.GetMask(i);
+                    if ((myMask & targetMask) == 0) continue;
 
-                    if (!target.IsActive)
-                    {
-                        // if (Time.frameCount % 300 == 0) Debug.Log($"[WheelDebug] Target {i} inactive.");
-                        continue;
-                    }
-                    if (ReferenceEquals(target, this)) continue;
-
-                    // 2. AABB Check
                     var targetTr = collisionSystem.GetTransform(i);
                     if (targetTr == null) continue;
 
@@ -655,6 +647,9 @@ namespace GamePlay.Crushers
                     float distX = Mathf.Abs(tPos.x - myPos.x);
                     float distZ = Mathf.Abs(tPos.z - myPos.z);
                     if (distX > preCullX || distZ > preCullZ) continue;
+
+                    var target = collisionSystem.GetTargetBySortedIndex(i);
+                    if (target == null || !target.IsActive || ReferenceEquals(target, this)) continue;
 
                     var colData = collisionSystem.GetColliderData(i);
                     uint categoryBits = colData.CategoryBits != 0

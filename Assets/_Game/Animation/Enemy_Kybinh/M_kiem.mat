@@ -79,9 +79,9 @@ Material:
     m_Floats:
     - _AmbientBrightness: 1
     - _BlendOp: 0
-    - _Brightness: 1.5
+    - _Brightness: 2
     - _BumpScale: 1
-    - _Contrast: 1
+    - _Contrast: 1.5
     - _Cull: 2
     - _Cutoff: 0.5
     - _Cutout: 0

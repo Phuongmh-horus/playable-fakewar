@@ -113,10 +113,7 @@ public class CullingSystem : MonoBehaviour
         if (cell != null)
         {
             obj.CurrentCell = cell;
-            if (!cell.Objects.Contains(obj))
-            {
-                cell.Objects.Add(obj);
-            }
+            cell.AddObject(obj);
         }
         else
         {
@@ -149,7 +146,7 @@ public class CullingSystem : MonoBehaviour
 
         if (obj.CurrentCell != null)
         {
-            obj.CurrentCell.Objects.Remove(obj);
+            obj.CurrentCell.RemoveObject(obj);
             obj.CurrentCell = null;
         }
 
@@ -226,7 +223,7 @@ public class CullingSystem : MonoBehaviour
             {
                 if (obj.CurrentCell != null)
                 {
-                    obj.CurrentCell.Objects.Remove(obj);
+                    obj.CurrentCell.RemoveObject(obj);
                 }
                 else
                 {
@@ -237,7 +234,7 @@ public class CullingSystem : MonoBehaviour
 
                 if (newCell != null)
                 {
-                    newCell.Objects.Add(obj);
+                    newCell.AddObject(obj);
                 }
                 else
                 {
@@ -258,17 +255,7 @@ public class CullingSystem : MonoBehaviour
             CullingCell cell = _state.cells[c];
             if (cell.Objects.Count == 0) continue;
 
-            // Calculate the maximum possible cull distance limit for this cell
-            float maxLimit = defaultLimit;
-            for (int o = 0; o < cell.Objects.Count; o++)
-            {
-                CullingObject obj = cell.Objects[o];
-                if (obj != null && obj.CustomCullDistance > maxLimit)
-                {
-                    maxLimit = obj.CustomCullDistance;
-                }
-            }
-
+            float maxLimit = cell.GetMaxCullDistance(defaultLimit);
             float maxLimitSqr = maxLimit * maxLimit;
             float cellSqrDist = cell.GetSqrDistanceToPoint(targetPos.x, targetPos.z);
 

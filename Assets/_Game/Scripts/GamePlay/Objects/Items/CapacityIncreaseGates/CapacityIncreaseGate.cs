@@ -184,7 +184,7 @@ namespace GamePlay.Items
                 {
                     try
                     {
-                        renderer.GetPropertyBlock(mbp);
+                        mbp.Clear();
                         mbp.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.LessEqual);
                         renderer.SetPropertyBlock(mbp);
                     }

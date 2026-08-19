@@ -328,8 +328,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
     private IEnumerator CoPhase1_MapContentAndArmy()
     {
-        bool isMemoryConstrained = Application.platform == RuntimePlatform.WebGLPlayer || Application.isMobilePlatform;
-
         // Generate Map
         bool hasPrebakedMap = mapGenerator.GetActiveSegments().Count > 0;
         bool shouldRegenerateMap = !hasPrebakedMap || (mapGenerator != null && mapGenerator.CurrentMapData != null && playableEra != null && mapGenerator.CurrentMapData != playableEra.MapData);
@@ -385,6 +383,12 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         if (EnemyManager.Instance != null) EnemyManager.Instance.UnregisterAllEnemies();
         EnemyProjectileSystem.UnregisterPlayer();
 
+        // Prewarm shared army prefabs before content items can borrow character instances for displays.
+        if (IsArmyMode && ActiveArmy != null)
+        {
+            yield return StartCoroutine(ActiveArmy.PrewarmArmyPrefabsAsync(Mathf.Max(1, spawnItemsPerFrame)));
+        }
+
         // Initialize Content Items
         if (contentGenerator != null && contentGenerator.generatedObjects != null)
         {
@@ -404,19 +408,13 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
                         {
                             if (prewarmedVfx.Add(enemyUnit.DieVfxPrefab))
                             {
-                                yield return PoolSystem.PrewarmAsync(enemyUnit.DieVfxPrefab.transform, isMemoryConstrained ? 8 : 20, batchSize);
+                                yield return PoolSystem.EnsurePrewarmAsync(enemyUnit.DieVfxPrefab.transform, 20, batchSize);
                             }
                         }
                     }
                 }
                 if ((i + 1) % batchSize == 0) yield return null;
             }
-        }
-
-        // Prewarm Army Prefabs & Weapon Projectiles
-        if (IsArmyMode && ActiveArmy != null)
-        {
-            yield return StartCoroutine(ActiveArmy.PrewarmArmyPrefabsAsync(Mathf.Max(1, spawnItemsPerFrame)));
         }
 
         if (ActiveArmy != null)
@@ -431,10 +429,8 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             if (prefab != null)
             {
                 // [FIX] Reduce prewarm count for vfx_hero_upgrade to optimize performance
-                int prewarmCount = prefab.name.ToLower().Contains("upgrade")
-                    ? (isMemoryConstrained ? 1 : 2)
-                    : (isMemoryConstrained ? 8 : 20);
-                yield return PoolSystem.PrewarmAsync(prefab.transform, prewarmCount, Mathf.Max(1, spawnItemsPerFrame));
+                int prewarmCount = prefab.name.ToLower().Contains("upgrade") ? 2 : 20;
+                yield return PoolSystem.EnsurePrewarmAsync(prefab.transform, prewarmCount, Mathf.Max(1, spawnItemsPerFrame));
             }
         }
     }
@@ -1029,7 +1025,12 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         }
 
         // Scale down FireRate/FireRange buff values
-        if (statModifierData.Type == StatType.FireRate || statModifierData.Type == StatType.FireRange)
+        if (statModifierData.Type == StatType.FireRate)
+        {
+            return Mathf.Max(0, statModifierData.Value / 2);
+        }
+
+        if (statModifierData.Type == StatType.FireRange)
         {
             return Mathf.Max(0, statModifierData.Value / 10);
         }

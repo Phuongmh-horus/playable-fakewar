@@ -191,6 +191,7 @@ MonoBehaviour:
   hpBarRenderer: {fileID: 7375257029540412116}
   healthText: {fileID: 0}
   hitTextFlyEffect: {fileID: 0}
+  _healthBarRoot: {fileID: 5092033588395912544}
   defaultMaxHealth: 100
   dieVfxPrefab: {fileID: 3658844881536662745, guid: d6dec12e7220e8f4c9d3d1c9f4ef1311, type: 3}
   dieVfxOffset: {x: 0, y: 3, z: 0}
@@ -288,6 +289,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
+    MaxVfxPerFrame: 0
   - Type: 12
     VfxPrefab: {fileID: 0}
     ParentToTarget: 0
@@ -295,6 +297,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
+    MaxVfxPerFrame: 0
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!114 &9097235651121570061
@@ -369,7 +372,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 271930816aa30c04ba172f5b9c79cd86, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

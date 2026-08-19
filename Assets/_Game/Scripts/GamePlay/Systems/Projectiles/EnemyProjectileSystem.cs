@@ -217,8 +217,27 @@ namespace GamePlay.CombatSystems
         private void UnregisterTargetInternal(IHitable target)
         {
             if (target == null) return;
-            if (_extraTargetSet.Remove(target))
-                _extraTargets.Remove(target);
+            if (!_extraTargetSet.Remove(target)) return;
+
+            for (int i = _extraTargets.Count - 1; i >= 0; i--)
+            {
+                if (!ReferenceEquals(_extraTargets[i], target)) continue;
+                RemoveExtraTargetAtSwapBack(i);
+                break;
+            }
+        }
+
+        private void RemoveExtraTargetAtSwapBack(int index)
+        {
+            int last = _extraTargets.Count - 1;
+            if (index < 0 || index > last) return;
+
+            if (index != last)
+            {
+                _extraTargets[index] = _extraTargets[last];
+            }
+
+            _extraTargets.RemoveAt(last);
         }
 
 
@@ -409,7 +428,6 @@ namespace GamePlay.CombatSystems
                 Vector3 previousPos = EvaluateProjectilePosition(p, previousT);
                 Vector3 pos = EvaluateProjectilePosition(p, t);
                 p.Transform.position = pos;
-
                 Vector3 direction = (pos - previousPos).normalized;
                 bool hasDirection = direction.sqrMagnitude > 0.001f;
 
@@ -456,7 +474,7 @@ namespace GamePlay.CombatSystems
                         var target = _extraTargets[targetIndex];
                         if (target == null)
                         {
-                            _extraTargets.RemoveAt(targetIndex);
+                            RemoveExtraTargetAtSwapBack(targetIndex);
                             continue;
                         }
 
@@ -654,35 +672,89 @@ namespace GamePlay.CombatSystems
 
         private static bool CheckHitAlongSegment(Vector3 fromPos, Vector3 toPos, float projRadius, Vector3 targetFeetPos, ColliderData col)
         {
-            if (CheckHit(toPos, projRadius, targetFeetPos, col))
-            {
-                return true;
-            }
-
             Vector3 delta = toPos - fromPos;
-            float distance = delta.magnitude;
-            if (distance <= 0.0001f)
-            {
+            if (delta.sqrMagnitude <= 0.00000001f)
                 return CheckHit(fromPos, projRadius, targetFeetPos, col);
-            }
 
-            // Sweep by sub-steps to prevent tunneling through thin colliders (e.g. CapacityGate).
-            float stepSize = Mathf.Max(0.05f, projRadius * 0.5f);
-            int stepCount = Mathf.Clamp(Mathf.CeilToInt(distance / stepSize), 1, 8);
-            Vector3 step = delta / stepCount;
-            Vector3 samplePos = fromPos;
-
-            for (int i = 0; i <= stepCount; i++)
+            switch (col.Type)
             {
-                if (CheckHit(samplePos, projRadius, targetFeetPos, col))
+                case ShapeType.Sphere:
                 {
-                    return true;
+                    float radius = Mathf.Max(0.01f, col.Size.x) + projRadius;
+                    Vector3 center = targetFeetPos + new Vector3(0f, col.Size.y, 0f);
+                    return SegmentIntersectsSphere(fromPos, delta, center, radius);
                 }
 
-                samplePos += step;
+                case ShapeType.Box:
+                {
+                    Vector3 half = col.Size + Vector3.one * projRadius;
+                    Vector3 center = targetFeetPos + new Vector3(0f, col.Size.y, 0f);
+                    return SegmentIntersectsAabb(fromPos, delta, center - half, center + half);
+                }
+
+                case ShapeType.Cylinder:
+                {
+                    float radius = Mathf.Max(0.01f, col.Size.x) + projRadius;
+                    float halfHeight = Mathf.Max(0.01f, col.Size.y);
+                    Vector3 center = targetFeetPos + new Vector3(0f, halfHeight, 0f);
+                    return SegmentIntersectsCylinder(fromPos, delta, center, radius, halfHeight + projRadius);
+                }
+
+                default:
+                    return false;
+            }
+        }
+
+        private static bool SegmentIntersectsSphere(Vector3 origin, Vector3 delta, Vector3 center, float radius)
+        {
+            float lengthSqr = delta.sqrMagnitude;
+            float t = Mathf.Clamp01(Vector3.Dot(center - origin, delta) / lengthSqr);
+            return (origin + delta * t - center).sqrMagnitude <= radius * radius;
+        }
+
+        private static bool SegmentIntersectsAabb(Vector3 origin, Vector3 delta, Vector3 min, Vector3 max)
+        {
+            float entry = 0f;
+            float exit = 1f;
+            return UpdateSlab(origin.x, delta.x, min.x, max.x, ref entry, ref exit) &&
+                   UpdateSlab(origin.y, delta.y, min.y, max.y, ref entry, ref exit) &&
+                   UpdateSlab(origin.z, delta.z, min.z, max.z, ref entry, ref exit);
+        }
+
+        private static bool UpdateSlab(float origin, float delta, float min, float max, ref float entry, ref float exit)
+        {
+            if (Mathf.Abs(delta) <= 0.000001f)
+                return origin >= min && origin <= max;
+
+            float inverseDelta = 1f / delta;
+            float t0 = (min - origin) * inverseDelta;
+            float t1 = (max - origin) * inverseDelta;
+            if (t0 > t1)
+            {
+                float swap = t0;
+                t0 = t1;
+                t1 = swap;
             }
 
-            return false;
+            entry = Mathf.Max(entry, t0);
+            exit = Mathf.Min(exit, t1);
+            return entry <= exit;
+        }
+
+        private static bool SegmentIntersectsCylinder(Vector3 origin, Vector3 delta, Vector3 center, float radius, float halfHeight)
+        {
+            float entry = 0f;
+            float exit = 1f;
+            if (!UpdateSlab(origin.y, delta.y, center.y - halfHeight, center.y + halfHeight, ref entry, ref exit))
+                return false;
+
+            Vector2 radialOrigin = new Vector2(origin.x - center.x, origin.z - center.z);
+            Vector2 radialDelta = new Vector2(delta.x, delta.z);
+            float radialLengthSqr = radialDelta.sqrMagnitude;
+            float t = radialLengthSqr <= 0.00000001f
+                ? entry
+                : Mathf.Clamp(Vector2.Dot(-radialOrigin, radialDelta) / radialLengthSqr, entry, exit);
+            return (radialOrigin + radialDelta * t).sqrMagnitude <= radius * radius;
         }
 
         private static void DisposeManaged(ref ProjectileEntry p)

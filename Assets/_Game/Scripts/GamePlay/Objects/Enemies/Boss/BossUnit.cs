@@ -14,8 +14,11 @@ namespace GamePlay.Enemies
 
         [Header("Boss Settings")]
         [SerializeField, Min(0f)] private float delayBetweenAttacks = 1f;
+        [SerializeField, Min(0f)] private float bossAttractionThreshold = 15f;
         [SerializeField, Min(0.1f)] private float armyAttackRange = 1f;
         [SerializeField, Min(0f)] private float deathAnimationDuration = 1f;
+
+        public float AttractionThreshold => bossAttractionThreshold;
 
         private float _nextAttackTime;
         private bool _deathHandled;
@@ -128,7 +131,7 @@ namespace GamePlay.Enemies
             PlayDeathVfx();
             PlayAnimation(AnimationType.Death, deathAnimationDuration, DespawnInterval);
             Pack.Effector?.PlayEffect(EffectType.Die, transform.position, transform.rotation);
-            PlayDieEffectOncePerFrame();
+            PlayDieEffectPerFrame();
         }
 
         private void TryAttackArmy(IAttacker armySource)

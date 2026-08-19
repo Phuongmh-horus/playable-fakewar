@@ -6,11 +6,13 @@ public class MeshRendererCullingObject : CullingObject
     [SerializeField] private List<Renderer> targetRenderers = new List<Renderer>();
     [SerializeField] private List<Animator> targetAnimators = new List<Animator>();
     private readonly Dictionary<Animator, AnimatorCullingMode> _animatorCullingModes = new Dictionary<Animator, AnimatorCullingMode>(8);
+    // private readonly List<VAT_RenderComponent> _vatRenderComponents = new List<VAT_RenderComponent>(4);
 
     [ContextMenu("Collects")]
     private void Start()
     {
         EnsureTargetsCached();
+
 #if UNITY_EDITOR
         UnityEditor.EditorUtility.SetDirty(this);
 #endif
@@ -70,6 +72,11 @@ public class MeshRendererCullingObject : CullingObject
         {
             targetAnimators = new List<Animator>(GetComponentsInChildren<Animator>(true));
         }
+
+        // if (_vatRenderComponents.Count == 0)
+        // {
+        //     GetComponentsInChildren(true, _vatRenderComponents);
+        // }
 
         if (_animatorCullingModes.Count == 0)
         {

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using GamePlay.Entities;
 using GamePlay.Items;
+using GamePlay.Enemies;
 using Pools;
 using UnityEngine;
 
@@ -125,7 +126,13 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
             {
                 Vector3 toPlayer = playerPos - currentPos;
                 toPlayer.y = 0f;
-                if (toPlayer.sqrMagnitude <= attractionThreshold * attractionThreshold && toPlayer.sqrMagnitude > 0.0001f)
+                float entryAttractionThreshold = attractionThreshold;
+                if (entry.Item is BossUnit bossUnit)
+                {
+                    entryAttractionThreshold = bossUnit.AttractionThreshold;
+                }
+
+                if (toPlayer.sqrMagnitude <= entryAttractionThreshold * entryAttractionThreshold && toPlayer.sqrMagnitude > 0.0001f)
                 {
                     targetDir = toPlayer.normalized;
                     Quaternion targetRot = Quaternion.LookRotation(targetDir, Vector3.up);

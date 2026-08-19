@@ -27,6 +27,8 @@ namespace GamePlay.ComponentSystems
             [Header("Timing")]
             [Tooltip("If > 0 then onComplete is invoked after this delay.")]
             public float WaitForAction = 0.5f;
+
+            [Min(0)] public int MaxVfxPerFrame;
         }
 
         [Header("Effects List (Serializable, Luna-safe)")]
@@ -35,6 +37,8 @@ namespace GamePlay.ComponentSystems
         private EffectEntry[] _runtime;
         private static readonly Dictionary<int, ParticleSystem[]> s_particleSystemsCache = new Dictionary<int, ParticleSystem[]>(128);
         private static readonly Dictionary<int, bool> s_uiVfxPrefabCache = new Dictionary<int, bool>(64);
+        private static readonly Dictionary<int, int> s_vfxSpawnCountsThisFrame = new Dictionary<int, int>(64);
+        private static int s_vfxSpawnFrame = -1;
         private bool _cacheBuilt;
         private EffectType _activeLoopingEffectType = EffectType.None;
         private AudioClip _activeLoopingClip;
@@ -298,6 +302,11 @@ namespace GamePlay.ComponentSystems
                 return;
             }
 
+            if (!CanSpawnVfxThisFrame(entry.VfxPrefab, entry.MaxVfxPerFrame))
+            {
+                return;
+            }
+
             try
             {
                 bool isUiVfx = IsUiVfxPrefab(entry.VfxPrefab);
@@ -334,6 +343,31 @@ namespace GamePlay.ComponentSystems
             {
                 // VFX setup is non-critical; keep SFX/gameplay flow alive.
             }
+        }
+
+        private static bool CanSpawnVfxThisFrame(GameObject prefab, int frameCap)
+        {
+            if (prefab == null || frameCap <= 0)
+            {
+                return true;
+            }
+
+            int frame = Time.frameCount;
+            if (s_vfxSpawnFrame != frame)
+            {
+                s_vfxSpawnFrame = frame;
+                s_vfxSpawnCountsThisFrame.Clear();
+            }
+
+            int prefabId = prefab.GetInstanceID();
+            s_vfxSpawnCountsThisFrame.TryGetValue(prefabId, out int count);
+            if (count >= frameCap)
+            {
+                return false;
+            }
+
+            s_vfxSpawnCountsThisFrame[prefabId] = count + 1;
+            return true;
         }
 
         private Transform ResolveVfxParent(EffectType effectType, EffectEntry entry, Transform parent, bool isUiVfx)

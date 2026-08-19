@@ -22,10 +22,13 @@ public class HitTextFlyEffect : MonoBehaviour
     private float customTextScaleMultiplier = 1.3f;
     private float customTextHeightOffsetMultiplier = 1.5f;
     [SerializeField, Min(0)] private int prewarmPoolCount = 12;
+    private int maxTextSpawnsPerFrame = 8;
 
     private static readonly Stack<HitTextController> controllerPool = new Stack<HitTextController>();
     private static readonly List<HitTextController> activeControllers = new List<HitTextController>(64);
     private static readonly HashSet<int> warmedTextPrefabIds = new HashSet<int>();
+    private static readonly Dictionary<int, int> textSpawnCountsThisFrame = new Dictionary<int, int>(8);
+    private static int textSpawnFrame = -1;
 
     public bool LimitToOneTextPerFrame { get; set; } = false;
     private int _lastHitFrame = -1;
@@ -175,6 +178,7 @@ public class HitTextFlyEffect : MonoBehaviour
         }
 
         if (healthTextPrefab == null) return;
+        if (!CanSpawnTextThisFrame(healthTextPrefab, maxTextSpawnsPerFrame)) return;
 
         HitTextController controller = controllerPool.Count > 0
             ? controllerPool.Pop()
@@ -204,6 +208,31 @@ public class HitTextFlyEffect : MonoBehaviour
         {
             controllerPool.Push(controller);
         }
+    }
+
+    private static bool CanSpawnTextThisFrame(TMP_Text prefab, int frameCap)
+    {
+        if (prefab == null || frameCap <= 0)
+        {
+            return true;
+        }
+
+        int frame = Time.frameCount;
+        if (textSpawnFrame != frame)
+        {
+            textSpawnFrame = frame;
+            textSpawnCountsThisFrame.Clear();
+        }
+
+        int prefabId = prefab.GetInstanceID();
+        textSpawnCountsThisFrame.TryGetValue(prefabId, out int count);
+        if (count >= frameCap)
+        {
+            return false;
+        }
+
+        textSpawnCountsThisFrame[prefabId] = count + 1;
+        return true;
     }
 
     private sealed class HitTextController

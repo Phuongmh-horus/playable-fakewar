@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using GamePlay.AnimationSystems;
-using GamePlay.Characters;
 using GamePlay.Entities;
 using Pools;
 using TMPro;
@@ -12,11 +9,6 @@ namespace GamePlay.Items
 {
     public class SoldierBall : StatModifierItem<SoldierBallData>
     {
-        [Header("Spawn Settings")]
-        [SerializeField] private Transform slot;
-        [SerializeField] private float soldierScale = 1.5f;
-        [SerializeField] private float unitHorizontalSpace = 1.2f;
-
         [Header("Upgrade Settings")]
         [SerializeField] private GameObject upgradeShowObject;
 
@@ -29,12 +21,8 @@ namespace GamePlay.Items
 
         [Header("Effects")]
         [SerializeField] protected EffectComponent effectComponent;
-        private readonly List<CharacterUnit> _beltUnits = new List<CharacterUnit>();
-
-        protected void OnDisable()
-        {
-            ClearBelts();
-        }
+        [SerializeField, Min(0f)] private float hitFeedbackInterval = 0.1f;
+        private float _nextHitFeedbackTime;
 
         public override void Initialize()
         {
@@ -43,22 +31,16 @@ namespace GamePlay.Items
                 _entityType = EntityType.FinishTower;
             }
 
-            ClearBelts();
+            _nextHitFeedbackTime = 0f;
 
             if (Data != null && Data.ChangeType == SoldierBallData.EChangeType.Increase)
             {
-                IsStopMove = false; // [FIX] Cho phép item trôi về sau
 
                 if (upgradeShowObject != null)
                 {
                     upgradeShowObject.SetActive(false);
                 }
 
-                var characterPrefab = GetCharacterUnitPrefab();
-                if (characterPrefab != null)
-                {
-                    SpawnSoldier(characterPrefab);
-                }
             }
             else if (Data != null && Data.ChangeType == SoldierBallData.EChangeType.Upgrade)
             {
@@ -100,11 +82,7 @@ namespace GamePlay.Items
             // [FIX] Scale pulse effect on hit
             if (current > 0 && current < max)
             {
-                // Kill any existing tween on the transform to avoid conflicts
-                transform.DOKill();
-                transform.localScale = Vector3.one; // Reset to original scale before tweening
-                transform.DOPunchScale(Vector3.one * 0.2f, 0.2f, 10, 1f);
-                effectComponent?.PlayEffect(EffectType.Break, transform.position + Vector3.up * 1.5f + Vector3.forward * -1.5f);
+                PlayHitFeedback();
             }
 
             if (current <= 0)
@@ -120,62 +98,25 @@ namespace GamePlay.Items
             }
         }
 
-        protected virtual void OnBreak()
+        private void PlayHitFeedback()
         {
-        }
-
-        private CharacterUnit GetCharacterUnitPrefab()
-        {
-            var armySystem = FindObjectOfType<PlayerArmy.PlayerArmySystem>();
-            return armySystem != null ? armySystem.CharacterPrefab : null;
-        }
-
-        private void SpawnSoldier(CharacterUnit belt)
-        {
-            if (slot == null || belt == null || Data == null)
+            if (Time.time < _nextHitFeedbackTime)
             {
                 return;
             }
 
-            Vector3 centerPos = slot.position;
-            Vector3 rightDir = slot.right;
-            Quaternion spawnRotation = Quaternion.Euler(0, 180, 0);
-
-            int amount = Mathf.Max(0, Data.Value);
-            float startX = -((amount - 1) * unitHorizontalSpace / 2f);
-
-            int currentLevelIndex = ArmyUpgradeManager.Instance != null ? ArmyUpgradeManager.Instance.CurrentLevel : 0;
-
-            for (int i = 0; i < amount; i++)
-            {
-                float xOffset = startX + i * unitHorizontalSpace;
-                Vector3 pos = centerPos + rightDir * xOffset;
-
-                CharacterUnit unit = belt.Spawn(pos, spawnRotation, slot);
-                unit.Transform.localScale = new Vector3(soldierScale, soldierScale, soldierScale);
-                unit.PlayAnimation(AnimationType.Idle);
-
-                unit.ApplyVisualLevel(currentLevelIndex);
-
-                _beltUnits.Add(unit);
-            }
+            _nextHitFeedbackTime = Time.time + hitFeedbackInterval;
+            transform.DOKill();
+            transform.localScale = Vector3.one;
+            transform.DOPunchScale(Vector3.one * 0.2f, 0.2f, 10, 1f);
+            effectComponent?.PlayEffect(EffectType.Break, transform.position + Vector3.up * 1.5f + Vector3.forward * -1.5f);
         }
 
-        private void ClearBelts()
+        protected virtual void OnBreak()
         {
-            int innerCount = _beltUnits.Count;
-            for (int j = 0; j < innerCount; j++)
-            {
-                if (_beltUnits[j] != null)
-                {
-                    _beltUnits[j].Transform.parent = null;
-                    _beltUnits[j].Transform.localScale = Vector3.one;
-                    _beltUnits[j].Despawn();
-                }
-            }
-
-            _beltUnits.Clear();
         }
+
+
 
         protected void UpdateHealthText(int health)
         {
@@ -191,8 +132,6 @@ namespace GamePlay.Items
 
         protected override void DespawnInterval()
         {
-            ClearBelts();
-
             base.DespawnInterval();
         }
     }
