@@ -380,8 +380,8 @@ MonoBehaviour:
     m_Bits: 4294967295
   size: {x: 1, y: 1}
   shapeType: 1
-  colliderOffsets: {x: 0, y: 0, z: 0}
-  colliderSize: {x: 1, y: 1, z: 1}
+  colliderOffsets: {x: 0, y: 3, z: 0}
+  colliderSize: {x: 6, y: 6, z: 0.5}
   LeftOffset: 0
   RightOffset: 0
   autoAddHitTextFlyEffectAtRuntime: 1
@@ -428,7 +428,7 @@ MonoBehaviour:
   CacheTransform: {fileID: 4507396324829435445}
   poolEntity: {fileID: 3360367997036094387}
   shapeType: 1
-  colliderSize: {x: 3, y: 2.5, z: 0.4}
+  colliderSize: {x: 6, y: 6, z: 0.5}
   isActive: 0
   isCustomCaster: 0
   hitTransform: {fileID: 0}
@@ -656,7 +656,7 @@ Transform:
   m_GameObject: {fileID: 7016322267275254508}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.5, z: 0.3}
+  m_LocalPosition: {x: 0, y: 2.5, z: 0}
   m_LocalScale: {x: 5, y: 5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

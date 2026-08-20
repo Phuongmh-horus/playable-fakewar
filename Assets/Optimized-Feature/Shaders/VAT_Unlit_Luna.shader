@@ -29,13 +29,13 @@ Shader "OptimizedFeature/VAT_Unlit_Luna"
 
     SubShader
     {
-        Tags { "RenderType"="Opaque" "RenderPipeline"="UniversalPipeline" "Queue"="Geometry" }
+        Tags { "RenderType"="Opaque" "Queue"="Geometry" }
         LOD 100
 
         Pass
         {
             Name "ForwardLit"
-            Tags { "LightMode"="UniversalForward" }
+            Tags { "LightMode"="ForwardBase" }
 
             Stencil
             {
@@ -137,7 +137,7 @@ Shader "OptimizedFeature/VAT_Unlit_Luna"
         Pass
         {
             Name "Outline"
-            Tags { "LightMode"="SRPDefaultUnlit" }
+            Tags { "LightMode"="Always" }
             Cull Front
             Blend One Zero
 

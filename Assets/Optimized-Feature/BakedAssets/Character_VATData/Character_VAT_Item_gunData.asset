@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b2f3707b5b24e26ab0bd36a8f02e1c7, type: 3}
+  m_Name: Character_VAT_Item_gunData
+  m_EditorClassIdentifier: 
+  VATTexture: {fileID: 2800000, guid: a00f3ac2c1be9564c8ffae65e8215f7d, type: 3}
+  BakedStaticMesh: {fileID: 4300000, guid: 76f0ef6bb89b9144aaf296300eaede25, type: 2}
+  BoundingMin: {x: -0.6207875, y: 0.64542955, z: -0.16110212}
+  BoundingMax: {x: 0.4171857, y: 2.1726413, z: 1.0987661}
+  TotalVertices: 178
+  TotalFrames: 97
+  Clips:
+  - ClipName: Character_Idle_Baked
+    _stateHash: 1899044031
+    StartFrame: 0
+    EndFrame: 44
+    FrameRate: 30
+    IsLooping: 1
+  - ClipName: Standing_Fire
+    _stateHash: -1985706718
+    StartFrame: 45
+    EndFrame: 52
+    FrameRate: 30
+    IsLooping: 1
+  - ClipName: Character_Move_Left_Baked
+    _stateHash: -832870576
+    StartFrame: 53
+    EndFrame: 74
+    FrameRate: 30
+    IsLooping: 1
+  - ClipName: Character_Move_Right_Baked
+    _stateHash: -2053672527
+    StartFrame: 75
+    EndFrame: 96
+    FrameRate: 30
+    IsLooping: 1
+  BakedMaterials:
+  - {fileID: 2100000, guid: 4952bac209bfb5f4e870491f900eed9b, type: 2}

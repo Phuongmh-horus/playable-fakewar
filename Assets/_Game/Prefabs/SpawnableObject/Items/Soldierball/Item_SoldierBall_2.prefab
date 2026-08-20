@@ -609,7 +609,7 @@ MonoBehaviour:
   wheelRotate: {fileID: 4758353015966747975}
   IsStopMove: 1
   effectComponent: {fileID: 2018191943066992144}
-  hitFeedbackInterval: 0.1
+  hitFeedbackInterval: 0.2
 --- !u!114 &8138363187892157136
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -651,7 +651,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
-    MaxVfxPerFrame: 0
+    MaxVfxPerFrame: 8
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!114 &4888467948349191867

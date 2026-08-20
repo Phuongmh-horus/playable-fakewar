@@ -7,19 +7,17 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_MC_basic
-  m_Shader: {fileID: 4800000, guid: 124e8c1d64ac24c13aa406f05ca2d222, type: 3}
+  m_Name: M_MC_basic_VAT_1
+  m_Shader: {fileID: 4800000, guid: 87b7bf5a8cb74df6b14a30f2a0ea9ea6, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - DIFFUSE
-  - _LIGHTMAPUV_UV1
+  m_ValidKeywords: []
   m_InvalidKeywords:
   - AMBIENT
   - ANIME_SOFT
+  - DIFFUSE
   - MATCAP
   - MATCAP_PERSPECTIVE
-  - OUTLINE
   - OUTLINE_WIDTH_INDEPENDENT
   - RIM
   - _DETAILBLEND_MULTIPLY
@@ -32,6 +30,7 @@ Material:
   - _LAYER2UV_UV1
   - _LAYER3BLEND_ALPHA_BLEND
   - _LAYER3UV_UV1
+  - _LIGHTMAPUV_UV1
   - _MATCAPBLEND_MULTIPLY
   - _NORMALUV2_UV1
   - _NORMALUV_UV1
@@ -46,7 +45,7 @@ Material:
   - _SPECULARUV_UV1
   - _TWOHALFCOLORSMODE_REPLACE
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -159,6 +158,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _VATTex:
+        m_Texture: {fileID: 2800000, guid: 64227d10a456b9a43b08939b6293475c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _AmbientBrightness: 1
@@ -167,6 +170,7 @@ Material:
     - _AnimeThreshold1: 0.45
     - _AnimeThreshold2: 0.85
     - _BlendOp: 0
+    - _BlendWeight: 0
     - _Brightness: 1.5
     - _BumpScale: 1
     - _CameraFadeEnd: 0
@@ -196,6 +200,8 @@ Material:
     - _EmissiveAnimationSpeed: 1
     - _Flat: 0
     - _Fog: 0
+    - _FrameIndexLower: 0
+    - _FrameIndexUpper: 0
     - _GlossMapScale: 1
     - _Glossiness: 0
     - _GlossyReflections: 1
@@ -236,6 +242,8 @@ Material:
     - _NormalStrength: 1
     - _NormalUV: 0
     - _NormalUV2: 0
+    - _NumFrames: 97
+    - _NumVertices: 1030
     - _OcclusionStrength: 1
     - _Outline: 1
     - _OutlineComp: 6
@@ -304,6 +312,9 @@ Material:
     - _UVTileV3U1: 0
     - _UVTileV3U2: 0
     - _UVTileV3U3: 0
+    - _VATBatchMode: 0
+    - _VATTextureHeight: 97
+    - _VATTextureWidth: 1030
     - _VertexColors: 0
     - _VertexColorsAmount: 1
     - _VertexColorsContrast: 1
@@ -314,6 +325,8 @@ Material:
     - _AnimeColor1: {r: 1, g: 1, b: 1, a: 1}
     - _AnimeColor2: {r: 1.35, g: 1.35, b: 1.35, a: 1}
     - _AnimeColor3: {r: 2, g: 2, b: 2, a: 1}
+    - _BoundingMax: {r: 0.50093246, g: 1.8376787, b: 0.713592, a: 0}
+    - _BoundingMin: {r: -0.5810643, g: -0.08283633, b: -0.8595023, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DetailColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0.6762609, b: 0.7924528, a: 1}

@@ -19,13 +19,13 @@ Shader "OptimizedFeature/VAT_Unlit_Luna_NoOutline"
 
     SubShader
     {
-        Tags { "RenderType"="Opaque" "RenderPipeline"="UniversalPipeline" "Queue"="Geometry" }
+        Tags { "RenderType"="Opaque" "Queue"="Geometry" }
         LOD 100
 
         Pass
         {
             Name "ForwardLit"
-            Tags { "LightMode"="UniversalForward" }
+            Tags { "LightMode"="ForwardBase" }
 
             CGPROGRAM
             #pragma target 3.0
