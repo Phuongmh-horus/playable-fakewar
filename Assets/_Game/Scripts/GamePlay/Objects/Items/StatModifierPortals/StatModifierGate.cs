@@ -237,11 +237,11 @@ namespace GamePlay.Items
                 _flyTextEffect.ShowCustomText("+" + Data.Value.ToString(), Color.yellow);
             }
 
-            if (Time.time >= _nextScalePulseTime)
-            {
-                _nextScalePulseTime = Time.time + 0.1f;
-                PlayScalePulse();
-            }
+            // if (Time.time >= _nextScalePulseTime)
+            // {
+            //     _nextScalePulseTime = Time.time + 0.1f;
+            //     PlayScalePulse();
+            // }
 
             if (Time.time >= _nextAudioTime)
             {
@@ -294,21 +294,14 @@ namespace GamePlay.Items
 
             if (Data != null)
             {
-                var copyData = new StatModifierGateData
-                {
-                    Type = Data.Type,
-                    Value = (Data.Type == StatType.FireRate || Data.Type == StatType.FireRange) ? Data.Value : Data.Value,
-                    Armor = Data.Armor
-                };
-                GameplayManager.Instance?.ChangeStatModifierData(copyData);
-
+                GameplayManager.Instance?.ChangeStatModifierData(Data);
             }
             if (_flyTextEffect != null && Data != null)
             {
                 _flyTextEffect.ShowCustomText("+" + Data.Value.ToString(), Color.yellow);
             }
             Pack.Effector?.PlayEffect(EffectType.Land);
-            DespawnInterval();
+            DespawnInterval(skipScaleDown: _entityType == Entities.EntityType.MovingGate);
         }
 
         private void PlayScalePulse()
@@ -407,6 +400,11 @@ namespace GamePlay.Items
 
         protected override void DespawnInterval()
         {
+            DespawnInterval(skipScaleDown: false);
+        }
+
+        private void DespawnInterval(bool skipScaleDown)
+        {
             if (_isDespawning) return;
             _isDespawning = true;
 
@@ -416,6 +414,13 @@ namespace GamePlay.Items
             if (Pack.Hitable != null)
             {
                 CollisionSystem.Unregister(Pack.Hitable);
+            }
+
+            if (skipScaleDown)
+            {
+                _isDespawning = false;
+                base.DespawnInterval();
+                return;
             }
 
             StartCoroutine(ScaleDownRoutine());
@@ -539,7 +544,7 @@ namespace GamePlay.Items
         private void UpdateText()
         {
             if (valueText != null)
-                valueText.text = "+ " + Data.Value.ToString();
+                valueText.SetText("+ {0}", Data.Value);
         }
 
         private void UpdateImage()

@@ -494,7 +494,7 @@ namespace GamePlay.Enemies
         {
             if (healthText == null) return;
 
-            healthText.text = health > 0 ? health.ToString() : "";
+            healthText.SetText(health > 0 ? "{0}" : string.Empty, health);
         }
 
 

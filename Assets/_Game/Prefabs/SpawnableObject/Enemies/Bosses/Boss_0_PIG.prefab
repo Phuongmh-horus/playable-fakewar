@@ -177,7 +177,7 @@ MonoBehaviour:
     m_Bits: 4294967295
   size: {x: 1, y: 1}
   shapeType: 1
-  colliderOffsets: {x: 0, y: 3, z: 5}
+  colliderOffsets: {x: 0, y: 2, z: 5}
   colliderSize: {x: 5, y: 5, z: 10}
   LeftOffset: 0
   RightOffset: 0
@@ -199,6 +199,7 @@ MonoBehaviour:
   maxDeathVfxPerFrame: 8
   _healthOverriddenFromContent: 0
   delayBetweenAttacks: 1
+  bossAttractionThreshold: 15
   armyAttackRange: 1
   deathAnimationDuration: 1
 --- !u!114 &7079246473552049795
@@ -289,7 +290,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
-    MaxVfxPerFrame: 0
+    MaxVfxPerFrame: 1
   - Type: 12
     VfxPrefab: {fileID: 0}
     ParentToTarget: 0

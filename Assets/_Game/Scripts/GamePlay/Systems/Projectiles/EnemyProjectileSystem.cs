@@ -10,6 +10,8 @@ namespace GamePlay.CombatSystems
 {
     public class EnemyProjectileSystem : MonoSingleton<EnemyProjectileSystem>
     {
+        private const float CharacterSpatialCellSize = 4f;
+
         [Header("Player Binding (Optional)")]
         [SerializeField] private Crushers.WheelUnit playerWheelRef;
         private static IHitable s_pendingPlayer;
@@ -89,7 +91,14 @@ namespace GamePlay.CombatSystems
         private IHitable _playerHitable;
         private readonly List<IHitable> _extraTargets = new List<IHitable>(32);
         private readonly HashSet<IHitable> _extraTargetSet = new HashSet<IHitable>();
+        private readonly Dictionary<Vector2Int, List<IHitable>> _characterSpatialBuckets = new Dictionary<Vector2Int, List<IHitable>>(32);
+        private readonly Stack<List<IHitable>> _characterSpatialBucketPool = new Stack<List<IHitable>>(32);
+        private readonly List<IHitable> _characterQueryTargets = new List<IHitable>(32);
         private readonly HashSet<IHitable> _aoeAppliedTargets = new HashSet<IHitable>();
+        private readonly List<int> _collisionQueryIndices = new List<int>(64);
+        private readonly List<int> _aoeCollisionQueryIndices = new List<int>(64);
+        private int _characterSpatialIndexFrame = -1;
+        private float _maxCharacterColliderRadius;
         private bool _isGameplayPaused;
         private float _pausedAtTime;
 
@@ -212,6 +221,7 @@ namespace GamePlay.CombatSystems
             if (target == null) return;
             if (!_extraTargetSet.Add(target)) return;
             _extraTargets.Add(target);
+            _characterSpatialIndexFrame = -1;
         }
 
         private void UnregisterTargetInternal(IHitable target)
@@ -223,6 +233,7 @@ namespace GamePlay.CombatSystems
             {
                 if (!ReferenceEquals(_extraTargets[i], target)) continue;
                 RemoveExtraTargetAtSwapBack(i);
+                _characterSpatialIndexFrame = -1;
                 break;
             }
         }
@@ -238,6 +249,99 @@ namespace GamePlay.CombatSystems
             }
 
             _extraTargets.RemoveAt(last);
+        }
+
+        private void QueryCharacterTargetsNearSegment(Vector3 from, Vector3 to, float projectileRadius, List<IHitable> results)
+        {
+            results.Clear();
+            EnsureCharacterSpatialIndex();
+            if (_characterSpatialBuckets.Count == 0) return;
+
+            float padding = projectileRadius + _maxCharacterColliderRadius;
+            float minX = Mathf.Min(from.x, to.x) - padding;
+            float maxX = Mathf.Max(from.x, to.x) + padding;
+            float minZ = Mathf.Min(from.z, to.z) - padding;
+            float maxZ = Mathf.Max(from.z, to.z) + padding;
+
+            int minCellX = Mathf.FloorToInt(minX / CharacterSpatialCellSize);
+            int maxCellX = Mathf.FloorToInt(maxX / CharacterSpatialCellSize);
+            int minCellZ = Mathf.FloorToInt(minZ / CharacterSpatialCellSize);
+            int maxCellZ = Mathf.FloorToInt(maxZ / CharacterSpatialCellSize);
+
+            for (int cellX = minCellX; cellX <= maxCellX; cellX++)
+            {
+                for (int cellZ = minCellZ; cellZ <= maxCellZ; cellZ++)
+                {
+                    if (!_characterSpatialBuckets.TryGetValue(new Vector2Int(cellX, cellZ), out var bucket)) continue;
+
+                    for (int i = 0; i < bucket.Count; i++)
+                    {
+                        var target = bucket[i];
+                        if (target == null || !target.IsActive) continue;
+
+                        Vector3 targetPosition = target.Position;
+                        if (targetPosition.x < minX || targetPosition.x > maxX ||
+                            targetPosition.z < minZ || targetPosition.z > maxZ)
+                        {
+                            continue;
+                        }
+
+                        results.Add(target);
+                    }
+                }
+            }
+        }
+
+        private void EnsureCharacterSpatialIndex()
+        {
+            if (_characterSpatialIndexFrame == Time.frameCount) return;
+
+            ClearCharacterSpatialBuckets();
+            _maxCharacterColliderRadius = 0f;
+            for (int i = _extraTargets.Count - 1; i >= 0; i--)
+            {
+                var target = _extraTargets[i];
+                if (target == null)
+                {
+                    _extraTargetSet.Remove(target);
+                    RemoveExtraTargetAtSwapBack(i);
+                    continue;
+                }
+
+                if (!target.IsActive) continue;
+
+                var collider = target.GetColliderData();
+                _maxCharacterColliderRadius = Mathf.Max(
+                    _maxCharacterColliderRadius,
+                    Mathf.Max(Mathf.Abs(collider.Size.x), Mathf.Abs(collider.Size.z)));
+
+                Vector3 position = target.Position;
+                var cell = new Vector2Int(
+                    Mathf.FloorToInt(position.x / CharacterSpatialCellSize),
+                    Mathf.FloorToInt(position.z / CharacterSpatialCellSize));
+                if (!_characterSpatialBuckets.TryGetValue(cell, out var bucket))
+                {
+                    bucket = _characterSpatialBucketPool.Count > 0
+                        ? _characterSpatialBucketPool.Pop()
+                        : new List<IHitable>(8);
+                    _characterSpatialBuckets.Add(cell, bucket);
+                }
+
+                bucket.Add(target);
+            }
+
+            _characterSpatialIndexFrame = Time.frameCount;
+        }
+
+        private void ClearCharacterSpatialBuckets()
+        {
+            foreach (var bucket in _characterSpatialBuckets.Values)
+            {
+                bucket.Clear();
+                _characterSpatialBucketPool.Push(bucket);
+            }
+
+            _characterSpatialBuckets.Clear();
         }
 
 
@@ -428,8 +532,6 @@ namespace GamePlay.CombatSystems
                 Vector3 previousPos = EvaluateProjectilePosition(p, previousT);
                 Vector3 pos = EvaluateProjectilePosition(p, t);
                 p.Transform.position = pos;
-                Vector3 direction = (pos - previousPos).normalized;
-                bool hasDirection = direction.sqrMagnitude > 0.001f;
 
                 if (Mathf.Abs(p.RotationSpeed) > 0.001f)
                 {
@@ -467,16 +569,15 @@ namespace GamePlay.CombatSystems
                         }
                     }
                 }
-                if (p.Attacker != null && _extraTargets.Count > 0)
+                uint characterTargetBit = 1u << (int)EntityType.Character;
+                if (p.Attacker != null &&
+                    (projectileTargetMask & characterTargetBit) != 0 &&
+                    _extraTargets.Count > 0)
                 {
-                    for (int targetIndex = _extraTargets.Count - 1; targetIndex >= 0; targetIndex--)
+                    QueryCharacterTargetsNearSegment(previousPos, pos, p.Radius, _characterQueryTargets);
+                    for (int targetIndex = 0; targetIndex < _characterQueryTargets.Count; targetIndex++)
                     {
-                        var target = _extraTargets[targetIndex];
-                        if (target == null)
-                        {
-                            RemoveExtraTargetAtSwapBack(targetIndex);
-                            continue;
-                        }
+                        var target = _characterQueryTargets[targetIndex];
 
                         if (!target.IsActive) continue;
                         if (ReferenceEquals(target, _playerHitable)) continue;
@@ -502,8 +603,10 @@ namespace GamePlay.CombatSystems
                 // This covers EnemyUnit and CashTowerController, which already live in CollisionSystem.
                 if (collisionSystem != null && collisionCount > 0 && p.Attacker != null)
                 {
-                    for (int k = 0; k < collisionCount; k++)
+                    collisionSystem.QueryIndicesNearSegment(previousPos, pos, 6f, _collisionQueryIndices);
+                    for (int candidateIndex = 0; candidateIndex < _collisionQueryIndices.Count; candidateIndex++)
                     {
+                        int k = _collisionQueryIndices[candidateIndex];
                         uint targetBit = collisionSystem.GetMask(k);
                         if ((projectileTargetMask & targetBit) == 0) continue;
 
@@ -679,26 +782,26 @@ namespace GamePlay.CombatSystems
             switch (col.Type)
             {
                 case ShapeType.Sphere:
-                {
-                    float radius = Mathf.Max(0.01f, col.Size.x) + projRadius;
-                    Vector3 center = targetFeetPos + new Vector3(0f, col.Size.y, 0f);
-                    return SegmentIntersectsSphere(fromPos, delta, center, radius);
-                }
+                    {
+                        float radius = Mathf.Max(0.01f, col.Size.x) + projRadius;
+                        Vector3 center = targetFeetPos + new Vector3(0f, col.Size.y, 0f);
+                        return SegmentIntersectsSphere(fromPos, delta, center, radius);
+                    }
 
                 case ShapeType.Box:
-                {
-                    Vector3 half = col.Size + Vector3.one * projRadius;
-                    Vector3 center = targetFeetPos + new Vector3(0f, col.Size.y, 0f);
-                    return SegmentIntersectsAabb(fromPos, delta, center - half, center + half);
-                }
+                    {
+                        Vector3 half = col.Size + Vector3.one * projRadius;
+                        Vector3 center = targetFeetPos + new Vector3(0f, col.Size.y, 0f);
+                        return SegmentIntersectsAabb(fromPos, delta, center - half, center + half);
+                    }
 
                 case ShapeType.Cylinder:
-                {
-                    float radius = Mathf.Max(0.01f, col.Size.x) + projRadius;
-                    float halfHeight = Mathf.Max(0.01f, col.Size.y);
-                    Vector3 center = targetFeetPos + new Vector3(0f, halfHeight, 0f);
-                    return SegmentIntersectsCylinder(fromPos, delta, center, radius, halfHeight + projRadius);
-                }
+                    {
+                        float radius = Mathf.Max(0.01f, col.Size.x) + projRadius;
+                        float halfHeight = Mathf.Max(0.01f, col.Size.y);
+                        Vector3 center = targetFeetPos + new Vector3(0f, halfHeight, 0f);
+                        return SegmentIntersectsCylinder(fromPos, delta, center, radius, halfHeight + projRadius);
+                    }
 
                 default:
                     return false;
@@ -812,9 +915,14 @@ namespace GamePlay.CombatSystems
             }
 
             if (collisionSystem == null) return;
-            int count = collisionSystem.Count;
-            for (int i = 0; i < count; i++)
+
+            // Include target pivots outside the splash radius when their collider overlaps it.
+            // The exact radius test below remains authoritative.
+            float queryPadding = radius + collisionSystem.MaxHorizontalColliderExtent;
+            collisionSystem.QueryIndicesNearSegment(hitPosition, hitPosition, queryPadding, _aoeCollisionQueryIndices);
+            for (int candidateIndex = 0; candidateIndex < _aoeCollisionQueryIndices.Count; candidateIndex++)
             {
+                int i = _aoeCollisionQueryIndices[candidateIndex];
                 var target = collisionSystem.GetTargetBySortedIndex(i);
                 if (!ShouldApplyAoeToTarget(target, primaryTarget, splashAttacker.TargetMask)) continue;
                 if (_aoeAppliedTargets.Contains(target)) continue;

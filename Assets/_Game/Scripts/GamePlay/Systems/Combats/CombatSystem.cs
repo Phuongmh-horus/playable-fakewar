@@ -38,6 +38,7 @@ namespace GamePlay.CombatSystems
 
         private readonly List<ManagedActorRefs> _actors = new List<ManagedActorRefs>();
         private readonly Queue<ManagedActorRefs> _actorRefsPool = new Queue<ManagedActorRefs>(64);
+        private readonly List<int> _collisionQueryIndices = new List<int>(64);
 
         private ManagedActorRefs GetActorRef()
         {
@@ -195,8 +196,7 @@ namespace GamePlay.CombatSystems
             if (collisionSystem == null) return false;
             if (actor.Attacker == null) return false;
 
-            int targetCount = collisionSystem.Count;
-            if (targetCount <= 0) return false;
+            if (collisionSystem.Count <= 0) return false;
 
             Vector3 actorPos = actor.Transform.position;
 
@@ -219,8 +219,10 @@ namespace GamePlay.CombatSystems
 
             float maxDx = broadPhaseRangeX + attackerSize + broadPhasePadding;
             float maxDz = broadPhaseRangeZ + attackerSize + broadPhasePadding;
-            for (int idx = 0; idx < targetCount; idx++)
+            collisionSystem.QueryIndicesNearSegment(actorPos, actorPos, Mathf.Max(maxDx, maxDz), _collisionQueryIndices);
+            for (int candidateIndex = 0; candidateIndex < _collisionQueryIndices.Count; candidateIndex++)
             {
+                int idx = _collisionQueryIndices[candidateIndex];
                 uint targetMask = collisionSystem.GetMask(idx);
                 if ((attackerMask & targetMask) == 0) continue;
 

@@ -1,11 +1,13 @@
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class CullingObject : MonoBehaviour
 {
+    private static readonly List<CullingObject> PendingRegistrations = new List<CullingObject>(64);
+
     [Tooltip("If true, the system will update this object's grid cell representation as it moves.")]
     [SerializeField] protected bool isDynamic = false;
-    
+
     [Tooltip("Override culling distance for this specific object. Set to -1 to use system default.")]
     [SerializeField] protected float customCullDistance = -1f;
 
@@ -41,29 +43,34 @@ public abstract class CullingObject : MonoBehaviour
         {
             CullingSystem.Instance.Register(this);
         }
-        else StartCoroutine(TryRegister());
+        else if (!PendingRegistrations.Contains(this))
+        {
+            PendingRegistrations.Add(this);
+        }
     }
 
-    private IEnumerator TryRegister()
+    internal static void RegisterPending(CullingSystem system)
     {
-        for (int i = 0, count = 3; i < count; i++)
+        if (system == null || PendingRegistrations.Count == 0)
         {
-            yield return null;
-            yield return null;
-            yield return null;
-            yield return null;
-            yield return null;
-            
-            if (CullingSystem.Instance != null)
+            return;
+        }
+
+        for (int i = PendingRegistrations.Count - 1; i >= 0; i--)
+        {
+            var obj = PendingRegistrations[i];
+            PendingRegistrations.RemoveAt(i);
+            if (obj != null && obj.isActiveAndEnabled && obj.CurrentCell == null)
             {
-                CullingSystem.Instance.Register(this);
-                yield break;
+                system.Register(obj);
             }
         }
     }
 
     protected virtual void OnDisable()
     {
+        PendingRegistrations.Remove(this);
+
         // If this OnDisable is triggered by the culling process deactivating the GameObject,
         // keep the registration in the cell so the system can wake it up later.
         if (isDisablingDueToCulling)
@@ -81,7 +88,7 @@ public abstract class CullingObject : MonoBehaviour
     {
         if (IsCulled == culled) return;
         IsCulled = culled;
-        
+
         isDisablingDueToCulling = culled;
         ApplyCulling(IsCulled);
         isDisablingDueToCulling = false;
@@ -90,7 +97,7 @@ public abstract class CullingObject : MonoBehaviour
     public void ForceSetCulled(bool culled)
     {
         IsCulled = culled;
-        
+
         isDisablingDueToCulling = culled;
         ApplyCulling(IsCulled);
         isDisablingDueToCulling = false;

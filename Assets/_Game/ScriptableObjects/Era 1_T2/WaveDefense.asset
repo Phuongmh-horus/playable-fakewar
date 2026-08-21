@@ -1611,7 +1611,7 @@ MonoBehaviour:
     propertyOverrides:
     - rid: 5408492618093166843
     overrideMaxHp: 1
-    maxHp: 2500
+    maxHp: 3000
   - Prefab: {fileID: 3360367997036094387, guid: ef8a3aed54a409a4fb48a1e34e0e5c28, type: 3}
     PositionOnMap: 443.28003
     PositionOffset: {x: 10.5, y: 0, z: 0}
@@ -3250,7 +3250,7 @@ MonoBehaviour:
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
-        maxHp: 2500
+        maxHp: 3000
     - rid: 5408492618093166844
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:

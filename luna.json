@@ -166,7 +166,16 @@
                 "Assets/Optimized-Feature/BakedAssets/Character_baked_VATData/Character_baked_VAT_Item_crossbow_Texture.png",
                 "Assets/Optimized-Feature/BakedAssets/Character_baked_VATData/Character_baked_VAT_Item_pistol_Texture.png",
                 "Assets/Optimized-Feature/BakedAssets/Character_baked_VATData/Character_baked_VAT_Item_gun_Texture.png",
-                "Assets/Optimized-Feature/BakedAssets/Enemy_baked_VATData/Enemy_baked_VAT_Body_Texture.png"
+                "Assets/Optimized-Feature/BakedAssets/Enemy_baked_VATData/Enemy_baked_VAT_Body_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Small_pig_VATData/Small_pig_VAT_Body_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Body_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_crossbow_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_pistol_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_gun_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_Sword_VATData/Enemy_Basic_Sword_VAT_Body_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_Sword_VATData/Enemy_Basic_Sword_VAT_Item_kiem_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Body_Texture 1.png",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Item_Item_Texture.png"
             ]
         },
         "scenes": [
@@ -8996,10 +9005,6 @@
                 "excluded": true
             },
             {
-                "name": "OptimizedFeature.Scripts.VATSocketTransformData",
-                "excluded": false
-            },
-            {
                 "name": "GamePlay.AnimationSystems.IAnimationClipLengthProvider",
                 "excluded": false
             },
@@ -9018,6 +9023,10 @@
             {
                 "name": "OptimizedFeature.Scripts.VATAnimatorParameterType",
                 "excluded": false
+            },
+            {
+                "name": "OptimizedFeature.Scripts.VATAssetAnimatorSO",
+                "excluded": true
             }
         ],
         "unusedMethods": [
@@ -11483,7 +11492,7 @@
                 "instanceMethods": [
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getDefaultValue",
@@ -11511,7 +11520,7 @@
                     },
                     {
                         "name": "$ctor1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
@@ -11519,11 +11528,11 @@
                     },
                     {
                         "name": "moveNext",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Dispose",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "System$Collections$IEnumerator$reset",
@@ -11681,11 +11690,11 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetEnumerator",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "System$Collections$Generic$IEnumerable$1$GetEnumerator",
@@ -18233,7 +18242,7 @@
                     },
                     {
                         "name": "sharedMaterial#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sharedMaterials#get",
@@ -20353,7 +20362,7 @@
                     },
                     {
                         "name": "fontSharedMaterial#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "fontSharedMaterials#get",
@@ -21089,7 +21098,7 @@
                     },
                     {
                         "name": "SetText$3",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetText$4",
@@ -21117,7 +21126,7 @@
                     },
                     {
                         "name": "SetText$10",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetText$11",
@@ -21197,11 +21206,11 @@
                     },
                     {
                         "name": "AddFloatToInternalTextBackingArray",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "AddIntegerToInternalTextBackingArray",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "InternalTextBackingArrayToString",
@@ -23264,6 +23273,34 @@
                     {
                         "name": "RemoveExtraTargetAtSwapBack",
                         "excluded": false
+                    },
+                    {
+                        "name": "SegmentIntersectsSphere",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SegmentIntersectsAabb",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateSlab",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SegmentIntersectsCylinder",
+                        "excluded": false
+                    },
+                    {
+                        "name": "QueryCharacterTargetsNearSegment",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EnsureCharacterSpatialIndex",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ClearCharacterSpatialBuckets",
+                        "excluded": true
                     }
                 ]
             },
@@ -26899,7 +26936,7 @@
                     },
                     {
                         "name": "getDefaultValue",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "x#get",
@@ -26951,15 +26988,15 @@
                     },
                     {
                         "name": "equals",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Equals",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getHashCode",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "toString",
@@ -27249,7 +27286,7 @@
                     },
                     {
                         "name": "shader#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "shader#set",
@@ -27893,11 +27930,11 @@
                     },
                     {
                         "name": "vertexCount#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "subMeshCount#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "subMeshCount#set",
@@ -28101,7 +28138,7 @@
                     },
                     {
                         "name": "GetTopology",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetBoneWeights",
@@ -28511,7 +28548,7 @@
                     },
                     {
                         "name": "sharedMesh#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sharedMesh#set",
@@ -32671,7 +32708,7 @@
                     },
                     {
                         "name": "SetSharedMaterial",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetSharedMaterials",
@@ -35092,10 +35129,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "TryRegister",
-                        "excluded": false
-                    },
-                    {
                         "name": "OnDisable",
                         "excluded": false
                     },
@@ -35106,6 +35139,10 @@
                     {
                         "name": "ForceSetCulled",
                         "excluded": true
+                    },
+                    {
+                        "name": "RegisterPending",
+                        "excluded": false
                     }
                 ]
             },
@@ -35630,6 +35667,22 @@
                     {
                         "name": "GetColliderData",
                         "excluded": false
+                    },
+                    {
+                        "name": "QueryIndicesNearSegment",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnsureSpatialIndex",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ClearSpatialBuckets",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MaxHorizontalColliderExtent#get",
+                        "excluded": true
                     }
                 ]
             },
@@ -36313,6 +36366,10 @@
                     },
                     {
                         "name": "ShowText",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CanSpawnTextThisFrame",
                         "excluded": false
                     }
                 ]
@@ -37694,6 +37751,10 @@
                     {
                         "name": "StopActiveLoopingSfx",
                         "excluded": false
+                    },
+                    {
+                        "name": "CanSpawnVfxThisFrame",
+                        "excluded": false
                     }
                 ]
             },
@@ -37930,18 +37991,6 @@
                     {
                         "name": "Dispose",
                         "excluded": true
-                    },
-                    {
-                        "name": "RegisterEvents",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleMoveComplete",
-                        "excluded": true
-                    },
-                    {
-                        "name": "HandleAttackComplete",
-                        "excluded": false
                     },
                     {
                         "name": "DespawnInterval",
@@ -38362,10 +38411,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "TryCollectFireSoldierWithUnit",
-                        "excluded": false
-                    },
-                    {
                         "name": "ResolveRuntimeUnitAnimation",
                         "excluded": false
                     },
@@ -38383,6 +38428,18 @@
                     },
                     {
                         "name": "FindNextAvailableArmyIndex",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryCollectFireSoldierWithFormation",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetFormationHalfExtents",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetProjectileResumeAttackTime",
                         "excluded": false
                     }
                 ]
@@ -38680,6 +38737,10 @@
                     {
                         "name": "CompleteArmyAttack",
                         "excluded": false
+                    },
+                    {
+                        "name": "AttractionThreshold#get",
+                        "excluded": false
                     }
                 ]
             },
@@ -38848,14 +38909,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "FixTextDepthNow",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyDepthToSingleText",
-                        "excluded": false
-                    },
-                    {
                         "name": "DisableOscillationIfSide",
                         "excluded": false
                     },
@@ -38940,19 +38993,19 @@
                         "excluded": false
                     },
                     {
-                        "name": "CacheTextsIfNeeded",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyDepthToAllTexts",
-                        "excluded": false
-                    },
-                    {
                         "name": "UpdateImage",
                         "excluded": false
                     },
                     {
                         "name": "PreparePropertyBlock",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ConfigureRenderGrouping",
+                        "excluded": false
+                    },
+                    {
+                        "name": "DespawnInterval$1",
                         "excluded": false
                     }
                 ]
@@ -40506,36 +40559,6 @@
                 ]
             },
             {
-                "className": "OptimizedFeature.Scripts.VAT_ObjectMesh",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "SocketName#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "init",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": true
-                    },
-                    {
-                        "name": "BindSocketData",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SynchronizeFrame",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
                 "className": "OptimizedFeature.Scripts.VAT_RenderComponent",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -40677,15 +40700,15 @@
                     },
                     {
                         "name": "CurrentFrameLower#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CurrentFrameUpper#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CurrentBlendWeight#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "PlayDefaultState",
@@ -40872,11 +40895,19 @@
                         "excluded": true
                     },
                     {
-                        "name": "SetCullingVisible",
-                        "excluded": false
+                        "name": "SetWeaponAsset$1",
+                        "excluded": true
                     },
                     {
-                        "name": "ApplyVisibility",
+                        "name": "EquipWeapon",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetWeaponAssetInternal",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CollectRuntimeBatchSources",
                         "excluded": false
                     }
                 ]
@@ -40932,15 +40963,47 @@
                         "excluded": false
                     },
                     {
-                        "name": "GetSocket",
+                        "name": "GetWeaponAsset",
                         "excluded": true
                     },
                     {
-                        "name": "EnsureAnimatorLists",
+                        "name": "EffectiveDefaultStateName#get",
                         "excluded": false
                     },
                     {
-                        "name": "GetWeaponAsset",
+                        "name": "AnimatorParameters#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AnimatorParameters#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AnimatorTransitions#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AnimatorTransitions#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AnimatorBlendTrees#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AnimatorBlendTrees#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetAnimatorDefaultStateName",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EnsureLegacyAnimatorLists",
+                        "excluded": false
+                    },
+                    {
+                        "name": "InitializeWeaponCache",
                         "excluded": true
                     }
                 ]
@@ -41126,6 +41189,14 @@
                     {
                         "name": "init",
                         "excluded": false
+                    },
+                    {
+                        "name": "WeaponHash#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "WeaponHash#set",
+                        "excluded": true
                     }
                 ]
             },
@@ -41164,10 +41235,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "WeaponName#get",
-                        "excluded": true
-                    },
-                    {
                         "name": "Renderer#get",
                         "excluded": true
                     },
@@ -41177,10 +41244,6 @@
                     },
                     {
                         "name": "SetFrameSource",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetWeaponName",
                         "excluded": true
                     },
                     {
@@ -41209,6 +41272,248 @@
                     },
                     {
                         "name": "EnsurePropertyBlocks",
+                        "excluded": false
+                    },
+                    {
+                        "name": "WeaponHash#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IsVisible#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetWeaponHash",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AppendRuntimeBatchSource",
+                        "excluded": false
+                    },
+                    {
+                        "name": "NormalizeToFrameSourceSpace",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATRuntimeMeshBatcher.BatchKey",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "inherits",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "equalsT",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATRuntimeMeshBatcher",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CanBatch",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CopyRendererSettings",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BuildCombinedMesh",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateGroupData",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EncapsulateTransformedBounds",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DestroyGroup",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DestroyObject",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RestoreOriginalRenderers",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateBatches",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Clear",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Dispose",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EnsureGroup",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetBatchMaterial",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATRuntimeMeshBatcher.BatchGroup",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATRuntimeMeshBatcher.HiddenRenderer",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATRuntimeMeshBatcher.Source",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Items.NoProjectileFireZone",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Contains",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RemoveZone",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Activate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Deactivate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ContainsPosition",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Items.NoProjectileFireZone.ActiveZone",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
                         "excluded": false
                     }
                 ]
@@ -41759,6 +42064,96 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Enemy_baked_VATData/Enemy_baked_VAT_Body_Texture.png"
+                    },
+                    {
+                        "maxWidth": 567,
+                        "maxHeight": 40,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Small_pig_VATData/Small_pig_VAT_Body_Texture.png"
+                    },
+                    {
+                        "maxWidth": 1237,
+                        "maxHeight": 62,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Body_Texture.png"
+                    },
+                    {
+                        "maxWidth": 537,
+                        "maxHeight": 97,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_crossbow_Texture.png"
+                    },
+                    {
+                        "maxWidth": 569,
+                        "maxHeight": 97,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_pistol_Texture.png"
+                    },
+                    {
+                        "maxWidth": 178,
+                        "maxHeight": 97,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_gun_Texture.png"
+                    },
+                    {
+                        "maxWidth": 1101,
+                        "maxHeight": 66,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_Sword_VATData/Enemy_Basic_Sword_VAT_Body_Texture.png"
+                    },
+                    {
+                        "maxWidth": 88,
+                        "maxHeight": 66,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_Sword_VATData/Enemy_Basic_Sword_VAT_Item_kiem_Texture.png"
+                    },
+                    {
+                        "maxWidth": 1101,
+                        "maxHeight": 66,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Body_Texture 1.png"
+                    },
+                    {
+                        "maxWidth": 88,
+                        "maxHeight": 66,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Item_Item_Texture.png"
                     }
                 ]
             },

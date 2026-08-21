@@ -111,8 +111,8 @@ Material:
     - _LightmapUV: 0
     - _Metallic: 0
     - _Mode: 0
-    - _NumFrames: 66
-    - _NumVertices: 1189
+    - _NumFrames: 62
+    - _NumVertices: 1237
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _Preset: 0
@@ -127,8 +127,8 @@ Material:
     - _TransparencyMaskContrast: 1
     - _UVSec: 0
     - _VATBatchMode: 0
-    - _VATTextureHeight: 66
-    - _VATTextureWidth: 1189
+    - _VATTextureHeight: 62
+    - _VATTextureWidth: 1237
     - _VertexColors: 0
     - _VertexColorsAmount: 1
     - _VertexColorsContrast: 1
@@ -136,8 +136,8 @@ Material:
     - _ZTest: 4
     - _ZWrite: 1
     m_Colors:
-    - _BoundingMax: {r: 0.88433653, g: 2.1832778, b: 1.3486289, a: 0}
-    - _BoundingMin: {r: -0.4622156, g: -0.09513907, b: -0.8907668, a: 0}
+    - _BoundingMax: {r: 0.47717366, g: 2.0422795, b: 0.7078161, a: 0}
+    - _BoundingMin: {r: -0.57906973, g: -0.059606753, b: -0.78836155, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Emissive: {r: 0, g: 0, b: 0, a: 0}

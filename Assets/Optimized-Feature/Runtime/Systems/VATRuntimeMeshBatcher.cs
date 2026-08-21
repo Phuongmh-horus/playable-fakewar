@@ -48,11 +48,13 @@ namespace OptimizedFeature.Scripts
             private readonly int _meshId;
             private readonly int _materialId;
             private readonly int _layer;
+            // private readonly uint _renderingLayerMask;
             private readonly ShadowCastingMode _shadowCastingMode;
             private readonly bool _receiveShadows;
             private readonly LightProbeUsage _lightProbeUsage;
             private readonly ReflectionProbeUsage _reflectionProbeUsage;
             private readonly MotionVectorGenerationMode _motionVectorGenerationMode;
+            // private readonly int _rendererPriority;
             private readonly int _sortingLayerId;
             private readonly int _sortingOrder;
 
@@ -61,11 +63,13 @@ namespace OptimizedFeature.Scripts
                 _meshId = source.Mesh.GetInstanceID();
                 _materialId = source.Material.GetInstanceID();
                 _layer = source.Renderer.gameObject.layer;
+                // _renderingLayerMask = source.Renderer.renderingLayerMask;
                 _shadowCastingMode = source.Renderer.shadowCastingMode;
                 _receiveShadows = source.Renderer.receiveShadows;
                 _lightProbeUsage = source.Renderer.lightProbeUsage;
                 _reflectionProbeUsage = source.Renderer.reflectionProbeUsage;
                 _motionVectorGenerationMode = source.Renderer.motionVectorGenerationMode;
+                // _rendererPriority = source.Renderer.rendererPriority;
                 _sortingLayerId = source.Renderer.sortingLayerID;
                 _sortingOrder = source.Renderer.sortingOrder;
             }
@@ -75,11 +79,13 @@ namespace OptimizedFeature.Scripts
                 return _meshId == other._meshId &&
                        _materialId == other._materialId &&
                        _layer == other._layer &&
+                       // _renderingLayerMask == other._renderingLayerMask &&
                        _shadowCastingMode == other._shadowCastingMode &&
                        _receiveShadows == other._receiveShadows &&
                        _lightProbeUsage == other._lightProbeUsage &&
                        _reflectionProbeUsage == other._reflectionProbeUsage &&
                        _motionVectorGenerationMode == other._motionVectorGenerationMode &&
+                       // _rendererPriority == other._rendererPriority &&
                        _sortingLayerId == other._sortingLayerId &&
                        _sortingOrder == other._sortingOrder;
             }
@@ -96,11 +102,13 @@ namespace OptimizedFeature.Scripts
                     int hash = _meshId;
                     hash = hash * 31 + _materialId;
                     hash = hash * 31 + _layer;
+                    // hash = hash * 31 + _renderingLayerMask.GetHashCode();
                     hash = hash * 31 + (int)_shadowCastingMode;
                     hash = hash * 31 + (_receiveShadows ? 1 : 0);
                     hash = hash * 31 + (int)_lightProbeUsage;
                     hash = hash * 31 + (int)_reflectionProbeUsage;
                     hash = hash * 31 + (int)_motionVectorGenerationMode;
+                    // hash = hash * 31 + _rendererPriority;
                     hash = hash * 31 + _sortingLayerId;
                     hash = hash * 31 + _sortingOrder;
                     return hash;
@@ -331,9 +339,12 @@ namespace OptimizedFeature.Scripts
             destination.receiveShadows = source.receiveShadows;
             destination.lightProbeUsage = source.lightProbeUsage;
             destination.reflectionProbeUsage = source.reflectionProbeUsage;
+            // destination.renderingLayerMask = source.renderingLayerMask;
             destination.motionVectorGenerationMode = source.motionVectorGenerationMode;
+            // destination.rendererPriority = source.rendererPriority;
             destination.sortingLayerID = source.sortingLayerID;
             destination.sortingOrder = source.sortingOrder;
+            // destination.allowOcclusionWhenDynamic = source.allowOcclusionWhenDynamic;
         }
 
         private static void BuildCombinedMesh(BatchGroup group)

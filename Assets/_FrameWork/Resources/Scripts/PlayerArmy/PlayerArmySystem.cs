@@ -103,6 +103,7 @@ namespace PlayerArmy
         private readonly List<PendingProjectileAttack> _pendingProjectileAttacks = new List<PendingProjectileAttack>(80);
         private readonly List<CharacterUnit> _unitSnapshotBuffer = new List<CharacterUnit>(64);
         private readonly Dictionary<int, GamePlay.Items.StatModifierGate> _fireSoldierGateCache = new Dictionary<int, GamePlay.Items.StatModifierGate>(16);
+        private readonly List<int> _collisionQueryIndices = new List<int>(64);
         private readonly bool[] _occupiedArmyIndices = new bool[HardMaxActiveSpawnedUnits];
         private GameObject _weaponOverridePrefab;
         private int _resolvedWeaponDamage;
@@ -112,6 +113,8 @@ namespace PlayerArmy
         private int _fireRateBonusPoints;
         private float _baseFireRange;
         private float _fireRangeBonus;
+        private bool _wasProjectileFireSuppressed;
+        private float _projectileFireResumeTime = float.NegativeInfinity;
         private static readonly Dictionary<int, Vector2Int[]> s_honeycombRingCache = new Dictionary<int, Vector2Int[]>(16);
 
         private readonly List<IHitable> _frameAttackableTargets = new List<IHitable>(32);
@@ -496,7 +499,7 @@ namespace PlayerArmy
             return unit;
         }
 
-        private CharacterUnit CreateRuntimeCharacterUnit(int level, Vector3 position, Quaternion rotation, float? nextAttackTime = null, bool playMoveAnimation = false)
+        private CharacterUnit CreateRuntimeCharacterUnit(int level, Vector3 position, Quaternion rotation, float? nextAttackTime = null, bool playMoveAnimation = false, bool refreshCombatProfile = true)
         {
             int resolvedLevel = ResolveSpawnLevel(level);
 
@@ -511,7 +514,7 @@ namespace PlayerArmy
                 return null;
             }
 
-            InitializeRuntimeUnit(unit, resolvedLevel, nextAttackTime, playMoveAnimation);
+            InitializeRuntimeUnit(unit, resolvedLevel, nextAttackTime, playMoveAnimation, refreshCombatProfile);
             return unit;
         }
 
@@ -586,7 +589,7 @@ namespace PlayerArmy
 
             PruneInactiveSpawnedUnits();
             int activeUnitCap = Mathf.Clamp(maxActiveSpawnedUnits, 1, HardMaxActiveSpawnedUnits);
-            int availableSlots = activeUnitCap - CountActiveUnits();
+            int availableSlots = activeUnitCap - characterUnits.Count;
             if (availableSlots <= 0)
             {
                 return;
@@ -599,6 +602,7 @@ namespace PlayerArmy
 
             int totalCount = activeUnitCap;
             BuildOccupiedArmyIndices();
+            ApplyUnitCombatProfile();
 
             for (int i = 0; i < spawnCount; i++)
             {
@@ -610,7 +614,7 @@ namespace PlayerArmy
 
                 _occupiedArmyIndices[index] = true;
                 Vector3 spawnPosition = GetHoneycombSpawnPosition(root, index, totalCount);
-                var unit = CreateRuntimeCharacterUnit(resolvedLevel, spawnPosition, rotation, nextAttackTime, playMoveAnimation);
+                var unit = CreateRuntimeCharacterUnit(resolvedLevel, spawnPosition, rotation, nextAttackTime, playMoveAnimation, false);
                 if (unit != null)
                 {
                     if (!characterUnits.Contains(unit))
@@ -1154,9 +1158,14 @@ namespace PlayerArmy
             float myHalfZ = mySize.y * 0.5f;
             float preCullX = Mathf.Max(myHalfX + 1f, collisionCheckRangeX);
             float preCullZ = Mathf.Max(myHalfZ + 1f, collisionCheckRangeZ);
+            int formationUnitCount = Mathf.Min(characterUnits.Count, HardMaxActiveSpawnedUnits);
+            Vector3 queryStart = myPos - transform.forward * preCullZ;
+            Vector3 queryEnd = myPos + transform.forward * preCullZ;
+            collisionSystem.QueryIndicesNearSegment(queryStart, queryEnd, preCullX, _collisionQueryIndices);
 
-            for (int i = 0; i < collisionSystem.Count; i++)
+            for (int candidateIndex = 0; candidateIndex < _collisionQueryIndices.Count; candidateIndex++)
             {
+                int i = _collisionQueryIndices[candidateIndex];
                 uint categoryBits = collisionSystem.GetMask(i);
                 if ((myMask & categoryBits) == 0)
                 {
@@ -1198,7 +1207,7 @@ namespace PlayerArmy
                 bool hitZ = absDistZ <= (myHalfZ + tHalfZ);
 
                 if (target.EntityType == EntityType.MovingGate &&
-                    TryCollectFireSoldierWithUnit(target, targetTr, tPos, tHalfX, tHalfZ))
+                    TryCollectFireSoldierWithFormation(target, targetTr, tPos, tHalfX, tHalfZ, formationUnitCount))
                 {
                     continue;
                 }
@@ -1243,12 +1252,13 @@ namespace PlayerArmy
             _currentEnvironmentContactIds = tmpEnv;
         }
 
-        private bool TryCollectFireSoldierWithUnit(
+        private bool TryCollectFireSoldierWithFormation(
             IHitable target,
             Transform targetTransform,
             Vector3 targetPosition,
             float targetHalfX,
-            float targetHalfZ)
+            float targetHalfZ,
+            int formationUnitCount)
         {
             int targetId = targetTransform.GetInstanceID();
             if (!_fireSoldierGateCache.TryGetValue(targetId, out var gate) || gate == null)
@@ -1262,35 +1272,34 @@ namespace PlayerArmy
                 return false;
             }
 
-            for (int i = 0; i < characterUnits.Count; i++)
+            if (formationUnitCount <= 0)
             {
-                var unit = characterUnits[i];
-                if (unit == null || !unit.IsActive)
-                {
-                    continue;
-                }
-
-                var unitCollider = unit.GetColliderData();
-                float unitHalfX = Mathf.Abs(unitCollider.Size.x);
-                float unitHalfZ = Mathf.Abs(unitCollider.Size.z);
-                if (unitCollider.Type != ShapeType.Box)
-                {
-                    unitHalfZ = Mathf.Max(unitHalfX, unitHalfZ);
-                    unitHalfX = unitHalfZ;
-                }
-
-                Vector3 unitPosition = unit.Position;
-                if (Mathf.Abs(unitPosition.x - targetPosition.x) > unitHalfX + targetHalfX ||
-                    Mathf.Abs(unitPosition.z - targetPosition.z) > unitHalfZ + targetHalfZ)
-                {
-                    continue;
-                }
-
-                gate.CollectByArmy();
-                return true;
+                return false;
             }
 
-            return false;
+            Transform root = GetBodyRoot();
+            Vector3 localTargetPosition = root.InverseTransformPoint(targetPosition);
+            GetFormationHalfExtents(formationUnitCount, out float formationHalfX, out float formationHalfZ);
+
+            if (Mathf.Abs(localTargetPosition.x) > formationHalfX + targetHalfX ||
+                Mathf.Abs(localTargetPosition.z) > formationHalfZ + targetHalfZ)
+            {
+                return false;
+            }
+
+            gate.CollectByArmy();
+            return true;
+        }
+
+        private void GetFormationHalfExtents(int unitCount, out float halfX, out float halfZ)
+        {
+            int cappedCount = Mathf.Max(1, unitCount);
+            int outerRing = Mathf.CeilToInt((Mathf.Sqrt(12f * cappedCount - 3f) - 3f) / 6f);
+            float spacing = Mathf.Max(0.01f, unitSpacing);
+            const float characterColliderPadding = 0.75f;
+
+            halfX = outerRing * spacing * 1.5f + characterColliderPadding;
+            halfZ = outerRing * spacing * HoneycombForwardStepFactor + characterColliderPadding;
         }
 
         private void UpdateCharacterAttacks()
@@ -1300,7 +1309,21 @@ namespace PlayerArmy
                 return;
             }
 
+            bool isProjectileFireSuppressed = attackMode == PlayerArmyAttackMode.ThrownProjectile &&
+                                              GamePlay.Items.NoProjectileFireZone.Contains(Position);
+            if (isProjectileFireSuppressed)
+            {
+                _wasProjectileFireSuppressed = true;
+                _pendingProjectileAttacks.Clear();
+                return;
+            }
+
             float now = Time.time;
+            if (_wasProjectileFireSuppressed)
+            {
+                _wasProjectileFireSuppressed = false;
+                _projectileFireResumeTime = now;
+            }
 
             _frameAttackableTargets.Clear();
             _frameAttackableTransforms.Clear();
@@ -1340,7 +1363,8 @@ namespace PlayerArmy
                     continue;
                 }
 
-                if (now < unit.NextAttackTime)
+                float nextAttackTime = Mathf.Max(unit.NextAttackTime, GetProjectileResumeAttackTime(unit));
+                if (now < nextAttackTime)
                 {
                     continue;
                 }
@@ -1424,6 +1448,13 @@ namespace PlayerArmy
             }
 
             if (_pendingProjectileAttacks.Count == 0) return;
+
+            if (GamePlay.Items.NoProjectileFireZone.Contains(Position))
+            {
+                _wasProjectileFireSuppressed = true;
+                _pendingProjectileAttacks.Clear();
+                return;
+            }
 
             float now = Time.time;
             int launchBudget = Mathf.Max(1, maxProjectileLaunchesPerFrame);
@@ -1627,7 +1658,7 @@ namespace PlayerArmy
             }
         }
 
-        private void InitializeRuntimeUnit(CharacterUnit unit, int level, float? nextAttackTime = null, bool playMoveAnimation = false)
+        private void InitializeRuntimeUnit(CharacterUnit unit, int level, float? nextAttackTime = null, bool playMoveAnimation = false, bool refreshCombatProfile = true)
         {
             if (unit == null) return;
 
@@ -1644,7 +1675,10 @@ namespace PlayerArmy
 
             unit.ApplyVisualLevel(currentLevelIndex);
 
-            ApplyUnitCombatProfile();
+            if (refreshCombatProfile)
+            {
+                ApplyUnitCombatProfile();
+            }
 
             if (_weaponOverridePrefab != null)
             {
@@ -1856,6 +1890,17 @@ namespace PlayerArmy
             }
 
             unit.NextAttackTime = nextAttackTime;
+        }
+
+        private float GetProjectileResumeAttackTime(CharacterUnit unit)
+        {
+            if (attackMode != PlayerArmyAttackMode.ThrownProjectile ||
+                float.IsNegativeInfinity(_projectileFireResumeTime))
+            {
+                return float.NegativeInfinity;
+            }
+
+            return _projectileFireResumeTime + GetAttackPhase(unit) * Mathf.Max(0.05f, attackInterval);
         }
 
         private static float GetAttackPhase(CharacterUnit unit)

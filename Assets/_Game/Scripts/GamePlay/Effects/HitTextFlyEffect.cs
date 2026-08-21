@@ -144,7 +144,7 @@ public class HitTextFlyEffect : MonoBehaviour
     public void OnHit(int damage)
     {
         if (damage <= 0) return;
-        ShowDefaultText(damage.ToString());
+        ShowDefaultText(damage);
     }
 
     public void ShowCustomText(string text, Color? colorOverride = null)
@@ -157,14 +157,14 @@ public class HitTextFlyEffect : MonoBehaviour
             colorOverride);
     }
 
-    private void ShowDefaultText(string text, Color? colorOverride = null)
+    private void ShowDefaultText(int value)
     {
-        ShowText(text, heightOffset, horizontalRandomRange, 1f, colorOverride);
+        ShowText(null, heightOffset, horizontalRandomRange, 1f, null, value);
     }
 
-    private void ShowText(string text, float spawnHeightOffset, float horizontalRange, float scaleMultiplier, Color? colorOverride = null)
+    private void ShowText(string text, float spawnHeightOffset, float horizontalRange, float scaleMultiplier, Color? colorOverride = null, int numericValue = int.MinValue)
     {
-        if (string.IsNullOrEmpty(text)) return;
+        if (numericValue == int.MinValue && string.IsNullOrEmpty(text)) return;
 
         if (LimitToOneTextPerFrame)
         {
@@ -198,7 +198,8 @@ public class HitTextFlyEffect : MonoBehaviour
             fallDuration,
             horizontalOffset,
             scaleMultiplier,
-            colorOverride);
+            colorOverride,
+            numericValue);
 
         if (activated)
         {
@@ -265,7 +266,8 @@ public class HitTextFlyEffect : MonoBehaviour
             float fallDuration,
             float horizontalOffset,
             float scaleMultiplier,
-            Color? colorOverride = null)
+            Color? colorOverride = null,
+            int numericValue = int.MinValue)
         {
             ResetRuntimeState();
 
@@ -300,7 +302,14 @@ public class HitTextFlyEffect : MonoBehaviour
 
             _textTransform.position = startPos;
             _textTransform.localScale = prefab.transform.localScale * Mathf.Max(0.01f, scaleMultiplier);
-            _textInstance.text = textToShow;
+            if (numericValue == int.MinValue)
+            {
+                _textInstance.text = textToShow;
+            }
+            else
+            {
+                _textInstance.SetText("{0}", numericValue);
+            }
             _isActive = true;
 
             Color baseColor = colorOverride ?? prefab.color;

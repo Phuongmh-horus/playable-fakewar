@@ -13,10 +13,11 @@ namespace GamePlay.Items
 
         [SerializeField] protected float breakAnimationWaitTime = 0.3f;
 
-        [SerializeField] protected bool isUserBreakObject = false;
-        [SerializeField] protected GameObject gameObjectToEnable;
-        [SerializeField] protected GameObject gameObjectToDisable;
+        // [SerializeField] protected bool isUserBreakObject = false;
+        // [SerializeField] protected GameObject gameObjectToEnable;
+        // [SerializeField] protected GameObject gameObjectToDisable;
         [SerializeField] protected float delayInterval = 3f;
+        [SerializeField] private NoProjectileFireZone noProjectileFireZone;
 
         public bool IsBreaked => isBreaked;
         public bool BlocksMovingGates => blocksMovingGates && !isBreaked && !isBreaking && isActiveAndEnabled;
@@ -39,8 +40,14 @@ namespace GamePlay.Items
                 _entityType = EntityType.Obstacle;
             }
 
+            if (noProjectileFireZone == null)
+            {
+                noProjectileFireZone = GetComponentInChildren<NoProjectileFireZone>(true);
+            }
+
             isBreaked = false;
             isBreaking = false;
+            noProjectileFireZone?.Deactivate();
             base.Initialize();
         }
 
@@ -85,6 +92,7 @@ namespace GamePlay.Items
             isBreaked = true;
             isBreaking = false;
             base.OnBreak();
+            noProjectileFireZone?.Activate();
             breakableConfig?.ApplyBonus();
 
             if (SoundManager.Instance != null)
@@ -92,21 +100,21 @@ namespace GamePlay.Items
                 SoundManager.Instance.PlayOneShot(AudioClipName.SFX_CharacterAttack);
             }
 
-            if (isUserBreakObject)
-            {
-                // User breakable: enable/disable specific objects, no despawn
-                if (gameObjectToEnable != null)
-                    gameObjectToEnable.SetActive(true);
-                if (gameObjectToDisable != null)
-                    gameObjectToDisable.SetActive(false);
+            // if (isUserBreakObject)
+            // {
+            //     // User breakable: enable/disable specific objects, no despawn
+            //     if (gameObjectToEnable != null)
+            //         gameObjectToEnable.SetActive(true);
+            //     if (gameObjectToDisable != null)
+            //         gameObjectToDisable.SetActive(false);
 
-                Invoke(nameof(DespawnInterval), delayInterval);
-            }
-            else
-            {
-                // Normal breakable: despawn after break
-                DespawnInterval();
-            }
+            //     Invoke(nameof(DespawnInterval), delayInterval);
+            // }
+            // else
+            // {
+            // Normal breakable: despawn after break
+            DespawnInterval();
+            // }
         }
     }
 }

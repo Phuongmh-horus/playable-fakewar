@@ -371,6 +371,7 @@ MonoBehaviour:
   maxDeathVfxPerFrame: 8
   _healthOverriddenFromContent: 0
   delayBetweenAttacks: 1
+  bossAttractionThreshold: 15
   armyAttackRange: 1
   deathAnimationDuration: 1
 --- !u!114 &7079246473552049795
@@ -458,7 +459,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
-    MaxVfxPerFrame: 0
+    MaxVfxPerFrame: 1
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!114 &2827687205497262842

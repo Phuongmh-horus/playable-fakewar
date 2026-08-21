@@ -21,7 +21,7 @@ namespace GamePlay.Items
 
         [Header("Effects")]
         [SerializeField] protected EffectComponent effectComponent;
-        [SerializeField, Min(0f)] private float hitFeedbackInterval = 0.1f;
+        [SerializeField, Min(0f)] private float hitFeedbackInterval = 0.3f;
         private float _nextHitFeedbackTime;
 
         public override void Initialize()
@@ -122,7 +122,7 @@ namespace GamePlay.Items
         {
             if (healthText == null) return;
 
-            healthText.text = health > 0 ? health.ToString() : "";
+            healthText.SetText(health > 0 ? "{0}" : string.Empty, health);
         }
 
         private void SetRotate(bool isRotating)

@@ -125,7 +125,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4391093906660781128}
-  m_Mesh: {fileID: 4300000, guid: 1c3ad078cf81f2846852904eaf4e4c5b, type: 2}
+  m_Mesh: {fileID: 4300000, guid: 11e22ded48a517f458b594f22e05ac98, type: 2}
 --- !u!23 &5520427879655797792
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -146,7 +146,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f64d747ac5bbf234ca4cb9736f0009b9, type: 2}
+  - {fileID: 2100000, guid: 5a2458a5717dab44792b91c58a638a03, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -182,7 +182,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _meshFilter: {fileID: 2936406815065149852}
   _meshRenderer: {fileID: 5520427879655797792}
-  _vatAssetData: {fileID: 11400000, guid: feea1f0f559d0e8458e915aa46ed453d, type: 2}
+  _vatAssetData: {fileID: 11400000, guid: 9fe5942761f84d1418138e32c8e8518c, type: 2}
   _speed: 1
 --- !u!1 &5092033588395912544
 GameObject:
@@ -379,7 +379,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0
-    MaxVfxPerFrame: 8
+    MaxVfxPerFrame: 5
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!114 &1382088634130381640
@@ -416,9 +416,9 @@ MonoBehaviour:
   CacheTransform: {fileID: 6524933506058905331}
   poolEntity: {fileID: 7662387699070818353}
   vatRenderer: {fileID: 6832311412980721456}
-  idleStateName: Small_Pig_Idle_Small_Pig_Idle_Baked
+  idleStateName: Small_Pig_Idle_Baked
   attackStateName: 
-  MoveStateName: Small_Pig_Movement_Small_Pig_Movement_Baked
+  MoveStateName: Small_Pig_Movement_Baked
   moveLeftStateName: 
   moveRightStateName: 
   crossFadeDuration: 0.1

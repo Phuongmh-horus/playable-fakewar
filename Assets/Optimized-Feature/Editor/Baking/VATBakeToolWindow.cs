@@ -50,8 +50,8 @@ namespace OptimizedFeature.Scripts.Editor
     /// Editor Tool Window implementing the VAT Bake process with automatic references discovery,
     /// selective animation clip baking and Material/Shader validation displays.
     /// </summary>
-    public class VATBakeToolWindow : EditorWindow
-    {
+public class VATBakeToolWindow : EditorWindow
+{
         // Temporary compatibility mode: all VAT samples are generated with the
         // complete model-parent chain normalized to (1,1,1). The authored
         // scale is stored in VATAssetDataSO and restored during Runtime Setup.
@@ -75,8 +75,7 @@ namespace OptimizedFeature.Scripts.Editor
         private ShaderPatchMode _shaderPatchMode = ShaderPatchMode.AutoPatchIfMissing;
         private VATBakeOutputMode _outputMode = VATBakeOutputMode.PerSkinnedMesh;
         [SerializeField] private bool _enableOutline = false;
-        [SerializeField]
-        private VATPositionTextureStorage _vatPositionTextureStorage =
+        [SerializeField] private VATPositionTextureStorage _vatPositionTextureStorage =
             VATPositionTextureStorage.RGBA32;
 
         [Header("Baking Input Data")]
@@ -4375,30 +4374,22 @@ namespace OptimizedFeature.Scripts.Editor
                 case LunaVisualTextureFormat.PNG24:
                     return new LunaTextureExportSettings
                     {
-                        Format = "png24",
-                        Compression = "none",
-                        Quality = 100
+                        Format = "png24", Compression = "none", Quality = 100
                     };
                 case LunaVisualTextureFormat.PNG8:
                     return new LunaTextureExportSettings
                     {
-                        Format = "png8",
-                        Compression = "none",
-                        Quality = 100
+                        Format = "png8", Compression = "none", Quality = 100
                     };
                 case LunaVisualTextureFormat.JPEG:
                     return new LunaTextureExportSettings
                     {
-                        Format = "jpeg",
-                        Compression = "none",
-                        Quality = 70
+                        Format = "jpeg", Compression = "none", Quality = 85
                     };
                 case LunaVisualTextureFormat.Webp:
                     return new LunaTextureExportSettings
                     {
-                        Format = "webp",
-                        Compression = "none",
-                        Quality = 90
+                        Format = "webp", Compression = "none", Quality = 90
                     };
                 default:
                     return GetVATTextureExportSettings(VATPositionTextureStorage.RGBA32);

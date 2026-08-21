@@ -12,6 +12,7 @@ namespace GamePlay.CollisionSystems
     [DisallowMultipleComponent]
     public class CollisionSystem : MonoBehaviour
     {
+        private const float SpatialCellSize = 8f;
         public static CollisionSystem Instance { get; private set; }
 
         // Managed data only
@@ -19,8 +20,13 @@ namespace GamePlay.CollisionSystems
         private readonly List<Transform> _transforms = new List<Transform>();
         private readonly List<uint> _masks = new List<uint>();
         private readonly List<ColliderData> _colliders = new List<ColliderData>();
+        private readonly Dictionary<IHitable, int> _targetIndices = new Dictionary<IHitable, int>();
+        private readonly Dictionary<Vector2Int, List<int>> _spatialBuckets = new Dictionary<Vector2Int, List<int>>(64);
+        private readonly Stack<List<int>> _spatialBucketPool = new Stack<List<int>>(64);
 
         private bool _isDirty = false;
+        private int _spatialIndexFrame = -1;
+        private float _maxHorizontalColliderExtent;
 
         private void Awake()
         {
@@ -93,6 +99,68 @@ namespace GamePlay.CollisionSystems
         /// </summary>
         public int Count => _targets.Count;
 
+        /// <summary>
+        /// Largest horizontal collider extent in the current spatial-index frame.
+        /// Queries use this to include large targets whose pivot lies outside an area.
+        /// </summary>
+        public float MaxHorizontalColliderExtent
+        {
+            get
+            {
+                EnsureSpatialIndex();
+                return _maxHorizontalColliderExtent;
+            }
+        }
+
+        /// <summary>
+        /// Fills a caller-owned buffer with registry indices near a swept XZ segment.
+        /// The grid is rebuilt once per frame from live transforms, so moving enemies/items
+        /// never use stale positions and projectile queries do not allocate.
+        /// </summary>
+        public void QueryIndicesNearSegment(Vector3 from, Vector3 to, float padding, List<int> results)
+        {
+            if (results == null) return;
+
+            results.Clear();
+            if (_targets.Count == 0) return;
+
+            EnsureSpatialIndex();
+
+            float minX = Mathf.Min(from.x, to.x) - Mathf.Max(0f, padding);
+            float maxX = Mathf.Max(from.x, to.x) + Mathf.Max(0f, padding);
+            float minZ = Mathf.Min(from.z, to.z) - Mathf.Max(0f, padding);
+            float maxZ = Mathf.Max(from.z, to.z) + Mathf.Max(0f, padding);
+
+            int minCellX = Mathf.FloorToInt(minX / SpatialCellSize);
+            int maxCellX = Mathf.FloorToInt(maxX / SpatialCellSize);
+            int minCellZ = Mathf.FloorToInt(minZ / SpatialCellSize);
+            int maxCellZ = Mathf.FloorToInt(maxZ / SpatialCellSize);
+
+            for (int cellX = minCellX; cellX <= maxCellX; cellX++)
+            {
+                for (int cellZ = minCellZ; cellZ <= maxCellZ; cellZ++)
+                {
+                    if (!_spatialBuckets.TryGetValue(new Vector2Int(cellX, cellZ), out var bucket)) continue;
+
+                    for (int i = 0; i < bucket.Count; i++)
+                    {
+                        int index = bucket[i];
+                        var transform = GetTransform(index);
+                        if (transform == null) continue;
+
+                        Vector3 position = transform.position;
+                        if (position.x < minX || position.x > maxX ||
+                            position.z < minZ || position.z > maxZ)
+                        {
+                            continue;
+                        }
+
+                        results.Add(index);
+                    }
+                }
+            }
+        }
+
         // ================= INTERNAL LOGIC =================
 
         private void AddTarget(IHitable target, Transform tr)
@@ -111,15 +179,20 @@ namespace GamePlay.CollisionSystems
             CompactInvalidEntries();
 
             // Prevent duplicate registration of the same IHitable (common in pooled re-init paths).
-            for (int i = 0; i < _targets.Count; i++)
+            if (_targetIndices.TryGetValue(target, out int existingIndex))
             {
-                if (!ReferenceEquals(_targets[i], target) && !Equals(_targets[i], target)) continue;
+                if (existingIndex >= 0 && existingIndex < _targets.Count &&
+                    (ReferenceEquals(_targets[existingIndex], target) || Equals(_targets[existingIndex], target)))
+                {
+                    _transforms[existingIndex] = tr;
+                    _masks[existingIndex] = 1u << (int)target.EntityType;
+                    _colliders[existingIndex] = target.GetColliderData();
+                    _isDirty = true;
+                    _spatialIndexFrame = -1;
+                    return;
+                }
 
-                _transforms[i] = tr;
-                _masks[i] = 1u << (int)target.EntityType;
-                _colliders[i] = target.GetColliderData();
-                _isDirty = true;
-                return;
+                _targetIndices.Remove(target);
             }
 
             _targets.Add(target);
@@ -128,7 +201,9 @@ namespace GamePlay.CollisionSystems
 
             var colData = target.GetColliderData();
             _colliders.Add(colData);
+            _targetIndices[target] = _targets.Count - 1;
             _isDirty = true;
+            _spatialIndexFrame = -1;
         }
 
         private void AddTargetsBatch(IList<IHitable> targets, IList<Transform> transforms)
@@ -145,15 +220,23 @@ namespace GamePlay.CollisionSystems
         {
             if (IsUnityNull(target)) return;
 
-            bool removedAny = false;
+            if (_targetIndices.TryGetValue(target, out int index))
+            {
+                RemoveAtSwapBack(index);
+                _isDirty = true;
+                _spatialIndexFrame = -1;
+                return;
+            }
+
+            // Fallback keeps compatibility with entries created before the index map existed.
             for (int i = _targets.Count - 1; i >= 0; i--)
             {
                 if (!ReferenceEquals(_targets[i], target) && !Equals(_targets[i], target)) continue;
                 RemoveAtSwapBack(i);
-                removedAny = true;
+                _isDirty = true;
+                _spatialIndexFrame = -1;
+                return;
             }
-
-            if (removedAny) _isDirty = true;
         }
 
         private void RemoveAllTargets()
@@ -162,6 +245,8 @@ namespace GamePlay.CollisionSystems
             _transforms.Clear();
             _masks.Clear();
             _colliders.Clear();
+            _targetIndices.Clear();
+            ClearSpatialBuckets();
             _isDirty = false;
         }
 
@@ -180,6 +265,53 @@ namespace GamePlay.CollisionSystems
 
             if (!_isDirty) return;
             ManualUpdate();
+        }
+
+        private void EnsureSpatialIndex()
+        {
+            if (_spatialIndexFrame == Time.frameCount) return;
+
+            ClearSpatialBuckets();
+            _maxHorizontalColliderExtent = 0f;
+            for (int i = 0; i < _transforms.Count; i++)
+            {
+                var transform = _transforms[i];
+                if (transform == null) continue;
+
+                var collider = _colliders[i];
+                _maxHorizontalColliderExtent = Mathf.Max(
+                    _maxHorizontalColliderExtent,
+                    Mathf.Max(Mathf.Abs(collider.Size.x), Mathf.Abs(collider.Size.z)));
+
+                Vector3 position = transform.position;
+                var cell = new Vector2Int(
+                    Mathf.FloorToInt(position.x / SpatialCellSize),
+                    Mathf.FloorToInt(position.z / SpatialCellSize));
+
+                if (!_spatialBuckets.TryGetValue(cell, out var bucket))
+                {
+                    bucket = _spatialBucketPool.Count > 0 ? _spatialBucketPool.Pop() : new List<int>(8);
+                    _spatialBuckets.Add(cell, bucket);
+                }
+
+                bucket.Add(i);
+            }
+
+            _spatialIndexFrame = Time.frameCount;
+        }
+
+        private void ClearSpatialBuckets()
+        {
+            if (_spatialBuckets.Count == 0) return;
+
+            foreach (var bucket in _spatialBuckets.Values)
+            {
+                bucket.Clear();
+                _spatialBucketPool.Push(bucket);
+            }
+
+            _spatialBuckets.Clear();
+            _spatialIndexFrame = -1;
         }
 
         /// <summary>
@@ -226,18 +358,31 @@ namespace GamePlay.CollisionSystems
             int last = _targets.Count - 1;
             if (index < 0 || index > last) return;
 
+            var removedTarget = _targets[index];
+            if (removedTarget != null)
+            {
+                _targetIndices.Remove(removedTarget);
+            }
+
             if (index != last)
             {
                 _targets[index] = _targets[last];
                 _transforms[index] = _transforms[last];
                 _masks[index] = _masks[last];
                 _colliders[index] = _colliders[last];
+
+                var movedTarget = _targets[index];
+                if (movedTarget != null)
+                {
+                    _targetIndices[movedTarget] = index;
+                }
             }
 
             _targets.RemoveAt(last);
             _transforms.RemoveAt(last);
             _masks.RemoveAt(last);
             _colliders.RemoveAt(last);
+            _spatialIndexFrame = -1;
         }
 
         private static bool IsUnityNull(object obj)

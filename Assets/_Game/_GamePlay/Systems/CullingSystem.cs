@@ -32,6 +32,8 @@ public class CullingSystem : MonoBehaviour
             {
                 InitializeGrid();
             }
+
+            CullingObject.RegisterPending(this);
         }
         else if (Instance != this)
         {
