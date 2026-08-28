@@ -412,7 +412,7 @@ namespace GamePlay.Characters
             s_scheduledDespawns.Add(new ScheduledDespawn
             {
                 Unit = this,
-                Time = UnityEngine.Time.time + safeDelay,
+                Time = Time.time + safeDelay,
                 PlayDeathVfx = playDeathVfx
             });
         }
@@ -518,10 +518,30 @@ namespace GamePlay.Characters
 
         public static bool IsBossMassKill = false;
         private const int DeathVfxFrameInterval = 10;
+        private static int s_bossDeathVfxFrame = -1;
+        private static int s_bossDeathVfxCount = 0;
 
         private bool CanSpawnDeathVfxThisFrame()
         {
             int currentFrame = Time.frameCount;
+
+            if (IsBossMassKill)
+            {
+                if (s_bossDeathVfxFrame != currentFrame)
+                {
+                    s_bossDeathVfxFrame = currentFrame;
+                    s_bossDeathVfxCount = 0;
+                }
+
+                if (s_bossDeathVfxCount < maxDeathVfxPerFrame)
+                {
+                    s_bossDeathVfxCount++;
+                    s_lastDeathVfxFrame = currentFrame;
+                    return true;
+                }
+                return false;
+            }
+
             if (s_lastDeathVfxFrame >= 0 && currentFrame - s_lastDeathVfxFrame < DeathVfxFrameInterval)
             {
                 return false;

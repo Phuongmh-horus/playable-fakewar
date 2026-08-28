@@ -60,6 +60,7 @@ namespace OptimizedFeature.Scripts
 
         // --- Visibility ---
         private bool _isVisible = true;
+        private bool _isExternallyVisible = true;
         private bool _isRuntimeBatchHidden;
         private readonly List<Renderer> _childRenderers = new List<Renderer>();
         private readonly List<Renderer> _rendererQueryBuffer = new List<Renderer>();
@@ -84,7 +85,7 @@ namespace OptimizedFeature.Scripts
         public int DefaultStateHash => _vatAssetData == null ? 0 : _vatAssetData.EffectiveDefaultStateName;
         public int CurrentBlendTreeId => _currentBlendTreeId;
         public float CurrentStateNormalizedTime => GetNormalizedTime(_currentState, _currentStateTime);
-        public bool IsVisible { get => _isVisible; set => SetVisibility(value); }
+        public bool IsVisible => _isVisible && _isExternallyVisible;
         public int CurrentFrameLower => _currentFrameLower;
         public int CurrentFrameUpper => _currentFrameUpper;
         public float CurrentBlendWeight => _currentBlendWeight;
@@ -626,6 +627,23 @@ namespace OptimizedFeature.Scripts
 
             _isVisible = visible;
 
+            ApplyVisibility();
+        }
+
+        public void SetExternalVisibility(bool visible)
+        {
+            if (_isExternallyVisible == visible)
+            {
+                return;
+            }
+
+            _isExternallyVisible = visible;
+            ApplyVisibility();
+        }
+
+        private void ApplyVisibility()
+        {
+            bool visible = _isVisible && _isExternallyVisible;
             if (_meshRenderer != null)
             {
                 _meshRenderer.enabled = visible && !_isRuntimeBatchHidden;
@@ -656,7 +674,7 @@ namespace OptimizedFeature.Scripts
             _isRuntimeBatchHidden = hidden;
             if (_meshRenderer != null)
             {
-                _meshRenderer.enabled = _isVisible && !hidden;
+                _meshRenderer.enabled = IsVisible && !hidden;
             }
 
             if (!hidden)

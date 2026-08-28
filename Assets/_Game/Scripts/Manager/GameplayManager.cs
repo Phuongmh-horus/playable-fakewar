@@ -11,6 +11,7 @@ using GamePlay.Items;
 using GamePlay.Managers;
 using GamePlay.Map;
 using GamePlay.Effects;
+using GamePlay.Rendering;
 using PlayerArmy;
 using Pools;
 using UnityEngine;
@@ -58,6 +59,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     [Header("Refs")]
     [SerializeField] private MapGenerator mapGenerator;
     [SerializeField] private MapContentGenerator contentGenerator;
+    [SerializeField] private PlayableRenderVisibilitySystem renderVisibilitySystem;
 
     [Header("Player/Wheel")]
     [HideInInspector] public WheelUnit Turnable;
@@ -72,6 +74,14 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     [Header("Startup Performance")]
     [SerializeField] private int initItemsPerFrame = 3; // Reduced to prevent lag spikes
     [SerializeField] private int spawnItemsPerFrame = 3;
+
+    [Header("Runtime Memory Recovery")]
+    [SerializeField] private bool trimInactivePools = true;
+    private float poolTrimQuietPeriod = 4f;
+    private float poolTrimInterval = 2f;
+    private int retainedPoolInstances = 4;
+    private int pooledObjectsDestroyedPerTrim = 6;
+    private float _nextPoolTrimTime;
 
     [Header("Startup Flow")]
     [SerializeField] private bool waitForTapBeforeGameplay = true;
@@ -153,7 +163,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
     private PlayableWaveDefenseEntitySystem _waveSys;
     private CombatSystem _combatSys;
-    private CullingSystem _cullingSys;
     private EnemyProjectileSystem _enemyProjectileSys;
     private EnemyManager _enemyManager;
     private GamePlay.Inputs.InputManager _inputManager;
@@ -189,14 +198,13 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
         if (_waveSys == null) _waveSys = PlayableWaveDefenseEntitySystem.Instance;
         if (_combatSys == null) _combatSys = CombatSystem.Instance;
-        if (_cullingSys == null) _cullingSys = CullingSystem.Instance;
         if (_enemyProjectileSys == null) _enemyProjectileSys = EnemyProjectileSystem.Instance;
         if (_enemyManager == null) _enemyManager = EnemyManager.Instance;
 
+        TryTrimInactivePools();
         ActiveArmy?.ManualUpdate();
         if (_waveSys != null) _waveSys.ManualUpdate();
         if (_combatSys != null) _combatSys.ManualUpdate();
-        if (_cullingSys != null) _cullingSys.ManualUpdate();
         if (_enemyProjectileSys != null) _enemyProjectileSys.ManualUpdate();
         if (_enemyManager != null) _enemyManager.ManualUpdate();
         if (_waveSys != null && _waveSys.EndGameWhenAllMovingEntitiesCleared)
@@ -207,6 +215,25 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
                 EndGame(true);
                 return;
             }
+        }
+    }
+
+    private void TryTrimInactivePools()
+    {
+        if (!trimInactivePools || Time.time < _nextPoolTrimTime)
+        {
+            return;
+        }
+
+        _nextPoolTrimTime = Time.time + poolTrimInterval;
+        if (PoolSystem.SecondsSinceLastSpawn < poolTrimQuietPeriod)
+        {
+            return;
+        }
+
+        if (PoolSystem.TrimInactive(retainedPoolInstances, pooledObjectsDestroyedPerTrim) > 0)
+        {
+            EffectComponent.CleanupDestroyedRuntimeCaches();
         }
     }
 
@@ -424,7 +451,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
                         {
                             if (prewarmedVfx.Add(enemyUnit.DieVfxPrefab))
                             {
-                                yield return PoolSystem.EnsurePrewarmAsync(enemyUnit.DieVfxPrefab.transform, 10, batchSize);
+                                yield return PoolSystem.EnsurePrewarmAsync(enemyUnit.DieVfxPrefab.transform, 5, batchSize);
                             }
                         }
                     }
@@ -439,13 +466,27 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             ActiveArmy.SetIdle();
         }
 
+        if (contentGenerator != null)
+        {
+            if (renderVisibilitySystem == null)
+            {
+                renderVisibilitySystem = GetComponent<PlayableRenderVisibilitySystem>();
+            }
+            if (renderVisibilitySystem == null)
+            {
+                renderVisibilitySystem = gameObject.AddComponent<PlayableRenderVisibilitySystem>();
+            }
+
+            renderVisibilitySystem.Configure(Camera.main, PlayerTransform, contentGenerator.generatedObjects);
+        }
+
         // Prewarm Extra VFX
         foreach (var prefab in extraVfxPrefabs)
         {
             if (prefab != null)
             {
                 // [FIX] Reduce prewarm count for vfx_hero_upgrade to optimize performance
-                int prewarmCount = prefab.name.ToLower().Contains("upgrade") ? 2 : 10;
+                int prewarmCount = prefab.name.ToLower().Contains("upgrade") ? 1 : 10;
                 yield return PoolSystem.EnsurePrewarmAsync(prefab.transform, prewarmCount, Mathf.Max(1, spawnItemsPerFrame));
             }
         }

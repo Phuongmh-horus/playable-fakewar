@@ -21,6 +21,9 @@ namespace Pools
         private static readonly Dictionary<IPoolable, Pool> PoolByInstance = new Dictionary<IPoolable, Pool>(1024);
         private static readonly Dictionary<int, Pool> PoolByGameObjectId = new Dictionary<int, Pool>(1024);
         private static readonly Dictionary<int, IPoolable> PoolableByGameObjectId = new Dictionary<int, IPoolable>(1024);
+        private static float _lastSpawnTime;
+
+        public static float SecondsSinceLastSpawn => Mathf.Max(0f, Time.time - _lastSpawnTime);
 
         public static void ClearAllPools()
         {
@@ -222,6 +225,7 @@ namespace Pools
             PoolByInstance[instance] = pool;
             PoolByGameObjectId[((Component)instance).gameObject.GetInstanceID()] = pool;
             PoolableByGameObjectId[((Component)instance).gameObject.GetInstanceID()] = instance;
+            _lastSpawnTime = Time.time;
             return ((Component)instance).gameObject.GetComponent(prefab.GetType());
         }
 
@@ -265,6 +269,53 @@ namespace Pools
             PoolableByGameObjectId[go.GetInstanceID()] = instance;
             go.SetActive(false);
             pool.Inactive.Push(instance);
+        }
+
+        public static int TrimInactive(int retainPerPool, int maxDestroyCount)
+        {
+            if (!Application.isPlaying || maxDestroyCount <= 0 || Pools.Count == 0)
+            {
+                return 0;
+            }
+
+            int retainedCount = Mathf.Max(0, retainPerPool);
+            int remainingBudget = maxDestroyCount;
+            int destroyedCount = 0;
+
+            foreach (var pool in Pools.Values)
+            {
+                if (remainingBudget <= 0)
+                {
+                    break;
+                }
+
+                int overflowCount = pool.Inactive.Count - retainedCount;
+                if (overflowCount <= 0)
+                {
+                    continue;
+                }
+
+                int trimCount = Mathf.Min(overflowCount, remainingBudget);
+                for (int index = 0; index < trimCount; index++)
+                {
+                    IPoolable instance = pool.Inactive.Pop();
+                    Component component = instance as Component;
+                    if (component == null)
+                    {
+                        continue;
+                    }
+
+                    int gameObjectId = component.gameObject.GetInstanceID();
+                    PoolByInstance.Remove(instance);
+                    PoolByGameObjectId.Remove(gameObjectId);
+                    PoolableByGameObjectId.Remove(gameObjectId);
+                    Object.Destroy(component.gameObject);
+                    destroyedCount++;
+                    remainingBudget--;
+                }
+            }
+
+            return destroyedCount;
         }
 
         public static void Despawn(Component poolableComp)

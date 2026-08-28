@@ -11492,7 +11492,7 @@
                     },
                     {
                         "name": "Current#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "System$Collections$IEnumerator$Current#get",
@@ -18270,7 +18270,7 @@
                     },
                     {
                         "name": "bounds#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sortingOrder#get",
@@ -23280,7 +23280,7 @@
                     },
                     {
                         "name": "MaxActiveProjectiles#get",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -23745,6 +23745,10 @@
                     {
                         "name": "GetGoldGateRewardPerProgressTick",
                         "excluded": true
+                    },
+                    {
+                        "name": "TryTrimInactivePools",
+                        "excluded": false
                     }
                 ]
             },
@@ -34977,216 +34981,6 @@
                 ]
             },
             {
-                "className": "CullingCell",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetSqrDistanceToPoint",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AddObject",
-                        "excluded": false
-                    },
-                    {
-                        "name": "RemoveObject",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetMaxCullDistance",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "CullingComponent",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "GridOrigin#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CellCountX#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CellCountX#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CellCountZ#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CellCountZ#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CellSizeX#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CellSizeX#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CellSizeZ#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CellSizeZ#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "FrameInterval#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FrameInterval#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "DefaultCullDistance#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "DefaultCullDistance#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "TargetTransform#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TargetTransform#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GridOriginTransform#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GridOriginTransform#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDrawGizmosSelected",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "CullingObject",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "IsDynamic#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsDynamic#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CustomCullDistance#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnEnable",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDisable",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetCulled",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ForceSetCulled",
-                        "excluded": true
-                    },
-                    {
-                        "name": "RegisterPending",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "CullingState",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "CullingSystem",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDestroy",
-                        "excluded": true
-                    },
-                    {
-                        "name": "InitializeGrid",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Register",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Unregister",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AddDynamicObject",
-                        "excluded": true
-                    },
-                    {
-                        "name": "RemoveDynamicObject",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetCellFromPosition",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PerformCullingCheck",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetTargetPosition",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ManualUpdate",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "CurrencyData",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -36833,6 +36627,14 @@
                     {
                         "name": "TrySpawn",
                         "excluded": false
+                    },
+                    {
+                        "name": "SecondsSinceLastSpawn#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TrimInactive",
+                        "excluded": false
                     }
                 ]
             },
@@ -37121,32 +36923,6 @@
                     {
                         "name": "Dispose",
                         "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "MeshRendererCullingObject",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyCulling",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CacheAnimatorModes",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EnsureTargetsCached",
-                        "excluded": false
                     }
                 ]
             },
@@ -37710,6 +37486,10 @@
                     },
                     {
                         "name": "CanSpawnVfxThisFrame",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CleanupDestroyedRuntimeCaches",
                         "excluded": false
                     }
                 ]
@@ -38372,6 +38152,14 @@
                     },
                     {
                         "name": "ProcessPendingSpawns",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FindDueProjectileAttackIndex",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RemovePendingProjectileAttackAtSwapBack",
                         "excluded": false
                     }
                 ]
@@ -40547,10 +40335,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "IsVisible#set",
-                        "excluded": true
-                    },
-                    {
                         "name": "init",
                         "excluded": false
                     },
@@ -40880,6 +40664,14 @@
                     },
                     {
                         "name": "GetCachedMaterialArray",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetExternalVisibility",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyVisibility",
                         "excluded": false
                     }
                 ]
@@ -41539,6 +41331,66 @@
                     {
                         "name": "$clone",
                         "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Rendering.PlayableRenderVisibilitySystem",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Configure",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RefreshVisibility",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetAllVisible",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RemoveAtSwapBack",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Rendering.PlayableRenderVisibilitySystem.Entry",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
                     }
                 ]
             }

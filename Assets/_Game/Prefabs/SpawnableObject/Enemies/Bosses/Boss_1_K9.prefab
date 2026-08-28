@@ -228,6 +228,9 @@ MonoBehaviour:
   - Type: 1
     StateName: Enemy_Kybinh_Idle
     CrossFadeTime: 0.1
+  - Type: 7
+    StateName: Enemy_Kybinh_Die
+    CrossFadeTime: 0.1
   defaultCrossFadeTime: 0.1
   initialAnimationType: 1
   priorityAnimationTypes: 0205

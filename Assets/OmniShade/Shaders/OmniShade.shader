@@ -78,75 +78,31 @@ Shader "OmniShade/Standard_Luna_GPUInstancing"
             #pragma exclude_renderers gles
             #pragma vertex vert
             #pragma fragment frag
-            #pragma multi_compile_instancing
-            //#pragma multi_compile_fog
-
-            #pragma multi_compile_local _ DIFFUSE
-            #pragma shader_feature_local LIGHT_MAP
-            #pragma multi_compile_local _LIGHTMAPUV_UV1 _LIGHTMAPUV_UV2
-            #pragma multi_compile_local _ EMISSIVE_MAP
-            #pragma shader_feature_local VERTEX_COLORS
-            #pragma shader_feature_local TRANSPARENCY_MASK
-            #pragma multi_compile_local _ FOG
-            #pragma shader_feature_local CUTOUT
 
             sampler2D _MainTex; float4 _MainTex_ST;
-            half _Brightness, _Contrast, _Saturation, _IgnoreMainTexAlpha;
-
-            UNITY_INSTANCING_BUFFER_START(OmniShadeProps)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
-            UNITY_INSTANCING_BUFFER_END(OmniShadeProps)
-
+            fixed4 _Color;
+            half _Brightness, _Contrast, _Saturation;
             half _DiffuseWrap, _DiffuseBrightness, _DiffuseContrast;
-
-            sampler2D _LightmapTex; float4 _LightmapTex_ST;
-            half4 _LightmapColor; half _LightmapBrightness;
-
-            half4 _Emissive;
-            sampler2D _EmissiveTex; float4 _EmissiveTex_ST;
-
-            half _VertexColorsAmount, _VertexColorsContrast;
-
-            sampler2D _TransparencyMaskTex; float4 _TransparencyMaskTex_ST;
-            half _TransparencyMaskAmount, _TransparencyMaskContrast;
-
-            half _AmbientBrightness, _CutoutCutoff, _ZOffset;
+            half _AmbientBrightness;
 
             struct appdata {
                 float4 vertex: POSITION;
                 float3 normal: NORMAL;
                 float2 uv: TEXCOORD0;
-                float2 uv2: TEXCOORD1;
-                fixed4 color: COLOR;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct v2f {
-                UNITY_VERTEX_INPUT_INSTANCE_ID
                 float4 pos: SV_POSITION;
                 float2 uv: TEXCOORD0;
-                float2 uv2: TEXCOORD1;
                 half3 worldNormal: TEXCOORD2;
-                fixed4 vertexColor: COLOR;
-                UNITY_FOG_COORDS(3)
             };
 
             v2f vert(appdata v)
             {
                 v2f o;
-                UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_TRANSFER_INSTANCE_ID(v, o);
                 o.pos = UnityObjectToClipPos(v.vertex);
-
-                #if defined(ZOFFSET)
-                    o.pos.z += _ZOffset * 0.001;
-                #endif
-
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.uv2 = v.uv2;
                 o.worldNormal = UnityObjectToWorldNormal(v.normal);
-                o.vertexColor = v.color;
-                UNITY_TRANSFER_FOG(o, o.pos);
                 return o;
             }
 
@@ -158,68 +114,18 @@ Shader "OmniShade/Standard_Luna_GPUInstancing"
 
             half4 frag(v2f i) : SV_Target
             {
-                UNITY_SETUP_INSTANCE_ID(i);
-                half4 instanceColor = (half4)UNITY_ACCESS_INSTANCED_PROP(OmniShadeProps, _Color);
-
-                // In Linear projects, tex2D(sRGB texture) returns Linear already.
-                half4 col = (half4)tex2D(_MainTex, i.uv) * instanceColor;
-
-                if (_IgnoreMainTexAlpha > 0.5h) col.a = instanceColor.a;
+                half4 col = (half4)tex2D(_MainTex, i.uv) * _Color;
 
                 col.rgb = ((col.rgb - 0.5h) * _Contrast + 0.5h) * _Brightness;
                 col.rgb = ApplySaturation(col.rgb, _Saturation);
 
-                #if defined(VERTEX_COLORS)
-                    half3 vertCol = pow((half3)i.vertexColor.rgb, _VertexColorsContrast);
-                    col.rgb = lerp(col.rgb, col.rgb * vertCol, _VertexColorsAmount);
-                #endif
-
                 half3 lightColor = (half3)_LightColor0.rgb;
                 half3 ambientColor = (half3)unity_AmbientSky.rgb;
-
-                #if defined(DIFFUSE)
-                    half3 n = normalize(i.worldNormal);
-                    half3 ldir = normalize((half3)_WorldSpaceLightPos0.xyz);
-                    half ndl = dot(n, ldir);
-                    half diff = saturate((ndl + _DiffuseWrap) / (1.0h + _DiffuseWrap));
-                    diff = pow(diff, _DiffuseContrast) * _DiffuseBrightness;
-                    col.rgb *= diff * lightColor + ambientColor * _AmbientBrightness;
-                #else
-                    col.rgb *= ambientColor * _AmbientBrightness;
-                #endif
-
-                #if defined(LIGHT_MAP)
-                    float2 luv = i.uv;
-                    #if defined(_LIGHTMAPUV_UV2)
-                        luv = i.uv2;
-                    #endif
-                    half3 lm = (half3)tex2D(_LightmapTex, luv * _LightmapTex_ST.xy + _LightmapTex_ST.zw).rgb;
-                    col.rgb *= lm * (half3)_LightmapColor.rgb * _LightmapBrightness;
-                #endif
-
-                #if defined(EMISSIVE_MAP)
-                    half3 e = (half3)tex2D(_EmissiveTex, i.uv * _EmissiveTex_ST.xy + _EmissiveTex_ST.zw).rgb;
-                    col.rgb += e * (half3)_Emissive.rgb;
-                #else
-                    col.rgb += (half3)_Emissive.rgb;
-                #endif
-
-                #if defined(TRANSPARENCY_MASK)
-                    half mask = (half)tex2D(_TransparencyMaskTex, i.uv * _TransparencyMaskTex_ST.xy + _TransparencyMaskTex_ST.zw).r;
-                    mask = pow(mask, _TransparencyMaskContrast) * _TransparencyMaskAmount;
-                    col.a *= mask;
-                #endif
-
-                #if defined(CUTOUT)
-                    clip(col.a - _CutoutCutoff);
-                #endif
-
-                #if defined(FOG)
-                    UNITY_APPLY_FOG(i.fogCoord, col);
-                #endif
-
-                // Return in project color space the way Unity expects.
-                // In Linear projects, Unity will handle output conversion appropriately per platform.
+                half3 normal = normalize(i.worldNormal);
+                half3 lightDirection = normalize((half3)_WorldSpaceLightPos0.xyz);
+                half diffuse = saturate((dot(normal, lightDirection) + _DiffuseWrap) / (1.0h + _DiffuseWrap));
+                diffuse = pow(diffuse, max(0.01h, _DiffuseContrast)) * _DiffuseBrightness;
+                col.rgb *= diffuse * lightColor + ambientColor * _AmbientBrightness;
                 return col;
             }
             ENDCG

@@ -64,6 +64,8 @@ namespace PlayerArmy
         [SerializeField, Min(0.05f)] private float projectileDuration = 0.55f;
         [SerializeField] private float projectileRotationSpeed = 540f;
         [SerializeField, Min(1)] private int maxProjectileLaunchesPerFrame = 10;
+        [SerializeField, Min(1), Tooltip("Số shot/damage trong mỗi projectile")]
+        private int maxLogicalShotsPerProjectile = 1;
         [SerializeField, Tooltip("Maximum army units evaluated for an attack per tick.")]
         private int maxAttackEvaluationsPerTick = 24;
         [SerializeField, Min(0f)] private float unitscalevalue = 1.35f;
@@ -99,6 +101,7 @@ namespace PlayerArmy
             public float TriggerTime;
         }
         private readonly List<PendingProjectileAttack> _pendingProjectileAttacks = new List<PendingProjectileAttack>(80);
+        private readonly HashSet<CharacterUnit> _pendingProjectileUnits = new HashSet<CharacterUnit>();
         private readonly List<CharacterUnit> _unitSnapshotBuffer = new List<CharacterUnit>(64);
         private readonly Dictionary<int, GamePlay.Items.StatModifierGate> _fireSoldierGateCache = new Dictionary<int, GamePlay.Items.StatModifierGate>(16);
         private readonly List<int> _collisionQueryIndices = new List<int>(64);
@@ -229,7 +232,7 @@ namespace PlayerArmy
                     var dieVfxTransform = characterUnit.DieVfxPrefab.transform;
                     if (dieVfxTransform != null && !characterUnit.DieVfxPrefab.scene.IsValid())
                     {
-                        yield return PoolSystem.EnsurePrewarmAsync(dieVfxTransform, 10, batchSize);
+                        yield return PoolSystem.EnsurePrewarmAsync(dieVfxTransform, 5, batchSize);
                     }
                 }
             }
@@ -237,7 +240,7 @@ namespace PlayerArmy
             if (weaponProjectilePrefab != null && !weaponProjectilePrefab.gameObject.scene.IsValid())
             {
                 int projectileReserve = Mathf.Min(
-                    GamePlay.CombatSystems.EnemyProjectileSystem.MaxActiveProjectiles,
+                    EnemyProjectileSystem.MaxActiveProjectiles,
                     Mathf.Max(maxProjectileLaunchesPerFrame * 5, maxAttackEvaluationsPerTick * 2));
                 yield return PoolSystem.EnsurePrewarmAsync(weaponProjectilePrefab, projectileReserve, batchSize);
             }
@@ -667,6 +670,7 @@ namespace PlayerArmy
         private void ClearPendingProjectileAttacks()
         {
             _pendingProjectileAttacks.Clear();
+            _pendingProjectileUnits.Clear();
         }
 
         private void ClearContactState()
@@ -861,7 +865,7 @@ namespace PlayerArmy
             int toKill = characterUnits.Count - remainingCount;
             int killed = 0;
 
-            GamePlay.Characters.CharacterUnit.IsBossMassKill = true;
+            CharacterUnit.IsBossMassKill = true;
             try
             {
                 // Kill from the end of the list (outer units)
@@ -877,7 +881,7 @@ namespace PlayerArmy
             }
             finally
             {
-                GamePlay.Characters.CharacterUnit.IsBossMassKill = false;
+                CharacterUnit.IsBossMassKill = false;
             }
         }
 
@@ -1280,7 +1284,7 @@ namespace PlayerArmy
             if (isProjectileFireSuppressed)
             {
                 _wasProjectileFireSuppressed = true;
-                _pendingProjectileAttacks.Clear();
+                ClearPendingProjectileAttacks();
                 return;
             }
 
@@ -1415,6 +1419,11 @@ namespace PlayerArmy
                 return TryPerformDirectAttack(unit);
             }
 
+            if (!_pendingProjectileUnits.Add(unit))
+            {
+                return false;
+            }
+
             //unit.PlayAnimation(AnimationType.Attack, 0.4f, null, 1);
 
             _pendingProjectileAttacks.Add(new PendingProjectileAttack
@@ -1438,7 +1447,7 @@ namespace PlayerArmy
             if (GamePlay.Items.NoProjectileFireZone.Contains(Position))
             {
                 _wasProjectileFireSuppressed = true;
-                _pendingProjectileAttacks.Clear();
+                ClearPendingProjectileAttacks();
                 return;
             }
 
@@ -1452,37 +1461,90 @@ namespace PlayerArmy
                 launchBudget = Mathf.Max(1, maxProjectileLaunchesPerFrame);
             }
 
-            for (int i = _pendingProjectileAttacks.Count - 1; i >= 0 && launchBudget > 0; i--)
+            int logicalShotLimit = Mathf.Max(1, maxLogicalShotsPerProjectile);
+            while (launchBudget > 0 && EnemyProjectileSystem.CanRegisterProjectile())
             {
-                var attack = _pendingProjectileAttacks[i];
-                if (now < attack.TriggerTime)
+                int leadIndex = FindDueProjectileAttackIndex(now);
+                if (leadIndex < 0)
                 {
-                    continue;
+                    break;
                 }
 
-                ExecuteThrownProjectileAttack(attack.Unit);
-                _lastLaunchFrame = currentFrame; // Record the launch frame
-                int last = _pendingProjectileAttacks.Count - 1;
-                if (i != last)
+                PendingProjectileAttack leadAttack = RemovePendingProjectileAttackAtSwapBack(leadIndex);
+                int logicalShotCount = 1;
+                int scanIndex = _pendingProjectileAttacks.Count - 1;
+                while (scanIndex >= 0 && logicalShotCount < logicalShotLimit)
                 {
-                    _pendingProjectileAttacks[i] = _pendingProjectileAttacks[last];
+                    PendingProjectileAttack pendingAttack = _pendingProjectileAttacks[scanIndex];
+                    if (pendingAttack.Unit == null || !pendingAttack.Unit.IsActive)
+                    {
+                        RemovePendingProjectileAttackAtSwapBack(scanIndex);
+                        scanIndex--;
+                        continue;
+                    }
+
+                    if (pendingAttack.TriggerTime <= now)
+                    {
+                        RemovePendingProjectileAttackAtSwapBack(scanIndex);
+                        logicalShotCount++;
+                    }
+
+                    scanIndex--;
                 }
-                _pendingProjectileAttacks.RemoveAt(last);
+
+                if (ExecuteThrownProjectileAttack(leadAttack.Unit, logicalShotCount))
+                {
+                    _lastLaunchFrame = currentFrame;
+                }
                 launchBudget--;
             }
         }
 
-        public void LaunchPlayerProjectile(CharacterUnit unit, Vector3 startPoint, Vector3 forward, Quaternion rotation, float distance, int damage)
+        private int FindDueProjectileAttackIndex(float now)
+        {
+            for (int index = _pendingProjectileAttacks.Count - 1; index >= 0; index--)
+            {
+                PendingProjectileAttack attack = _pendingProjectileAttacks[index];
+                if (attack.Unit == null || !attack.Unit.IsActive)
+                {
+                    RemovePendingProjectileAttackAtSwapBack(index);
+                    continue;
+                }
+
+                if (attack.TriggerTime <= now)
+                {
+                    return index;
+                }
+            }
+
+            return -1;
+        }
+
+        private PendingProjectileAttack RemovePendingProjectileAttackAtSwapBack(int index)
+        {
+            int lastIndex = _pendingProjectileAttacks.Count - 1;
+            PendingProjectileAttack attack = _pendingProjectileAttacks[index];
+            if (index != lastIndex)
+            {
+                _pendingProjectileAttacks[index] = _pendingProjectileAttacks[lastIndex];
+            }
+
+            _pendingProjectileAttacks.RemoveAt(lastIndex);
+            _pendingProjectileUnits.Remove(attack.Unit);
+            return attack;
+        }
+
+        public bool LaunchPlayerProjectile(CharacterUnit unit, Vector3 startPoint, Vector3 forward, Quaternion rotation, float distance, int damage)
         {
             if (weaponProjectilePrefab == null)
             {
-                return;
+                return false;
             }
 
             var wp = weaponProjectilePrefab.Spawn(startPoint, rotation, null);
             if (wp == null)
             {
-                return;
+                return false;
             }
 
             int currentLevelIndex = ArmyUpgradeManager.Instance != null ? ArmyUpgradeManager.Instance.CurrentLevel : 0;
@@ -1505,15 +1567,17 @@ namespace PlayerArmy
                     false))
             {
                 wp.Despawn();
-                TryPerformDirectAttack(unit);
+                return false;
             }
+
+            return true;
         }
 
-        private void ExecuteThrownProjectileAttack(CharacterUnit unit)
+        private bool ExecuteThrownProjectileAttack(CharacterUnit unit, int logicalShotCount)
         {
             if (!GameplayManager.IsGameStarted || unit == null || !unit.IsActive)
             {
-                return;
+                return false;
             }
 
             Vector3 forward = unit.transform.forward;
@@ -1523,9 +1587,12 @@ namespace PlayerArmy
                 : unit.transform.position + forward * Mathf.Max(0f, attackOriginOffset);
             Quaternion rotation = unit.transform.rotation;
             float distance = Mathf.Max(0.1f, projectileDistance);
-            int damage = ResolveEffectiveAttackDamage();
+            int damage = ResolveEffectiveAttackDamage() * Mathf.Max(1, logicalShotCount);
 
-            LaunchPlayerProjectile(unit, startPoint, forward, rotation, distance, damage);
+            if (!LaunchPlayerProjectile(unit, startPoint, forward, rotation, distance, damage))
+            {
+                return false;
+            }
 
             // Samurai Sword Skill Logic
             if (GameplayManager.Instance != null && GameplayManager.Instance.ActiveSamuraiBuffs.Count > 0)
@@ -1569,6 +1636,7 @@ namespace PlayerArmy
             }
 
             unit.PlayAttackEffect();
+            return true;
         }
 
         private struct ForwardTargetInfo

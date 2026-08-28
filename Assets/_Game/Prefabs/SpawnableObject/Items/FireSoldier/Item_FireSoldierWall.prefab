@@ -458,15 +458,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CacheTransform: {fileID: 7946232523800976864}
   poolEntity: {fileID: 8995184625690896215}
-  effects:
-  - Type: 16
-    VfxPrefab: {fileID: 0}
-    ParentToTarget: 0
-    SfxClip: {fileID: 8300000, guid: 3c0689bc9fdce8643bbb7ff9de0e456f, type: 3}
-    LoopSfx: 0
-    SfxVolume: 1
-    WaitForAction: 0
-    MaxVfxPerFrame: 0
+  effects: []
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!114 &4888467948349191867
@@ -508,6 +500,7 @@ MonoBehaviour:
   heightOffset: 2
   zOffset: 0
   prewarmPoolCount: 20
+  frameCooldown: 5
 --- !u!114 &8995184625690896215
 MonoBehaviour:
   m_ObjectHideFlags: 0

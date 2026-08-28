@@ -11,15 +11,14 @@ Material:
   m_Shader: {fileID: 4800000, guid: 124e8c1d64ac24c13aa406f05ca2d222, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - DIFFUSE
-  - EMISSIVE_MAP
-  - FOG
-  - _LIGHTMAPUV_UV1
+  m_ValidKeywords: []
   m_InvalidKeywords:
   - AMBIENT
   - ANIME_SOFT
+  - DIFFUSE
   - EMISSIVE_ANIMATED
+  - EMISSIVE_MAP
+  - FOG
   - MATCAP_PERSPECTIVE
   - OUTLINE_PASS_DISABLED
   - SHADOWS_ENABLED
@@ -32,6 +31,7 @@ Material:
   - _LAYER2UV_UV1
   - _LAYER3BLEND_ALPHA_BLEND
   - _LAYER3UV_UV1
+  - _LIGHTMAPUV_UV1
   - _MATCAPBLEND_MULTIPLY
   - _NORMALUV2_UV1
   - _NORMALUV_UV1

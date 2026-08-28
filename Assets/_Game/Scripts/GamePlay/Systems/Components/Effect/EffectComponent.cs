@@ -38,6 +38,7 @@ namespace GamePlay.ComponentSystems
 
         private EffectEntry[] _runtime;
         private static readonly Dictionary<int, ParticleSystem[]> s_particleSystemsCache = new Dictionary<int, ParticleSystem[]>(128);
+        private static readonly List<int> s_destroyedParticleCacheKeys = new List<int>(32);
         private static readonly Dictionary<int, bool> s_uiVfxPrefabCache = new Dictionary<int, bool>(64);
         private static readonly Dictionary<int, int> s_vfxSpawnCountsThisFrame = new Dictionary<int, int>(64);
         private static int s_vfxSpawnFrame = -1;
@@ -487,6 +488,37 @@ namespace GamePlay.ComponentSystems
             cached = vfxObject.GetComponentsInChildren<ParticleSystem>(true);
             s_particleSystemsCache[key] = cached;
             return cached;
+        }
+
+        public static void CleanupDestroyedRuntimeCaches()
+        {
+            s_destroyedParticleCacheKeys.Clear();
+            foreach (var pair in s_particleSystemsCache)
+            {
+                ParticleSystem[] particles = pair.Value;
+                bool hasLiveParticle = false;
+                if (particles != null)
+                {
+                    for (int index = 0; index < particles.Length; index++)
+                    {
+                        if (particles[index] != null)
+                        {
+                            hasLiveParticle = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!hasLiveParticle)
+                {
+                    s_destroyedParticleCacheKeys.Add(pair.Key);
+                }
+            }
+
+            for (int index = 0; index < s_destroyedParticleCacheKeys.Count; index++)
+            {
+                s_particleSystemsCache.Remove(s_destroyedParticleCacheKeys[index]);
+            }
         }
 
         private static float GetParticleLifetime(GameObject vfxObject)

@@ -7,6 +7,8 @@ using Random = UnityEngine.Random;
 
 public class HitTextFlyEffect : MonoBehaviour
 {
+    private const int MaxActiveTexts = 8;
+
     [SerializeField] private GamePlay.HealthSystems.HealthComponent healthComponent;
     [SerializeField] private TMP_Text healthTextPrefab;
     [SerializeField] private bool autoResolveHealthComponent = true;
@@ -190,6 +192,7 @@ public class HitTextFlyEffect : MonoBehaviour
         }
 
         if (healthTextPrefab == null) return;
+        if (activeControllers.Count >= MaxActiveTexts) return;
         if (!CanSpawnTextThisFrame(healthTextPrefab, maxTextSpawnsPerFrame)) return;
 
         HitTextController controller = controllerPool.Count > 0

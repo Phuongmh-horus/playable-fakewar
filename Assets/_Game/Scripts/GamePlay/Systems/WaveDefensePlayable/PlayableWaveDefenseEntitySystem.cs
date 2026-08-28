@@ -184,14 +184,15 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
             return;
         }
 
-        bool isGate = item is StatModifierGate || item.EntityType == EntityType.PowerGate;
+        bool isGate = item.EntityType == EntityType.MovingGate;
+        bool isPowerGate = item.EntityType == EntityType.PowerGate;
         bool isAttractive = item.EntityType == EntityType.Enemy || item.EntityType == EntityType.Boss;
 
         _entries.Add(new Entry
         {
             Item = item,
             Transform = item.Transform,
-            MoveSpeed = isGate ? gateMoveSpeed : moveSpeed,
+            MoveSpeed = isGate ? gateMoveSpeed : (isPowerGate ? moveSpeed + 3f : moveSpeed),
             IsAttractive = isAttractive,
             CollisionCell = CollisionSystem.GetSpatialCell(item.Transform.position)
         });

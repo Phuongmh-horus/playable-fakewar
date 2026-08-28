@@ -80,7 +80,6 @@ GameObject:
   - component: {fileID: 8642035831445312969}
   - component: {fileID: -4877352769531665167}
   - component: {fileID: 6339603737489692449}
-  - component: {fileID: 5434848554141557515}
   m_Layer: 0
   m_Name: Item_FireSoldier_1
   m_TagString: Untagged
@@ -216,6 +215,7 @@ MonoBehaviour:
   heightOffset: 7
   zOffset: -3
   prewarmPoolCount: 20
+  frameCooldown: 5
 --- !u!114 &6339603737489692449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -241,26 +241,6 @@ MonoBehaviour:
     MaxVfxPerFrame: 0
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
---- !u!114 &5434848554141557515
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5673493373336310411}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4338e7afe378744c880d0f09cb4669e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isDynamic: 1
-  customCullDistance: -1
-  targetRenderers:
-  - {fileID: 481225401967869322}
-  - {fileID: 1774136072105197832}
-  - {fileID: 1315594188847091197}
-  - {fileID: 8332779389696577091}
-  targetAnimators: []
 --- !u!1 &6187967907177621336
 GameObject:
   m_ObjectHideFlags: 0
@@ -733,11 +713,6 @@ PrefabInstance:
       addedObject: {fileID: 2046401903575094255}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9b995afa0fe9ea949ac169c5c20e637f, type: 3}
---- !u!23 &1774136072105197832 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: -4247520328850652888, guid: 9b995afa0fe9ea949ac169c5c20e637f, type: 3}
-  m_PrefabInstance: {fileID: 6742796394241900576}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6492362058887047115 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 9b995afa0fe9ea949ac169c5c20e637f, type: 3}
