@@ -23277,6 +23277,10 @@
                     {
                         "name": "CanRegisterProjectile",
                         "excluded": false
+                    },
+                    {
+                        "name": "MaxActiveProjectiles#get",
+                        "excluded": true
                     }
                 ]
             },
@@ -26908,7 +26912,7 @@
                     },
                     {
                         "name": "op_Inequality",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getDefaultValue",
@@ -35706,7 +35710,7 @@
                     },
                     {
                         "name": "NotifyMovedBatch",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -37528,7 +37532,7 @@
                     },
                     {
                         "name": "GetPooledObject",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "TickScheduledDespawns",

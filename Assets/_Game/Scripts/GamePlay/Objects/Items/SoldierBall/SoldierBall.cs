@@ -1,9 +1,9 @@
 using GamePlay.Entities;
+using System.Collections.Generic;
 using Pools;
 using TMPro;
 using UnityEngine;
 using GamePlay.ComponentSystems;
-using DG.Tweening;
 
 namespace GamePlay.Items
 {
@@ -23,6 +23,39 @@ namespace GamePlay.Items
         [SerializeField] protected EffectComponent effectComponent;
         [SerializeField, Min(0f)] private float hitFeedbackInterval = 0.3f;
         private float _nextHitFeedbackTime;
+        private float _hitFeedbackEndTime;
+        private const float HitFeedbackDuration = 0.3f;
+
+        public static readonly List<SoldierBall> ActiveBalls = new List<SoldierBall>();
+
+        private void OnEnable()
+        {
+            ActiveBalls.Add(this);
+        }
+
+        private void OnDisable()
+        {
+            ActiveBalls.Remove(this);
+        }
+
+        public void Tick()
+        {
+            if (_hitFeedbackEndTime <= 0f)
+            {
+                return;
+            }
+
+            float elapsed = HitFeedbackDuration - (_hitFeedbackEndTime - Time.time);
+            if (elapsed >= HitFeedbackDuration)
+            {
+                transform.localScale = Vector3.one;
+                _hitFeedbackEndTime = 0f;
+                return;
+            }
+
+            float pulse = Mathf.Sin(Mathf.Clamp01(elapsed / HitFeedbackDuration) * Mathf.PI);
+            transform.localScale = Vector3.one * (1f + pulse * 0.15f);
+        }
 
         public override void Initialize()
         {
@@ -106,9 +139,8 @@ namespace GamePlay.Items
             }
 
             _nextHitFeedbackTime = Time.time + hitFeedbackInterval;
-            transform.DOKill();
             transform.localScale = Vector3.one;
-            transform.DOPunchScale(Vector3.one * 0.2f, 0.2f, 10, 1f);
+            _hitFeedbackEndTime = Time.time + HitFeedbackDuration;
             effectComponent?.PlayEffect(EffectType.Break, transform.position + Vector3.up * 1.5f + Vector3.forward * -1.5f);
         }
 
@@ -118,10 +150,13 @@ namespace GamePlay.Items
 
 
 
+        private int _lastHealthTextValue = -1;
+
         protected void UpdateHealthText(int health)
         {
-            if (healthText == null) return;
-
+            if (healthText == null || _lastHealthTextValue == health) return;
+            
+            _lastHealthTextValue = health;
             healthText.SetText(health > 0 ? "{0}" : string.Empty, health);
         }
 

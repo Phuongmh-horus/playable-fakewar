@@ -55,7 +55,7 @@ namespace GamePlay.Enemies
 
         [SerializeField] private float dieVfxLifetime = 1.2f;
 
-        [SerializeField] private int maxDeathVfxPerFrame = 8;
+        [SerializeField] private int maxDeathVfxPerFrame = 5;
 
         private static int s_lastDeathVfxFrame = -1;
 
@@ -231,6 +231,11 @@ namespace GamePlay.Enemies
             UpdateHealthText(_healthComponent != null ? _healthComponent.CurrentHealth : defaultMaxHealth);
         }
 
+        protected virtual bool ShouldShowHealthUi(int currentHealth, int maxHealth)
+        {
+            return maxHealth > 0 && currentHealth < maxHealth;
+        }
+
 
         protected override void DespawnInterval()
 
@@ -348,7 +353,10 @@ namespace GamePlay.Enemies
             if (current <= 0)
             {
                 PlayDeathVfx();
-                PlayDieEffectPerFrame();
+                if (dieVfxPrefab == null)
+                {
+                    PlayDieEffectPerFrame();
+                }
             }
 
 
@@ -396,7 +404,7 @@ namespace GamePlay.Enemies
             }
 
             s_lastDieSfxFrame = currentFrame;
-            Pack.Effector?.PlayEffect(EffectType.Die, transform.position + Vector3.up * 1f, transform.rotation);
+            Pack.Effector?.PlayEffect(EffectType.Die, transform.position + Vector3.up * 3f, transform.rotation);
         }
 
 
@@ -406,7 +414,7 @@ namespace GamePlay.Enemies
 
             if (hpBarRenderer == null) return;
 
-            SetHealthBarVisible(maxHealth > 0 && currentHealth < maxHealth);
+            SetHealthBarVisible(ShouldShowHealthUi(currentHealth, maxHealth));
 
 
 
@@ -481,6 +489,11 @@ namespace GamePlay.Enemies
             {
                 _healthBarRoot.SetActive(visible);
             }
+
+            if (healthText != null && healthText.gameObject.activeSelf != visible)
+            {
+                healthText.gameObject.SetActive(visible);
+            }
         }
 
 
@@ -490,10 +503,18 @@ namespace GamePlay.Enemies
             _healthOverriddenFromContent = true;
         }
 
+        private int _lastHealthTextValue = -1;
+
         protected void UpdateHealthText(int health)
         {
-            if (healthText == null) return;
+            if (healthText == null || _lastHealthTextValue == health) return;
+            if (_healthComponent != null &&
+                !ShouldShowHealthUi(health, _healthComponent.MaxHealth))
+            {
+                return;
+            }
 
+            _lastHealthTextValue = health;
             healthText.SetText(health > 0 ? "{0}" : string.Empty, health);
         }
 
@@ -520,6 +541,9 @@ namespace GamePlay.Enemies
 
             Vector3 spawnPos = transform.position + dieVfxOffset;
 
+            if (!PooledVfxLifetimeScheduler.CanSchedule())
+                return;
+
             GameObject vfx = dieVfxPrefab.Spawn();
 
             if (vfx == null) return;
@@ -534,41 +558,22 @@ namespace GamePlay.Enemies
 
 
 
-            DOVirtual.DelayedCall(Mathf.Max(0.05f, dieVfxLifetime), () =>
-            {
-                if (vfx != null) vfx.Despawn();
-            }, false).SetId(vfx);
+            PooledVfxLifetimeScheduler.Schedule(vfx, dieVfxLifetime);
 
         }
 
+        private const int DeathVfxFrameInterval = 10;
+
         private bool CanSpawnDeathVfxThisFrame()
-
         {
-
-            if (Time.frameCount != s_lastDeathVfxFrame)
-
+            int currentFrame = Time.frameCount;
+            if (s_lastDeathVfxFrame >= 0 && currentFrame - s_lastDeathVfxFrame < DeathVfxFrameInterval)
             {
-
-                s_lastDeathVfxFrame = Time.frameCount;
-
-                s_deathVfxCountInFrame = 0;
-
+                return false;
             }
 
-
-
-            int frameCap = Mathf.Max(1, maxDeathVfxPerFrame);
-
-            if (s_deathVfxCountInFrame >= frameCap)
-
-                return false;
-
-
-
-            s_deathVfxCountInFrame++;
-
+            s_lastDeathVfxFrame = currentFrame;
             return true;
-
         }
 
 

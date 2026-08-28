@@ -104,7 +104,7 @@ namespace GamePlay.Enemies
             }
         }
 
-        private void Update()
+        public void ManualUpdate()
         {
             if (!_needsCleanup)
             {
@@ -138,7 +138,12 @@ namespace GamePlay.Enemies
                 var enemy = _enemies[i];
                 if (enemy != null && enemy.IsActive && enemy.Causer != null) continue;
 
-                _enemies.RemoveAt(i);
+                int last = _enemies.Count - 1;
+                if (i != last)
+                {
+                    _enemies[i] = _enemies[last];
+                }
+                _enemies.RemoveAt(last);
             }
         }
     }

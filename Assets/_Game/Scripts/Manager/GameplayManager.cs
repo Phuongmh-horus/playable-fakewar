@@ -52,6 +52,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     [Header("Explosion Shot Buff")]
     [SerializeField, Min(0f)] private float explosionShotRadius = 3.25f;
     [SerializeField, Min(0)] private int explosionShotBasePercent = 90;
+
     [SerializeField, Min(0)] private int explosionShotUpgradePercent = 35;
 
     [Header("Refs")]
@@ -69,8 +70,8 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     private bool IsArmyMode => true;
 
     [Header("Startup Performance")]
-    [SerializeField] private int initItemsPerFrame = 5; // Reduced to prevent lag spikes
-    [SerializeField] private int spawnItemsPerFrame = 10;
+    [SerializeField] private int initItemsPerFrame = 3; // Reduced to prevent lag spikes
+    [SerializeField] private int spawnItemsPerFrame = 3;
 
     [Header("Startup Flow")]
     [SerializeField] private bool waitForTapBeforeGameplay = true;
@@ -84,17 +85,8 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     [SerializeField] private float milestoneEndcardDelay = 1.0f;
 
     public static bool IsGameStarted;
-    private const float MoveSpeedStep = 0.5f;
     private bool _endGameSfxPlayed;
     private WeaponCraft.WeaponItem _mainWeapon;
-
-    // Reflection caches for Luna-compatible render optimization (avoid per-call lookup/alloc).
-    private static readonly PropertyInfo SkinnedQualityProperty =
-        typeof(SkinnedMeshRenderer).GetProperty("quality", BindingFlags.Instance | BindingFlags.Public);
-    private static readonly PropertyInfo SkinnedMotionVectorsProperty =
-        typeof(SkinnedMeshRenderer).GetProperty("skinnedMotionVectors", BindingFlags.Instance | BindingFlags.Public);
-    private static readonly PropertyInfo SkinnedUpdateWhenOffscreenProperty =
-        typeof(SkinnedMeshRenderer).GetProperty("updateWhenOffscreen", BindingFlags.Instance | BindingFlags.Public);
 
     private Dictionary<CurrencyType, int> _currencyValues = new Dictionary<CurrencyType, int>();
     public WeaponCraft.WeaponItem MainWeapon => _mainWeapon;
@@ -159,34 +151,58 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     }
 #endif
 
+    private PlayableWaveDefenseEntitySystem _waveSys;
+    private CombatSystem _combatSys;
+    private CullingSystem _cullingSys;
+    private EnemyProjectileSystem _enemyProjectileSys;
+    private EnemyManager _enemyManager;
+    private GamePlay.Inputs.InputManager _inputManager;
+
     // Optimized tick system: frame skipping + early exits for empty collections
     private void Update()
     {
         float dt = Time.deltaTime;
 
-        // Critical effects: every frame (smooth animations)
+        if (_inputManager == null) _inputManager = GamePlay.Inputs.InputManager.Instance;
+        _inputManager?.ManualUpdate();
+        PooledVfxLifetimeScheduler.Tick(Time.time);
+        GamePlay.Characters.CharacterUnit.TickScheduledDespawns(Time.time);
         HitTextFlyEffect.TickActiveControllers(dt);
-        BrickFallMotion.TickActiveMotions(dt);
-        CurrencyDropItem.TickActiveDrops(dt);
 
-        // Important effects: every frame (game logic)
-        DebrisBlock.TickActiveBlocks(dt);
-
+        // Gameplay-only transient systems do not need to run during boot/intro.
+        // Keeping this gate before their dispatch avoids walking their active lists
+        // while the playable is waiting for input.
         if (!IsGameStarted)
         {
             return;
         }
 
-        var waveSys = PlayableWaveDefenseEntitySystem.Instance;
-        var combatSys = CombatSystem.Instance;
+        // Critical effects: every frame (smooth animations)
+        BrickFallMotion.TickActiveMotions(dt);
+        CurrencyDropItem.TickActiveDrops(dt);
+        DebrisBlock.TickActiveBlocks(dt);
 
-        if (waveSys != null) waveSys.ManualUpdate();
-        if (combatSys != null) combatSys.ManualUpdate();
-
-        if (waveSys != null && waveSys.EndGameWhenAllMovingEntitiesCleared)
+        for (int i = 0; i < SoldierBall.ActiveBalls.Count; i++)
         {
-            if (waveSys.IsCompleted() &&
-                (EnemyManager.Instance == null || EnemyManager.Instance.EnemyCount == 0))
+            SoldierBall.ActiveBalls[i].Tick();
+        }
+
+        if (_waveSys == null) _waveSys = PlayableWaveDefenseEntitySystem.Instance;
+        if (_combatSys == null) _combatSys = CombatSystem.Instance;
+        if (_cullingSys == null) _cullingSys = CullingSystem.Instance;
+        if (_enemyProjectileSys == null) _enemyProjectileSys = EnemyProjectileSystem.Instance;
+        if (_enemyManager == null) _enemyManager = EnemyManager.Instance;
+
+        ActiveArmy?.ManualUpdate();
+        if (_waveSys != null) _waveSys.ManualUpdate();
+        if (_combatSys != null) _combatSys.ManualUpdate();
+        if (_cullingSys != null) _cullingSys.ManualUpdate();
+        if (_enemyProjectileSys != null) _enemyProjectileSys.ManualUpdate();
+        if (_enemyManager != null) _enemyManager.ManualUpdate();
+        if (_waveSys != null && _waveSys.EndGameWhenAllMovingEntitiesCleared)
+        {
+            if (_waveSys.IsCompleted() &&
+                (_enemyManager == null || _enemyManager.EnemyCount == 0))
             {
                 EndGame(true);
                 return;
@@ -337,6 +353,9 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             mapGenerator.GenerateMap(playableEra.MapData);
         }
 
+        var playerSpawnRect = mapGenerator.GetSpawnPlayerTransform();
+        Vector3 targetPos = playerSpawnRect.position + Vector3.forward * TurnableSpawnOffset;
+
         // Generate Content
         if (contentGenerator != null)
         {
@@ -357,9 +376,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         }
 
         // Spawn / Binding Army
-        var playerSpawnRect = mapGenerator.GetSpawnPlayerTransform();
-        Vector3 targetPos = playerSpawnRect.position + Vector3.forward * TurnableSpawnOffset;
-
         if (playerArmyPrefab != null)
         {
             // Sử dụng object có sẵn trên scene
@@ -397,7 +413,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             for (int i = 0; i < contentGenerator.generatedObjects.Count; i++)
             {
                 var item = contentGenerator.generatedObjects[i];
-                if (item != null)
+                if (item != null && item.gameObject.activeInHierarchy)
                 {
                     item.Initialize();
 
@@ -408,7 +424,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
                         {
                             if (prewarmedVfx.Add(enemyUnit.DieVfxPrefab))
                             {
-                                yield return PoolSystem.EnsurePrewarmAsync(enemyUnit.DieVfxPrefab.transform, 20, batchSize);
+                                yield return PoolSystem.EnsurePrewarmAsync(enemyUnit.DieVfxPrefab.transform, 10, batchSize);
                             }
                         }
                     }
@@ -429,7 +445,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             if (prefab != null)
             {
                 // [FIX] Reduce prewarm count for vfx_hero_upgrade to optimize performance
-                int prewarmCount = prefab.name.ToLower().Contains("upgrade") ? 2 : 20;
+                int prewarmCount = prefab.name.ToLower().Contains("upgrade") ? 2 : 10;
                 yield return PoolSystem.EnsurePrewarmAsync(prefab.transform, prewarmCount, Mathf.Max(1, spawnItemsPerFrame));
             }
         }
@@ -515,7 +531,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
             foreach (var g in generated)
             {
-                if (g == null || g.Pack.Hitable == null) continue;
+                if (g == null || !g.gameObject.activeInHierarchy || g.Pack.Hitable == null) continue;
 
                 _collisionHitablesBuffer.Add(g.Pack.Hitable);
                 // Use the IHitable's transform when possible (HitComponent may be on a child)
@@ -529,11 +545,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             .EnsureInstance()
             .RegisterFromGeneratedObjects(contentGenerator != null ? contentGenerator.generatedObjects : null, PlayerTransform);
 
-        // Setup conveyor gates
-        if (ConveyorManager.Instance != null && contentGenerator != null)
-        {
-            ConveyorManager.Instance.SetGatePositions(contentGenerator.generatedObjects);
-        }
 
         ResetCurrency(CurrencyType.Gold);
         ResetCurrency(CurrencyType.Cash);
@@ -588,7 +599,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             : BuildInitialArmyCardsFromRuntimeState();
 
         ActiveArmy.AddCards(seedCards, CardSpawnEffectType.DropWithoutAction);
-        OptimizeRenderHierarchy(ActiveArmy.transform);
     }
 
     private List<CardSpawnRequestData> BuildInitialArmyCardsFromRuntimeState()
@@ -942,15 +952,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
                     break;
                 }
 
-            case StatType.MoveSpeed:
-                {
-                    if (Turnable != null)
-                    {
-                        Turnable.AddForwardSpeed(statModifierData.Value * MoveSpeedStep);
-                    }
-                    break;
-                }
-
             case StatType.EvolutionPoint:
                 {
                     DataManager.AddCapacityProgress(Mathf.Max(0, statModifierData.Value));
@@ -1036,14 +1037,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         }
 
         return Mathf.Max(0, statModifierData.Value);
-    }
-
-    public void ResetStatModifierData(StatType statType)
-    {
-        if (statType is StatType.None) return;
-
-        if (statType == StatType.MoveSpeed)
-            Turnable?.ResetForwardSpeed();
     }
 
     /// <summary>
@@ -1192,50 +1185,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
         return safeBase + capacity;
     }
-
-    private static void OptimizeRenderHierarchy(Transform root)
-    {
-        // if (root == null) return;
-
-        // var renderers = root.GetComponentsInChildren<Renderer>(true);
-        // for (int i = 0; i < renderers.Length; i++)
-        // {
-        //     var renderer = renderers[i];
-        //     if (renderer == null) continue;
-
-        //     renderer.shadowCastingMode = ShadowCastingMode.Off;
-        //     renderer.receiveShadows = false;
-        //     renderer.motionVectorGenerationMode = MotionVectorGenerationMode.ForceNoMotion;
-        //     renderer.lightProbeUsage = LightProbeUsage.Off;
-        //     renderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
-
-        //     if (renderer is SkinnedMeshRenderer skinned)
-        //     {
-        //         // Luna compatibility: some runtimes strip SkinnedMeshRenderer members.
-        //         TrySetSkinnedProperties(skinned);
-        //     }
-        // }
-    }
-
-    private static void TrySetSkinnedProperties(SkinnedMeshRenderer skinned)
-    {
-        if (skinned == null) return;
-
-        try
-        {
-            if (SkinnedQualityProperty != null && SkinnedQualityProperty.CanWrite)
-                SkinnedQualityProperty.SetValue(skinned, SkinQuality.Bone2, null);
-            if (SkinnedMotionVectorsProperty != null && SkinnedMotionVectorsProperty.CanWrite)
-                SkinnedMotionVectorsProperty.SetValue(skinned, false, null);
-            if (SkinnedUpdateWhenOffscreenProperty != null && SkinnedUpdateWhenOffscreenProperty.CanWrite)
-                SkinnedUpdateWhenOffscreenProperty.SetValue(skinned, false, null);
-        }
-        catch
-        {
-            // Ignore: optimization only.
-        }
-    }
-
 
     #endregion
 }

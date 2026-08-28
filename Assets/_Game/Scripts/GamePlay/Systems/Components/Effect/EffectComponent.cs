@@ -10,6 +10,8 @@ namespace GamePlay.ComponentSystems
 {
     public class EffectComponent : BaseComponent, IEffector
     {
+        private const int MaxVfxSpawnsPerPrefabPerFrame = 1;
+
         [Serializable]
         private class EffectEntry
         {
@@ -28,7 +30,7 @@ namespace GamePlay.ComponentSystems
             [Tooltip("If > 0 then onComplete is invoked after this delay.")]
             public float WaitForAction = 0.5f;
 
-            [Min(0)] public int MaxVfxPerFrame;
+            [Min(1)] public int MaxVfxPerFrame = MaxVfxSpawnsPerPrefabPerFrame;
         }
 
         [Header("Effects List (Serializable, Luna-safe)")]
@@ -42,7 +44,7 @@ namespace GamePlay.ComponentSystems
         private bool _cacheBuilt;
         private EffectType _activeLoopingEffectType = EffectType.None;
         private AudioClip _activeLoopingClip;
-        private readonly Dictionary<EffectType, float> _lastPlayTimes = new Dictionary<EffectType, float>();
+        private float[] _lastPlayTimes;
 
         [Header("Audio (Optional)")]
         [SerializeField] private AudioSource audioSource;
@@ -67,6 +69,15 @@ namespace GamePlay.ComponentSystems
         protected override void OnValidate()
         {
             base.OnValidate();
+            for (int i = 0; effects != null && i < effects.Count; i++)
+            {
+                EffectEntry entry = effects[i];
+                if (entry != null && entry.VfxPrefab != null)
+                {
+                    entry.MaxVfxPerFrame = MaxVfxSpawnsPerPrefabPerFrame;
+                }
+            }
+
             ResolveAudioSource(logIfMissingInEditor: true);
             _cacheBuilt = false;
             BuildCache();
@@ -87,7 +98,7 @@ namespace GamePlay.ComponentSystems
         {
             base.Dispose();
 
-            DOVirtual.DelayedCall(0.01f, () => { }).SetId(this).Kill();
+            DOTween.Kill(this);
 
             StopActiveLoopingSfx();
         }
@@ -140,6 +151,7 @@ namespace GamePlay.ComponentSystems
                 return;
 
             _runtime = new EffectEntry[32]; // Max enum size + buffer
+            _lastPlayTimes = new float[32];
             _cacheBuilt = true;
             if (effects == null) return;
 
@@ -170,8 +182,10 @@ namespace GamePlay.ComponentSystems
                 if (!_cacheBuilt)
                     BuildCache();
 
-                if (_lastPlayTimes.TryGetValue(effectType, out float lastTime))
+                int typeIndex = (int)effectType;
+                if (typeIndex >= 0 && typeIndex < _lastPlayTimes.Length)
                 {
+                    float lastTime = _lastPlayTimes[typeIndex];
                     if (Time.time - lastTime < 0.05f)
                     {
                         // Rapid fire block
@@ -182,10 +196,9 @@ namespace GamePlay.ComponentSystems
                         }
                         return;
                     }
+                    _lastPlayTimes[typeIndex] = Time.time;
                 }
-                _lastPlayTimes[effectType] = Time.time;
 
-                int typeIndex = (int)effectType;
                 bool hasEntry = _runtime != null && typeIndex >= 0 && typeIndex < _runtime.Length && _runtime[typeIndex] != null;
                 EffectEntry entry = hasEntry ? _runtime[typeIndex] : null;
                 if (hasEntry)
@@ -227,20 +240,11 @@ namespace GamePlay.ComponentSystems
 
             try
             {
-                var obj = prefab.Spawn();
-                return obj != null ? obj : Instantiate(prefab);
+                return PoolSystem.TrySpawn(prefab.transform, Vector3.zero, Quaternion.identity)?.gameObject;
             }
             catch
             {
-                try
-                {
-                    return Instantiate(prefab);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogWarning($"[EffectComponent] SafePoolGet failed for prefab: {e.Message}");
-                    return null;
-                }
+                return null;
             }
         }
 
@@ -307,11 +311,17 @@ namespace GamePlay.ComponentSystems
                 return;
             }
 
+            if (!PooledVfxLifetimeScheduler.CanSchedule())
+            {
+                return;
+            }
+
+            GameObject vfx = null;
             try
             {
                 bool isUiVfx = IsUiVfxPrefab(entry.VfxPrefab);
                 Transform targetParent = ResolveVfxParent(effectType, entry, parent, isUiVfx);
-                GameObject vfx = SafePoolGet(entry.VfxPrefab);
+                vfx = SafePoolGet(entry.VfxPrefab);
                 if (vfx == null)
                 {
                     return;
@@ -325,32 +335,37 @@ namespace GamePlay.ComponentSystems
                 var particles = GetCachedParticleSystems(vfx);
                 if (particles == null || particles.Length == 0)
                 {
+                    vfx.transform.Despawn();
                     return;
                 }
 
                 float lifeTime = GetParticleLifetime(vfx);
                 PlayParticles(particles);
 
-                if (lifeTime > 0f)
-                {
-                    DOVirtual.DelayedCall(Mathf.Max(0.05f, lifeTime), () =>
-                    {
-                        if (vfx != null) vfx.Despawn();
-                    }, false).SetId(vfx);
-                }
+                PooledVfxLifetimeScheduler.Schedule(vfx, Mathf.Max(0.1f, lifeTime));
             }
             catch
             {
+                if (vfx != null && vfx.activeSelf)
+                {
+                    vfx.transform.Despawn();
+                }
+
                 // VFX setup is non-critical; keep SFX/gameplay flow alive.
             }
         }
 
         private static bool CanSpawnVfxThisFrame(GameObject prefab, int frameCap)
         {
-            if (prefab == null || frameCap <= 0)
+            if (prefab == null)
             {
                 return true;
             }
+
+            // Older scene instances contain permissive overrides (2-8). Keep one
+            // global spawn per prefab/frame so dense simultaneous hits cannot revive
+            // the original overdraw/GC burst before every scene is resaved.
+            frameCap = MaxVfxSpawnsPerPrefabPerFrame;
 
             int frame = Time.frameCount;
             if (s_vfxSpawnFrame != frame)

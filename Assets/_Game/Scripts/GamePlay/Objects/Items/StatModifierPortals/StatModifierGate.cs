@@ -234,7 +234,7 @@ namespace GamePlay.Items
 
             if (_flyTextEffect != null && Data != null)
             {
-                _flyTextEffect.ShowCustomText("+" + Data.Value.ToString(), Color.yellow);
+                _flyTextEffect.ShowCustomNumber(Data.Value, Color.yellow);
             }
 
             // if (Time.time >= _nextScalePulseTime)
@@ -248,9 +248,9 @@ namespace GamePlay.Items
                 _nextAudioTime = Time.time + 0.1f;
                 if (SoundManager.Instance != null)
                     SoundManager.Instance.PlayOneShot(hitByWheelSound);
+                
+                Pack.Effector?.PlayEffect(EffectType.Land);
             }
-
-            Pack.Effector?.PlayEffect(EffectType.Land);
         }
 
         protected override void HandleNonWheelCollision(IAttacker source)
@@ -298,10 +298,10 @@ namespace GamePlay.Items
             }
             if (_flyTextEffect != null && Data != null)
             {
-                _flyTextEffect.ShowCustomText("+" + Data.Value.ToString(), Color.yellow);
+                _flyTextEffect.ShowCustomText("+" + Data.Value, Color.yellow);
             }
             Pack.Effector?.PlayEffect(EffectType.Land);
-            DespawnInterval(skipScaleDown: _entityType == Entities.EntityType.MovingGate);
+            DespawnInterval(skipScaleDown: true);
         }
 
         private void PlayScalePulse()
@@ -541,10 +541,15 @@ namespace GamePlay.Items
             if (_armorPerPart <= 0f) _armorPerPart = 1f;
         }
 
+        private int _lastTextValue = int.MinValue;
+
         private void UpdateText()
         {
-            if (valueText != null)
+            if (valueText != null && Data != null && _lastTextValue != Data.Value)
+            {
+                _lastTextValue = Data.Value;
                 valueText.SetText("+ {0}", Data.Value);
+            }
         }
 
         private void UpdateImage()

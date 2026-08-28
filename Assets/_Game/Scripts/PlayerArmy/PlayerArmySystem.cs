@@ -86,6 +86,8 @@ namespace PlayerArmy
         private float _currentForwardSpeed;
         private float _targetX;
         private int _tickOffset;
+        private Vector2Int _lastFormationSpatialCell;
+        private bool _hasFormationSpatialCell;
 
         private HashSet<int> _currentEnemyContactIds = new HashSet<int>();
         private HashSet<int> _previousEnemyContactIds = new HashSet<int>();
@@ -179,6 +181,8 @@ namespace PlayerArmy
             CacheDefaultState();
             //ClearSceneUnits();
             ResetRuntimeSpawnState();
+            _lastFormationSpatialCell = CollisionSystem.GetSpatialCell(GetBodyRoot().position);
+            _hasFormationSpatialCell = true;
             _tickOffset = Mathf.Abs(GetInstanceID()) % Mathf.Max(1, pruneTickInterval);
 
             var sceneUnits = GetComponentsInChildren<CharacterUnit>(true);
@@ -232,10 +236,9 @@ namespace PlayerArmy
 
             if (weaponProjectilePrefab != null && !weaponProjectilePrefab.gameObject.scene.IsValid())
             {
-                int projectileReserve = Mathf.Clamp(
-                    Mathf.Max(maxProjectileLaunchesPerFrame * 5, maxAttackEvaluationsPerTick * 2),
-                    20,
-                    128);
+                int projectileReserve = Mathf.Min(
+                    GamePlay.CombatSystems.EnemyProjectileSystem.MaxActiveProjectiles,
+                    Mathf.Max(maxProjectileLaunchesPerFrame * 5, maxAttackEvaluationsPerTick * 2));
                 yield return PoolSystem.EnsurePrewarmAsync(weaponProjectilePrefab, projectileReserve, batchSize);
             }
         }
@@ -1071,13 +1074,12 @@ namespace PlayerArmy
             float lateralVelocity = (dt > 0f) ? (newX - localPos.x) / dt : 0f;
             _targetX = tempTargetX;
 
-            for (int i = 0; i < characterUnits.Count; i++)
+            Vector2Int formationCell = CollisionSystem.GetSpatialCell(root.position);
+            if (!_hasFormationSpatialCell || formationCell != _lastFormationSpatialCell)
             {
-                var unit = characterUnits[i];
-                if (unit != null && unit.IsActive)
-                {
-                    CollisionSystem.NotifyMoved(unit);
-                }
+                CollisionSystem.NotifyMovedBatch(characterUnits);
+                _lastFormationSpatialCell = formationCell;
+                _hasFormationSpatialCell = true;
             }
 
             AnimationType targetAnimation = lateralVelocity < -LateralAnimationThreshold

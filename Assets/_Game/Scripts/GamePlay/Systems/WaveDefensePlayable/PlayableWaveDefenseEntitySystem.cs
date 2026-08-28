@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using GamePlay.CollisionSystems;
 using GamePlay.Entities;
 using GamePlay.Items;
 using GamePlay.Enemies;
@@ -24,6 +25,7 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
 
     private readonly List<Entry> _entries = new List<Entry>(256);
     private readonly List<WallBreakable> _movingGateBlockers = new List<WallBreakable>(32);
+    private readonly Dictionary<ItemUnit, WallBreakable> _movingGateBlockerCache = new Dictionary<ItemUnit, WallBreakable>(32);
     private Transform _playerTransform;
     private bool _registeredThisRun;
     private bool _completedThisRun;
@@ -34,6 +36,7 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
         public Transform Transform;
         public float MoveSpeed;
         public bool IsAttractive;
+        public Vector2Int CollisionCell;
     }
 
     private void Awake()
@@ -80,7 +83,7 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
 
         for (int i = 0; i < generatedObjects.Count; i++)
         {
-            Register(generatedObjects[i]);
+            RegisterItem(generatedObjects[i]);
         }
     }
 
@@ -88,6 +91,7 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
     {
         _entries.Clear();
         _movingGateBlockers.Clear();
+        _movingGateBlockerCache.Clear();
         _registeredThisRun = false;
         _completedThisRun = false;
     }
@@ -118,7 +122,12 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
 
             if (entry.Item.EntityType == EntityType.MovingGate && TryBlockMovingGate(entry, ref currentPos))
             {
-                entry.Transform.position = currentPos;
+                if (entry.Transform.position != currentPos)
+                {
+                    entry.Transform.position = currentPos;
+                    NotifyCollisionCellChanged(ref entry, currentPos);
+                    _entries[i] = entry;
+                }
                 continue;
             }
 
@@ -142,19 +151,23 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
 
             currentPos += targetDir * entry.MoveSpeed * dt;
             entry.Transform.position = currentPos;
+            NotifyCollisionCellChanged(ref entry, currentPos);
 
             if (currentPos.z < playerZ + despawnZOffset)
             {
                 var go = entry.Item.gameObject;
                 RemoveAtSwapBack(i);
                 go.Despawn();
+                continue;
             }
+
+            _entries[i] = entry;
         }
 
         CompleteIfNeeded();
     }
 
-    private void Register(ItemUnit item)
+    public void RegisterItem(ItemUnit item)
     {
         if (item == null || !item.gameObject.activeInHierarchy)
         {
@@ -179,8 +192,21 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
             Item = item,
             Transform = item.Transform,
             MoveSpeed = isGate ? gateMoveSpeed : moveSpeed,
-            IsAttractive = isAttractive
+            IsAttractive = isAttractive,
+            CollisionCell = CollisionSystem.GetSpatialCell(item.Transform.position)
         });
+    }
+
+    private static void NotifyCollisionCellChanged(ref Entry entry, Vector3 position)
+    {
+        Vector2Int nextCell = CollisionSystem.GetSpatialCell(position);
+        if (entry.CollisionCell == nextCell)
+        {
+            return;
+        }
+
+        entry.CollisionCell = nextCell;
+        entry.Item.NotifyCollisionPositionChanged();
     }
 
     public void Unregister(ItemUnit item)
@@ -202,7 +228,10 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
         if (item is WallBreakable wallBreakable)
         {
             _movingGateBlockers.Remove(wallBreakable);
+            _movingGateBlockerCache.Clear();
         }
+
+        _movingGateBlockerCache.Remove(item);
     }
 
     private void RegisterMovingGateBlocker(WallBreakable wallBreakable)
@@ -225,38 +254,46 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
             return false;
         }
 
-        WallBreakable nearestBlocker = null;
-        float nearestForwardDistance = float.MaxValue;
-
-        for (int i = _movingGateBlockers.Count - 1; i >= 0; i--)
+        WallBreakable nearestBlocker;
+        if (!_movingGateBlockerCache.TryGetValue(movingGate.Item, out nearestBlocker) ||
+            !IsValidMovingGateBlocker(nearestBlocker, currentPos))
         {
-            WallBreakable blocker = _movingGateBlockers[i];
-            if (blocker == null || !blocker.BlocksMovingGates || !blocker.gameObject.activeInHierarchy)
+            nearestBlocker = null;
+            float nearestForwardDistance = float.MaxValue;
+
+            for (int i = _movingGateBlockers.Count - 1; i >= 0; i--)
             {
-                _movingGateBlockers.RemoveAt(i);
-                continue;
+                WallBreakable blocker = _movingGateBlockers[i];
+                if (blocker == null || !blocker.BlocksMovingGates || !blocker.gameObject.activeInHierarchy)
+                {
+                    _movingGateBlockers.RemoveAt(i);
+                    continue;
+                }
+
+                Vector3 blockerPos = blocker.transform.position;
+                float laneDistance = Mathf.Abs(currentPos.x - blockerPos.x);
+                if (laneDistance > blocker.MovingGateBlockHalfWidth)
+                {
+                    continue;
+                }
+
+                float forwardDistance = currentPos.z - blockerPos.z;
+                if (forwardDistance < 0f || forwardDistance >= nearestForwardDistance)
+                {
+                    continue;
+                }
+
+                nearestForwardDistance = forwardDistance;
+                nearestBlocker = blocker;
             }
 
-            Vector3 blockerPos = blocker.transform.position;
-            float laneDistance = Mathf.Abs(currentPos.x - blockerPos.x);
-            if (laneDistance > blocker.MovingGateBlockHalfWidth)
+            if (nearestBlocker == null)
             {
-                continue;
+                _movingGateBlockerCache.Remove(movingGate.Item);
+                return false;
             }
 
-            float forwardDistance = currentPos.z - blockerPos.z;
-            if (forwardDistance < 0f || forwardDistance >= nearestForwardDistance)
-            {
-                continue;
-            }
-
-            nearestForwardDistance = forwardDistance;
-            nearestBlocker = blocker;
-        }
-
-        if (nearestBlocker == null)
-        {
-            return false;
+            _movingGateBlockerCache[movingGate.Item] = nearestBlocker;
         }
 
         float blockedZ = nearestBlocker.transform.position.z + nearestBlocker.MovingGateStopDistance;
@@ -266,6 +303,18 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
         }
 
         return true;
+    }
+
+    private static bool IsValidMovingGateBlocker(WallBreakable blocker, Vector3 currentPos)
+    {
+        if (blocker == null || !blocker.BlocksMovingGates || !blocker.gameObject.activeInHierarchy)
+        {
+            return false;
+        }
+
+        Vector3 blockerPos = blocker.transform.position;
+        return Mathf.Abs(currentPos.x - blockerPos.x) <= blocker.MovingGateBlockHalfWidth &&
+               currentPos.z >= blockerPos.z;
     }
 
     private static bool ShouldSkipMovement(ItemUnit item)
@@ -308,6 +357,12 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
         if (index < 0 || index > last)
         {
             return;
+        }
+
+        Entry removedEntry = _entries[index];
+        if (removedEntry.Item != null)
+        {
+            _movingGateBlockerCache.Remove(removedEntry.Item);
         }
 
         if (index != last)

@@ -9,7 +9,6 @@ namespace GamePlay.Weapons
     public class WeaponUnit : PoolEntity
     {
         // [Header("Components References (MonoBehaviours implementing IComponent)")]
-        // [SerializeField] private List<MonoBehaviour> components = new List<MonoBehaviour>();
         [SerializeField] private Transform childrenRoot;
 
         [Header("Models")]
@@ -86,7 +85,6 @@ namespace GamePlay.Weapons
         public bool Launch(Vector3 startPoint, Vector3 direction, float distance, float duration, float arcHeight, float rotationSpeed, int damage, EnemyProjectileSystem.ProjectileSpinAxis spinAxis = EnemyProjectileSystem.ProjectileSpinAxis.X, EnemyProjectileSystem.ProjectileMotionMode motionMode = EnemyProjectileSystem.ProjectileMotionMode.Arc, IAttacker thrower = null, bool alignRotationToDirection = true)
         {
             Initialize();
-
             if (Pack.Attacker == null)
             {
                 return false;
@@ -119,7 +117,7 @@ namespace GamePlay.Weapons
                 transform.position = startPoint;
             }
 
-            EnemyProjectileSystem.RegisterProjectile(
+            if (!EnemyProjectileSystem.RegisterProjectile(
                 transform,
                 startPoint,
                 startPoint.y,
@@ -133,7 +131,11 @@ namespace GamePlay.Weapons
                 thrower,
                 spinAxis,
                 motionMode,
-                alignRotationToDirection);
+                    alignRotationToDirection,
+                    this))
+            {
+                return false;
+            }
 
             return true;
         }

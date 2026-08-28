@@ -10,8 +10,12 @@ namespace GamePlay.CombatSystems
 {
     public class EnemyProjectileSystem : MonoSingleton<EnemyProjectileSystem>
     {
-        private const float CharacterSpatialCellSize = 4f;
-
+        [Header("Projectile Budget")]
+        [SerializeField, Min(1), Tooltip("Hard cap shared by player and enemy projectiles.")]
+        private int maxActiveProjectiles = 15;
+        public static int MaxActiveProjectiles => Instance != null
+            ? Mathf.Max(1, Instance.maxActiveProjectiles)
+            : 1;
         [Header("Player Binding (Optional)")]
         [SerializeField] private Crushers.WheelUnit playerWheelRef;
         private static IHitable s_pendingPlayer;
@@ -66,7 +70,7 @@ namespace GamePlay.CombatSystems
             Straight
         }
 
-        public static void RegisterProjectile(
+        public static bool RegisterProjectile(
             Transform projectileTransform,
             Vector3 startPoint,
             float groundY,
@@ -80,25 +84,24 @@ namespace GamePlay.CombatSystems
             IAttacker thrower = null,
             ProjectileSpinAxis spinAxis = ProjectileSpinAxis.Z,
             ProjectileMotionMode motionMode = ProjectileMotionMode.Straight,
-            bool alignRotationToDirection = true
+            bool alignRotationToDirection = true,
+            PoolEntity poolEntity = null
         )
         {
-            if (Instance == null) return;
-            Instance.RegisterProjectileInternal(projectileTransform, startPoint, groundY, direction, distance,
-                duration, arcHeight, rotationSpeed, attacker, mover, thrower, spinAxis, motionMode, alignRotationToDirection);
+            if (Instance == null) return false;
+            return Instance.RegisterProjectileInternal(projectileTransform, startPoint, groundY, direction, distance,
+                duration, arcHeight, rotationSpeed, attacker, mover, thrower, spinAxis, motionMode, alignRotationToDirection, poolEntity);
+        }
+
+        public static bool CanRegisterProjectile()
+        {
+            return Instance != null && Instance._projectiles.Count < MaxActiveProjectiles;
         }
 
         private IHitable _playerHitable;
         private readonly List<IHitable> _extraTargets = new List<IHitable>(32);
         private readonly HashSet<IHitable> _extraTargetSet = new HashSet<IHitable>();
-        private readonly Dictionary<Vector2Int, List<IHitable>> _characterSpatialBuckets = new Dictionary<Vector2Int, List<IHitable>>(32);
-        private readonly Stack<List<IHitable>> _characterSpatialBucketPool = new Stack<List<IHitable>>(32);
-        private readonly List<IHitable> _characterQueryTargets = new List<IHitable>(32);
-        private readonly HashSet<IHitable> _aoeAppliedTargets = new HashSet<IHitable>();
         private readonly List<int> _collisionQueryIndices = new List<int>(64);
-        private readonly List<int> _aoeCollisionQueryIndices = new List<int>(64);
-        private int _characterSpatialIndexFrame = -1;
-        private float _maxCharacterColliderRadius;
         private bool _isGameplayPaused;
         private float _pausedAtTime;
 
@@ -140,52 +143,6 @@ namespace GamePlay.CombatSystems
             public PoolEntity PoolEntity;
         }
 
-        private sealed class ExplosionShotAttacker : IAttacker
-        {
-            public event System.Action<IHitable> OnAttackComplete = delegate { };
-            public EntityType EntityType { get; private set; }
-            public Vector2 Size { get; } = Vector2.zero;
-            public int Damage { get; private set; }
-            public uint TargetMask { get; private set; }
-            public Vector3 Position { get; private set; }
-            public Transform Transform => null;
-            public bool IsEnabled => true;
-
-            public ExplosionShotAttacker() { }
-
-            public void Setup(int damage, uint targetMask, EntityType entityType, Vector3 position)
-            {
-                Damage = Mathf.Max(1, damage);
-                TargetMask = targetMask;
-                EntityType = entityType;
-                Position = position;
-            }
-
-            public void Initialize() { }
-            public void OnUpdate(float dt) { }
-            public void Dispose()
-            {
-                Instance?.ReturnExplosionShotAttacker(this);
-            }
-            public void Setup(int damage) { Damage = Mathf.Max(1, damage); }
-            public void OnAttackSucceed(IHitable target) { OnAttackComplete?.Invoke(target); }
-        }
-
-        private readonly Queue<ExplosionShotAttacker> _explosionShotAttackerPool = new Queue<ExplosionShotAttacker>(32);
-
-        private ExplosionShotAttacker GetExplosionShotAttacker()
-        {
-            return _explosionShotAttackerPool.Count > 0 ? _explosionShotAttackerPool.Dequeue() : new ExplosionShotAttacker();
-        }
-
-        private void ReturnExplosionShotAttacker(ExplosionShotAttacker attacker)
-        {
-            if (attacker != null)
-            {
-                _explosionShotAttackerPool.Enqueue(attacker);
-            }
-        }
-
         private readonly List<ProjectileEntry> _projectiles = new List<ProjectileEntry>(64);
 
         protected override void Awake()
@@ -221,7 +178,6 @@ namespace GamePlay.CombatSystems
             if (target == null) return;
             if (!_extraTargetSet.Add(target)) return;
             _extraTargets.Add(target);
-            _characterSpatialIndexFrame = -1;
         }
 
         private void UnregisterTargetInternal(IHitable target)
@@ -233,7 +189,6 @@ namespace GamePlay.CombatSystems
             {
                 if (!ReferenceEquals(_extraTargets[i], target)) continue;
                 RemoveExtraTargetAtSwapBack(i);
-                _characterSpatialIndexFrame = -1;
                 break;
             }
         }
@@ -250,100 +205,6 @@ namespace GamePlay.CombatSystems
 
             _extraTargets.RemoveAt(last);
         }
-
-        private void QueryCharacterTargetsNearSegment(Vector3 from, Vector3 to, float projectileRadius, List<IHitable> results)
-        {
-            results.Clear();
-            EnsureCharacterSpatialIndex();
-            if (_characterSpatialBuckets.Count == 0) return;
-
-            float padding = projectileRadius + _maxCharacterColliderRadius;
-            float minX = Mathf.Min(from.x, to.x) - padding;
-            float maxX = Mathf.Max(from.x, to.x) + padding;
-            float minZ = Mathf.Min(from.z, to.z) - padding;
-            float maxZ = Mathf.Max(from.z, to.z) + padding;
-
-            int minCellX = Mathf.FloorToInt(minX / CharacterSpatialCellSize);
-            int maxCellX = Mathf.FloorToInt(maxX / CharacterSpatialCellSize);
-            int minCellZ = Mathf.FloorToInt(minZ / CharacterSpatialCellSize);
-            int maxCellZ = Mathf.FloorToInt(maxZ / CharacterSpatialCellSize);
-
-            for (int cellX = minCellX; cellX <= maxCellX; cellX++)
-            {
-                for (int cellZ = minCellZ; cellZ <= maxCellZ; cellZ++)
-                {
-                    if (!_characterSpatialBuckets.TryGetValue(new Vector2Int(cellX, cellZ), out var bucket)) continue;
-
-                    for (int i = 0; i < bucket.Count; i++)
-                    {
-                        var target = bucket[i];
-                        if (target == null || !target.IsActive) continue;
-
-                        Vector3 targetPosition = target.Position;
-                        if (targetPosition.x < minX || targetPosition.x > maxX ||
-                            targetPosition.z < minZ || targetPosition.z > maxZ)
-                        {
-                            continue;
-                        }
-
-                        results.Add(target);
-                    }
-                }
-            }
-        }
-
-        private void EnsureCharacterSpatialIndex()
-        {
-            if (_characterSpatialIndexFrame == Time.frameCount) return;
-
-            ClearCharacterSpatialBuckets();
-            _maxCharacterColliderRadius = 0f;
-            for (int i = _extraTargets.Count - 1; i >= 0; i--)
-            {
-                var target = _extraTargets[i];
-                if (target == null)
-                {
-                    _extraTargetSet.Remove(target);
-                    RemoveExtraTargetAtSwapBack(i);
-                    continue;
-                }
-
-                if (!target.IsActive) continue;
-
-                var collider = target.GetColliderData();
-                _maxCharacterColliderRadius = Mathf.Max(
-                    _maxCharacterColliderRadius,
-                    Mathf.Max(Mathf.Abs(collider.Size.x), Mathf.Abs(collider.Size.z)));
-
-                Vector3 position = target.Position;
-                var cell = new Vector2Int(
-                    Mathf.FloorToInt(position.x / CharacterSpatialCellSize),
-                    Mathf.FloorToInt(position.z / CharacterSpatialCellSize));
-                if (!_characterSpatialBuckets.TryGetValue(cell, out var bucket))
-                {
-                    bucket = _characterSpatialBucketPool.Count > 0
-                        ? _characterSpatialBucketPool.Pop()
-                        : new List<IHitable>(8);
-                    _characterSpatialBuckets.Add(cell, bucket);
-                }
-
-                bucket.Add(target);
-            }
-
-            _characterSpatialIndexFrame = Time.frameCount;
-        }
-
-        private void ClearCharacterSpatialBuckets()
-        {
-            foreach (var bucket in _characterSpatialBuckets.Values)
-            {
-                bucket.Clear();
-                _characterSpatialBucketPool.Push(bucket);
-            }
-
-            _characterSpatialBuckets.Clear();
-        }
-
 
         private void ClearAllProjectilesInternal()
         {
@@ -364,7 +225,7 @@ namespace GamePlay.CombatSystems
             enabled = false;
         }
 
-        private void RegisterProjectileInternal(
+        private bool RegisterProjectileInternal(
             Transform projectileTransform,
             Vector3 startPoint,
             float groundY,
@@ -378,17 +239,23 @@ namespace GamePlay.CombatSystems
             IAttacker thrower,
             ProjectileSpinAxis spinAxis,
             ProjectileMotionMode motionMode,
-            bool alignRotationToDirection
+            bool alignRotationToDirection,
+            PoolEntity poolEntity
         )
         {
-            if (projectileTransform == null) return;
+            if (projectileTransform == null) return false;
+
+            if (_projectiles.Count >= Mathf.Max(1, maxActiveProjectiles))
+            {
+                PoolEntity overflowProjectile = projectileTransform.GetComponent<PoolEntity>();
+                TryDespawnProjectile(projectileTransform, overflowProjectile);
+                return false;
+            }
 
             if (!enabled)
             {
                 enabled = true;
             }
-
-            projectileTransform.parent = null;
 
             Vector3 dir = direction;
             if (motionMode == ProjectileMotionMode.Arc)
@@ -440,13 +307,17 @@ namespace GamePlay.CombatSystems
                 Mover = mover,
                 TargetMask = attacker != null ? attacker.TargetMask : 0,
                 Radius = radius,
-                PoolEntity = projectileTransform.GetComponent<PoolEntity>()
+                PoolEntity = poolEntity
             };
 
             _projectiles.Add(entry);
+            return true;
         }
 
-        private void Update()
+        private CollisionSystem _collisionSystem;
+        private GameplayManager _gameplayManager;
+
+        public void ManualUpdate()
         {
             if (_projectiles.Count == 0)
             {
@@ -454,6 +325,7 @@ namespace GamePlay.CombatSystems
                 return;
             }
 
+            if (_gameplayManager == null) _gameplayManager = GameplayManager.Instance;
             if (!GameplayManager.IsGameStarted)
             {
                 if (!_isGameplayPaused)
@@ -495,7 +367,8 @@ namespace GamePlay.CombatSystems
                 playerCol = _playerHitable.GetColliderData();
             }
 
-            var collisionSystem = CollisionSystem.Instance;
+            if (_collisionSystem == null) _collisionSystem = CollisionSystem.Instance;
+            var collisionSystem = _collisionSystem;
             int collisionCount = collisionSystem != null ? collisionSystem.Count : 0;
 
             // Iterate backwards for safe remove
@@ -508,7 +381,7 @@ namespace GamePlay.CombatSystems
                 if (p.Transform == null)
                 {
                     DisposeManaged(ref p);
-                    _projectiles.RemoveAt(i);
+                    RemoveProjectileAtSwapBack(i);
                     continue;
                 }
 
@@ -520,7 +393,7 @@ namespace GamePlay.CombatSystems
                         p.Mover?.OnMovementFinished();
                         DisposeManaged(ref p);
                         TryDespawnProjectile(p.Transform, p.PoolEntity);
-                        _projectiles.RemoveAt(i);
+                        RemoveProjectileAtSwapBack(i);
                     }
                     continue;
                 }
@@ -564,46 +437,17 @@ namespace GamePlay.CombatSystems
 
                             DisposeManaged(ref p);
                             TryDespawnProjectile(p.Transform, p.PoolEntity);
-                            _projectiles.RemoveAt(i);
+                            RemoveProjectileAtSwapBack(i);
                             continue;
                         }
                     }
                 }
-                uint characterTargetBit = 1u << (int)EntityType.Character;
-                if (p.Attacker != null &&
-                    (projectileTargetMask & characterTargetBit) != 0 &&
-                    _extraTargets.Count > 0)
-                {
-                    QueryCharacterTargetsNearSegment(previousPos, pos, p.Radius, _characterQueryTargets);
-                    for (int targetIndex = 0; targetIndex < _characterQueryTargets.Count; targetIndex++)
-                    {
-                        var target = _characterQueryTargets[targetIndex];
-
-                        if (!target.IsActive) continue;
-                        if (ReferenceEquals(target, _playerHitable)) continue;
-
-                        uint targetBit = (uint)(1 << (int)target.EntityType);
-                        if ((projectileTargetMask & targetBit) == 0) continue;
-
-                        if (CheckHitAlongSegment(previousPos, pos, p.Radius, target.Position, target.GetColliderData()))
-                        {
-                            p.Attacker.OnAttackSucceed(target);
-                            target.OnHit(p.Thrower != null ? p.Thrower : p.Attacker);
-                            ApplyExplosionShotIfAvailable(p, target, pos, collisionSystem);
-
-                            DisposeManaged(ref p);
-                            TryDespawnProjectile(p.Transform, p.PoolEntity);
-                            _projectiles.RemoveAt(i);
-                            goto NextProjectile;
-                        }
-                    }
-                }
-
                 // Hit any registered collision target that matches the attacker mask.
-                // This covers EnemyUnit and CashTowerController, which already live in CollisionSystem.
+                // This includes character, enemy, and item targets in the shared spatial index.
                 if (collisionSystem != null && collisionCount > 0 && p.Attacker != null)
                 {
-                    collisionSystem.QueryIndicesNearSegment(previousPos, pos, 6f, _collisionQueryIndices);
+                    float queryPadding = p.Radius + collisionSystem.MaxHorizontalColliderExtent;
+                    collisionSystem.QueryIndicesNearSegment(previousPos, pos, queryPadding, _collisionQueryIndices);
                     for (int candidateIndex = 0; candidateIndex < _collisionQueryIndices.Count; candidateIndex++)
                     {
                         int k = _collisionQueryIndices[candidateIndex];
@@ -614,23 +458,19 @@ namespace GamePlay.CombatSystems
                         if (targetTr == null) continue;
 
                         Vector3 targetPos = targetTr.position;
-                        if (Mathf.Abs(targetPos.x - pos.x) > 6f || Mathf.Abs(targetPos.z - pos.z) > 6f) continue;
-
                         var target = collisionSystem.GetTargetBySortedIndex(k);
                         if (target == null || !target.IsActive) continue;
                         if (ReferenceEquals(target, _playerHitable)) continue;
-                        if (_extraTargetSet.Contains(target)) continue;
 
                         var colData = collisionSystem.GetColliderData(k);
                         if (CheckHitAlongSegment(previousPos, pos, p.Radius, targetPos, colData))
                         {
                             p.Attacker.OnAttackSucceed(target);
                             target.OnHit(p.Thrower != null ? p.Thrower : p.Attacker);
-                            ApplyExplosionShotIfAvailable(p, target, pos, collisionSystem);
 
                             DisposeManaged(ref p);
                             TryDespawnProjectile(p.Transform, p.PoolEntity);
-                            _projectiles.RemoveAt(i);
+                            RemoveProjectileAtSwapBack(i);
                             goto NextProjectile;
                         }
                     }
@@ -643,7 +483,7 @@ namespace GamePlay.CombatSystems
                     p.Mover?.OnMovementFinished();
                     DisposeManaged(ref p);
                     TryDespawnProjectile(p.Transform, p.PoolEntity);
-                    _projectiles.RemoveAt(i);
+                    RemoveProjectileAtSwapBack(i);
                     continue;
                 }
 
@@ -652,6 +492,19 @@ namespace GamePlay.CombatSystems
             NextProjectile:
                 ;
             }
+        }
+
+        private void RemoveProjectileAtSwapBack(int index)
+        {
+            int lastIndex = _projectiles.Count - 1;
+            if (index < 0 || index > lastIndex) return;
+
+            if (index != lastIndex)
+            {
+                _projectiles[index] = _projectiles[lastIndex];
+            }
+
+            _projectiles.RemoveAt(lastIndex);
         }
 
         private static Vector3 EvaluateProjectilePosition(in ProjectileEntry projectile, float t)
@@ -699,9 +552,10 @@ namespace GamePlay.CombatSystems
                 return;
             }
 
-            if (GameplayManager.Instance != null && GameplayManager.Instance.Turnable != null)
+            if (_gameplayManager == null) _gameplayManager = GameplayManager.Instance;
+            if (_gameplayManager != null && _gameplayManager.Turnable != null)
             {
-                playerWheelRef = GameplayManager.Instance.Turnable;
+                playerWheelRef = _gameplayManager.Turnable;
                 _playerHitable = playerWheelRef;
                 return;
             }
@@ -880,11 +734,14 @@ namespace GamePlay.CombatSystems
             }
         }
 
+        // Explosion Shot AOE is intentionally disabled for this playable scenario.
+#if false
         private void ApplyExplosionShotIfAvailable(ProjectileEntry projectile, IHitable primaryTarget, Vector3 hitPosition, CollisionSystem collisionSystem)
         {
             if (projectile.Attacker == null || primaryTarget == null) return;
 
-            var gameplayManager = GameplayManager.Instance;
+            if (_gameplayManager == null) _gameplayManager = GameplayManager.Instance;
+            var gameplayManager = _gameplayManager;
             if (gameplayManager == null || !gameplayManager.IsExplosionShotUnlocked) return;
 
             int percent = gameplayManager.ExplosionShotDamagePercent;
@@ -936,6 +793,7 @@ namespace GamePlay.CombatSystems
             }
             splashAttacker.Dispose();
         }
+#endif
 
         private bool ShouldApplyAoeToTarget(IHitable target, IHitable primaryTarget, uint targetMask)
         {

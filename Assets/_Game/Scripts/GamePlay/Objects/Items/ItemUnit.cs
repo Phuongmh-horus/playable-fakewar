@@ -6,6 +6,7 @@ using GamePlay.CombatSystems;
 using GamePlay.ComponentSystems;
 using GamePlay.Entities;
 using GamePlay.OscillationSystems;
+using Pools;
 using UnityEngine;
 
 namespace GamePlay.Items
@@ -81,6 +82,14 @@ namespace GamePlay.Items
                 Offset = shapeType == ShapeType.Box ? colliderSize.z : colliderSize.x,
                 CategoryBits = (uint)(1 << (int)EntityType)
             };
+        }
+
+        public void NotifyCollisionPositionChanged()
+        {
+            if ((ActiveFlags & CapabilityFlags.Hit) != 0 && Pack.Hitable != null)
+            {
+                CollisionSystem.NotifyMoved(Pack.Hitable);
+            }
         }
 
         private void ConfigureCollider()
@@ -365,7 +374,21 @@ namespace GamePlay.Items
             if ((ActiveFlags & CapabilityFlags.Oscillate) != 0 && Pack.Oscillator != null) Pack.Oscillator.Dispose();
             if ((ActiveFlags & CapabilityFlags.Effector) != 0 && Pack.Effector != null) Pack.Effector.Dispose();
 
-            Despawn();
+            if (PoolSystem.IsPooled(this))
+            {
+                Despawn();
+            }
+            else
+            {
+                // Prebaked scene content has no PoolSystem owner. Deactivate it
+                // after collection instead of destroying TMP/child components.
+                gameObject.SetActive(false);
+            }
+        }
+
+        public void ReleaseGeneratedContent()
+        {
+            DespawnInterval();
         }
 
         #endregion

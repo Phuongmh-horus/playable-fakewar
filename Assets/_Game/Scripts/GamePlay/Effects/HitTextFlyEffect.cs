@@ -21,8 +21,8 @@ public class HitTextFlyEffect : MonoBehaviour
     [Header("Custom Text Override")]
     private float customTextScaleMultiplier = 1.3f;
     private float customTextHeightOffsetMultiplier = 1.5f;
-    [SerializeField, Min(0)] private int prewarmPoolCount = 12;
-    private int maxTextSpawnsPerFrame = 8;
+    [SerializeField, Min(0)] private int prewarmPoolCount = 20;
+    private int maxTextSpawnsPerFrame = 2;
 
     private static readonly Stack<HitTextController> controllerPool = new Stack<HitTextController>();
     private static readonly List<HitTextController> activeControllers = new List<HitTextController>(64);
@@ -30,7 +30,8 @@ public class HitTextFlyEffect : MonoBehaviour
     private static readonly Dictionary<int, int> textSpawnCountsThisFrame = new Dictionary<int, int>(8);
     private static int textSpawnFrame = -1;
 
-    public bool LimitToOneTextPerFrame { get; set; } = false;
+    public bool LimitToOneTextPerFrame { get; set; } = true;
+    [SerializeField, Tooltip("Số frame tối thiểu giữa 2 lần fly text")] private int frameCooldown = 5;
     private int _lastHitFrame = -1;
 
     private bool _isSubscribed;
@@ -157,6 +158,17 @@ public class HitTextFlyEffect : MonoBehaviour
             colorOverride);
     }
 
+    public void ShowCustomNumber(int value, Color? colorOverride = null)
+    {
+        ShowText(
+            null,
+            heightOffset * customTextHeightOffsetMultiplier,
+            horizontalRandomRange,
+            customTextScaleMultiplier,
+            colorOverride,
+            value);
+    }
+
     private void ShowDefaultText(int value)
     {
         ShowText(null, heightOffset, horizontalRandomRange, 1f, null, value);
@@ -168,7 +180,7 @@ public class HitTextFlyEffect : MonoBehaviour
 
         if (LimitToOneTextPerFrame)
         {
-            if (_lastHitFrame == Time.frameCount) return;
+            if (_lastHitFrame != -1 && (Time.frameCount - _lastHitFrame) < frameCooldown) return;
             _lastHitFrame = Time.frameCount;
         }
 

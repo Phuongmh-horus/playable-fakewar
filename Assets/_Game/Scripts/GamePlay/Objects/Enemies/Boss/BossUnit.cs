@@ -17,13 +17,17 @@ namespace GamePlay.Enemies
         [SerializeField, Min(0f)] private float bossAttractionThreshold = 15f;
         [SerializeField, Min(0.1f)] private float armyAttackRange = 1f;
         [SerializeField, Min(0f)] private float deathAnimationDuration = 1f;
+        [SerializeField, Min(0.05f), Tooltip("Minimum interval between boss hit VFX spawns.")]
+        private float hitEffectCooldown = 0.12f;
 
         public float AttractionThreshold => bossAttractionThreshold;
 
         private float _nextAttackTime;
+        private float _nextArmyTargetScanTime;
         private bool _deathHandled;
         private bool _hasEngagedArmy;
         private IHitable _pendingArmyHitTarget;
+        private float _nextHitEffectTime;
 
         public override void Initialize()
         {
@@ -66,8 +70,9 @@ namespace GamePlay.Enemies
 
         private void HandleBossDamaged(int damage)
         {
-            if (damage > 0)
+            if (damage > 0 && Time.time >= _nextHitEffectTime)
             {
+                _nextHitEffectTime = Time.time + Mathf.Max(0.05f, hitEffectCooldown);
                 // Play EffectType.Hit with a forward offset
                 Vector3 hitPos = transform.position + transform.forward * 1.5f;
                 Pack.Effector?.PlayEffect(EffectType.Hit, hitPos, transform.rotation);
@@ -77,6 +82,12 @@ namespace GamePlay.Enemies
         private void FixedUpdate()
         {
             if ((Pack.Healable?.IsDead ?? false) || _deathHandled || _isAttacked || Time.time < _nextAttackTime) return;
+
+            if (Time.time < _nextArmyTargetScanTime)
+            {
+                return;
+            }
+            _nextArmyTargetScanTime = Time.time + 0.1f;
 
             if (TryGetClosestActiveArmyAttacker(_hasEngagedArmy, out var armyAttacker))
             {
@@ -132,6 +143,11 @@ namespace GamePlay.Enemies
             PlayAnimation(AnimationType.Death, deathAnimationDuration, DespawnInterval);
             Pack.Effector?.PlayEffect(EffectType.Die, transform.position, transform.rotation);
             PlayDieEffectPerFrame();
+        }
+
+        protected override bool ShouldShowHealthUi(int currentHealth, int maxHealth)
+        {
+            return maxHealth > 0;
         }
 
         private void TryAttackArmy(IAttacker armySource)
@@ -205,8 +221,9 @@ namespace GamePlay.Enemies
                 return false;
             }
 
-            float closestDist = float.MaxValue;
+            float closestDistSqr = float.MaxValue;
             GamePlay.Characters.CharacterUnit closestUnit = null;
+            Vector3 bossPosition = transform.position;
 
             for (int i = 0; i < army.Units.Count; i++)
             {
@@ -216,10 +233,11 @@ namespace GamePlay.Enemies
                     continue;
                 }
 
-                float dist = Vector3.Distance(transform.position, unit.transform.position);
-                if (dist < closestDist)
+                Vector3 delta = unit.transform.position - bossPosition;
+                float distSqr = delta.sqrMagnitude;
+                if (distSqr < closestDistSqr)
                 {
-                    closestDist = dist;
+                    closestDistSqr = distSqr;
                     closestUnit = unit;
                 }
             }
@@ -229,7 +247,7 @@ namespace GamePlay.Enemies
                 return false;
             }
 
-            if (!allowAnyDistance && closestDist > armyAttackRange)
+            if (!allowAnyDistance && closestDistSqr > armyAttackRange * armyAttackRange)
             {
                 return false;
             }

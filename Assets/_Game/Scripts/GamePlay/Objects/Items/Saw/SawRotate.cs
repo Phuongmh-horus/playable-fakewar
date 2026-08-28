@@ -9,11 +9,23 @@ public class SawRotate : MonoBehaviour
     [SerializeField] private float rotateSpeed = 100f;
     [SerializeField] private Vector3 rotateAxis = Vector3.forward;
 
-    private void Update()
+    public static readonly List<SawRotate> ActiveSaws = new List<SawRotate>();
+
+    private void OnEnable()
+    {
+        ActiveSaws.Add(this);
+    }
+
+    private void OnDisable()
+    {
+        ActiveSaws.Remove(this);
+    }
+
+    public void Tick(float dt)
     {
         if (!isRotating) return;
 
-        transform.Rotate(rotateAxis, rotateSpeed * Time.deltaTime);
+        transform.Rotate(rotateAxis, rotateSpeed * dt);
     }
 
     public void SetRotating(bool isRot) => isRotating = isRot;

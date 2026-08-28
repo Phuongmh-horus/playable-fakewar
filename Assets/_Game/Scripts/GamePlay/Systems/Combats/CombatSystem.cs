@@ -34,6 +34,7 @@ namespace GamePlay.CombatSystems
             public Vector3 Direction;
             public Vector3 NormalizedDirection;
             public float MaxDistance;
+            public Vector2Int CollisionCell;
         }
 
         private readonly List<ManagedActorRefs> _actors = new List<ManagedActorRefs>();
@@ -49,6 +50,7 @@ namespace GamePlay.CombatSystems
                 refs.Attacker = null;
                 refs.Jumper = null;
                 refs.Transform = null;
+                refs.CollisionCell = default;
                 return refs;
             }
             return new ManagedActorRefs();
@@ -77,14 +79,17 @@ namespace GamePlay.CombatSystems
             if (Instance == this) Instance = null;
         }
 
+        private CollisionSystem _collisionSystem;
+
         /// <summary>
         /// Call this from a manager (e.g., GameplayManager.Update) in playable.
         /// </summary>
         public void ManualUpdate()
         {
-            if (CollisionSystem.Instance == null) return;
+            if (_collisionSystem == null) _collisionSystem = CollisionSystem.Instance;
+            if (_collisionSystem == null) return;
 
-            CollisionSystem.Instance.EnsureDataIsReady();
+            _collisionSystem.EnsureDataIsReady();
 
             int i = 0;
             while (i < _actors.Count)
@@ -104,7 +109,7 @@ namespace GamePlay.CombatSystems
 
                 if (actor.Attacker != null)
                 {
-                    hasHit = TryFindHitTarget(actor, out hitTarget);
+                    hasHit = TryFindHitTarget(actor, _collisionSystem, out hitTarget);
                 }
 
                 if (hasHit && hitTarget != null && hitTarget.IsActive)
@@ -146,6 +151,7 @@ namespace GamePlay.CombatSystems
 
             var refs = GetActorRef();
             refs.Transform = unitTransform;
+            refs.CollisionCell = CollisionSystem.GetSpatialCell(unitTransform.position);
 
             if ((flags & CapabilityFlags.Move) != 0 && pack.Mover != null)
             {
@@ -180,19 +186,34 @@ namespace GamePlay.CombatSystems
 
             if (t >= 1f)
             {
-                actor.Transform.position = actor.StartPosition + actor.NormalizedDirection * actor.MaxDistance;
+                Vector3 endPosition = actor.StartPosition + actor.NormalizedDirection * actor.MaxDistance;
+                actor.Transform.position = endPosition;
+                NotifyCollisionCellChanged(actor, endPosition);
                 return true;
             }
 
-            actor.Transform.position = actor.StartPosition + actor.NormalizedDirection * (actor.MaxDistance * t);
+            Vector3 position = actor.StartPosition + actor.NormalizedDirection * (actor.MaxDistance * t);
+            actor.Transform.position = position;
+            NotifyCollisionCellChanged(actor, position);
             return false;
         }
 
-        private bool TryFindHitTarget(ManagedActorRefs actor, out IHitable hitTarget)
+        private static void NotifyCollisionCellChanged(ManagedActorRefs actor, Vector3 position)
+        {
+            Vector2Int nextCell = CollisionSystem.GetSpatialCell(position);
+            if (actor.CollisionCell == nextCell)
+            {
+                return;
+            }
+
+            actor.CollisionCell = nextCell;
+            CollisionSystem.NotifyMoved(actor.Transform);
+        }
+
+        private bool TryFindHitTarget(ManagedActorRefs actor, CollisionSystem collisionSystem, out IHitable hitTarget)
         {
             hitTarget = null;
 
-            var collisionSystem = CollisionSystem.Instance;
             if (collisionSystem == null) return false;
             if (actor.Attacker == null) return false;
 

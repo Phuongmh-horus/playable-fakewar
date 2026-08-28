@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using GamePlay.Entities;
 using GamePlay.Items;
 using GamePlay.Roads;
+using GamePlay.CollisionSystems;
 using Pools;
 using UnityEngine;
 
@@ -403,7 +404,7 @@ namespace GamePlay.Map
                 foreach (var item in generatedObjects)
                 {
                     if (item != null)
-                        Destroy(item.gameObject);
+                        item.ReleaseGeneratedContent();
                 }
             }
 

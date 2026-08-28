@@ -12,10 +12,10 @@ namespace GamePlay.AnimationSystems
 
         [Header("VAT State Names")]
         [SerializeField] private string idleStateName = "";
-        [SerializeField] private string attackStateName = "Standing_Fire";
+        [SerializeField] private string attackStateName = "";
         [SerializeField] private string MoveStateName = "";
-        [SerializeField] private string moveLeftStateName = "Character_Move_Left_Baked";
-        [SerializeField] private string moveRightStateName = "Character_Move_Right_Baked";
+        [SerializeField] private string moveLeftStateName = "";
+        [SerializeField] private string moveRightStateName = "";
         [SerializeField, Min(0f)] private float crossFadeDuration = 0.1f;
 
         private AnimationType _currentAnimation = AnimationType.None;
