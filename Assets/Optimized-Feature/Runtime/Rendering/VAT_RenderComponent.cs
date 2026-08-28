@@ -11,6 +11,9 @@ namespace OptimizedFeature.Scripts
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public class VAT_RenderComponent : MonoBehaviour
     {
+        private static readonly Dictionary<int, Material[]> MaterialArraysByAssetId =
+            new Dictionary<int, Material[]>(64);
+
         private sealed class RuntimeParameterValue
         {
             public int Id;
@@ -37,6 +40,7 @@ namespace OptimizedFeature.Scripts
         private VATAnimStateData _targetState;
         private float _currentStateTime;
         private float _targetStateTime;
+        private float _deferredInvisibleDelta;
         private float _transitionDuration;
         private float _transitionTimer;
         private bool _isBlending;
@@ -51,15 +55,20 @@ namespace OptimizedFeature.Scripts
         // multi-material mesh, leaving every sub-renderer at its material default
         // frame. Keep a block for each baked material and write it by index.
         private MaterialPropertyBlock[] _propertyBlocks;
-        private int _frameIndexLowerId;
-        private int _frameIndexUpperId;
-        private int _blendWeightId;
+        private int _materialSlotCount;
+        private int _frameDataId;
 
         // --- Visibility ---
         private bool _isVisible = true;
+        private bool _isRuntimeBatchHidden;
         private readonly List<Renderer> _childRenderers = new List<Renderer>();
+        private readonly List<Renderer> _rendererQueryBuffer = new List<Renderer>();
         private readonly List<VATWeaponRenderComponent> _weaponRenderComponents =
             new List<VATWeaponRenderComponent>();
+        private readonly List<VATWeaponRenderComponent> _weaponQueryBuffer =
+            new List<VATWeaponRenderComponent>();
+        private Bounds _cachedLocalBounds;
+        private bool _localBoundsDirty = true;
 
         private int _currentFrameLower;
         private int _currentFrameUpper;
@@ -93,20 +102,19 @@ namespace OptimizedFeature.Scripts
             _stateB = new VATAnimStateData(string.Empty, 0, 0, 0);
             RebuildAnimatorRuntimeData();
 
-            // Cache child Renderers except our own MeshRenderer
-            Renderer[] allRenderers = GetComponentsInChildren<Renderer>(true);
-            if (allRenderers != null)
+            // Avoid the array-returning overload: projectile pool activation must
+            // not allocate when VAT components initialize for the first time.
+            GetComponentsInChildren(true, _rendererQueryBuffer);
+            int rendererCount = _rendererQueryBuffer.Count;
+            for (int i = 0; i < rendererCount; i++)
             {
-                int rLength = allRenderers.Length;
-                for (int i = 0; i < rLength; i++)
+                Renderer renderer = _rendererQueryBuffer[i];
+                if (renderer != null && renderer != _meshRenderer)
                 {
-                    Renderer r = allRenderers[i];
-                    if (r != null && r != _meshRenderer)
-                    {
-                        _childRenderers.Add(r);
-                    }
+                    _childRenderers.Add(renderer);
                 }
             }
+            _rendererQueryBuffer.Clear();
 
             RefreshWeaponSubRenders();
         }
@@ -179,6 +187,7 @@ namespace OptimizedFeature.Scripts
             pooledState.Configure(clip.ClipName, clip.StateHash, clip.StartFrame, clip.EndFrame, clip.FrameRate, clip.IsLooping);
             _currentState = pooledState;
             _currentStateTime = 0f;
+            _deferredInvisibleDelta = 0f;
             _targetState = null;
             _isBlending = false;
             _transitionTimer = 0f;
@@ -256,6 +265,7 @@ namespace OptimizedFeature.Scripts
             _targetState = null;
             _currentStateTime = 0f;
             _targetStateTime = 0f;
+            _deferredInvisibleDelta = 0f;
             _transitionTimer = 0f;
             _isBlending = false;
             _currentBlendTreeId = -1;
@@ -440,6 +450,7 @@ namespace OptimizedFeature.Scripts
         public void SetVATAssetData(VATAssetDataSO assetData)
         {
             _vatAssetData = assetData;
+            _localBoundsDirty = true;
             Stop();
             RebuildAnimatorRuntimeData();
             ApplyVATAssetData();
@@ -454,18 +465,18 @@ namespace OptimizedFeature.Scripts
         public void RefreshWeaponSubRenders(bool assignMissingWeaponAssets = true)
         {
             _weaponRenderComponents.Clear();
-            VATWeaponRenderComponent[] weaponComponents =
-                GetComponentsInChildren<VATWeaponRenderComponent>(true);
-            if (weaponComponents != null)
+            GetComponentsInChildren(true, _weaponQueryBuffer);
+            int weaponCount = _weaponQueryBuffer.Count;
+            for (int i = 0; i < weaponCount; i++)
             {
-                for (int i = 0; i < weaponComponents.Length; i++)
+                VATWeaponRenderComponent weapon = _weaponQueryBuffer[i];
+                if (weapon != null && !_weaponRenderComponents.Contains(weapon))
                 {
-                    if (weaponComponents[i] != null && !_weaponRenderComponents.Contains(weaponComponents[i]))
-                    {
-                        _weaponRenderComponents.Add(weaponComponents[i]);
-                    }
+                    _weaponRenderComponents.Add(weapon);
                 }
             }
+            _weaponQueryBuffer.Clear();
+            _localBoundsDirty = true;
 
             if (!assignMissingWeaponAssets || _vatAssetData == null)
             {
@@ -608,11 +619,16 @@ namespace OptimizedFeature.Scripts
 
         public void SetVisibility(bool visible)
         {
+            if (_isVisible == visible)
+            {
+                return;
+            }
+
             _isVisible = visible;
 
             if (_meshRenderer != null)
             {
-                _meshRenderer.enabled = visible;
+                _meshRenderer.enabled = visible && !_isRuntimeBatchHidden;
             }
 
             int count = _childRenderers.Count;
@@ -633,6 +649,22 @@ namespace OptimizedFeature.Scripts
             }
         }
 
+        internal void SetRuntimeBatchHidden(bool hidden)
+        {
+            if (_isRuntimeBatchHidden == hidden) return;
+
+            _isRuntimeBatchHidden = hidden;
+            if (_meshRenderer != null)
+            {
+                _meshRenderer.enabled = _isVisible && !hidden;
+            }
+
+            if (!hidden)
+            {
+                ApplyCurrentFrameToRenderer();
+            }
+        }
+
         public Bounds GetWorldBounds()
         {
             if (_vatAssetData == null)
@@ -640,33 +672,51 @@ namespace OptimizedFeature.Scripts
                 return new Bounds(transform.position, Vector3.one);
             }
 
-            Vector3 min = _vatAssetData.BoundingMin;
-            Vector3 max = _vatAssetData.BoundingMax;
-            Vector3 center = (min + max) * 0.5f;
-            Vector3 size = max - min;
+            if (_localBoundsDirty)
+            {
+                RebuildLocalBounds();
+            }
 
-            Vector3 worldCenter = transform.TransformPoint(center);
+            Vector3 worldCenter = transform.TransformPoint(_cachedLocalBounds.center);
             Vector3 scale = transform.lossyScale;
             Vector3 worldSize = new Vector3(
-                size.x * Mathf.Abs(scale.x),
-                size.y * Mathf.Abs(scale.y),
-                size.z * Mathf.Abs(scale.z)
+                _cachedLocalBounds.size.x * Mathf.Abs(scale.x),
+                _cachedLocalBounds.size.y * Mathf.Abs(scale.y),
+                _cachedLocalBounds.size.z * Mathf.Abs(scale.z)
             );
 
             // Safety padding to avoid clipping/popping during deformation animations
             worldSize *= 1.15f;
 
-            Bounds bounds = new Bounds(worldCenter, worldSize);
+            return new Bounds(worldCenter, worldSize);
+        }
+
+        internal void MarkLocalBoundsDirty()
+        {
+            _localBoundsDirty = true;
+        }
+
+        private void RebuildLocalBounds()
+        {
+            Vector3 bodyMin = _vatAssetData.BoundingMin;
+            Vector3 bodyMax = _vatAssetData.BoundingMax;
+            _cachedLocalBounds = new Bounds((bodyMin + bodyMax) * 0.5f, bodyMax - bodyMin);
+
             for (int i = 0; i < _weaponRenderComponents.Count; i++)
             {
                 VATWeaponRenderComponent weapon = _weaponRenderComponents[i];
-                if (weapon != null && weapon.WeaponAsset != null)
+                if (weapon != null &&
+                    weapon.WeaponAsset != null &&
+                    weapon.gameObject.activeInHierarchy)
                 {
-                    bounds.Encapsulate(weapon.GetWorldBounds());
+                    Vector3 weaponMin = weapon.WeaponAsset.BoundingMin;
+                    Vector3 weaponMax = weapon.WeaponAsset.BoundingMax;
+                    _cachedLocalBounds.Encapsulate(weaponMin);
+                    _cachedLocalBounds.Encapsulate(weaponMax);
                 }
             }
 
-            return bounds;
+            _localBoundsDirty = false;
         }
 
         internal void CollectRuntimeBatchSources(List<VATRuntimeMeshBatcher.Source> sources)
@@ -675,15 +725,15 @@ namespace OptimizedFeature.Scripts
 
             if (_meshFilter != null && _meshRenderer != null && _vatAssetData != null)
             {
-                Material[] materials = _meshRenderer.sharedMaterials;
-                if (materials != null && materials.Length == 1 && materials[0] != null)
+                Material material = _meshRenderer.sharedMaterial;
+                if (material != null && _materialSlotCount == 1)
                 {
                     sources.Add(new VATRuntimeMeshBatcher.Source
                     {
                         MeshFilter = _meshFilter,
                         Renderer = _meshRenderer,
                         Mesh = _meshFilter.sharedMesh,
-                        Material = materials[0],
+                        Material = material,
                         Owner = this,
                         Weapon = null,
                         BoundsMin = _vatAssetData.BoundingMin,
@@ -712,6 +762,18 @@ namespace OptimizedFeature.Scripts
         public void ManualUpdate(float deltaTime, bool updateRenderer = true)
         {
             if (_currentState == null) return;
+
+            if (!updateRenderer)
+            {
+                _deferredInvisibleDelta += deltaTime;
+                return;
+            }
+
+            if (_deferredInvisibleDelta > 0f)
+            {
+                deltaTime += _deferredInvisibleDelta;
+                _deferredInvisibleDelta = 0f;
+            }
 
             if (!_isBlending)
             {
@@ -1061,14 +1123,12 @@ namespace OptimizedFeature.Scripts
 
         private void InitializeShaderPropertyIds()
         {
-            _frameIndexLowerId = Shader.PropertyToID("_FrameIndexLower");
-            _frameIndexUpperId = Shader.PropertyToID("_FrameIndexUpper");
-            _blendWeightId = Shader.PropertyToID("_BlendWeight");
+            _frameDataId = Shader.PropertyToID("_VATFrameData");
         }
 
         private void ApplyVATAssetData()
         {
-            if (_frameIndexLowerId == 0) InitializeShaderPropertyIds();
+            if (_frameDataId == 0) InitializeShaderPropertyIds();
             if (_vatAssetData == null) return;
 
             if (_meshFilter == null) _meshFilter = GetComponent<MeshFilter>();
@@ -1083,10 +1143,11 @@ namespace OptimizedFeature.Scripts
             if (_meshRenderer != null && _vatAssetData.BakedMaterials != null &&
                 _vatAssetData.BakedMaterials.Count > 0)
             {
-                _meshRenderer.sharedMaterials = _vatAssetData.BakedMaterials.ToArray();
+                _meshRenderer.sharedMaterials = GetCachedMaterialArray(_vatAssetData);
             }
 
             EnsurePropertyBlocks(GetBakedMaterialCount());
+            _materialSlotCount = _propertyBlocks.Length;
             for (int materialIndex = 0; materialIndex < _propertyBlocks.Length; materialIndex++)
             {
                 MaterialPropertyBlock propertyBlock = _propertyBlocks[materialIndex];
@@ -1095,16 +1156,28 @@ namespace OptimizedFeature.Scripts
                 // state belongs in the per-renderer block; this keeps identical
                 // VAT instances eligible for GPU instancing.
                 propertyBlock.Clear();
-                propertyBlock.SetFloat(_frameIndexLowerId, _currentFrameLower);
-                propertyBlock.SetFloat(_frameIndexUpperId, _currentFrameUpper);
-                propertyBlock.SetFloat(_blendWeightId, _currentBlendWeight);
+                propertyBlock.SetVector(_frameDataId, new Vector4(
+                    _currentFrameLower, _currentFrameUpper, _currentBlendWeight, 0f));
                 _meshRenderer.SetPropertyBlock(propertyBlock, materialIndex);
             }
 
             // Re-assert the renderer state after asset binding. This also
             // recovers from a stale prefab/culling state that disabled the
             // renderer before the VAT asset was loaded.
-            _meshRenderer.enabled = _isVisible;
+            _meshRenderer.enabled = _isVisible && !_isRuntimeBatchHidden;
+        }
+
+        private static Material[] GetCachedMaterialArray(VATAssetDataSO assetData)
+        {
+            int assetId = assetData.GetInstanceID();
+            if (MaterialArraysByAssetId.TryGetValue(assetId, out Material[] materials))
+            {
+                return materials;
+            }
+
+            materials = assetData.BakedMaterials.ToArray();
+            MaterialArraysByAssetId[assetId] = materials;
+            return materials;
         }
 
         private void UpdateShaderFrames(int frameLower, int frameUpper, float blendWeight)
@@ -1113,15 +1186,9 @@ namespace OptimizedFeature.Scripts
             _currentFrameUpper = frameUpper;
             _currentBlendWeight = blendWeight;
 
-            if (_meshRenderer == null || _propertyBlocks == null) return;
-
-            for (int materialIndex = 0; materialIndex < _propertyBlocks.Length; materialIndex++)
+            if (!_isRuntimeBatchHidden)
             {
-                MaterialPropertyBlock propertyBlock = _propertyBlocks[materialIndex];
-                propertyBlock.SetFloat(_frameIndexLowerId, frameLower);
-                propertyBlock.SetFloat(_frameIndexUpperId, frameUpper);
-                propertyBlock.SetFloat(_blendWeightId, blendWeight);
-                _meshRenderer.SetPropertyBlock(propertyBlock, materialIndex);
+                ApplyCurrentFrameToRenderer();
             }
 
             for (int i = 0; i < _weaponRenderComponents.Count; i++)
@@ -1131,6 +1198,20 @@ namespace OptimizedFeature.Scripts
                 {
                     weapon.ApplyFrame(frameLower, frameUpper, blendWeight);
                 }
+            }
+        }
+
+        private void ApplyCurrentFrameToRenderer()
+        {
+            if (_meshRenderer == null || _propertyBlocks == null) return;
+
+            Vector4 frameData = new Vector4(
+                _currentFrameLower, _currentFrameUpper, _currentBlendWeight, 0f);
+            for (int materialIndex = 0; materialIndex < _propertyBlocks.Length; materialIndex++)
+            {
+                MaterialPropertyBlock propertyBlock = _propertyBlocks[materialIndex];
+                propertyBlock.SetVector(_frameDataId, frameData);
+                _meshRenderer.SetPropertyBlock(propertyBlock, materialIndex);
             }
         }
 

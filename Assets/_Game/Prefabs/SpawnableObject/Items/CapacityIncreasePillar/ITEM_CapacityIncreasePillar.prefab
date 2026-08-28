@@ -53,7 +53,7 @@ MeshRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 1
+  m_MotionVectors: 2
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 2
@@ -260,7 +260,7 @@ MonoBehaviour:
   healthComponent: {fileID: 3685822354733380185}
   healthTextPrefab: {fileID: 6512158636180351403, guid: 5efc501b0b4aa06408c9b9b97d9f516a, type: 3}
   autoResolveHealthComponent: 1
-  defaultTextPrefabResourcePath: Prefab/HitDamage
+  defaultTextPrefabResourcePath: Prefabs/HitDamage
   flyUpDistance: 2.5
   flyUpDuration: 0.25
   fallDownDistance: 2.5
@@ -291,6 +291,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 0.8
     WaitForAction: 0.5
+    MaxVfxPerFrame: 0
   - Type: 18
     VfxPrefab: {fileID: 0}
     ParentToTarget: 0
@@ -298,6 +299,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
+    MaxVfxPerFrame: 0
   audioSource: {fileID: 3473752288603796895}
   warnIfNoAudioRouteInEditor: 0
 --- !u!82 &3473752288603796895
@@ -449,7 +451,7 @@ MeshRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 1
+  m_MotionVectors: 2
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 2

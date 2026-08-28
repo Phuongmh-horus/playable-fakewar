@@ -505,6 +505,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8830280403152656725, guid: 8ae83e2df97787e4fb5af65387699e18, type: 3}
+      propertyPath: m_MotionVectors
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8830280403152656725, guid: 8ae83e2df97787e4fb5af65387699e18, type: 3}
       propertyPath: m_ReceiveShadows
       value: 0
       objectReference: {fileID: 0}
@@ -567,6 +571,10 @@ PrefabInstance:
     - target: {fileID: -6092626787428175166, guid: 8ae83e2df97787e4fb5af65387699e18, type: 3}
       propertyPath: m_CastShadows
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -6092626787428175166, guid: 8ae83e2df97787e4fb5af65387699e18, type: 3}
+      propertyPath: m_MotionVectors
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -6092626787428175166, guid: 8ae83e2df97787e4fb5af65387699e18, type: 3}
       propertyPath: m_ReceiveShadows

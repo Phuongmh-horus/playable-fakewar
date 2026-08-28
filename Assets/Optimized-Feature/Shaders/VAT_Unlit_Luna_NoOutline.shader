@@ -4,6 +4,8 @@ Shader "OptimizedFeature/VAT_Unlit_Luna_NoOutline"
     {
         _MainTex ("Base Texture", 2D) = "white" {}
         _Color ("Tint", Color) = (1, 1, 1, 1)
+        _Brightness ("Brightness", Range(0, 2)) = 1
+        _Contrast ("Contrast", Range(0, 2)) = 1
         _VATTex ("VAT Positions (RGB = Offset)", 2D) = "black" {}
         _BoundingMin ("Bounding Min (XYZ)", Vector) = (-1, -1, -1, 0)
         _BoundingMax ("Bounding Max (XYZ)", Vector) = (1, 1, 1, 0)
@@ -14,6 +16,7 @@ Shader "OptimizedFeature/VAT_Unlit_Luna_NoOutline"
         _FrameIndexLower ("Current State Frame Index", Float) = 0
         _FrameIndexUpper ("Target State Frame Index", Float) = 0
         _BlendWeight ("Cross-fade Blend Weight (0 to 1)", Float) = 0
+        [HideInInspector] _VATFrameData ("VAT Frame Data", Vector) = (0, 0, 0, 0)
         [HideInInspector] _VATBatchMode ("VAT Runtime Batch Mode", Float) = 0
     }
 
@@ -57,6 +60,8 @@ Shader "OptimizedFeature/VAT_Unlit_Luna_NoOutline"
 
             sampler2D _MainTex;
             fixed4 _Color;
+            half _Brightness;
+            half _Contrast;
             float4 _MainTex_ST;
 
             v2f vert(appdata v)
@@ -65,12 +70,10 @@ Shader "OptimizedFeature/VAT_Unlit_Luna_NoOutline"
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
 
-                float instanceFrameLower = UNITY_ACCESS_INSTANCED_PROP(VATProps, _FrameIndexLower);
-                float instanceFrameUpper = UNITY_ACCESS_INSTANCED_PROP(VATProps, _FrameIndexUpper);
-                float instanceBlendW = UNITY_ACCESS_INSTANCED_PROP(VATProps, _BlendWeight);
-                float frameLower = _VATBatchMode > 0.5 ? v.vatBatchFrame.x : instanceFrameLower;
-                float frameUpper = _VATBatchMode > 0.5 ? v.vatBatchFrame.y : instanceFrameUpper;
-                float blendW = _VATBatchMode > 0.5 ? v.vatBatchFrame.z : instanceBlendW;
+                float4 instanceFrameData = UNITY_ACCESS_INSTANCED_PROP(VATProps, _VATFrameData);
+                float frameLower = _VATBatchMode > 0.5 ? v.vatBatchFrame.x : instanceFrameData.x;
+                float frameUpper = _VATBatchMode > 0.5 ? v.vatBatchFrame.y : instanceFrameData.y;
+                float blendW = _VATBatchMode > 0.5 ? v.vatBatchFrame.z : instanceFrameData.z;
 
                 float textureWidth = max(1.0, _VATTextureWidth);
                 float textureHeight = max(1.0, _VATTextureHeight);
@@ -83,16 +86,17 @@ Shader "OptimizedFeature/VAT_Unlit_Luna_NoOutline"
                     (lowerTexelRow + 0.5) / textureHeight);
                 float3 rawPosLower = tex2Dlod(_VATTex, float4(lowerUV, 0, 0)).rgb;
 
-                // Sample Target State Position from VAT
-                float upperTexelIndex = frameUpper * _NumVertices + v.uv2.x;
-                float upperTexelRow = floor(upperTexelIndex / textureWidth);
-                float2 upperUV = float2(
-                    (upperTexelIndex - upperTexelRow * textureWidth + 0.5) / textureWidth,
-                    (upperTexelRow + 0.5) / textureHeight);
-                float3 rawPosUpper = tex2Dlod(_VATTex, float4(upperUV, 0, 0)).rgb;
-
-                // Cross-fade blending between current and target animation states
-                float3 rawPos = lerp(rawPosLower, rawPosUpper, blendW);
+                float3 rawPos = rawPosLower;
+                if (blendW > 0.0001)
+                {
+                    float upperTexelIndex = frameUpper * _NumVertices + v.uv2.x;
+                    float upperTexelRow = floor(upperTexelIndex / textureWidth);
+                    float2 upperUV = float2(
+                        (upperTexelIndex - upperTexelRow * textureWidth + 0.5) / textureWidth,
+                        (upperTexelRow + 0.5) / textureHeight);
+                    float3 rawPosUpper = tex2Dlod(_VATTex, float4(upperUV, 0, 0)).rgb;
+                    rawPos = lerp(rawPosLower, rawPosUpper, blendW);
+                }
 
                 // Unpack from normalized [0, 1] range to Object Space Bounding Box
                 float3 objectPos = lerp(_BoundingMin.xyz, _BoundingMax.xyz, rawPos);
@@ -113,6 +117,8 @@ Shader "OptimizedFeature/VAT_Unlit_Luna_NoOutline"
             fixed4 frag(v2f i) : SV_Target
             {
                 fixed4 col = tex2D(_MainTex, i.uv) * _Color;
+                col.rgb = (col.rgb - 0.5) * _Contrast + 0.5;
+                col.rgb *= _Brightness;
                 return col;
             }
             ENDCG

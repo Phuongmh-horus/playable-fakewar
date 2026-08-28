@@ -49,7 +49,7 @@ public class CullingSystem : MonoBehaviour
         }
     }
 
-    private void Update()
+    public void ManualUpdate()
     {
         if (config == null || _state == null || _state.cells.Count == 0) return;
 

@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: FollowPlayerState
   m_EditorClassIdentifier: 
   CameraStateName: 2
-  fieldOfView: 70
+  fieldOfView: 65
   playerTransform: {fileID: 0}
-  offset: {x: 0, y: 35, z: -20}
-  rotationOffset: {x: 43, y: 0, z: 0}
+  offset: {x: 0, y: 35, z: -25}
+  rotationOffset: {x: 40, y: 0, z: 0}
   followSpeedX: 2
   followSpeed: 5
   rotationSpeed: 2

@@ -11,9 +11,10 @@ namespace OptimizedFeature.Scripts
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public class VATWeaponRenderComponent : MonoBehaviour
     {
-        private static readonly int FrameIndexLowerId = Shader.PropertyToID("_FrameIndexLower");
-        private static readonly int FrameIndexUpperId = Shader.PropertyToID("_FrameIndexUpper");
-        private static readonly int BlendWeightId = Shader.PropertyToID("_BlendWeight");
+        private static readonly int FrameDataId = Shader.PropertyToID("_VATFrameData");
+        private static readonly Material[] EmptyMaterials = new Material[0];
+        private static readonly Dictionary<int, Material[]> MaterialArraysByAssetId =
+            new Dictionary<int, Material[]>(64);
 
         [SerializeField] private MeshFilter _meshFilter;
         [SerializeField] private MeshRenderer _meshRenderer;
@@ -22,7 +23,12 @@ namespace OptimizedFeature.Scripts
         [SerializeField] private VAT_RenderComponent _frameSource;
 
         private MaterialPropertyBlock[] _propertyBlocks;
+        private int _materialSlotCount;
         private bool _isVisible = true;
+        private bool _isRuntimeBatchHidden;
+        private int _currentFrameLower;
+        private int _currentFrameUpper;
+        private float _currentBlendWeight;
 
         public VATWeaponAssetSO WeaponAsset => _weaponAsset;
         public int WeaponHash => _weaponHash;
@@ -41,9 +47,20 @@ namespace OptimizedFeature.Scripts
             ApplyWeaponAsset();
         }
 
+        private void OnEnable()
+        {
+            _frameSource?.MarkLocalBoundsDirty();
+        }
+
+        private void OnDisable()
+        {
+            _frameSource?.MarkLocalBoundsDirty();
+        }
+
         public void SetFrameSource(VAT_RenderComponent frameSource)
         {
             _frameSource = frameSource;
+            _frameSource?.MarkLocalBoundsDirty();
             if (Application.isPlaying)
             {
                 NormalizeToFrameSourceSpace();
@@ -71,31 +88,67 @@ namespace OptimizedFeature.Scripts
             }
 
             _weaponAsset = weaponAsset;
+            _frameSource?.MarkLocalBoundsDirty();
             ApplyWeaponAsset();
         }
 
         public void SetVisibility(bool visible)
         {
+            if (_isVisible == visible)
+            {
+                return;
+            }
+
             _isVisible = visible;
             if (_meshRenderer != null)
             {
-                _meshRenderer.enabled = visible && _weaponAsset != null;
+                _meshRenderer.enabled = visible && _weaponAsset != null && !_isRuntimeBatchHidden;
+            }
+        }
+
+        internal void SetRuntimeBatchHidden(bool hidden)
+        {
+            if (_isRuntimeBatchHidden == hidden) return;
+
+            _isRuntimeBatchHidden = hidden;
+            if (_meshRenderer != null)
+            {
+                _meshRenderer.enabled = _isVisible && _weaponAsset != null && !hidden;
+            }
+
+            if (!hidden)
+            {
+                ApplyCurrentFrameToRenderer();
             }
         }
 
         public void ApplyFrame(int frameLower, int frameUpper, float blendWeight)
+        {
+            _currentFrameLower = frameLower;
+            _currentFrameUpper = frameUpper;
+            _currentBlendWeight = blendWeight;
+
+            if (_isRuntimeBatchHidden)
+            {
+                return;
+            }
+
+            ApplyCurrentFrameToRenderer();
+        }
+
+        private void ApplyCurrentFrameToRenderer()
         {
             if (_weaponAsset == null || _meshRenderer == null || _propertyBlocks == null)
             {
                 return;
             }
 
+            Vector4 frameData = new Vector4(
+                _currentFrameLower, _currentFrameUpper, _currentBlendWeight, 0f);
             for (int materialIndex = 0; materialIndex < _propertyBlocks.Length; materialIndex++)
             {
                 MaterialPropertyBlock propertyBlock = _propertyBlocks[materialIndex];
-                propertyBlock.SetFloat(FrameIndexLowerId, frameLower);
-                propertyBlock.SetFloat(FrameIndexUpperId, frameUpper);
-                propertyBlock.SetFloat(BlendWeightId, blendWeight);
+                propertyBlock.SetVector(FrameDataId, frameData);
                 _meshRenderer.SetPropertyBlock(propertyBlock, materialIndex);
             }
         }
@@ -109,15 +162,15 @@ namespace OptimizedFeature.Scripts
             EnsureComponents();
             if (_meshFilter == null || _meshRenderer == null) return;
 
-            Material[] materials = _meshRenderer.sharedMaterials;
-            if (materials == null || materials.Length != 1 || materials[0] == null) return;
+            Material material = _meshRenderer.sharedMaterial;
+            if (material == null || _materialSlotCount != 1) return;
 
             sources.Add(new VATRuntimeMeshBatcher.Source
             {
                 MeshFilter = _meshFilter,
                 Renderer = _meshRenderer,
                 Mesh = _meshFilter.sharedMesh,
-                Material = materials[0],
+                Material = material,
                 Owner = frameSource,
                 Weapon = this,
                 BoundsMin = _weaponAsset.BoundingMin,
@@ -185,22 +238,23 @@ namespace OptimizedFeature.Scripts
             if (_weaponAsset == null)
             {
                 _meshFilter.sharedMesh = null;
-                _meshRenderer.sharedMaterials = new Material[0];
+                _meshRenderer.sharedMaterials = EmptyMaterials;
                 _meshRenderer.enabled = false;
                 _propertyBlocks = null;
                 return;
             }
 
             _meshFilter.sharedMesh = _weaponAsset.BakedStaticMesh;
-            if (_weaponAsset.BakedMaterials != null && _weaponAsset.BakedMaterials.Count > 0)
+            bool hasBakedMaterials = _weaponAsset.BakedMaterials != null &&
+                                      _weaponAsset.BakedMaterials.Count > 0;
+            int materialCount = hasBakedMaterials ? _weaponAsset.BakedMaterials.Count : 1;
+            if (hasBakedMaterials)
             {
-                _meshRenderer.sharedMaterials = _weaponAsset.BakedMaterials.ToArray();
+                _meshRenderer.sharedMaterials = GetCachedMaterialArray(_weaponAsset);
             }
 
-            int materialCount = _weaponAsset.BakedMaterials != null && _weaponAsset.BakedMaterials.Count > 0
-                ? _weaponAsset.BakedMaterials.Count
-                : 1;
             EnsurePropertyBlocks(materialCount);
+            _materialSlotCount = _propertyBlocks.Length;
             for (int materialIndex = 0; materialIndex < _propertyBlocks.Length; materialIndex++)
             {
                 MaterialPropertyBlock propertyBlock = _propertyBlocks[materialIndex];
@@ -210,7 +264,27 @@ namespace OptimizedFeature.Scripts
                 _meshRenderer.SetPropertyBlock(propertyBlock, materialIndex);
             }
 
-            _meshRenderer.enabled = _isVisible;
+            _meshRenderer.enabled = _isVisible && !_isRuntimeBatchHidden;
+        }
+
+        private static Material[] GetCachedMaterialArray(VATWeaponAssetSO weaponAsset)
+        {
+            int assetId = weaponAsset.GetInstanceID();
+            if (MaterialArraysByAssetId.TryGetValue(assetId, out Material[] materials))
+            {
+                return materials;
+            }
+
+            List<Material> bakedMaterials = weaponAsset.BakedMaterials;
+            if (bakedMaterials == null || bakedMaterials.Count == 0)
+            {
+                MaterialArraysByAssetId[assetId] = EmptyMaterials;
+                return EmptyMaterials;
+            }
+
+            materials = bakedMaterials.ToArray();
+            MaterialArraysByAssetId[assetId] = materials;
+            return materials;
         }
 
         private void EnsurePropertyBlocks(int materialCount)

@@ -20,14 +20,14 @@ MonoBehaviour:
   TotalFrames: 62
   ModelScale: {x: 1, y: 1, z: 1}
   Clips:
-  - ClipName: Enemy_basic_Idle
-    _stateHash: -1818095971
+  - ClipName: Enemy_basic_idle
+    _stateHash: 332393917
     StartFrame: 0
     EndFrame: 44
     FrameRate: 30
     IsLooping: 1
-  - ClipName: Enemy_Basic_Run
-    _stateHash: -1185952408
+  - ClipName: Enemy_basic_run
+    _stateHash: 533051944
     StartFrame: 45
     EndFrame: 61
     FrameRate: 30
@@ -38,7 +38,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 1fb9352618d248a4c885c9b3f4f15d3c, type: 2}
   WeaponAssets: []
   DefaultWeaponAsset: {fileID: 0}
-  DefaultStateName: -1185952408
+  DefaultStateName: 533051944
   AnimatorAsset: {fileID: 0}
   _legacyAnimatorParameters: []
   _legacyAnimatorTransitions: []

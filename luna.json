@@ -127,7 +127,15 @@
                 "Assets/Font/MUSEOSANSROUNDED-1000 SDF.asset",
                 "Assets/TextMesh Pro/Sprites/EmojiOne.png",
                 "Assets/Kho/Assets/texture/T_road.png",
-                "Assets/Kho/Assets/texture/T_road_side.png"
+                "Assets/Kho/Assets/texture/T_road_side.png",
+                "Assets/_Game/Animation/Enemy_Basic/Enemy_Basic_New.fbx",
+                "Assets/Kho/Charater/mesh/EN_basic.fbx",
+                "Assets/_Game/Animation/Small-pig/Small_Pig_Base.fbx",
+                "Assets/Kho/Charater/mesh/EN_pig.fbx",
+                "Assets/_Game/Animation/Enemy_Basic/Enemy_Basic_New.fbx",
+                "Assets/_Game/Animation/Small-pig/Small_Pig_Base.fbx",
+                "Assets/Kho/Charater/mesh/EN_basic.fbx",
+                "Assets/Kho/Charater/mesh/EN_pig.fbx"
             ],
             "includes": [
                 "Assets/Kho/Charater/mesh/EN_basic.fbx",
@@ -7697,15 +7705,7 @@
                 "excluded": true
             },
             {
-                "name": "ImageSlider",
-                "excluded": true
-            },
-            {
                 "name": "PlayerArmy.ArmyUnit",
-                "excluded": true
-            },
-            {
-                "name": "PlayerArmy.PlayerArmySystem.ForwardTargetInfo",
                 "excluded": true
             },
             {
@@ -7722,14 +7722,6 @@
             },
             {
                 "name": "TurntableDataSO",
-                "excluded": true
-            },
-            {
-                "name": "UICapacityBar",
-                "excluded": true
-            },
-            {
-                "name": "UICapacityBar.ActiveVfxSprite",
                 "excluded": true
             },
             {
@@ -9236,7 +9228,7 @@
                     },
                     {
                         "name": "Value#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Value#set",
@@ -9252,7 +9244,7 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "toString",
@@ -23211,14 +23203,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "GetExplosionShotAttacker",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ReturnExplosionShotAttacker",
-                        "excluded": true
-                    },
-                    {
                         "name": "Awake",
                         "excluded": false
                     },
@@ -23251,19 +23235,11 @@
                         "excluded": false
                     },
                     {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
                         "name": "ShiftProjectileTimes",
                         "excluded": true
                     },
                     {
                         "name": "TryResolvePlayerReference",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyExplosionShotIfAvailable",
                         "excluded": false
                     },
                     {
@@ -23291,16 +23267,16 @@
                         "excluded": false
                     },
                     {
-                        "name": "QueryCharacterTargetsNearSegment",
-                        "excluded": true
+                        "name": "RemoveProjectileAtSwapBack",
+                        "excluded": false
                     },
                     {
-                        "name": "EnsureCharacterSpatialIndex",
-                        "excluded": true
+                        "name": "ManualUpdate",
+                        "excluded": false
                     },
                     {
-                        "name": "ClearCharacterSpatialBuckets",
-                        "excluded": true
+                        "name": "CanRegisterProjectile",
+                        "excluded": false
                     }
                 ]
             },
@@ -23341,15 +23317,15 @@
                         "excluded": false
                     },
                     {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
                         "name": "UnregisterAllEnemies",
                         "excluded": false
                     },
                     {
                         "name": "CompactInactiveEnemies",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ManualUpdate",
                         "excluded": false
                     }
                 ]
@@ -23377,10 +23353,6 @@
                     {
                         "name": "EnsureLaneSetup",
                         "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": true
                     },
                     {
                         "name": "OnDisable",
@@ -23481,6 +23453,10 @@
                     {
                         "name": "RotateYOnly",
                         "excluded": true
+                    },
+                    {
+                        "name": "ManualUpdate",
+                        "excluded": true
                     }
                 ]
             },
@@ -23514,7 +23490,7 @@
                     },
                     {
                         "name": "ManualUpdate",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RegisterInternal",
@@ -23522,6 +23498,10 @@
                     },
                     {
                         "name": "UnregisterInternal",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RemoveAtSwapBack",
                         "excluded": true
                     }
                 ]
@@ -23549,14 +23529,6 @@
                     {
                         "name": "ResolveUpgradeSteps",
                         "excluded": false
-                    },
-                    {
-                        "name": "OptimizeRenderHierarchy",
-                        "excluded": true
-                    },
-                    {
-                        "name": "TrySetSkinnedProperties",
-                        "excluded": true
                     },
                     {
                         "name": "PlayableEra#get",
@@ -23733,10 +23705,6 @@
                     {
                         "name": "MarkPrimaryBuffAppliedIfNeeded",
                         "excluded": false
-                    },
-                    {
-                        "name": "ResetStatModifierData",
-                        "excluded": true
                     },
                     {
                         "name": "SetMainWeapon",
@@ -24139,6 +24107,14 @@
                     {
                         "name": "WarmupHitTextRuntimeCache",
                         "excluded": false
+                    },
+                    {
+                        "name": "NotifyCollisionPositionChanged",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ReleaseGeneratedContent",
+                        "excluded": true
                     }
                 ]
             },
@@ -26928,7 +26904,7 @@
                     },
                     {
                         "name": "op_Equality",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "op_Inequality",
@@ -35169,10 +35145,6 @@
                         "excluded": true
                     },
                     {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
                         "name": "InitializeGrid",
                         "excluded": false
                     },
@@ -35202,6 +35174,10 @@
                     },
                     {
                         "name": "GetTargetPosition",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ManualUpdate",
                         "excluded": false
                     }
                 ]
@@ -35673,15 +35649,63 @@
                         "excluded": false
                     },
                     {
-                        "name": "EnsureSpatialIndex",
-                        "excluded": false
-                    },
-                    {
                         "name": "ClearSpatialBuckets",
                         "excluded": false
                     },
                     {
                         "name": "MaxHorizontalColliderExtent#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "NotifyMoved",
+                        "excluded": false
+                    },
+                    {
+                        "name": "NotifyMoved$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "NotifyColliderChanged",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetSpatialCell",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetHorizontalColliderExtent",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateSpatialCell",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RefreshTargetData",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AddToSpatialBucket",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RemoveFromSpatialBucket",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ReplaceSpatialBucketIndex",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateMaxHorizontalColliderExtent",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RecalculateMaxHorizontalColliderExtent",
+                        "excluded": false
+                    },
+                    {
+                        "name": "NotifyMovedBatch",
                         "excluded": true
                     }
                 ]
@@ -35762,6 +35786,10 @@
                     },
                     {
                         "name": "RemoveAtSwapBack",
+                        "excluded": true
+                    },
+                    {
+                        "name": "NotifyCollisionCellChanged",
                         "excluded": true
                     }
                 ]
@@ -35969,15 +35997,15 @@
                         "excluded": true
                     },
                     {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
                         "name": "HandleInput",
                         "excluded": false
                     },
                     {
                         "name": "GetMoveDelta",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ManualUpdate",
                         "excluded": false
                     }
                 ]
@@ -36371,6 +36399,10 @@
                     {
                         "name": "CanSpawnTextThisFrame",
                         "excluded": false
+                    },
+                    {
+                        "name": "ShowCustomNumber",
+                        "excluded": false
                     }
                 ]
             },
@@ -36619,10 +36651,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "Register",
-                        "excluded": false
-                    },
-                    {
                         "name": "Unregister",
                         "excluded": false
                     },
@@ -36644,6 +36672,18 @@
                     },
                     {
                         "name": "RemoveAtSwapBack",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsValidMovingGateBlocker",
+                        "excluded": false
+                    },
+                    {
+                        "name": "NotifyCollisionCellChanged",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RegisterItem",
                         "excluded": false
                     }
                 ]
@@ -36675,36 +36715,6 @@
                     {
                         "name": "ResolveEffectComponent",
                         "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "PlayerArmy.PlayerArmySystem.DelayedSwordSkill",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "getDefaultValue",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ctor",
-                        "excluded": false
-                    },
-                    {
-                        "name": "getHashCode",
-                        "excluded": true
-                    },
-                    {
-                        "name": "equals",
-                        "excluded": true
-                    },
-                    {
-                        "name": "$clone",
-                        "excluded": true
                     }
                 ]
             },
@@ -36807,6 +36817,18 @@
                     {
                         "name": "GetInactiveCount",
                         "excluded": true
+                    },
+                    {
+                        "name": "FindPoolableInParents",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsPooled",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TrySpawn",
+                        "excluded": false
                     }
                 ]
             },
@@ -36847,12 +36869,20 @@
                         "excluded": false
                     },
                     {
-                        "name": "Update",
+                        "name": "SetRotating",
                         "excluded": false
                     },
                     {
-                        "name": "SetRotating",
-                        "excluded": false
+                        "name": "OnEnable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Tick",
+                        "excluded": true
                     }
                 ]
             },
@@ -37329,14 +37359,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "SafePoolGet",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SafePoolRelease",
-                        "excluded": false
-                    },
-                    {
                         "name": "IsNonEnemyTarget",
                         "excluded": true
                     },
@@ -37355,10 +37377,6 @@
                     {
                         "name": "ProjectilePoint#get",
                         "excluded": false
-                    },
-                    {
-                        "name": "ActiveWeaponHolder#get",
-                        "excluded": true
                     },
                     {
                         "name": "IsActive#get",
@@ -37405,10 +37423,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "SetupModel",
-                        "excluded": true
-                    },
-                    {
                         "name": "RegisterEvents",
                         "excluded": false
                     },
@@ -37437,32 +37451,12 @@
                         "excluded": false
                     },
                     {
-                        "name": "SetupWeapon",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HideWeapon",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ShowWeapon",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetWeaponPrefabOverride",
-                        "excluded": true
-                    },
-                    {
                         "name": "EnsureProjectilePoint",
                         "excluded": false
                     },
                     {
                         "name": "EnsureBodyScalable",
                         "excluded": false
-                    },
-                    {
-                        "name": "DetachWeaponForProjectile",
-                        "excluded": true
                     },
                     {
                         "name": "DespawnInterval",
@@ -37498,7 +37492,7 @@
                     },
                     {
                         "name": "CanPlayAttackSfxThisFrame",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CanPlayAttackVfxThisFrame",
@@ -37525,66 +37519,24 @@
                         "excluded": false
                     },
                     {
-                        "name": "ReleaseCurrentWeapon",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetWeaponVisible",
-                        "excluded": false
-                    },
-                    {
                         "name": "TryAddTarget",
                         "excluded": true
                     },
                     {
                         "name": "ClearHits",
                         "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "GamePlay.CombatSystems.EnemyProjectileSystem.ExplosionShotAttacker",
-                "staticMethods": [],
-                "instanceMethods": [
+                    },
                     {
-                        "name": "Transform#get",
+                        "name": "GetPooledObject",
                         "excluded": true
                     },
                     {
-                        "name": "IsEnabled#get",
-                        "excluded": true
+                        "name": "TickScheduledDespawns",
+                        "excluded": false
                     },
                     {
-                        "name": "init",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ctor",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Setup$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Setup",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Initialize",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnUpdate",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Dispose",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnAttackSucceed",
-                        "excluded": true
+                        "name": "CancelScheduledDespawn",
+                        "excluded": false
                     }
                 ]
             },
@@ -37923,10 +37875,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
                         "name": "OnDestroy",
                         "excluded": true
                     },
@@ -38107,39 +38055,7 @@
                         "excluded": true
                     },
                     {
-                        "name": "SubscribeWeaponChange",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UnsubscribeWeaponChange",
-                        "excluded": true
-                    },
-                    {
                         "name": "HandleAddArmyCardEvent",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnWeaponChanged",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyWeaponOverrideToAllUnits",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ResolveWeaponPrefab",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ResolveProjectilePrefab",
-                        "excluded": true
-                    },
-                    {
-                        "name": "UpdateProjectilePrefab",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Update",
                         "excluded": false
                     },
                     {
@@ -38169,10 +38085,6 @@
                     {
                         "name": "ResolveSpawnLevel",
                         "excluded": false
-                    },
-                    {
-                        "name": "LaunchSwordSkill",
-                        "excluded": true
                     },
                     {
                         "name": "SpawnUnits",
@@ -38320,7 +38232,7 @@
                     },
                     {
                         "name": "TryPerformDirectAttack",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "TryPerformThrownProjectileAttack",
@@ -38340,11 +38252,11 @@
                     },
                     {
                         "name": "TryFindBestForwardTarget",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ResolveAttackWindow",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "InitializeRuntimeUnit",
@@ -38440,6 +38352,22 @@
                     },
                     {
                         "name": "GetProjectileResumeAttackTime",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ProcessPendingVisualUpgrades",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ManualUpdate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "LaunchSwordSkill",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ProcessPendingSpawns",
                         "excluded": false
                     }
                 ]
@@ -38679,6 +38607,10 @@
                     {
                         "name": "PlayDieEffectPerFrame",
                         "excluded": false
+                    },
+                    {
+                        "name": "ShouldShowHealthUi",
+                        "excluded": false
                     }
                 ]
             },
@@ -38740,6 +38672,10 @@
                     },
                     {
                         "name": "AttractionThreshold#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShouldShowHealthUi",
                         "excluded": false
                     }
                 ]
@@ -38880,6 +38816,18 @@
                     },
                     {
                         "name": "PlayHitFeedback",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Tick",
                         "excluded": false
                     }
                 ]
@@ -40909,6 +40857,26 @@
                     {
                         "name": "CollectRuntimeBatchSources",
                         "excluded": false
+                    },
+                    {
+                        "name": "SetRuntimeBatchHidden",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ApplyCurrentFrameToRenderer",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MarkLocalBoundsDirty",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RebuildLocalBounds",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetCachedMaterialArray",
+                        "excluded": false
                     }
                 ]
             },
@@ -41086,6 +41054,10 @@
                     },
                     {
                         "name": "$clone",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
                         "excluded": false
                     }
                 ]
@@ -41293,44 +41265,26 @@
                     {
                         "name": "NormalizeToFrameSourceSpace",
                         "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "OptimizedFeature.Scripts.VATRuntimeMeshBatcher.BatchKey",
-                "staticMethods": [],
-                "instanceMethods": [
+                    },
                     {
-                        "name": "inherits",
+                        "name": "SetRuntimeBatchHidden",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ApplyCurrentFrameToRenderer",
                         "excluded": false
                     },
                     {
-                        "name": "getDefaultValue",
+                        "name": "GetCachedMaterialArray",
                         "excluded": false
                     },
                     {
-                        "name": "$ctor1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ctor",
+                        "name": "OnEnable",
                         "excluded": false
                     },
                     {
-                        "name": "equalsT",
-                        "excluded": true
-                    },
-                    {
-                        "name": "equals",
-                        "excluded": true
-                    },
-                    {
-                        "name": "getHashCode",
-                        "excluded": true
-                    },
-                    {
-                        "name": "$clone",
-                        "excluded": true
+                        "name": "OnDisable",
+                        "excluded": false
                     }
                 ]
             },
@@ -41341,34 +41295,6 @@
                     {
                         "name": "init",
                         "excluded": false
-                    },
-                    {
-                        "name": "CanBatch",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CopyRendererSettings",
-                        "excluded": true
-                    },
-                    {
-                        "name": "BuildCombinedMesh",
-                        "excluded": true
-                    },
-                    {
-                        "name": "UpdateGroupData",
-                        "excluded": true
-                    },
-                    {
-                        "name": "EncapsulateTransformedBounds",
-                        "excluded": true
-                    },
-                    {
-                        "name": "DestroyGroup",
-                        "excluded": true
-                    },
-                    {
-                        "name": "DestroyObject",
-                        "excluded": true
                     },
                     {
                         "name": "RestoreOriginalRenderers",
@@ -41387,47 +41313,7 @@
                         "excluded": true
                     },
                     {
-                        "name": "EnsureGroup",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetBatchMaterial",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "OptimizedFeature.Scripts.VATRuntimeMeshBatcher.BatchGroup",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "OptimizedFeature.Scripts.VATRuntimeMeshBatcher.HiddenRenderer",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "getDefaultValue",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ctor",
-                        "excluded": false
-                    },
-                    {
-                        "name": "getHashCode",
-                        "excluded": true
-                    },
-                    {
-                        "name": "equals",
-                        "excluded": true
-                    },
-                    {
-                        "name": "$clone",
+                        "name": "SetSourceRuntimeBatchHidden",
                         "excluded": true
                     }
                 ]
@@ -41515,6 +41401,140 @@
                     {
                         "name": "$clone",
                         "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Effects.PooledVfxLifetimeScheduler",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Schedule",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Tick",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CanSchedule",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Effects.PooledVfxLifetimeScheduler.Entry",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "PlayerArmy.PlayerArmySystem.ForwardTargetInfo",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "PlayerArmy.PlayerArmySystem.DelayedSwordSkill",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Characters.CharacterUnit.ScheduledDespawn",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
                     }
                 ]
             }
@@ -42154,6 +42174,36 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Item_Item_Texture.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "jpeg",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Scenes/MTD_VFX/Age_evolution/Texture_materials/cfxr spikes impact.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "quantQuality",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Resources/Sprites/Button_Play now.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "jpeg",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Scenes/MTD_VFX/cfxr explosion smoke dissolve.png"
                     }
                 ]
             },
@@ -42268,7 +42318,29 @@
                     "simplificationPercentage": 30,
                     "linkCloseVertices": true
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "halfPrecision": true,
+                        "useSimplification": false,
+                        "simplificationPercentage": 30,
+                        "linkCloseVertices": true,
+                        "name": "Assets/ThanhTN/StylizedStoneWall.fbx"
+                    },
+                    {
+                        "halfPrecision": true,
+                        "useSimplification": true,
+                        "simplificationPercentage": 50,
+                        "linkCloseVertices": true,
+                        "name": "Assets/_Game/Arts/Vfx/Mesh/mesh_blood.fbx"
+                    },
+                    {
+                        "halfPrecision": true,
+                        "useSimplification": false,
+                        "simplificationPercentage": 13,
+                        "linkCloseVertices": true,
+                        "name": "Assets/_Game/Animation/Enemy_Kybinh/EN_kybinh_Base.fbx"
+                    }
+                ]
             },
             "animations": {
                 "default": {

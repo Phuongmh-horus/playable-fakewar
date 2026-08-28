@@ -69,11 +69,11 @@ namespace GamePlay.Roads
             SetupConveyor();
         }
 
-        private void Update()
-        {
-            if (!GameplayManager.IsGameStarted) return;
-            ScrollConveyor();
-        }
+        // private void Update()
+        // {
+        //     if (!GameplayManager.IsGameStarted) return;
+        //     ScrollConveyor();
+        // }
 
         private void OnDestroy()
         {
@@ -91,11 +91,6 @@ namespace GamePlay.Roads
 
         private bool UpdateSegmentDimensions()
         {
-            if (content == null || finish == null)
-            {
-                Debug.LogWarning($"[RoadSegment] Content hoặc Finish chưa được gán cho {gameObject.name}");
-                return false;
-            }
 
             bool changed = false;
 
@@ -178,95 +173,6 @@ namespace GamePlay.Roads
 
             return changed;
         }
-
-#if UNITY_EDITOR
-        private void OnValidate()
-        {
-            // Auto-bind removed; assign MeshRenderer manually in Inspector.
-
-            if (autoUpdateOnValidate)
-            {
-                // Tránh thao tác phá Prefab Asset
-                if (!PrefabUtility.IsPartOfPrefabAsset(this))
-                {
-                    bool changed = UpdateSegmentDimensions();
-                    changed |= AutoCalculatePoints();
-                    if (changed)
-                        EditorUtility.SetDirty(this);
-                }
-            }
-        }
-
-        private bool AutoCalculatePoints()
-        {
-            bool changed = false;
-
-            if (entryPoint == null) entryPoint = FindChildTransform("Entry");
-            if (exitPoint == null) exitPoint = FindChildTransform("Exit");
-
-            if (entryPoint == null)
-            {
-                entryPoint = CreatePoint("Entry");
-                changed = true;
-            }
-            if (exitPoint == null)
-            {
-                exitPoint = CreatePoint("Exit");
-                changed = true;
-            }
-
-            changed |= UpdateConnectionPoints();
-            return changed;
-        }
-
-        private Transform FindChildTransform(string childName)
-        {
-            var t = transform.Find(childName);
-            return t;
-        }
-
-        private Transform CreatePoint(string name)
-        {
-            var go = new GameObject(name);
-
-            bool isPartOfPrefabAsset = PrefabUtility.IsPartOfPrefabAsset(gameObject);
-            if (isPartOfPrefabAsset)
-            {
-                go.transform.SetParent(transform, false);
-                Undo.RegisterCreatedObjectUndo(go, "Create " + name + " Point");
-            }
-            else
-            {
-                go.transform.SetParent(transform, false);
-            }
-
-            go.transform.localRotation = Quaternion.identity;
-            return go.transform;
-        }
-
-        [ContextMenu("Force Update Points")]
-        private void ForceUpdatePoints()
-        {
-            AutoCalculatePoints();
-        }
-
-        private void OnDrawGizmos()
-        {
-            if (entryPoint != null)
-            {
-                Gizmos.color = Color.green;
-                Gizmos.DrawWireSphere(entryPoint.position, 0.3f);
-                Gizmos.DrawCube(entryPoint.position, Vector3.one * 0.1f);
-            }
-
-            if (exitPoint != null)
-            {
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere(exitPoint.position, 0.3f);
-                Gizmos.DrawCube(exitPoint.position, Vector3.one * 0.1f);
-            }
-        }
-#endif
 
         #region Conveyor Management
 

@@ -148,8 +148,6 @@ MonoBehaviour:
   colliderSize: {x: 5, y: 10, z: 0.5}
   LeftOffset: 0
   RightOffset: 0
-  deathScaleEffect: {fileID: 0}
-  _tutElement: {fileID: 0}
   autoAddHitTextFlyEffectAtRuntime: 1
   Data:
     Type: 0
@@ -243,6 +241,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
+    MaxVfxPerFrame: 0
   - Type: 8
     VfxPrefab: {fileID: 0}
     ParentToTarget: 1
@@ -250,6 +249,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
+    MaxVfxPerFrame: 0
   audioSource: {fileID: 7037905428701261800}
   warnIfNoAudioRouteInEditor: 0
 --- !u!114 &1729903725545260035
@@ -1100,9 +1100,9 @@ SpriteRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
+  m_MotionVectors: 2
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
@@ -1251,9 +1251,9 @@ SpriteRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
+  m_MotionVectors: 2
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1

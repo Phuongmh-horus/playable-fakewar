@@ -161,7 +161,7 @@ Material:
     - _AnimeThreshold2: 0.85
     - _BlendOp: 0
     - _BlendWeight: 0
-    - _Brightness: 1.5
+    - _Brightness: 1
     - _BumpScale: 1
     - _CameraFadeEnd: 0
     - _CameraFadeStart: 0
@@ -335,4 +335,5 @@ Material:
     - _SpecularColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
     - _TwoHalfColorsColor1: {r: 1, g: 1, b: 1, a: 1}
     - _TwoHalfColorsColor2: {r: 0, g: 0, b: 0, a: 1}
+    - _VATFrameData: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

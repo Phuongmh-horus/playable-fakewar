@@ -86,6 +86,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0
+    MaxVfxPerFrame: 0
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!1 &323875295472555261
@@ -1001,6 +1002,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
+    MaxVfxPerFrame: 0
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!1 &2355996076441702460
@@ -1920,6 +1922,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0
+    MaxVfxPerFrame: 0
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!1 &4135075306097794823
@@ -2750,6 +2753,7 @@ MonoBehaviour:
     LoopSfx: 1
     SfxVolume: 1
     WaitForAction: 0.25
+    MaxVfxPerFrame: 0
   - Type: 18
     VfxPrefab: {fileID: 0}
     ParentToTarget: 0
@@ -2757,6 +2761,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.25
+    MaxVfxPerFrame: 0
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!1 &5752904557130572907
@@ -3105,6 +3110,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
+    MaxVfxPerFrame: 0
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!1 &6629245355337682208
@@ -3778,6 +3784,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
+    MaxVfxPerFrame: 0
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!1 &7615530547345912228
@@ -3866,6 +3873,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0
+    MaxVfxPerFrame: 0
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!1 &8051253520187312873
@@ -4282,6 +4290,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -3850058210418201875, guid: 40cfa69f98082c046936d1fa3bf510e6, type: 3}
+      propertyPath: m_MotionVectors
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -3850058210418201875, guid: 40cfa69f98082c046936d1fa3bf510e6, type: 3}
       propertyPath: m_ReceiveShadows
       value: 0
       objectReference: {fileID: 0}
@@ -4300,6 +4312,10 @@ PrefabInstance:
     - target: {fileID: -1474782364309674865, guid: 40cfa69f98082c046936d1fa3bf510e6, type: 3}
       propertyPath: m_CastShadows
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -1474782364309674865, guid: 40cfa69f98082c046936d1fa3bf510e6, type: 3}
+      propertyPath: m_MotionVectors
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -1474782364309674865, guid: 40cfa69f98082c046936d1fa3bf510e6, type: 3}
       propertyPath: m_ReceiveShadows
@@ -4405,22 +4421,6 @@ PrefabInstance:
       propertyPath: m_ReflectionProbeUsage
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -5558071201499636715, guid: 70d8f9e8cd54646488bd80d50cd50dca, type: 3}
-      propertyPath: m_CastShadows
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -5558071201499636715, guid: 70d8f9e8cd54646488bd80d50cd50dca, type: 3}
-      propertyPath: m_ReceiveShadows
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8463518671112856521, guid: 70d8f9e8cd54646488bd80d50cd50dca, type: 3}
-      propertyPath: m_CastShadows
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8463518671112856521, guid: 70d8f9e8cd54646488bd80d50cd50dca, type: 3}
-      propertyPath: m_ReceiveShadows
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 1031426278594964912, guid: 11641d42b82ffa047a633844cf7fe7e2, type: 3}
       propertyPath: m_CastShadows
       value: 0
@@ -4459,6 +4459,22 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7139496493357074915, guid: 11641d42b82ffa047a633844cf7fe7e2, type: 3}
       propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5558071201499636715, guid: 70d8f9e8cd54646488bd80d50cd50dca, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5558071201499636715, guid: 70d8f9e8cd54646488bd80d50cd50dca, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8463518671112856521, guid: 70d8f9e8cd54646488bd80d50cd50dca, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8463518671112856521, guid: 70d8f9e8cd54646488bd80d50cd50dca, type: 3}
+      propertyPath: m_ReceiveShadows
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -4516,6 +4532,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -3850058210418201875, guid: 40cfa69f98082c046936d1fa3bf510e6, type: 3}
+      propertyPath: m_MotionVectors
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -3850058210418201875, guid: 40cfa69f98082c046936d1fa3bf510e6, type: 3}
       propertyPath: m_ReceiveShadows
       value: 0
       objectReference: {fileID: 0}
@@ -4534,6 +4554,10 @@ PrefabInstance:
     - target: {fileID: -1474782364309674865, guid: 40cfa69f98082c046936d1fa3bf510e6, type: 3}
       propertyPath: m_CastShadows
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -1474782364309674865, guid: 40cfa69f98082c046936d1fa3bf510e6, type: 3}
+      propertyPath: m_MotionVectors
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -1474782364309674865, guid: 40cfa69f98082c046936d1fa3bf510e6, type: 3}
       propertyPath: m_ReceiveShadows
@@ -4635,22 +4659,6 @@ PrefabInstance:
       propertyPath: m_ReflectionProbeUsage
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -5558071201499636715, guid: 70d8f9e8cd54646488bd80d50cd50dca, type: 3}
-      propertyPath: m_CastShadows
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -5558071201499636715, guid: 70d8f9e8cd54646488bd80d50cd50dca, type: 3}
-      propertyPath: m_ReceiveShadows
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8463518671112856521, guid: 70d8f9e8cd54646488bd80d50cd50dca, type: 3}
-      propertyPath: m_CastShadows
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8463518671112856521, guid: 70d8f9e8cd54646488bd80d50cd50dca, type: 3}
-      propertyPath: m_ReceiveShadows
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 1031426278594964912, guid: 11641d42b82ffa047a633844cf7fe7e2, type: 3}
       propertyPath: m_CastShadows
       value: 0
@@ -4689,6 +4697,22 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7139496493357074915, guid: 11641d42b82ffa047a633844cf7fe7e2, type: 3}
       propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5558071201499636715, guid: 70d8f9e8cd54646488bd80d50cd50dca, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5558071201499636715, guid: 70d8f9e8cd54646488bd80d50cd50dca, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8463518671112856521, guid: 70d8f9e8cd54646488bd80d50cd50dca, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8463518671112856521, guid: 70d8f9e8cd54646488bd80d50cd50dca, type: 3}
+      propertyPath: m_ReceiveShadows
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

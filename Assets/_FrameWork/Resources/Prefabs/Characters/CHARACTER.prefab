@@ -105,7 +105,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4748800073518683848}
-  m_Mesh: {fileID: 4300000, guid: 94a9a9ddd4f3aa54b8492fb88aa2475d, type: 2}
+  m_Mesh: {fileID: 4300000, guid: 76f0ef6bb89b9144aaf296300eaede25, type: 2}
 --- !u!23 &7408444122903434436
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -118,15 +118,15 @@ MeshRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
+  m_MotionVectors: 2
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c92c2b1e92932e84b8fc6f320308cddd, type: 2}
+  - {fileID: 2100000, guid: 4952bac209bfb5f4e870491f900eed9b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -223,8 +223,8 @@ MeshRenderer:
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
   m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
@@ -310,7 +310,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6642731367918526157}
-  m_Mesh: {fileID: 4300000, guid: 94a9a9ddd4f3aa54b8492fb88aa2475d, type: 2}
+  m_Mesh: {fileID: 4300000, guid: d74c6d7584589a246a4325c78a75ffdd, type: 2}
 --- !u!23 &8317322644375917984
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -323,15 +323,15 @@ MeshRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
+  m_MotionVectors: 2
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c92c2b1e92932e84b8fc6f320308cddd, type: 2}
+  - {fileID: 2100000, guid: 3d3da1c191a80ac47bd343a1b42fa216, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -424,9 +424,9 @@ MeshRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
+  m_MotionVectors: 2
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
@@ -483,7 +483,6 @@ GameObject:
   - component: {fileID: 7133771577144448769}
   - component: {fileID: 6269225836784746350}
   - component: {fileID: 9026976409138068484}
-  - component: {fileID: 1085602945083619314}
   - component: {fileID: 9195057470074879812}
   m_Layer: 0
   m_Name: CHARACTER
@@ -549,24 +548,22 @@ MonoBehaviour:
   - {fileID: 7113520309022659228}
   - {fileID: 6642731367918526157}
   - {fileID: 4748800073518683848}
-  weaponHolders: []
   projectilePoint: {fileID: 4885795292978896481}
   bodyscalable: {fileID: 1774609010017332696}
-  effectComponent: {fileID: 1085602945083619314}
   attackSfx: 1
-  maxAttackSfxPerFrame: 6
+  maxAttackSfxPerFrame: 0.5
   playAttackVfxOnObstacleHit: 0
-  maxAttackVfxPerFrame: 3
+  maxAttackVfxPerFrame: 1
   obstacleAttackDespawnDelay: 0.5
   enemyAttackDespawnDelay: 0.5
   hitShapeType: 2
   hitColliderSize: {x: 3, y: 3, z: 2}
   Level: -1
   AttackCounter: 0
-  dieVfxPrefab: {fileID: 0}
-  dieVfxOffset: {x: 0, y: 5, z: 0}
-  dieVfxLifetime: 1.2
-  maxDeathVfxPerFrame: 10
+  dieVfxPrefab: {fileID: 6069244634948046370, guid: ac7538e53b41618498c868ccb1d1f210, type: 3}
+  dieVfxOffset: {x: 0, y: 3, z: -3}
+  dieVfxLifetime: 1
+  maxDeathVfxPerFrame: 5
   playDeathVfxOnAttackDespawn: 1
 --- !u!114 &9026976409138068484
 MonoBehaviour:
@@ -587,39 +584,6 @@ MonoBehaviour:
   isActive: 1
   isCustomCaster: 0
   hitTransform: {fileID: 0}
---- !u!114 &1085602945083619314
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8945795331178423522}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d25183edf72403999233d1b63044158, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CacheTransform: {fileID: 4839683856078174234}
-  poolEntity: {fileID: 6269225836784746350}
-  effects:
-  - Type: 14
-    VfxPrefab: {fileID: 6069244634948046370, guid: ac7538e53b41618498c868ccb1d1f210, type: 3}
-    ParentToTarget: 1
-    SfxClip: {fileID: 8300000, guid: 16f84bf77323c5f46bebc99242292f42, type: 3}
-    LoopSfx: 0
-    SfxVolume: 0.8
-    WaitForAction: 0
-    MaxVfxPerFrame: 5
-  - Type: 10
-    VfxPrefab: {fileID: 0}
-    ParentToTarget: 0
-    SfxClip: {fileID: 8300000, guid: 3c0689bc9fdce8643bbb7ff9de0e456f, type: 3}
-    LoopSfx: 0
-    SfxVolume: 0.8
-    WaitForAction: 0
-    MaxVfxPerFrame: 3
-  audioSource: {fileID: 0}
-  warnIfNoAudioRouteInEditor: 0
 --- !u!114 &9195057470074879812
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -635,11 +599,11 @@ MonoBehaviour:
   CacheTransform: {fileID: 4839683856078174234}
   poolEntity: {fileID: 6269225836784746350}
   vatRenderer: {fileID: 3253096590581294857}
-  idleStateName: Character_Idle_Baked
+  idleStateName: Character_Idle
   attackStateName: Standing_Fire
   MoveStateName: 
-  moveLeftStateName: Character_Move_Left_Baked
-  moveRightStateName: Character_Move_Right_Baked
+  moveLeftStateName: Character_Move_Left
+  moveRightStateName: Character_Move_Right
   crossFadeDuration: 0.1
 --- !u!1001 &4170980029337341741
 PrefabInstance:

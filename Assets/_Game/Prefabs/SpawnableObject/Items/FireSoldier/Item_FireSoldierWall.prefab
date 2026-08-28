@@ -507,7 +507,7 @@ MonoBehaviour:
   horizontalRandomRange: 0
   heightOffset: 2
   zOffset: 0
-  prewarmPoolCount: 12
+  prewarmPoolCount: 20
 --- !u!114 &8995184625690896215
 MonoBehaviour:
   m_ObjectHideFlags: 0

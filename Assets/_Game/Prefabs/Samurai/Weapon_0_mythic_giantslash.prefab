@@ -113,12 +113,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _transform: {fileID: 3361959927832847556}
   _entityType: 7
-  components:
-  - {fileID: 5597132513452181035}
+  ActiveFlags: 0
   childrenRoot: {fileID: 0}
+  visualModels: []
   renderPosition: {x: 0, y: 0, z: 0}
   renderEulerAngle: {x: 0, y: 0, z: 0}
-  ActiveFlags: 0
 --- !u!114 &7514185764433527146
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133,7 +132,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CacheTransform: {fileID: 3361959927832847556}
   poolEntity: {fileID: 4626203107061952460}
-  moveVariable: {fileID: 11400000, guid: 8c27311aba1e0784a81ad580dac268a8, type: 2}
+  maxDistance: 30
+  duration: 1.2
 --- !u!114 &5597132513452181035
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -301,8 +301,16 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6427357339061037960, guid: ea1930f38cf22234e9a9307292de2d9b, type: 3}
+      propertyPath: m_Quality
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -6427357339061037960, guid: ea1930f38cf22234e9a9307292de2d9b, type: 3}
       propertyPath: m_CastShadows
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -6427357339061037960, guid: ea1930f38cf22234e9a9307292de2d9b, type: 3}
+      propertyPath: m_MotionVectors
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -6427357339061037960, guid: ea1930f38cf22234e9a9307292de2d9b, type: 3}
       propertyPath: m_ReceiveShadows
@@ -314,6 +322,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6427357339061037960, guid: ea1930f38cf22234e9a9307292de2d9b, type: 3}
       propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -6427357339061037960, guid: ea1930f38cf22234e9a9307292de2d9b, type: 3}
+      propertyPath: m_SkinnedMotionVectors
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -6427357339061037960, guid: ea1930f38cf22234e9a9307292de2d9b, type: 3}

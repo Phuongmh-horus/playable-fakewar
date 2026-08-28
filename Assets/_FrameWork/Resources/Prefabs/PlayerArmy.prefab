@@ -73,13 +73,12 @@ MonoBehaviour:
   collisionCheckRangeZ: 20
   collisionSize: {x: 4, y: 2}
   characterPrefab: {fileID: 6269225836784746350, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
-  baseWeaponPrefab: {fileID: 0}
+  weaponProjectilePrefab: {fileID: 1917486832313472047, guid: 0785d7b4421d72d4fb1f5abdc6753a85, type: 3}
   fallbackCharacterLevel: 1
   maxActiveSpawnedUnits: 61
   unitSpacing: 1.3
   useSceneUnitsOnly: 1
   characterPrewarmReserve: 60
-  memoryConstrainedCharacterPrewarmReserve: 40
   attackMode: 2
   meleeAttackSize: {x: 1.4, y: 2.2}
   rangedAttackSize: {x: 1.8, y: 6}
@@ -90,10 +89,10 @@ MonoBehaviour:
   attackInterval: 1
   projectileDistance: 25
   projectileDuration: 1
-  projectileRotationSpeed: -1000
-  maxProjectileLaunchesPerFrame: 15
+  projectileRotationSpeed: -800
+  maxProjectileLaunchesPerFrame: 3
+  maxAttackEvaluationsPerTick: 20
   unitscalevalue: 1
-  weaponProjectilePrefab: {fileID: 1917486832313472047, guid: 0785d7b4421d72d4fb1f5abdc6753a85, type: 3}
   inputManager: {fileID: 5783931141563337667}
   effectSystem: {fileID: 16920303580411128}
   collisionTickInterval: 2
@@ -141,7 +140,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CacheTransform: {fileID: 4003252130411642508}
-  poolEntity: {fileID: 0}
+  poolEntity: {fileID: 7977750878149802929}
   effects:
   - Type: 18
     VfxPrefab: {fileID: 5489509100550448236, guid: 624921f1a3ed32648902e77fe30cc94c, type: 3}
@@ -150,6 +149,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
+    MaxVfxPerFrame: 1
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!1001 &1668683624097713309
@@ -244,7 +244,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1460553243038886702, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2287057423403021565, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
       propertyPath: m_CastShadows
@@ -313,6 +313,46 @@ PrefabInstance:
     - target: {fileID: 6269225836784746350, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
       propertyPath: dieVfxOffset.y
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6269225836784746350, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
+      propertyPath: maxDeathVfxPerFrame
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7408444122903434436, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
+      propertyPath: m_MotionVectors
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7408444122903434436, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
+      propertyPath: m_LightProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7408444122903434436, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
+      propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7536384872718038409, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
+      propertyPath: m_MotionVectors
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7536384872718038409, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
+      propertyPath: m_LightProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7536384872718038409, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
+      propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8317322644375917984, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
+      propertyPath: m_MotionVectors
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8317322644375917984, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
+      propertyPath: m_LightProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8317322644375917984, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
+      propertyPath: m_ReflectionProbeUsage
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8945795331178423522, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
       propertyPath: m_Name

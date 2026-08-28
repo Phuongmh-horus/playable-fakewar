@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2624417454029276554}
   - component: {fileID: 4163657008703507057}
   m_Layer: 0
-  m_Name: co (1)
+  m_Name: co
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -334,7 +334,6 @@ GameObject:
   - component: {fileID: 7612487940696613836}
   - component: {fileID: -3838020290431464979}
   - component: {fileID: -4877352769531665167}
-  - component: {fileID: 4815934759929012617}
   - component: {fileID: 6339603737489692449}
   m_Layer: 0
   m_Name: Item_FireRangeGate_t1_a1
@@ -468,25 +467,10 @@ MonoBehaviour:
   fallDownDistance: 2.5
   fallDuration: 0.5
   horizontalRandomRange: 0
-  heightOffset: 2
+  heightOffset: 4
   zOffset: 0
-  prewarmPoolCount: 12
---- !u!114 &4815934759929012617
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5673493373336310411}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d5b887993b5435c8ecef0fec338018b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CacheTransform: {fileID: 4507396324829435445}
-  poolEntity: {fileID: 3360367997036094387}
-  leftOffset: 0
-  rightOffset: 0
+  prewarmPoolCount: 20
+  frameCooldown: 3
 --- !u!114 &6339603737489692449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -556,9 +540,9 @@ SpriteRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
+  m_MotionVectors: 2
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
@@ -611,7 +595,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4619014758220754148
 Transform:
   m_ObjectHideFlags: 0
@@ -929,9 +913,9 @@ SpriteRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
+  m_MotionVectors: 2
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1

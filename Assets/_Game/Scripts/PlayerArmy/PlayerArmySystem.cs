@@ -13,11 +13,10 @@ using GamePlay.Weapons;
 using Pools;
 using UnityEngine;
 using DG.Tweening;
-using WeaponCraft;
 
 namespace PlayerArmy
 {
-    public enum PlayerArmyState : byte { Idle, IntroRun, Active, KnockBack }
+    public enum PlayerArmyState : byte { Idle, IntroRun, Active }
     public enum PlayerArmyAttackMode : byte { Melee, ForwardRanged, ThrownProjectile }
 
     [DisallowMultipleComponent]
@@ -39,15 +38,14 @@ namespace PlayerArmy
 
         [Header("Spawn")]
         [SerializeField] private CharacterUnit characterPrefab;
-        [SerializeField] private WeaponUnit baseWeaponPrefab;
+        [SerializeField] private WeaponUnit weaponProjectilePrefab;
 
         public CharacterUnit CharacterPrefab => characterPrefab;
         [SerializeField, Min(1)] private int fallbackCharacterLevel = 1;
-        [SerializeField, Min(1)] private int maxActiveSpawnedUnits = 100;
+        [SerializeField, Min(1)] private int maxActiveSpawnedUnits = 51;
         [SerializeField, Min(0f)] private float unitSpacing = 1.2f;
         [SerializeField, Tooltip("Dùng trực tiếp các character đã đặt sẵn trên scene để giảm thời gian spawn lúc boot.")] private bool useSceneUnitsOnly = true;
-        [SerializeField, Min(0), Tooltip("Số character inactive tối thiểu chuẩn bị trước cho FireSoldier +1 và SoldierBall.")] private int characterPrewarmReserve = 62;
-        [SerializeField, Min(0), Tooltip("Giảm reserve character trên WebGL/mobile để cân bằng RAM và runtime instantiate.")] private int memoryConstrainedCharacterPrewarmReserve = 50;
+        [SerializeField, Min(0), Tooltip("Số character inactive tối thiểu chuẩn bị trước cho FireSoldier +1 và SoldierBall.")] private int characterPrewarmReserve = 30;
 
         [Header("Attack")]
         [SerializeField] private PlayerArmyAttackMode attackMode = PlayerArmyAttackMode.ThrownProjectile;
@@ -66,9 +64,9 @@ namespace PlayerArmy
         [SerializeField, Min(0.05f)] private float projectileDuration = 0.55f;
         [SerializeField] private float projectileRotationSpeed = 540f;
         [SerializeField, Min(1)] private int maxProjectileLaunchesPerFrame = 10;
-
+        [SerializeField, Tooltip("Maximum army units evaluated for an attack per tick.")]
+        private int maxAttackEvaluationsPerTick = 24;
         [SerializeField, Min(0f)] private float unitscalevalue = 1.35f;
-        [SerializeField] private WeaponUnit weaponProjectilePrefab;
 
         [Header("Refs")]
         [SerializeField] private InputManager inputManager;
@@ -93,8 +91,6 @@ namespace PlayerArmy
         private HashSet<int> _previousEnemyContactIds = new HashSet<int>();
         private HashSet<int> _currentEnvironmentContactIds = new HashSet<int>();
         private HashSet<int> _previousEnvironmentContactIds = new HashSet<int>();
-        private readonly Queue<CharacterUnit> _activeSpawnedUnits = new Queue<CharacterUnit>();
-
         private struct PendingProjectileAttack
         {
             public CharacterUnit Unit;
@@ -105,7 +101,6 @@ namespace PlayerArmy
         private readonly Dictionary<int, GamePlay.Items.StatModifierGate> _fireSoldierGateCache = new Dictionary<int, GamePlay.Items.StatModifierGate>(16);
         private readonly List<int> _collisionQueryIndices = new List<int>(64);
         private readonly bool[] _occupiedArmyIndices = new bool[HardMaxActiveSpawnedUnits];
-        private GameObject _weaponOverridePrefab;
         private int _resolvedWeaponDamage;
         private int _damageBonusPoints;
         private float _baseAttackInterval;
@@ -121,7 +116,7 @@ namespace PlayerArmy
         private readonly List<Transform> _frameAttackableTransforms = new List<Transform>(32);
         private readonly List<float> _frameAttackableHalfWidths = new List<float>(32);
 
-        private const int HardMaxActiveSpawnedUnits = 65;
+        private const int HardMaxActiveSpawnedUnits = 51;
         private const float HoneycombForwardStepFactor = 0.8660254f;
         private static readonly Vector2Int[] HoneycombDirections = new Vector2Int[6]
         {
@@ -132,9 +127,19 @@ namespace PlayerArmy
         private readonly HashSet<int> _finishTowerHitIdsThisFrame = new HashSet<int>();
         private readonly List<CharacterUnit> _finishTowerHitUnitsBuffer = new List<CharacterUnit>(32);
         private int _finishTowerLastHitFrame = -1;
+        private const int MaxVisualUpgradesPerFrame = 5;
+        private int _pendingVisualUpgradeLevel = -1;
+        private int _pendingVisualUpgradeIndex;
 
         private readonly Dictionary<string, int> _samuraiAttackCounters = new Dictionary<string, int>();
         private float _lastSwordSkillIncrementTime = -1f;
+        private int _lastLaunchFrame = -1;
+        private int _currentAttackEvalIndex = 0;
+
+        private int _pendingSpawnAmount = 0;
+        private int _pendingSpawnLevel = -1;
+        private bool _pendingSpawnPlayAnimation = false;
+        private const int MaxSpawnsPerFrame = 5;
 
         public IReadOnlyList<CharacterUnit> Units => characterUnits;
         public PlayerArmyEffectSystem EffectSystem => effectSystem;
@@ -177,15 +182,15 @@ namespace PlayerArmy
             _tickOffset = Mathf.Abs(GetInstanceID()) % Mathf.Max(1, pruneTickInterval);
 
             var sceneUnits = GetComponentsInChildren<CharacterUnit>(true);
+            characterUnits.Clear();
             for (int i = 0; i < sceneUnits.Length; i++)
             {
                 var unit = sceneUnits[i];
                 if (unit == null || unit == this) continue;
 
-                if (characterUnits.Contains(unit))
+                if (characterUnits.Count >= HardMaxActiveSpawnedUnits)
                 {
-                    unit.ArmyIndex = GetNextAvailableArmyIndex();
-                    SetNextAttackTime(unit, Time.time + attackInterval, true);
+                    unit.gameObject.SetActive(false);
                     continue;
                 }
 
@@ -199,27 +204,19 @@ namespace PlayerArmy
             {
                 Initialize();
                 currentState = PlayerArmyState.Active;
-                SubscribeWeaponChange();
             }
-            else
-            {
-                SubscribeWeaponChange();
-            }
+
+            GameEventBus.OnAddWheelCard += HandleAddArmyCardEvent;
         }
 
         public IEnumerator PrewarmArmyPrefabsAsync(int maxPerFrame)
         {
             int batchSize = Mathf.Max(1, maxPerFrame);
-            bool isMemoryConstrained = Application.platform == RuntimePlatform.WebGLPlayer || Application.isMobilePlatform;
-
             if (characterPrefab != null && !characterPrefab.gameObject.scene.IsValid())
             {
                 int activeSceneUnits = CountActiveSceneUnits();
                 int runtimeCapacity = Mathf.Max(0, Mathf.Clamp(maxActiveSpawnedUnits, 1, HardMaxActiveSpawnedUnits) - activeSceneUnits);
-                int configuredReserve = isMemoryConstrained
-                    ? memoryConstrainedCharacterPrewarmReserve
-                    : characterPrewarmReserve;
-                int requiredInactiveCount = Mathf.Min(runtimeCapacity, Mathf.Max(0, configuredReserve));
+                int requiredInactiveCount = Mathf.Min(runtimeCapacity, Mathf.Max(0, characterPrewarmReserve));
                 yield return PoolSystem.EnsurePrewarmAsync(characterPrefab, requiredInactiveCount, batchSize);
 
                 var characterUnit = characterPrefab.GetComponent<CharacterUnit>();
@@ -228,14 +225,18 @@ namespace PlayerArmy
                     var dieVfxTransform = characterUnit.DieVfxPrefab.transform;
                     if (dieVfxTransform != null && !characterUnit.DieVfxPrefab.scene.IsValid())
                     {
-                        yield return PoolSystem.EnsurePrewarmAsync(dieVfxTransform, isMemoryConstrained ? 8 : 20, batchSize);
+                        yield return PoolSystem.EnsurePrewarmAsync(dieVfxTransform, 10, batchSize);
                     }
                 }
             }
 
             if (weaponProjectilePrefab != null && !weaponProjectilePrefab.gameObject.scene.IsValid())
             {
-                yield return PoolSystem.EnsurePrewarmAsync(weaponProjectilePrefab, isMemoryConstrained ? 48 : 96, batchSize);
+                int projectileReserve = Mathf.Clamp(
+                    Mathf.Max(maxProjectileLaunchesPerFrame * 5, maxAttackEvaluationsPerTick * 2),
+                    20,
+                    128);
+                yield return PoolSystem.EnsurePrewarmAsync(weaponProjectilePrefab, projectileReserve, batchSize);
             }
         }
 
@@ -256,28 +257,6 @@ namespace PlayerArmy
 
         private void OnDestroy()
         {
-            UnsubscribeWeaponChange();
-        }
-
-        private void SubscribeWeaponChange()
-        {
-            var manager = GameplayManager.Instance;
-            if (manager != null)
-            {
-                manager.OnWeaponChange += OnWeaponChanged;
-            }
-
-            GameEventBus.OnAddWheelCard += HandleAddArmyCardEvent;
-        }
-
-        private void UnsubscribeWeaponChange()
-        {
-            var manager = GameplayManager.Instance;
-            if (manager != null)
-            {
-                manager.OnWeaponChange -= OnWeaponChanged;
-            }
-
             GameEventBus.OnAddWheelCard -= HandleAddArmyCardEvent;
         }
 
@@ -291,80 +270,20 @@ namespace PlayerArmy
             // SpawnUnits(fallbackCharacterLevel, 1);
         }
 
-        private void OnWeaponChanged(WeaponItem weapon)
-        {
-            var prefab = ResolveWeaponPrefab(weapon);
-            _weaponOverridePrefab = prefab;
-            ApplyWeaponOverrideToAllUnits(prefab);
-
-            var projectilePrefab = ResolveProjectilePrefab(weapon);
-            UpdateProjectilePrefab(projectilePrefab);
-        }
-
-        /// <summary>
-        /// Applies a weapon prefab override to every active unit.
-        /// Pass null to clear to the unit's default weapon.
-        /// </summary>
-        private void ApplyWeaponOverrideToAllUnits(GameObject prefab)
-        {
-            for (int i = 0; i < characterUnits.Count; i++)
-            {
-                var unit = characterUnits[i];
-                if (unit == null)
-                {
-                    continue;
-                }
-
-                unit.SetWeaponPrefabOverride(prefab);
-            }
-        }
-
-        private GameObject ResolveWeaponPrefab(WeaponItem weapon)
-        {
-            return baseWeaponPrefab != null ? baseWeaponPrefab.gameObject : null;
-        }
-
-        /// <summary>
-        /// Resolves the projectile prefab for a given weapon tier.
-        /// Derives from the weapon prefab's WeaponUnit component if available.
-        /// TODO: Consider storing projectile prefab directly in CharacterEntry if needed.
-        /// </summary>
-        private WeaponUnit ResolveProjectilePrefab(WeaponItem weapon)
-        {
-            if (weapon == null)
-            {
-                return null;
-            }
-
-            var weaponPrefab = ResolveWeaponPrefab(weapon);
-            if (weaponPrefab == null)
-            {
-                return null;
-            }
-
-            var weaponUnit = weaponPrefab.GetComponent<WeaponUnit>();
-            return weaponUnit;
-        }
-
-        private void UpdateProjectilePrefab(WeaponUnit prefab)
-        {
-            if (prefab != null)
-            {
-                weaponProjectilePrefab = prefab;
-            }
-        }
-
 #if UNITY_EDITOR
         private void OnValidate()
         {
             ResolveDependencies();
-            maxActiveSpawnedUnits = Mathf.Clamp(maxActiveSpawnedUnits, 1, 100);
+            maxActiveSpawnedUnits = Mathf.Clamp(maxActiveSpawnedUnits, 1, HardMaxActiveSpawnedUnits);
             if (characterUnits == null) characterUnits = new List<CharacterUnit>();
         }
 #endif
 
-        private void Update()
+        public void ManualUpdate()
         {
+            ProcessPendingSpawns();
+            ProcessPendingVisualUpgrades();
+
             if (_pendingSwordSkills.Count > 0)
             {
                 for (int i = _pendingSwordSkills.Count - 1; i >= 0; i--)
@@ -426,6 +345,12 @@ namespace PlayerArmy
         public void AddUnit(CharacterUnit unit, bool parentToRoot, bool initialize)
         {
             if (unit == null || characterUnits.Contains(unit)) return;
+            if (CountActiveUnits() >= Mathf.Clamp(maxActiveSpawnedUnits, 1, HardMaxActiveSpawnedUnits))
+            {
+                unit.RecycleImmediate(false);
+                return;
+            }
+
             unit.ArmyIndex = GetNextAvailableArmyIndex();
             characterUnits.Add(unit);
             if (parentToRoot) unit.transform.SetParent(GetBodyRoot(), true);
@@ -438,10 +363,6 @@ namespace PlayerArmy
             {
                 RegisterRuntimeUnit(unit);
                 SetNextAttackTime(unit, Time.time + attackInterval, true);
-                if (!_activeSpawnedUnits.Contains(unit))
-                {
-                    _activeSpawnedUnits.Enqueue(unit);
-                }
             }
             else
             {
@@ -466,7 +387,6 @@ namespace PlayerArmy
             }
 
             characterUnits.Clear();
-            _activeSpawnedUnits.Clear();
         }
 
         public CharacterUnit SpawnCharacterUnit(int level, Vector3 position, Quaternion rotation, float? nextAttackTime = null, bool playMoveAnimation = false)
@@ -586,6 +506,24 @@ namespace PlayerArmy
             {
                 return;
             }
+
+            _pendingSpawnAmount += spawnCount;
+            _pendingSpawnLevel = level;
+            _pendingSpawnPlayAnimation = playMoveAnimation;
+        }
+
+        private void ProcessPendingSpawns()
+        {
+            if (_pendingSpawnAmount <= 0)
+            {
+                return;
+            }
+
+            int spawnCount = Mathf.Min(_pendingSpawnAmount, MaxSpawnsPerFrame);
+            _pendingSpawnAmount -= spawnCount;
+            int level = _pendingSpawnLevel;
+            bool playMoveAnimation = _pendingSpawnPlayAnimation;
+            float? nextAttackTime = null;
 
             PruneInactiveSpawnedUnits();
             int activeUnitCap = Mathf.Clamp(maxActiveSpawnedUnits, 1, HardMaxActiveSpawnedUnits);
@@ -716,7 +654,6 @@ namespace PlayerArmy
                 {
                     if (characterUnits[i] != null)
                     {
-                        characterUnits[i].ShowWeapon();
                         characterUnits[i].PlayAnimation(AnimationType.Attack, 0f, null, 0);
                         SetNextAttackTime(characterUnits[i], Time.time, true);
                     }
@@ -756,8 +693,7 @@ namespace PlayerArmy
 
                     unit.gameObject.SetActive(true);
                     unit.Initialize(targetLevel, true);
-                    unit.Setup(targetLevel, GameplayManager.IsGameStarted);
-                    unit.ShowWeapon();
+                    unit.Setup(targetLevel);
                     unit.PlayAnimation(ResolveRuntimeUnitAnimation(), 0f, null, 0);
                 }
                 return;
@@ -950,14 +886,35 @@ namespace PlayerArmy
             _damageBonusPoints = levelIndex * damageBonusPerUpgrade;
             RefreshCombatDamage();
 
-            // [FIX] Apply visual configs directly to existing units by toggling their child models
-            for (int i = 0; i < characterUnits.Count; i++)
+            _pendingVisualUpgradeLevel = levelIndex;
+            _pendingVisualUpgradeIndex = 0;
+        }
+
+        private void ProcessPendingVisualUpgrades()
+        {
+            if (_pendingVisualUpgradeLevel < 0)
             {
-                var unit = characterUnits[i];
-                if (unit != null)
+                return;
+            }
+
+            int processed = 0;
+            while (_pendingVisualUpgradeIndex < characterUnits.Count &&
+                   processed < MaxVisualUpgradesPerFrame)
+            {
+                CharacterUnit unit = characterUnits[_pendingVisualUpgradeIndex++];
+                if (unit == null || !unit.IsActive)
                 {
-                    unit.ApplyVisualLevel(levelIndex);
+                    continue;
                 }
+
+                unit.ApplyVisualLevel(_pendingVisualUpgradeLevel);
+                processed++;
+            }
+
+            if (_pendingVisualUpgradeIndex >= characterUnits.Count)
+            {
+                _pendingVisualUpgradeLevel = -1;
+                _pendingVisualUpgradeIndex = 0;
             }
         }
         // private void ClearSceneUnits()
@@ -975,12 +932,10 @@ namespace PlayerArmy
         //     }
         //
         //     characterUnits.Clear();
-        //     _activeSpawnedUnits.Clear();
         // }
 
         private void ResetRuntimeSpawnState()
         {
-            _activeSpawnedUnits.Clear();
         }
 
         private Vector3 GetHoneycombSpawnPosition(Transform root, int index, int totalCount)
@@ -1115,6 +1070,15 @@ namespace PlayerArmy
 
             float lateralVelocity = (dt > 0f) ? (newX - localPos.x) / dt : 0f;
             _targetX = tempTargetX;
+
+            for (int i = 0; i < characterUnits.Count; i++)
+            {
+                var unit = characterUnits[i];
+                if (unit != null && unit.IsActive)
+                {
+                    CollisionSystem.NotifyMoved(unit);
+                }
+            }
 
             AnimationType targetAnimation = lateralVelocity < -LateralAnimationThreshold
                 ? AnimationType.MoveLeft
@@ -1332,8 +1296,18 @@ namespace PlayerArmy
             var collisionSystem = needsDirectTargetCache ? CollisionSystem.Instance : null;
             if (collisionSystem != null && collisionSystem.Count > 0)
             {
-                for (int i = 0; i < collisionSystem.Count; i++)
+                Vector2 attackWindow = ResolveAttackWindow();
+                Vector3 armyPosition = Position;
+                float attackRange = Mathf.Max(0.1f, attackWindow.y);
+                collisionSystem.QueryIndicesNearSegment(
+                    armyPosition - transform.forward * attackRange,
+                    armyPosition + transform.forward * attackRange,
+                    Mathf.Max(attackWindow.x, attackRange),
+                    _collisionQueryIndices);
+
+                for (int candidateIndex = 0; candidateIndex < _collisionQueryIndices.Count; candidateIndex++)
                 {
+                    int i = _collisionQueryIndices[candidateIndex];
                     var target = collisionSystem.GetTargetBySortedIndex(i);
                     if (target == null || !target.IsActive) continue;
 
@@ -1355,9 +1329,20 @@ namespace PlayerArmy
                 }
             }
 
-            for (int i = 0; i < characterUnits.Count; i++)
+            int totalUnits = characterUnits.Count;
+            int maxEvals = Mathf.Clamp(maxAttackEvaluationsPerTick, 1, totalUnits);
+            int evaluatedCount = 0;
+
+            while (evaluatedCount < maxEvals)
             {
-                var unit = characterUnits[i];
+                if (_currentAttackEvalIndex >= totalUnits)
+                {
+                    _currentAttackEvalIndex = 0;
+                }
+
+                var unit = characterUnits[_currentAttackEvalIndex];
+                _currentAttackEvalIndex++;
+                evaluatedCount++;
                 if (unit == null || !unit.IsActive)
                 {
                     continue;
@@ -1428,7 +1413,6 @@ namespace PlayerArmy
                 return TryPerformDirectAttack(unit);
             }
 
-            unit.ShowWeapon();
             //unit.PlayAnimation(AnimationType.Attack, 0.4f, null, 1);
 
             _pendingProjectileAttacks.Add(new PendingProjectileAttack
@@ -1457,24 +1441,32 @@ namespace PlayerArmy
             }
 
             float now = Time.time;
-            int launchBudget = Mathf.Max(1, maxProjectileLaunchesPerFrame);
-            int processedCount = 0;
-            while (processedCount < _pendingProjectileAttacks.Count && launchBudget > 0)
+            int launchBudget = 0;
+
+            // Limit projectile launches across multiple frames
+            int currentFrame = Time.frameCount;
+            if (_lastLaunchFrame < 0 || currentFrame - _lastLaunchFrame >= 2)
             {
-                var attack = _pendingProjectileAttacks[processedCount];
+                launchBudget = Mathf.Max(1, maxProjectileLaunchesPerFrame);
+            }
+
+            for (int i = _pendingProjectileAttacks.Count - 1; i >= 0 && launchBudget > 0; i--)
+            {
+                var attack = _pendingProjectileAttacks[i];
                 if (now < attack.TriggerTime)
                 {
-                    break;
+                    continue;
                 }
 
                 ExecuteThrownProjectileAttack(attack.Unit);
-                processedCount++;
+                _lastLaunchFrame = currentFrame; // Record the launch frame
+                int last = _pendingProjectileAttacks.Count - 1;
+                if (i != last)
+                {
+                    _pendingProjectileAttacks[i] = _pendingProjectileAttacks[last];
+                }
+                _pendingProjectileAttacks.RemoveAt(last);
                 launchBudget--;
-            }
-
-            if (processedCount > 0)
-            {
-                _pendingProjectileAttacks.RemoveRange(0, processedCount);
             }
         }
 
@@ -1485,7 +1477,7 @@ namespace PlayerArmy
                 return;
             }
 
-            var wp = weaponProjectilePrefab.Spawn(startPoint, rotation, GetBodyRoot());
+            var wp = weaponProjectilePrefab.Spawn(startPoint, rotation, null);
             if (wp == null)
             {
                 return;
@@ -1575,7 +1567,6 @@ namespace PlayerArmy
             }
 
             unit.PlayAttackEffect();
-            unit.HideWeapon();
         }
 
         private struct ForwardTargetInfo
@@ -1662,14 +1653,17 @@ namespace PlayerArmy
         {
             if (unit == null) return;
 
-            unit.gameObject.SetActive(true);
+            if (!unit.gameObject.activeSelf)
+            {
+                unit.gameObject.SetActive(true);
+            }
             if (unit.transform.parent != GetBodyRoot())
             {
                 unit.transform.SetParent(GetBodyRoot(), true);
             }
 
             unit.Initialize(level, true);
-            unit.Setup(level, GameplayManager.IsGameStarted);
+            unit.Setup(level);
 
             int currentLevelIndex = ArmyUpgradeManager.Instance != null ? ArmyUpgradeManager.Instance.CurrentLevel : 0;
 
@@ -1680,23 +1674,11 @@ namespace PlayerArmy
                 ApplyUnitCombatProfile();
             }
 
-            if (_weaponOverridePrefab != null)
-            {
-                unit.SetWeaponPrefabOverride(_weaponOverridePrefab);
-            }
-            else
-            {
-                if (GameplayManager.IsGameStarted) unit.ShowWeapon(); else unit.HideWeapon();
-            }
             unit.PlayAnimation(ResolveRuntimeUnitAnimation(), 0f, null, 0);
 
             RegisterRuntimeUnit(unit);
             SetNextAttackTime(unit, nextAttackTime ?? (Time.time + attackInterval), !nextAttackTime.HasValue);
 
-            if (!_activeSpawnedUnits.Contains(unit))
-            {
-                _activeSpawnedUnits.Enqueue(unit);
-            }
         }
 
         private AnimationType ResolveRuntimeUnitAnimation()
@@ -1725,7 +1707,6 @@ namespace PlayerArmy
             }
 
             CollisionSystem.Register(unit, unit.transform);
-            EnemyProjectileSystem.RegisterTarget(unit);
         }
 
         private void UnregisterRuntimeUnit(CharacterUnit unit, bool deactivate)
@@ -1736,7 +1717,6 @@ namespace PlayerArmy
             }
 
             CollisionSystem.Unregister(unit);
-            EnemyProjectileSystem.UnregisterTarget(unit);
 
             if (deactivate && unit.gameObject.activeInHierarchy)
             {
@@ -1766,15 +1746,6 @@ namespace PlayerArmy
 
             if (removedAny)
             {
-                _activeSpawnedUnits.Clear();
-                for (int i = 0; i < characterUnits.Count; i++)
-                {
-                    var unit = characterUnits[i];
-                    if (unit != null && unit.IsActive)
-                    {
-                        _activeSpawnedUnits.Enqueue(unit);
-                    }
-                }
 
                 TryTriggerLoseWhenArmyEmpty();
             }
@@ -2136,4 +2107,3 @@ namespace PlayerArmy
         }
     }
 }
-

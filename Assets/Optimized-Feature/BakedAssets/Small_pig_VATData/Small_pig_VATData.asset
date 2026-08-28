@@ -20,23 +20,23 @@ MonoBehaviour:
   TotalFrames: 40
   ModelScale: {x: 1, y: 1, z: 1}
   Clips:
-  - ClipName: Small_Pig_Movement_Baked
-    _stateHash: -593381207
-    StartFrame: 0
-    EndFrame: 14
-    FrameRate: 30
-    IsLooping: 1
-  - ClipName: Small_Pig_Idle_Baked
-    _stateHash: 1330328662
+  - ClipName: Small_Pig_Idle
+    _stateHash: -1243731298
     StartFrame: 15
     EndFrame: 39
+    FrameRate: 30
+    IsLooping: 1
+  - ClipName: Small_Pig_Move
+    _stateHash: 1408989281
+    StartFrame: 0
+    EndFrame: 14
     FrameRate: 30
     IsLooping: 1
   BakedMaterials:
   - {fileID: 2100000, guid: 5a2458a5717dab44792b91c58a638a03, type: 2}
   WeaponAssets: []
   DefaultWeaponAsset: {fileID: 0}
-  DefaultStateName: -593381207
+  DefaultStateName: 1408989281
   AnimatorAsset: {fileID: 0}
   _legacyAnimatorParameters: []
   _legacyAnimatorTransitions: []

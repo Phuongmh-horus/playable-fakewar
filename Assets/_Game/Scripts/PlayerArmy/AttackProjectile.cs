@@ -82,7 +82,7 @@ namespace PlayerArmy
                 ? Quaternion.LookRotation(new Vector3(0f/*direction.x*/, 0f, direction.z).normalized)
                 : Quaternion.identity;
 
-            EnemyProjectileSystem.RegisterProjectile(
+            if (!EnemyProjectileSystem.RegisterProjectile(
                 transform,
                 startPoint,
                 groundY,
@@ -94,7 +94,13 @@ namespace PlayerArmy
                 Pack.Attacker,
                 Pack.Mover,
                 null,
-                EnemyProjectileSystem.ProjectileSpinAxis.None);
+                EnemyProjectileSystem.ProjectileSpinAxis.None,
+                EnemyProjectileSystem.ProjectileMotionMode.Straight,
+                true,
+                this))
+            {
+                Despawn();
+            }
         }
 
         public void DisposeProjectile()

@@ -83,7 +83,7 @@ Material:
     - _AmbientBrightness: 1
     - _BlendOp: 0
     - _BlendWeight: 0
-    - _Brightness: 2
+    - _Brightness: 1.5
     - _BumpScale: 1
     - _Contrast: 1
     - _Cull: 2
@@ -145,4 +145,5 @@ Material:
     - _LightDirection: {r: 0.15, g: 0.7, b: 0.3, a: 0.3}
     - _LightmapColor: {r: 1, g: 1, b: 1, a: 1}
     - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.3}
+    - _VATFrameData: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

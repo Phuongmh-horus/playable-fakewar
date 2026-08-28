@@ -54,9 +54,9 @@ MeshRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
+  m_MotionVectors: 2
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
@@ -146,9 +146,9 @@ SpriteRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
+  m_MotionVectors: 2
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
@@ -233,8 +233,6 @@ GameObject:
   - component: {fileID: 6047698961148238943}
   - component: {fileID: 1502503654052837142}
   - component: {fileID: 808322875088575013}
-  - component: {fileID: 1382088634130381640}
-  - component: {fileID: 3245129554375427120}
   m_Layer: 0
   m_Name: Enemy_v1
   m_TagString: Untagged
@@ -299,7 +297,7 @@ MonoBehaviour:
   dieVfxPrefab: {fileID: 0}
   dieVfxOffset: {x: 0, y: 3, z: 0}
   dieVfxLifetime: 1.2
-  maxDeathVfxPerFrame: 8
+  maxDeathVfxPerFrame: 5
   _healthOverriddenFromContent: 0
 --- !u!114 &3036404202336357057
 MonoBehaviour:
@@ -357,7 +355,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 0.8
     WaitForAction: 0
-    MaxVfxPerFrame: 5
+    MaxVfxPerFrame: 1
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!114 &808322875088575013
@@ -383,48 +381,8 @@ MonoBehaviour:
   horizontalRandomRange: 2
   heightOffset: 3
   zOffset: -2
-  prewarmPoolCount: 12
---- !u!114 &1382088634130381640
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5745234145295871957}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4338e7afe378744c880d0f09cb4669e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isDynamic: 1
-  customCullDistance: -1
-  targetRenderers:
-  - {fileID: 2069747382540472077}
-  - {fileID: 7375257029540412116}
-  - {fileID: 383017991681250992}
-  - {fileID: 0}
-  targetAnimators: []
---- !u!114 &3245129554375427120
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5745234145295871957}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d30bff501f6f57844aa50d336d03b979, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CacheTransform: {fileID: 6524933506058905331}
-  poolEntity: {fileID: 7662387699070818353}
-  vatRenderer: {fileID: 7052822964964718727}
-  idleStateName: Enemy_Basic_Idle_Baked
-  attackStateName: 
-  MoveStateName: Enemy_Basic_Run_Baked
-  moveLeftStateName: 
-  moveRightStateName: 
-  crossFadeDuration: 0.1
+  prewarmPoolCount: 20
+  frameCooldown: 10
 --- !u!1 &7589702209646420117
 GameObject:
   m_ObjectHideFlags: 0
@@ -469,9 +427,9 @@ SpriteRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
+  m_MotionVectors: 2
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1

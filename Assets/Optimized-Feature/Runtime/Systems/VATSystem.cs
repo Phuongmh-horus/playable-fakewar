@@ -150,14 +150,6 @@ namespace OptimizedFeature.Scripts
         {
             ProcessPendingRequests();
 
-            if (_runtimeMeshBatcher != null && _enableRuntimeMeshBatching)
-            {
-                // Batches hide the source renderers. Restore them before culling
-                // and animation evaluation so visibility and bounds remain based
-                // on the original VAT components.
-                _runtimeMeshBatcher.RestoreOriginalRenderers();
-            }
-
             float deltaTime = Time.deltaTime;
             int count = _registeredAnimators.Count;
 
@@ -204,8 +196,8 @@ namespace OptimizedFeature.Scripts
                                     float marginX = radius / Mathf.Max(0.1f, viewportCenter.z);
                                     float marginY = radius / Mathf.Max(0.1f, viewportCenter.z);
 
-                                    isVisible = (viewportCenter.x >= -marginX && viewportCenter.x <= 1.0f + marginX &&
-                                                 viewportCenter.y >= -marginY && viewportCenter.y <= 1.0f + marginY);
+                                    isVisible = viewportCenter.x >= -marginX && viewportCenter.x <= 1.0f + marginX &&
+                                                 viewportCenter.y >= -marginY && viewportCenter.y <= 1.0f + marginY;
                                 }
                                 else
                                 {

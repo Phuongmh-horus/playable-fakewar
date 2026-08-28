@@ -53,7 +53,7 @@ MeshRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 1
+  m_MotionVectors: 2
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 2
@@ -167,6 +167,7 @@ MonoBehaviour:
   _entityType: 7
   ActiveFlags: 0
   childrenRoot: {fileID: 4712467636517019392}
+  visualModels: []
   renderPosition: {x: 0, y: 0, z: 0}
   renderEulerAngle: {x: 0, y: 0, z: 0}
 --- !u!114 &7514185764433527146
@@ -183,7 +184,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CacheTransform: {fileID: 3361959927832847556}
   poolEntity: {fileID: 4626203107061952460}
-  moveVariable: {fileID: 11400000, guid: 8c27311aba1e0784a81ad580dac268a8, type: 2}
+  maxDistance: 30
+  duration: 1.2
 --- !u!114 &5597132513452181035
 MonoBehaviour:
   m_ObjectHideFlags: 0

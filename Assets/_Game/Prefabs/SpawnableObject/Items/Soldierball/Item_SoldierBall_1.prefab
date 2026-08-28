@@ -310,7 +310,7 @@ MonoBehaviour:
   wheelRotate: {fileID: 7330599078449074547}
   IsStopMove: 1
   effectComponent: {fileID: 2018191943066992144}
-  hitFeedbackInterval: 0.2
+  hitFeedbackInterval: 0.3
 --- !u!114 &8138363187892157136
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -352,7 +352,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
-    MaxVfxPerFrame: 8
+    MaxVfxPerFrame: 1
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!114 &4888467948349191867
@@ -393,7 +393,8 @@ MonoBehaviour:
   horizontalRandomRange: 2
   heightOffset: 3
   zOffset: -3
-  prewarmPoolCount: 12
+  prewarmPoolCount: 20
+  frameCooldown: 10
 --- !u!1 &6771063337839290154
 GameObject:
   m_ObjectHideFlags: 0
@@ -470,9 +471,9 @@ SpriteRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
+  m_MotionVectors: 2
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1

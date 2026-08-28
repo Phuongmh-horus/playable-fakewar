@@ -20,8 +20,8 @@ MonoBehaviour:
   TotalFrames: 97
   ModelScale: {x: 3, y: 3, z: 3}
   Clips:
-  - ClipName: Character_Idle_Baked
-    _stateHash: 1899044031
+  - ClipName: Character_Idle
+    _stateHash: -1591233909
     StartFrame: 0
     EndFrame: 44
     FrameRate: 30
@@ -32,14 +32,14 @@ MonoBehaviour:
     EndFrame: 52
     FrameRate: 30
     IsLooping: 1
-  - ClipName: Character_Move_Left_Baked
-    _stateHash: -832870576
+  - ClipName: Character_Move_Left
+    _stateHash: -382897628
     StartFrame: 53
     EndFrame: 74
     FrameRate: 30
     IsLooping: 1
-  - ClipName: Character_Move_Right_Baked
-    _stateHash: -2053672527
+  - ClipName: Character_Move_Right
+    _stateHash: 486165137
     StartFrame: 75
     EndFrame: 96
     FrameRate: 30

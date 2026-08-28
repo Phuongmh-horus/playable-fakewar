@@ -224,7 +224,7 @@ MonoBehaviour:
   autoUpdateOnValidate: 1
   entryPoint: {fileID: 5933256644459172466}
   exitPoint: {fileID: 468734649914088243}
-  contentLength: 400
+  contentLength: 200
   finishLength: 0
   conveyorMeshRenderer: {fileID: 0}
   scrollSpeed: 1.8
@@ -1195,7 +1195,7 @@ Transform:
   m_GameObject: {fileID: 7578856324677665642}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 400}
+  m_LocalPosition: {x: 0, y: 0, z: 200}
   m_LocalScale: {x: 1, y: 1, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []

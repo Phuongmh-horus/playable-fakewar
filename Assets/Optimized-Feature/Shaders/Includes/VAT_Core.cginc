@@ -26,9 +26,7 @@ inline float3 ApplyVATBatchTransform(
 }
 
 UNITY_INSTANCING_BUFFER_START(VATProps)
-    UNITY_DEFINE_INSTANCED_PROP(float, _FrameIndexLower)
-    UNITY_DEFINE_INSTANCED_PROP(float, _FrameIndexUpper)
-    UNITY_DEFINE_INSTANCED_PROP(float, _BlendWeight)
+    UNITY_DEFINE_INSTANCED_PROP(float4, _VATFrameData)
 UNITY_INSTANCING_BUFFER_END(VATProps)
 
 /// <summary>
@@ -37,9 +35,10 @@ UNITY_INSTANCING_BUFFER_END(VATProps)
 /// </summary>
 inline float3 ApplyVATOffset(float2 uv2, float4 vertexColor, float3 defaultPos)
 {
-    float frameLower = UNITY_ACCESS_INSTANCED_PROP(VATProps, _FrameIndexLower);
-    float frameUpper = UNITY_ACCESS_INSTANCED_PROP(VATProps, _FrameIndexUpper);
-    float blendW = UNITY_ACCESS_INSTANCED_PROP(VATProps, _BlendWeight);
+    float4 frameData = UNITY_ACCESS_INSTANCED_PROP(VATProps, _VATFrameData);
+    float frameLower = frameData.x;
+    float frameUpper = frameData.y;
+    float blendW = frameData.z;
 
     float textureWidth = max(1.0, _VATTextureWidth);
     float textureHeight = max(1.0, _VATTextureHeight);
