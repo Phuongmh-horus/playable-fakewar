@@ -32,21 +32,6 @@ namespace GamePlay.Roads
         [SerializeField] private float contentLength = 300f;
         [SerializeField] private float finishLength = 50f;
 
-        #region ConveyorProperties
-
-        [Header("ConveyorProperties")]
-        [Tooltip("Mesh renderer của conveyor")]
-        [SerializeField] public MeshRenderer conveyorMeshRenderer;
-
-        [Tooltip("Tốc độ cuộn")]
-        [SerializeField] public float scrollSpeed = 4f;
-
-        private readonly string _texturePropertyName = "_MainTex";
-        private Material _material;
-        private Vector2 _currentOffset = Vector2.zero;
-
-        #endregion
-
         public Transform EntryPoint => entryPoint;
         public Transform ExitPoint => exitPoint;
         public Transform MiddlePoint => middlePoint;
@@ -58,29 +43,6 @@ namespace GamePlay.Roads
         public float TotalLength => contentLength + finishLength;
         public float ContentLength => contentLength;
         public float FinishLength => finishLength;
-
-        // (Nếu bạn không dùng list này nữa có thể xóa)
-        private readonly List<ItemUnit> spawnedItems = new List<ItemUnit>();
-
-        #region Unity
-
-        private void Awake()
-        {
-            SetupConveyor();
-        }
-
-        // private void Update()
-        // {
-        //     if (!GameplayManager.IsGameStarted) return;
-        //     ScrollConveyor();
-        // }
-
-        private void OnDestroy()
-        {
-            ClearConveyor();
-        }
-
-        #endregion
 
         public void SetLength(float newContentLength, float newFinishLength)
         {
@@ -173,42 +135,5 @@ namespace GamePlay.Roads
 
             return changed;
         }
-
-        #region Conveyor Management
-
-        private void SetupConveyor()
-        {
-            if (conveyorMeshRenderer == null) return;
-
-            // material sẽ instance per-renderer; OK cho playable (ít object)
-            _material = conveyorMeshRenderer.material;
-        }
-
-        public void SyncWithWorldSpeed(float worldSpeed)
-        {
-            scrollSpeed = -worldSpeed * 0.5f;
-        }
-
-        private void ScrollConveyor()
-        {
-            if (_material == null) return;
-
-            float dt = Time.deltaTime;
-            _currentOffset.y += scrollSpeed * dt;
-            _currentOffset.y %= 1.0f;
-
-            _material.SetTextureOffset(_texturePropertyName, _currentOffset);
-        }
-
-        private void ClearConveyor()
-        {
-            if (_material != null)
-            {
-                Destroy(_material);
-                _material = null;
-            }
-        }
-
-        #endregion
     }
 }

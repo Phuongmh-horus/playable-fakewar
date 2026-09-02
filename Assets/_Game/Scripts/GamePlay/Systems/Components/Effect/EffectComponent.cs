@@ -10,8 +10,6 @@ namespace GamePlay.ComponentSystems
 {
     public class EffectComponent : BaseComponent, IEffector
     {
-        private const int MaxVfxSpawnsPerPrefabPerFrame = 1;
-
         [Serializable]
         private class EffectEntry
         {
@@ -30,7 +28,7 @@ namespace GamePlay.ComponentSystems
             [Tooltip("If > 0 then onComplete is invoked after this delay.")]
             public float WaitForAction = 0.5f;
 
-            [Min(1)] public int MaxVfxPerFrame = MaxVfxSpawnsPerPrefabPerFrame;
+            [Min(1)] public int MaxVfxPerFrame = 3;
         }
 
         [Header("Effects List (Serializable, Luna-safe)")]
@@ -65,25 +63,6 @@ namespace GamePlay.ComponentSystems
         {
             StopActiveLoopingSfx();
         }
-
-#if UNITY_EDITOR
-        protected override void OnValidate()
-        {
-            base.OnValidate();
-            for (int i = 0; effects != null && i < effects.Count; i++)
-            {
-                EffectEntry entry = effects[i];
-                if (entry != null && entry.VfxPrefab != null)
-                {
-                    entry.MaxVfxPerFrame = MaxVfxSpawnsPerPrefabPerFrame;
-                }
-            }
-
-            ResolveAudioSource(logIfMissingInEditor: true);
-            _cacheBuilt = false;
-            BuildCache();
-        }
-#endif
 
         public override void Initialize()
         {
@@ -366,7 +345,7 @@ namespace GamePlay.ComponentSystems
             // Older scene instances contain permissive overrides (2-8). Keep one
             // global spawn per prefab/frame so dense simultaneous hits cannot revive
             // the original overdraw/GC burst before every scene is resaved.
-            frameCap = MaxVfxSpawnsPerPrefabPerFrame;
+            frameCap = 3;
 
             int frame = Time.frameCount;
             if (s_vfxSpawnFrame != frame)
