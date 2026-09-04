@@ -32,21 +32,6 @@ namespace GamePlay.Roads
         [SerializeField] private float contentLength = 300f;
         [SerializeField] private float finishLength = 50f;
 
-        #region ConveyorProperties
-
-        [Header("ConveyorProperties")]
-        [Tooltip("Mesh renderer của conveyor")]
-        [SerializeField] public MeshRenderer conveyorMeshRenderer;
-
-        [Tooltip("Tốc độ cuộn")]
-        [SerializeField] public float scrollSpeed = 4f;
-
-        private readonly string _texturePropertyName = "_MainTex";
-        private Material _material;
-        private Vector2 _currentOffset = Vector2.zero;
-
-        #endregion
-
         public Transform EntryPoint => entryPoint;
         public Transform ExitPoint => exitPoint;
         public Transform MiddlePoint => middlePoint;
@@ -59,29 +44,6 @@ namespace GamePlay.Roads
         public float ContentLength => contentLength;
         public float FinishLength => finishLength;
 
-        // (Nếu bạn không dùng list này nữa có thể xóa)
-        private readonly List<ItemUnit> spawnedItems = new List<ItemUnit>();
-
-        #region Unity
-
-        private void Awake()
-        {
-            SetupConveyor();
-        }
-
-        private void Update()
-        {
-            if (!GameplayManager.IsGameStarted) return;
-            ScrollConveyor();
-        }
-
-        private void OnDestroy()
-        {
-            ClearConveyor();
-        }
-
-        #endregion
-
         public void SetLength(float newContentLength, float newFinishLength)
         {
             contentLength = newContentLength;
@@ -91,11 +53,6 @@ namespace GamePlay.Roads
 
         private bool UpdateSegmentDimensions()
         {
-            if (content == null || finish == null)
-            {
-                Debug.LogWarning($"[RoadSegment] Content hoặc Finish chưa được gán cho {gameObject.name}");
-                return false;
-            }
 
             bool changed = false;
 
@@ -178,131 +135,5 @@ namespace GamePlay.Roads
 
             return changed;
         }
-
-#if UNITY_EDITOR
-        private void OnValidate()
-        {
-            // Auto-bind removed; assign MeshRenderer manually in Inspector.
-
-            if (autoUpdateOnValidate)
-            {
-                // Tránh thao tác phá Prefab Asset
-                if (!PrefabUtility.IsPartOfPrefabAsset(this))
-                {
-                    bool changed = UpdateSegmentDimensions();
-                    changed |= AutoCalculatePoints();
-                    if (changed)
-                        EditorUtility.SetDirty(this);
-                }
-            }
-        }
-
-        private bool AutoCalculatePoints()
-        {
-            bool changed = false;
-
-            if (entryPoint == null) entryPoint = FindChildTransform("Entry");
-            if (exitPoint == null) exitPoint = FindChildTransform("Exit");
-
-            if (entryPoint == null)
-            {
-                entryPoint = CreatePoint("Entry");
-                changed = true;
-            }
-            if (exitPoint == null)
-            {
-                exitPoint = CreatePoint("Exit");
-                changed = true;
-            }
-
-            changed |= UpdateConnectionPoints();
-            return changed;
-        }
-
-        private Transform FindChildTransform(string childName)
-        {
-            var t = transform.Find(childName);
-            return t;
-        }
-
-        private Transform CreatePoint(string name)
-        {
-            var go = new GameObject(name);
-
-            bool isPartOfPrefabAsset = PrefabUtility.IsPartOfPrefabAsset(gameObject);
-            if (isPartOfPrefabAsset)
-            {
-                go.transform.SetParent(transform, false);
-                Undo.RegisterCreatedObjectUndo(go, "Create " + name + " Point");
-            }
-            else
-            {
-                go.transform.SetParent(transform, false);
-            }
-
-            go.transform.localRotation = Quaternion.identity;
-            return go.transform;
-        }
-
-        [ContextMenu("Force Update Points")]
-        private void ForceUpdatePoints()
-        {
-            AutoCalculatePoints();
-        }
-
-        private void OnDrawGizmos()
-        {
-            if (entryPoint != null)
-            {
-                Gizmos.color = Color.green;
-                Gizmos.DrawWireSphere(entryPoint.position, 0.3f);
-                Gizmos.DrawCube(entryPoint.position, Vector3.one * 0.1f);
-            }
-
-            if (exitPoint != null)
-            {
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere(exitPoint.position, 0.3f);
-                Gizmos.DrawCube(exitPoint.position, Vector3.one * 0.1f);
-            }
-        }
-#endif
-
-        #region Conveyor Management
-
-        private void SetupConveyor()
-        {
-            if (conveyorMeshRenderer == null) return;
-
-            // material sẽ instance per-renderer; OK cho playable (ít object)
-            _material = conveyorMeshRenderer.material;
-        }
-
-        public void SyncWithWorldSpeed(float worldSpeed)
-        {
-            scrollSpeed = -worldSpeed * 0.5f;
-        }
-
-        private void ScrollConveyor()
-        {
-            if (_material == null) return;
-
-            float dt = Time.deltaTime;
-            _currentOffset.y += scrollSpeed * dt;
-            _currentOffset.y %= 1.0f;
-
-            _material.SetTextureOffset(_texturePropertyName, _currentOffset);
-        }
-
-        private void ClearConveyor()
-        {
-            if (_material != null)
-            {
-                Destroy(_material);
-                _material = null;
-            }
-        }
-
-        #endregion
     }
 }

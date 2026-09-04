@@ -348,6 +348,7 @@ namespace GamePlay.Map
             ReplaceOverride(spawnable.propertyOverrides, new SoldierBallOverride
             {
                 overrideValue = true,
+                Type = soldierBall.Data.Type,
                 ChangeType = soldierBall.Data.ChangeType,
                 Value = soldierBall.Data.Value,
                 Level = soldierBall.Data.Level,

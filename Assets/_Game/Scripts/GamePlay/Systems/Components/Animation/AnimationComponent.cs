@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace GamePlay.AnimationSystems
 {
-    public class AnimationComponent : BaseComponent, IAnimator
+    public class AnimationComponent : BaseComponent, IAnimator, IAnimationClipLengthProvider
     {
         [Serializable]
         private struct AnimationMapping
@@ -45,6 +45,8 @@ namespace GamePlay.AnimationSystems
         private bool _cacheBuilt;
         private bool _animatorSettingsApplied;
         private AnimationType[] _currentAnimationTypes = new AnimationType[4] { AnimationType.Idle, AnimationType.Idle, AnimationType.Idle, AnimationType.Idle };
+        private Action _pendingCompletion;
+        private TweenCallback _cachedCompletionCallback;
 
         private static readonly AnimationType[] s_animationTypes = (AnimationType[])Enum.GetValues(typeof(AnimationType));
         private static readonly Dictionary<int, string[]> s_controllerFallbackCache = new Dictionary<int, string[]>(16);
@@ -55,6 +57,7 @@ namespace GamePlay.AnimationSystems
         protected override void Awake()
         {
             base.Awake();
+            _cachedCompletionCallback = InvokePendingCompletion;
             ValidateAnimator();
             BuildCache();
         }
@@ -110,6 +113,7 @@ namespace GamePlay.AnimationSystems
         public override void Dispose()
         {
             DOTween.Kill(this);
+            _pendingCompletion = null;
             base.Dispose();
         }
 
@@ -153,13 +157,21 @@ namespace GamePlay.AnimationSystems
                 return;
 
             DOTween.Kill(this);
+            _pendingCompletion = onComplete;
             if (waitForAction <= 0f)
             {
-                onComplete.Invoke();
+                InvokePendingCompletion();
                 return;
             }
 
-            DOVirtual.DelayedCall(waitForAction, () => { onComplete?.Invoke(); }, false).SetId(this);
+            DOVirtual.DelayedCall(waitForAction, _cachedCompletionCallback, false).SetId(this);
+        }
+
+        private void InvokePendingCompletion()
+        {
+            var completion = _pendingCompletion;
+            _pendingCompletion = null;
+            completion?.Invoke();
         }
 
         public void SetAnimatorLevel(int levelIndex)
@@ -176,7 +188,7 @@ namespace GamePlay.AnimationSystems
             if (_animators == null || _animators.Length == 0)
                 _animators = new Animator[1];
             _animators[0] = newAnimator;
-            
+
             _animatorSettingsApplied = false;
 
             // Force replay of the current animation states on the new animator

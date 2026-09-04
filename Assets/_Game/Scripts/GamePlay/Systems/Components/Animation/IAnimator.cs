@@ -8,6 +8,11 @@ namespace GamePlay.AnimationSystems
         void PlayAnimation(AnimationType animationType, float waitForAction = 0.5f, Action onComplete = null, int layer = 0);
     }
 
+    public interface IAnimationClipLengthProvider
+    {
+        float GetAnimationClipLength(AnimationType animationType);
+    }
+
     public enum AnimationType : byte
     {
         None,
@@ -20,5 +25,7 @@ namespace GamePlay.AnimationSystems
         Death,
         ConveyorJump,
         Break,
+        MoveLeft,
+        MoveRight,
     }
 }

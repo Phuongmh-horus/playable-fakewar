@@ -172,8 +172,10 @@ public class CameraFollow : MonoBehaviour
             transitionElapsedTime += Time.deltaTime;
             float t = Mathf.Clamp01(transitionElapsedTime / Mathf.Max(0.0001f, transitionDuration));
 
-            // OutQuart
-            float easedT = 1f - Mathf.Pow(1f - t, 4f);
+            // OutQuart without Mathf.Pow in the per-frame camera path.
+            float inverseT = 1f - t;
+            float inverseSquared = inverseT * inverseT;
+            float easedT = 1f - inverseSquared * inverseSquared;
 
             Vector3 targetPosition = currentState.GetTargetPosition(this);
             Quaternion targetRotation = currentState.GetTargetRotation(this);

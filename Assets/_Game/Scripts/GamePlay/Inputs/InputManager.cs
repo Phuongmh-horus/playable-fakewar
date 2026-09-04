@@ -31,7 +31,7 @@ namespace GamePlay.Inputs
             if (Instance == this) Instance = null;
         }
 
-        private void Update()
+        public void ManualUpdate()
         {
             if (!GameplayManager.IsGameStarted)
             {
@@ -68,7 +68,7 @@ namespace GamePlay.Inputs
                 float pixelDelta = currentX - _lastFrameX;
 
                 // Normalize theo screen width
-                _moveFactorX = (pixelDelta / Mathf.Max(1f, Screen.width)) * sensitivity * 100f;
+                _moveFactorX = pixelDelta / Mathf.Max(1f, Screen.width) * sensitivity * 100f;
 
                 _lastFrameX = currentX;
             }

@@ -374,6 +374,7 @@ namespace GamePlay.Crushers
         private readonly List<WheelCardRuntimeData> _rebuildCardsBuffer = new List<WheelCardRuntimeData>(32);
         private HashSet<int> _currentEnemyContactIds = new HashSet<int>();
         private HashSet<int> _previousEnemyContactIds = new HashSet<int>();
+        private readonly List<int> _collisionCandidateIndices = new List<int>(32);
         private int _lastEnemyHitFrame = -1;
         private bool _wheelEventsRegistered;
         private bool _outlineSlotsUseFallbackTint;
@@ -576,7 +577,7 @@ namespace GamePlay.Crushers
             }
         }
 
-        private void Update()
+        public void ManualUpdate()
         {
             if (currentState == WheelState.Idle) return;
             if (!GameplayManager.IsGameStarted) return;
@@ -628,26 +629,23 @@ namespace GamePlay.Crushers
                 Vector3 myPos = fullBody != null ? fullBody.position : transform.position;
                 Vector2 mySize = Size; // 3x3
                 uint myMask = TargetMask; // Items, Enemies, etc.
-                // Check collision with all targets
-                int count = collisionSystem.Count;
                 float myHalfX = mySize.x * 0.5f;
                 float myHalfZ = mySize.y * 0.5f;
                 float preCullX = Mathf.Max(myHalfX + 1f, collisionCheckRangeX);
                 float preCullZ = Mathf.Max(myHalfZ + 1f, collisionCheckRangeZ);
 
-                for (int i = 0; i < count; i++)
+                collisionSystem.QueryIndicesNearSegment(
+                    myPos,
+                    myPos,
+                    Mathf.Max(preCullX, preCullZ),
+                    _collisionCandidateIndices);
+
+                for (int candidateIndex = 0; candidateIndex < _collisionCandidateIndices.Count; candidateIndex++)
                 {
-                    var target = collisionSystem.GetTargetBySortedIndex(i);
-                    if (target == null) continue;
+                    int i = _collisionCandidateIndices[candidateIndex];
+                    uint targetMask = collisionSystem.GetMask(i);
+                    if ((myMask & targetMask) == 0) continue;
 
-                    if (!target.IsActive)
-                    {
-                        // if (Time.frameCount % 300 == 0) Debug.Log($"[WheelDebug] Target {i} inactive.");
-                        continue;
-                    }
-                    if (ReferenceEquals(target, this)) continue;
-
-                    // 2. AABB Check
                     var targetTr = collisionSystem.GetTransform(i);
                     if (targetTr == null) continue;
 
@@ -655,6 +653,9 @@ namespace GamePlay.Crushers
                     float distX = Mathf.Abs(tPos.x - myPos.x);
                     float distZ = Mathf.Abs(tPos.z - myPos.z);
                     if (distX > preCullX || distZ > preCullZ) continue;
+
+                    var target = collisionSystem.GetTargetBySortedIndex(i);
+                    if (target == null || !target.IsActive || ReferenceEquals(target, this)) continue;
 
                     var colData = collisionSystem.GetColliderData(i);
                     uint categoryBits = colData.CategoryBits != 0

@@ -7,6 +7,8 @@ using Random = UnityEngine.Random;
 
 public class HitTextFlyEffect : MonoBehaviour
 {
+    private const int MaxActiveTexts = 8;
+
     [SerializeField] private GamePlay.HealthSystems.HealthComponent healthComponent;
     [SerializeField] private TMP_Text healthTextPrefab;
     [SerializeField] private bool autoResolveHealthComponent = true;
@@ -21,13 +23,17 @@ public class HitTextFlyEffect : MonoBehaviour
     [Header("Custom Text Override")]
     private float customTextScaleMultiplier = 1.3f;
     private float customTextHeightOffsetMultiplier = 1.5f;
-    [SerializeField, Min(0)] private int prewarmPoolCount = 12;
+    [SerializeField, Min(0)] private int prewarmPoolCount = 20;
+    private int maxTextSpawnsPerFrame = 2;
 
     private static readonly Stack<HitTextController> controllerPool = new Stack<HitTextController>();
     private static readonly List<HitTextController> activeControllers = new List<HitTextController>(64);
     private static readonly HashSet<int> warmedTextPrefabIds = new HashSet<int>();
+    private static readonly Dictionary<int, int> textSpawnCountsThisFrame = new Dictionary<int, int>(8);
+    private static int textSpawnFrame = -1;
 
-    public bool LimitToOneTextPerFrame { get; set; } = false;
+    public bool LimitToOneTextPerFrame { get; set; } = true;
+    [SerializeField, Tooltip("Số frame tối thiểu giữa 2 lần fly text")] private int frameCooldown = 5;
     private int _lastHitFrame = -1;
 
     private bool _isSubscribed;
@@ -141,7 +147,7 @@ public class HitTextFlyEffect : MonoBehaviour
     public void OnHit(int damage)
     {
         if (damage <= 0) return;
-        ShowDefaultText(damage.ToString());
+        ShowDefaultText(damage);
     }
 
     public void ShowCustomText(string text, Color? colorOverride = null)
@@ -154,18 +160,29 @@ public class HitTextFlyEffect : MonoBehaviour
             colorOverride);
     }
 
-    private void ShowDefaultText(string text, Color? colorOverride = null)
+    public void ShowCustomNumber(int value, Color? colorOverride = null)
     {
-        ShowText(text, heightOffset, horizontalRandomRange, 1f, colorOverride);
+        ShowText(
+            null,
+            heightOffset * customTextHeightOffsetMultiplier,
+            horizontalRandomRange,
+            customTextScaleMultiplier,
+            colorOverride,
+            value);
     }
 
-    private void ShowText(string text, float spawnHeightOffset, float horizontalRange, float scaleMultiplier, Color? colorOverride = null)
+    private void ShowDefaultText(int value)
     {
-        if (string.IsNullOrEmpty(text)) return;
+        ShowText(null, heightOffset, horizontalRandomRange, 1f, null, value);
+    }
+
+    private void ShowText(string text, float spawnHeightOffset, float horizontalRange, float scaleMultiplier, Color? colorOverride = null, int numericValue = int.MinValue)
+    {
+        if (numericValue == int.MinValue && string.IsNullOrEmpty(text)) return;
 
         if (LimitToOneTextPerFrame)
         {
-            if (_lastHitFrame == Time.frameCount) return;
+            if (_lastHitFrame != -1 && (Time.frameCount - _lastHitFrame) < frameCooldown) return;
             _lastHitFrame = Time.frameCount;
         }
 
@@ -175,6 +192,8 @@ public class HitTextFlyEffect : MonoBehaviour
         }
 
         if (healthTextPrefab == null) return;
+        if (activeControllers.Count >= MaxActiveTexts) return;
+        if (!CanSpawnTextThisFrame(healthTextPrefab, maxTextSpawnsPerFrame)) return;
 
         HitTextController controller = controllerPool.Count > 0
             ? controllerPool.Pop()
@@ -194,7 +213,8 @@ public class HitTextFlyEffect : MonoBehaviour
             fallDuration,
             horizontalOffset,
             scaleMultiplier,
-            colorOverride);
+            colorOverride,
+            numericValue);
 
         if (activated)
         {
@@ -204,6 +224,31 @@ public class HitTextFlyEffect : MonoBehaviour
         {
             controllerPool.Push(controller);
         }
+    }
+
+    private static bool CanSpawnTextThisFrame(TMP_Text prefab, int frameCap)
+    {
+        if (prefab == null || frameCap <= 0)
+        {
+            return true;
+        }
+
+        int frame = Time.frameCount;
+        if (textSpawnFrame != frame)
+        {
+            textSpawnFrame = frame;
+            textSpawnCountsThisFrame.Clear();
+        }
+
+        int prefabId = prefab.GetInstanceID();
+        textSpawnCountsThisFrame.TryGetValue(prefabId, out int count);
+        if (count >= frameCap)
+        {
+            return false;
+        }
+
+        textSpawnCountsThisFrame[prefabId] = count + 1;
+        return true;
     }
 
     private sealed class HitTextController
@@ -236,7 +281,8 @@ public class HitTextFlyEffect : MonoBehaviour
             float fallDuration,
             float horizontalOffset,
             float scaleMultiplier,
-            Color? colorOverride = null)
+            Color? colorOverride = null,
+            int numericValue = int.MinValue)
         {
             ResetRuntimeState();
 
@@ -271,7 +317,14 @@ public class HitTextFlyEffect : MonoBehaviour
 
             _textTransform.position = startPos;
             _textTransform.localScale = prefab.transform.localScale * Mathf.Max(0.01f, scaleMultiplier);
-            _textInstance.text = textToShow;
+            if (numericValue == int.MinValue)
+            {
+                _textInstance.text = textToShow;
+            }
+            else
+            {
+                _textInstance.SetText("{0}", numericValue);
+            }
             _isActive = true;
 
             Color baseColor = colorOverride ?? prefab.color;

@@ -8,15 +8,18 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M_EN_kybinh
-  m_Shader: {fileID: 4800000, guid: 71196ce8b6c741941be53b7c3484e118, type: 3}
+  m_Shader: {fileID: 4800000, guid: 124e8c1d64ac24c13aa406f05ca2d222, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - DIFFUSE
+  - FOG
+  - _LIGHTMAPUV_UV1
   m_InvalidKeywords: []
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 3100
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -43,6 +46,14 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _EmissiveTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _LightmapTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: 69ca65c7f9e0c0b42a49a57ed4a7abc8, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -59,33 +70,64 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _TransparencyMaskTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AmbientBrightness: 1
+    - _BlendOp: 0
     - _Brightness: 1
     - _BumpScale: 1
+    - _Contrast: 1.3
+    - _Cull: 2
     - _Cutoff: 0.5
+    - _Cutout: 0
+    - _CutoutCutoff: 0.5
+    - _DestBlend: 0
     - _DetailNormalMapScale: 1
+    - _Diffuse: 1
+    - _DiffuseBrightness: 1
+    - _DiffuseContrast: 1
+    - _DiffuseWrap: 0
     - _DstBlend: 0
     - _EnableShadow: 0
+    - _Fog: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _HitFlash: 0
+    - _IgnoreMainTexAlpha: 0
+    - _LightmapBrightness: 1
+    - _LightmapUV: 0
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _Preset: 0
+    - _Saturation: 1
     - _ShadowHeight: 0
     - _ShadowRota: 0
     - _SmoothnessTextureChannel: 0
+    - _SourceBlend: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _TransparencyMaskAmount: 1
+    - _TransparencyMaskContrast: 1
     - _UVSec: 0
+    - _VertexColors: 0
+    - _VertexColorsAmount: 1
+    - _VertexColorsContrast: 1
+    - _ZOffset: 0
+    - _ZTest: 4
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _Emissive: {r: 0, g: 0, b: 0, a: 0}
     - _HitFlashColor: {r: 1, g: 1, b: 1, a: 0.2784314}
     - _LightDirection: {r: 0.15, g: 0.7, b: 0.3, a: 0.3}
+    - _LightmapColor: {r: 1, g: 1, b: 1, a: 1}
     - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.3}
   m_BuildTextureStacks: []

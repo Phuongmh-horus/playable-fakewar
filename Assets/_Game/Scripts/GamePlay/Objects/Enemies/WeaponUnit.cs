@@ -9,11 +9,11 @@ namespace GamePlay.Weapons
     public class WeaponUnit : PoolEntity
     {
         // [Header("Components References (MonoBehaviours implementing IComponent)")]
-        // [SerializeField] private List<MonoBehaviour> components = new List<MonoBehaviour>();
         [SerializeField] private Transform childrenRoot;
-        
+
         [Header("Models")]
         [SerializeField] private GameObject[] visualModels;
+        private int _appliedVisualLevel = -1;
 
         [Header("childrenRoot Transform Cache")]
         [SerializeField] private Vector3 renderPosition;
@@ -45,8 +45,6 @@ namespace GamePlay.Weapons
                 BuildCapabilityPack();
             }
 
-            if ((ActiveFlags & CapabilityFlags.Move) != 0 && Pack.Mover != null) Pack.Mover.Initialize();
-
             if ((ActiveFlags & CapabilityFlags.Attack) != 0 && Pack.Attacker != null)
             {
                 Pack.Attacker.Initialize();
@@ -58,8 +56,6 @@ namespace GamePlay.Weapons
                     attackComp.SetTargetPreset(AttackComponent.AttackTargetPreset.Enemy);
                 }
             }
-
-            RegisterEvents(true);
         }
 
 
@@ -86,10 +82,9 @@ namespace GamePlay.Weapons
             childrenRoot.localRotation = Quaternion.identity;
         }
 
-        public bool Launch(Vector3 startPoint, Vector3 direction, float distance, float duration, float arcHeight, float rotationSpeed, int damage, EnemyProjectileSystem.ProjectileSpinAxis spinAxis = EnemyProjectileSystem.ProjectileSpinAxis.X, EnemyProjectileSystem.ProjectileMotionMode motionMode = EnemyProjectileSystem.ProjectileMotionMode.Arc, IAttacker thrower = null, bool alignRotationToDirection = false)
+        public bool Launch(Vector3 startPoint, Vector3 direction, float distance, float duration, float arcHeight, float rotationSpeed, int damage, EnemyProjectileSystem.ProjectileSpinAxis spinAxis = EnemyProjectileSystem.ProjectileSpinAxis.X, EnemyProjectileSystem.ProjectileMotionMode motionMode = EnemyProjectileSystem.ProjectileMotionMode.Arc, IAttacker thrower = null, bool alignRotationToDirection = true)
         {
             Initialize();
-
             if (Pack.Attacker == null)
             {
                 return false;
@@ -122,7 +117,7 @@ namespace GamePlay.Weapons
                 transform.position = startPoint;
             }
 
-            EnemyProjectileSystem.RegisterProjectile(
+            if (!EnemyProjectileSystem.RegisterProjectile(
                 transform,
                 startPoint,
                 startPoint.y,
@@ -136,7 +131,11 @@ namespace GamePlay.Weapons
                 thrower,
                 spinAxis,
                 motionMode,
-                alignRotationToDirection);
+                    alignRotationToDirection,
+                    this))
+            {
+                return false;
+            }
 
             return true;
         }
@@ -146,47 +145,23 @@ namespace GamePlay.Weapons
             DespawnInterval();
         }
 
-        private void RegisterEvents(bool register)
-        {
-            if (register)
-            {
-                if (Pack.Mover != null) Pack.Mover.OnMovementComplete += HandleMoveComplete;
-                if (Pack.Attacker != null) Pack.Attacker.OnAttackComplete += HandleAttackComplete;
-            }
-            else
-            {
-                if (Pack.Mover != null) Pack.Mover.OnMovementComplete -= HandleMoveComplete;
-                if (Pack.Attacker != null) Pack.Attacker.OnAttackComplete -= HandleAttackComplete;
-            }
-        }
-
-        private void HandleMoveComplete()
-        {
-            DespawnInterval();
-        }
-
-        private void HandleAttackComplete(IHitable target)
-        {
-            DespawnInterval();
-        }
-
         private void DespawnInterval()
         {
-            if ((ActiveFlags & CapabilityFlags.Move) != 0 && Pack.Mover != null) Pack.Mover.Dispose();
-            if ((ActiveFlags & CapabilityFlags.Attack) != 0 && Pack.Attacker != null) Pack.Attacker.Dispose();
-
-            RegisterEvents(false);
-
-            // Trả về Pool - Despawn() từ PoolEntity
             Despawn();
         }
 
         public void ApplyVisualLevel(int levelIndex)
         {
             if (visualModels == null || visualModels.Length == 0) return;
-            
+
             // Limit level index to avoid out of bounds
             int safeIndex = Mathf.Clamp(levelIndex, 0, visualModels.Length - 1);
+            if (_appliedVisualLevel == safeIndex)
+            {
+                return;
+            }
+
+            _appliedVisualLevel = safeIndex;
 
             for (int i = 0; i < visualModels.Length; i++)
             {

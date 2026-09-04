@@ -7,16 +7,6 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: color
-    second: {fileID: 2100000, guid: 04a0c35d0fc2613469666a0b92b5238c, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: road
-    second: {fileID: 2100000, guid: 97d3de52004b28942afb35609f53b1cb, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
       name: road_sp
     second: {fileID: 2100000, guid: e1550f5a0c8d0d1448325ed364365af6, type: 2}
   materials:

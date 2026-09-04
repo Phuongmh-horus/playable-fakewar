@@ -11,6 +11,7 @@ using GamePlay.Items;
 using GamePlay.Managers;
 using GamePlay.Map;
 using GamePlay.Effects;
+using GamePlay.Rendering;
 using PlayerArmy;
 using Pools;
 using UnityEngine;
@@ -52,11 +53,13 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     [Header("Explosion Shot Buff")]
     [SerializeField, Min(0f)] private float explosionShotRadius = 3.25f;
     [SerializeField, Min(0)] private int explosionShotBasePercent = 90;
+
     [SerializeField, Min(0)] private int explosionShotUpgradePercent = 35;
 
     [Header("Refs")]
     [SerializeField] private MapGenerator mapGenerator;
     [SerializeField] private MapContentGenerator contentGenerator;
+    [SerializeField] private PlayableRenderVisibilitySystem renderVisibilitySystem;
 
     [Header("Player/Wheel")]
     [HideInInspector] public WheelUnit Turnable;
@@ -69,8 +72,16 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     private bool IsArmyMode => true;
 
     [Header("Startup Performance")]
-    [SerializeField] private int initItemsPerFrame = 5; // Reduced to prevent lag spikes
-    [SerializeField] private int spawnItemsPerFrame = 10;
+    [SerializeField] private int initItemsPerFrame = 3; // Reduced to prevent lag spikes
+    [SerializeField] private int spawnItemsPerFrame = 3;
+
+    [Header("Runtime Memory Recovery")]
+    [SerializeField] private bool trimInactivePools = true;
+    private float poolTrimQuietPeriod = 4f;
+    private float poolTrimInterval = 2f;
+    private int retainedPoolInstances = 4;
+    private int pooledObjectsDestroyedPerTrim = 6;
+    private float _nextPoolTrimTime;
 
     [Header("Startup Flow")]
     [SerializeField] private bool waitForTapBeforeGameplay = true;
@@ -84,17 +95,8 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     [SerializeField] private float milestoneEndcardDelay = 1.0f;
 
     public static bool IsGameStarted;
-    private const float MoveSpeedStep = 0.5f;
     private bool _endGameSfxPlayed;
     private WeaponCraft.WeaponItem _mainWeapon;
-
-    // Reflection caches for Luna-compatible render optimization (avoid per-call lookup/alloc).
-    private static readonly PropertyInfo SkinnedQualityProperty =
-        typeof(SkinnedMeshRenderer).GetProperty("quality", BindingFlags.Instance | BindingFlags.Public);
-    private static readonly PropertyInfo SkinnedMotionVectorsProperty =
-        typeof(SkinnedMeshRenderer).GetProperty("skinnedMotionVectors", BindingFlags.Instance | BindingFlags.Public);
-    private static readonly PropertyInfo SkinnedUpdateWhenOffscreenProperty =
-        typeof(SkinnedMeshRenderer).GetProperty("updateWhenOffscreen", BindingFlags.Instance | BindingFlags.Public);
 
     private Dictionary<CurrencyType, int> _currencyValues = new Dictionary<CurrencyType, int>();
     public WeaponCraft.WeaponItem MainWeapon => _mainWeapon;
@@ -159,40 +161,74 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     }
 #endif
 
+    private PlayableWaveDefenseEntitySystem _waveSys;
+    private CombatSystem _combatSys;
+    private EnemyProjectileSystem _enemyProjectileSys;
+    private EnemyManager _enemyManager;
+    private GamePlay.Inputs.InputManager _inputManager;
+
     // Optimized tick system: frame skipping + early exits for empty collections
     private void Update()
     {
         float dt = Time.deltaTime;
 
-        // Critical effects: every frame (smooth animations)
+        if (_inputManager == null) _inputManager = GamePlay.Inputs.InputManager.Instance;
+        _inputManager?.ManualUpdate();
+        PooledVfxLifetimeScheduler.Tick(Time.time);
+        GamePlay.Characters.CharacterUnit.TickScheduledDespawns(Time.time);
         HitTextFlyEffect.TickActiveControllers(dt);
-        BrickFallMotion.TickActiveMotions(dt);
-        CurrencyDropItem.TickActiveDrops(dt);
 
-        // Important effects: every frame (game logic)
-        DebrisBlock.TickActiveBlocks(dt);
-
+        // Gameplay-only transient systems do not need to run during boot/intro.
+        // Keeping this gate before their dispatch avoids walking their active lists
+        // while the playable is waiting for input.
         if (!IsGameStarted)
         {
             return;
         }
 
-        var waveSys = PlayableWaveDefenseEntitySystem.Instance;
-        var colSys = CollisionSystem.Instance;
-        var combatSys = CombatSystem.Instance;
+        // Critical effects: every frame (smooth animations)
+        BrickFallMotion.TickActiveMotions(dt);
+        CurrencyDropItem.TickActiveDrops(dt);
+        DebrisBlock.TickActiveBlocks(dt);
 
-        if (waveSys != null) waveSys.ManualUpdate();
-        if (colSys != null) colSys.ManualUpdate();
-        if (combatSys != null) combatSys.ManualUpdate();
+        if (_waveSys == null) _waveSys = PlayableWaveDefenseEntitySystem.Instance;
+        if (_combatSys == null) _combatSys = CombatSystem.Instance;
+        if (_enemyProjectileSys == null) _enemyProjectileSys = EnemyProjectileSystem.Instance;
+        if (_enemyManager == null) _enemyManager = EnemyManager.Instance;
 
-        if (waveSys != null && waveSys.EndGameWhenAllMovingEntitiesCleared)
+        TryTrimInactivePools();
+        ActiveArmy?.ManualUpdate();
+        if (_waveSys != null) _waveSys.ManualUpdate();
+        if (_combatSys != null) _combatSys.ManualUpdate();
+        if (_enemyProjectileSys != null) _enemyProjectileSys.ManualUpdate();
+        if (_enemyManager != null) _enemyManager.ManualUpdate();
+        if (_waveSys != null && _waveSys.EndGameWhenAllMovingEntitiesCleared)
         {
-            if (waveSys.IsCompleted() &&
-                (GamePlay.Enemies.EnemyManager.Instance == null || GamePlay.Enemies.EnemyManager.Instance.EnemyCount == 0))
+            if (_waveSys.IsCompleted() &&
+                (_enemyManager == null || _enemyManager.EnemyCount == 0))
             {
                 EndGame(true);
                 return;
             }
+        }
+    }
+
+    private void TryTrimInactivePools()
+    {
+        if (!trimInactivePools || Time.time < _nextPoolTrimTime)
+        {
+            return;
+        }
+
+        _nextPoolTrimTime = Time.time + poolTrimInterval;
+        if (PoolSystem.SecondsSinceLastSpawn < poolTrimQuietPeriod)
+        {
+            return;
+        }
+
+        if (PoolSystem.TrimInactive(retainedPoolInstances, pooledObjectsDestroyedPerTrim) > 0)
+        {
+            EffectComponent.CleanupDestroyedRuntimeCaches();
         }
     }
 
@@ -339,6 +375,9 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             mapGenerator.GenerateMap(playableEra.MapData);
         }
 
+        var playerSpawnRect = mapGenerator.GetSpawnPlayerTransform();
+        Vector3 targetPos = playerSpawnRect.position + Vector3.forward * TurnableSpawnOffset;
+
         // Generate Content
         if (contentGenerator != null)
         {
@@ -359,9 +398,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         }
 
         // Spawn / Binding Army
-        var playerSpawnRect = mapGenerator.GetSpawnPlayerTransform();
-        Vector3 targetPos = playerSpawnRect.position + Vector3.forward * TurnableSpawnOffset;
-
         if (playerArmyPrefab != null)
         {
             // Sử dụng object có sẵn trên scene
@@ -379,11 +415,17 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
                 ? initialCards
                 : BuildInitialArmyCardsFromRuntimeState();
             ActiveArmy.AddCards(seedCards, CardSpawnEffectType.DropWithoutAction);
-            ActiveArmy.SetActive();
+            ActiveArmy.SetIdle();
         }
 
         if (EnemyManager.Instance != null) EnemyManager.Instance.UnregisterAllEnemies();
         EnemyProjectileSystem.UnregisterPlayer();
+
+        // Prewarm shared army prefabs before content items can borrow character instances for displays.
+        if (IsArmyMode && ActiveArmy != null)
+        {
+            yield return StartCoroutine(ActiveArmy.PrewarmArmyPrefabsAsync(Mathf.Max(1, spawnItemsPerFrame)));
+        }
 
         // Initialize Content Items
         if (contentGenerator != null && contentGenerator.generatedObjects != null)
@@ -393,7 +435,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             for (int i = 0; i < contentGenerator.generatedObjects.Count; i++)
             {
                 var item = contentGenerator.generatedObjects[i];
-                if (item != null)
+                if (item != null && item.gameObject.activeInHierarchy)
                 {
                     item.Initialize();
 
@@ -404,7 +446,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
                         {
                             if (prewarmedVfx.Add(enemyUnit.DieVfxPrefab))
                             {
-                                yield return PoolSystem.PrewarmAsync(enemyUnit.DieVfxPrefab.transform, 20, batchSize);
+                                yield return PoolSystem.EnsurePrewarmAsync(enemyUnit.DieVfxPrefab.transform, 5, batchSize);
                             }
                         }
                     }
@@ -413,16 +455,24 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             }
         }
 
-        // Prewarm Army Prefabs & Weapon Projectiles
-        if (IsArmyMode && ActiveArmy != null)
-        {
-            yield return StartCoroutine(ActiveArmy.PrewarmArmyPrefabsAsync(Mathf.Max(1, spawnItemsPerFrame)));
-        }
-
         if (ActiveArmy != null)
         {
             ActiveArmy.transform.position = targetPos;
             ActiveArmy.SetIdle();
+        }
+
+        if (contentGenerator != null)
+        {
+            if (renderVisibilitySystem == null)
+            {
+                renderVisibilitySystem = GetComponent<PlayableRenderVisibilitySystem>();
+            }
+            if (renderVisibilitySystem == null)
+            {
+                renderVisibilitySystem = gameObject.AddComponent<PlayableRenderVisibilitySystem>();
+            }
+
+            renderVisibilitySystem.Configure(Camera.main, PlayerTransform, contentGenerator.generatedObjects);
         }
 
         // Prewarm Extra VFX
@@ -431,8 +481,8 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             if (prefab != null)
             {
                 // [FIX] Reduce prewarm count for vfx_hero_upgrade to optimize performance
-                int prewarmCount = prefab.name.ToLower().Contains("upgrade") ? 2 : 20;
-                yield return PoolSystem.PrewarmAsync(prefab.transform, prewarmCount, Mathf.Max(1, spawnItemsPerFrame));
+                int prewarmCount = prefab.name.ToLower().Contains("upgrade") ? 1 : 10;
+                yield return PoolSystem.EnsurePrewarmAsync(prefab.transform, prewarmCount, Mathf.Max(1, spawnItemsPerFrame));
             }
         }
     }
@@ -517,7 +567,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
             foreach (var g in generated)
             {
-                if (g == null || g.Pack.Hitable == null) continue;
+                if (g == null || !g.gameObject.activeInHierarchy || g.Pack.Hitable == null) continue;
 
                 _collisionHitablesBuffer.Add(g.Pack.Hitable);
                 // Use the IHitable's transform when possible (HitComponent may be on a child)
@@ -531,11 +581,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             .EnsureInstance()
             .RegisterFromGeneratedObjects(contentGenerator != null ? contentGenerator.generatedObjects : null, PlayerTransform);
 
-        // Setup conveyor gates
-        if (ConveyorManager.Instance != null && contentGenerator != null)
-        {
-            ConveyorManager.Instance.SetGatePositions(contentGenerator.generatedObjects);
-        }
 
         ResetCurrency(CurrencyType.Gold);
         ResetCurrency(CurrencyType.Cash);
@@ -590,7 +635,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             : BuildInitialArmyCardsFromRuntimeState();
 
         ActiveArmy.AddCards(seedCards, CardSpawnEffectType.DropWithoutAction);
-        OptimizeRenderHierarchy(ActiveArmy.transform);
     }
 
     private List<CardSpawnRequestData> BuildInitialArmyCardsFromRuntimeState()
@@ -854,29 +898,19 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         if (statModifierData == null) return;
         if (statModifierData.Type == StatType.None || statModifierData.Armor > 0) return;
 
+        if (statModifierData is SoldierBallData soldierBallData)
+        {
+            ApplySoldierBallData(soldierBallData);
+            return;
+        }
+
         MarkPrimaryBuffAppliedIfNeeded(statModifierData);
 
         switch (statModifierData.Type)
         {
             case StatType.FireRate:
-                {
-                    int upgradeSteps = ResolveUpgradeSteps(statModifierData);
-                    if (ActiveArmy != null)
-                    {
-                        ActiveArmy.ApplyFireRateModifier(upgradeSteps);
-                    }
-                    break;
-                }
-
             case StatType.FireRange:
-                {
-                    int upgradeSteps = ResolveUpgradeSteps(statModifierData);
-                    if (ActiveArmy != null)
-                    {
-                        ActiveArmy.ApplyFireRangeModifier(upgradeSteps);
-                    }
-                    break;
-                }
+                break;
 
             case StatType.Damage:
                 {
@@ -913,10 +947,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
                             Debug.LogWarning("[GameplayManager] Character upgrade gate resolved with no valid upgrade step.");
                         }
                     }
-                    else if (statModifierData is SoldierBallData soldierBallData)
-                    {
-                        ApplySoldierBallData(soldierBallData, CardSpawnEffectType.Drop);
-                    }
                     else
                     {
                         AddCharacterCards(statModifierData.Value, -1, CardSpawnEffectType.Drop);
@@ -926,30 +956,16 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
             case StatType.CharacterLevel:
                 {
-                    if (statModifierData is SoldierBallData soldierBallData)
-                    {
-                        ApplySoldierBallData(soldierBallData, CardSpawnEffectType.Drop);
-                    }
-                    else
                     {
                         int levelBonus = ResolveUpgradeSteps(statModifierData);
                         if (levelBonus > 0 && ActiveArmy != null)
                         {
                             ActiveArmy.UpgradeAllUnitsToLevel(levelBonus);
                             // [FIX] Play Upgrade effect on the army
-                            ActiveArmy.PlayEffect(GamePlay.ComponentSystems.EffectType.Upgrade);
+                            ActiveArmy.PlayEffect(EffectType.Upgrade);
                         }
                     }
 
-                    break;
-                }
-
-            case StatType.MoveSpeed:
-                {
-                    if (Turnable != null)
-                    {
-                        Turnable.AddForwardSpeed(statModifierData.Value * MoveSpeedStep);
-                    }
                     break;
                 }
 
@@ -1027,20 +1043,17 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         }
 
         // Scale down FireRate/FireRange buff values
-        if (statModifierData.Type == StatType.FireRate || statModifierData.Type == StatType.FireRange)
+        if (statModifierData.Type == StatType.FireRate)
+        {
+            return Mathf.Max(0, statModifierData.Value / 2);
+        }
+
+        if (statModifierData.Type == StatType.FireRange)
         {
             return Mathf.Max(0, statModifierData.Value / 10);
         }
 
         return Mathf.Max(0, statModifierData.Value);
-    }
-
-    public void ResetStatModifierData(StatType statType)
-    {
-        if (statType is StatType.None) return;
-
-        if (statType == StatType.MoveSpeed)
-            Turnable?.ResetForwardSpeed();
     }
 
     /// <summary>
@@ -1104,43 +1117,29 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         AddCardsToPlayer(_singleRequestBuffer, effect);
     }
 
-    private void ApplySoldierBallData(SoldierBallData soldierBallData, CardSpawnEffectType effect)
+    private void ApplySoldierBallData(SoldierBallData soldierBallData)
     {
-        if (soldierBallData == null)
+        if (soldierBallData == null ||
+            soldierBallData.ChangeType != SoldierBallData.EChangeType.Increase ||
+            ActiveArmy == null)
         {
             return;
         }
 
-        if (soldierBallData.ChangeType == SoldierBallData.EChangeType.Increase)
+        int value = Mathf.Max(0, soldierBallData.Value);
+        if (value <= 0)
         {
-            int amount = Mathf.Max(0, soldierBallData.Value);
-            if (amount <= 0)
-            {
-                return;
-            }
-
-            int level = Mathf.Max(1, soldierBallData.Level);
-            _singleRequestBuffer.Clear();
-            _singleRequestBuffer.Add(new CardSpawnRequestData
-            {
-                Id = level,
-                Level = level,
-                Amount = amount,
-                CardType = CardType.Character
-            });
-            AddCardsToPlayer(_singleRequestBuffer, effect);
             return;
         }
 
-        if (soldierBallData.ChangeType == SoldierBallData.EChangeType.Upgrade)
+        switch (soldierBallData.Type)
         {
-            int targetLevel = Mathf.Max(1, soldierBallData.Level);
-            if (ActiveArmy != null)
-            {
-                ActiveArmy.UpgradeAllUnitsToLevel(targetLevel);
-                // [FIX] Play Upgrade effect on the army, not on the SoldierBall prefab
-                ActiveArmy.PlayEffect(GamePlay.ComponentSystems.EffectType.Upgrade);
-            }
+            case StatType.FireRate:
+                ActiveArmy.ApplyFireRateModifier(value);
+                break;
+            case StatType.Damage:
+                ActiveArmy.ApplyDamageModifier(value);
+                break;
         }
     }
 
@@ -1189,50 +1188,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
         return safeBase + capacity;
     }
-
-    private static void OptimizeRenderHierarchy(Transform root)
-    {
-        // if (root == null) return;
-
-        // var renderers = root.GetComponentsInChildren<Renderer>(true);
-        // for (int i = 0; i < renderers.Length; i++)
-        // {
-        //     var renderer = renderers[i];
-        //     if (renderer == null) continue;
-
-        //     renderer.shadowCastingMode = ShadowCastingMode.Off;
-        //     renderer.receiveShadows = false;
-        //     renderer.motionVectorGenerationMode = MotionVectorGenerationMode.ForceNoMotion;
-        //     renderer.lightProbeUsage = LightProbeUsage.Off;
-        //     renderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
-
-        //     if (renderer is SkinnedMeshRenderer skinned)
-        //     {
-        //         // Luna compatibility: some runtimes strip SkinnedMeshRenderer members.
-        //         TrySetSkinnedProperties(skinned);
-        //     }
-        // }
-    }
-
-    private static void TrySetSkinnedProperties(SkinnedMeshRenderer skinned)
-    {
-        if (skinned == null) return;
-
-        try
-        {
-            if (SkinnedQualityProperty != null && SkinnedQualityProperty.CanWrite)
-                SkinnedQualityProperty.SetValue(skinned, SkinQuality.Bone2, null);
-            if (SkinnedMotionVectorsProperty != null && SkinnedMotionVectorsProperty.CanWrite)
-                SkinnedMotionVectorsProperty.SetValue(skinned, false, null);
-            if (SkinnedUpdateWhenOffscreenProperty != null && SkinnedUpdateWhenOffscreenProperty.CanWrite)
-                SkinnedUpdateWhenOffscreenProperty.SetValue(skinned, false, null);
-        }
-        catch
-        {
-            // Ignore: optimization only.
-        }
-    }
-
 
     #endregion
 }

@@ -5,6 +5,7 @@ using GamePlay.Items;
 public class SoldierBallOverride : ItemUnitPropertyOverride
 {
     public bool overrideValue;
+    public StatType Type;
     public SoldierBallData.EChangeType ChangeType;
     public int Value;
     public int Level;
@@ -18,7 +19,7 @@ public class SoldierBallOverride : ItemUnitPropertyOverride
         {
             return;
         }
-
+        target.Data.Type = Type;
         target.Data.ChangeType = ChangeType;
         target.Data.Value = Value;
         target.Data.Level = Level;

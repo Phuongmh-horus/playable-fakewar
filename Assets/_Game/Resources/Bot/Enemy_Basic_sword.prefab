@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5716704693379108378}
-  - component: {fileID: 7219731637266642827}
   m_Layer: 0
   m_Name: Enemy_Basic_sword
   m_TagString: Untagged
@@ -33,26 +32,6 @@ Transform:
   - {fileID: 7886341258416685309}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7219731637266642827
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2977846291692160077}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f47bf4169ec5dd4cbf530cf6929eeab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  prototype: {fileID: 2977846291692160077}
-  animationData: {fileID: 4900000, guid: fbb13d8b2bc299d4d9cf69fe18436abe, type: 3}
-  playSpeed: 1
-  DefaultAnimIndex: 0
-  shadowCastingMode: 0
-  receiveShadow: 0
-  applyRootMotion: 0
-  bonePerVertex: 4
 --- !u!1001 &2613421691342851963
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -175,11 +154,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8023172756131522475, guid: 233395a025399014082b5637a8548aa8, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8023172756131522475, guid: 233395a025399014082b5637a8548aa8, type: 3}
+      propertyPath: m_Quality
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8023172756131522475, guid: 233395a025399014082b5637a8548aa8, type: 3}
       propertyPath: m_CastShadows
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8023172756131522475, guid: 233395a025399014082b5637a8548aa8, type: 3}
+      propertyPath: m_MotionVectors
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8023172756131522475, guid: 233395a025399014082b5637a8548aa8, type: 3}
       propertyPath: m_ReceiveShadows
@@ -191,6 +178,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8023172756131522475, guid: 233395a025399014082b5637a8548aa8, type: 3}
       propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8023172756131522475, guid: 233395a025399014082b5637a8548aa8, type: 3}
+      propertyPath: m_SkinnedMotionVectors
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8023172756131522475, guid: 233395a025399014082b5637a8548aa8, type: 3}
@@ -257,11 +248,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -5663072282631595212, guid: 578022a1a8ff65241931a3fa41382763, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -5663072282631595212, guid: 578022a1a8ff65241931a3fa41382763, type: 3}
+      propertyPath: m_Quality
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -5663072282631595212, guid: 578022a1a8ff65241931a3fa41382763, type: 3}
       propertyPath: m_CastShadows
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5663072282631595212, guid: 578022a1a8ff65241931a3fa41382763, type: 3}
+      propertyPath: m_MotionVectors
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -5663072282631595212, guid: 578022a1a8ff65241931a3fa41382763, type: 3}
       propertyPath: m_ReceiveShadows
@@ -273,6 +272,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -5663072282631595212, guid: 578022a1a8ff65241931a3fa41382763, type: 3}
       propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5663072282631595212, guid: 578022a1a8ff65241931a3fa41382763, type: 3}
+      propertyPath: m_SkinnedMotionVectors
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -5663072282631595212, guid: 578022a1a8ff65241931a3fa41382763, type: 3}
@@ -289,7 +292,7 @@ PrefabInstance:
       objectReference: {fileID: 9100000, guid: 3868173b0b2b19c4b9234a713035db5e, type: 2}
     - target: {fileID: 5866666021909216657, guid: 578022a1a8ff65241931a3fa41382763, type: 3}
       propertyPath: m_ApplyRootMotion
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

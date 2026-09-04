@@ -138,7 +138,7 @@
             ]
         },
         "scenes": [
-            "Assets/_FrameWork/Scenes/S_GamePlay 1.unity"
+            "Assets/_FrameWork/Scenes/S_GamePlay 1_Lose.unity"
         ],
         "disabledScenes": [],
         "startupScene": 0,

@@ -10,6 +10,12 @@ namespace GamePlay.CombatSystems
 {
     public class EnemyProjectileSystem : MonoSingleton<EnemyProjectileSystem>
     {
+        [Header("Projectile Budget")]
+        [SerializeField, Min(1), Tooltip("Hard cap shared by player and enemy projectiles.")]
+        private int maxActiveProjectiles = 15;
+        public static int MaxActiveProjectiles => Instance != null
+            ? Mathf.Max(1, Instance.maxActiveProjectiles)
+            : 1;
         [Header("Player Binding (Optional)")]
         [SerializeField] private Crushers.WheelUnit playerWheelRef;
         private static IHitable s_pendingPlayer;
@@ -64,7 +70,7 @@ namespace GamePlay.CombatSystems
             Straight
         }
 
-        public static void RegisterProjectile(
+        public static bool RegisterProjectile(
             Transform projectileTransform,
             Vector3 startPoint,
             float groundY,
@@ -78,18 +84,24 @@ namespace GamePlay.CombatSystems
             IAttacker thrower = null,
             ProjectileSpinAxis spinAxis = ProjectileSpinAxis.Z,
             ProjectileMotionMode motionMode = ProjectileMotionMode.Straight,
-            bool alignRotationToDirection = true
+            bool alignRotationToDirection = true,
+            PoolEntity poolEntity = null
         )
         {
-            if (Instance == null) return;
-            Instance.RegisterProjectileInternal(projectileTransform, startPoint, groundY, direction, distance,
-                duration, arcHeight, rotationSpeed, attacker, mover, thrower, spinAxis, motionMode, alignRotationToDirection);
+            if (Instance == null) return false;
+            return Instance.RegisterProjectileInternal(projectileTransform, startPoint, groundY, direction, distance,
+                duration, arcHeight, rotationSpeed, attacker, mover, thrower, spinAxis, motionMode, alignRotationToDirection, poolEntity);
+        }
+
+        public static bool CanRegisterProjectile()
+        {
+            return Instance != null && Instance._projectiles.Count < MaxActiveProjectiles;
         }
 
         private IHitable _playerHitable;
         private readonly List<IHitable> _extraTargets = new List<IHitable>(32);
         private readonly HashSet<IHitable> _extraTargetSet = new HashSet<IHitable>();
-        private readonly HashSet<IHitable> _aoeAppliedTargets = new HashSet<IHitable>();
+        private readonly List<int> _collisionQueryIndices = new List<int>(64);
         private bool _isGameplayPaused;
         private float _pausedAtTime;
 
@@ -125,55 +137,10 @@ namespace GamePlay.CombatSystems
             public IAttacker Attacker;
             public IAttacker Thrower;
             public IMover Mover;
+            public uint TargetMask;
 
             public float Radius;
             public PoolEntity PoolEntity;
-        }
-
-        private sealed class ExplosionShotAttacker : IAttacker
-        {
-            public event System.Action<IHitable> OnAttackComplete = delegate { };
-            public EntityType EntityType { get; private set; }
-            public Vector2 Size { get; } = Vector2.zero;
-            public int Damage { get; private set; }
-            public uint TargetMask { get; private set; }
-            public Vector3 Position { get; private set; }
-            public Transform Transform => null;
-            public bool IsEnabled => true;
-
-            public ExplosionShotAttacker() { }
-
-            public void Setup(int damage, uint targetMask, EntityType entityType, Vector3 position)
-            {
-                Damage = Mathf.Max(1, damage);
-                TargetMask = targetMask;
-                EntityType = entityType;
-                Position = position;
-            }
-
-            public void Initialize() { }
-            public void OnUpdate(float dt) { }
-            public void Dispose()
-            {
-                Instance?.ReturnExplosionShotAttacker(this);
-            }
-            public void Setup(int damage) { Damage = Mathf.Max(1, damage); }
-            public void OnAttackSucceed(IHitable target) { OnAttackComplete?.Invoke(target); }
-        }
-
-        private readonly Queue<ExplosionShotAttacker> _explosionShotAttackerPool = new Queue<ExplosionShotAttacker>(32);
-
-        private ExplosionShotAttacker GetExplosionShotAttacker()
-        {
-            return _explosionShotAttackerPool.Count > 0 ? _explosionShotAttackerPool.Dequeue() : new ExplosionShotAttacker();
-        }
-
-        private void ReturnExplosionShotAttacker(ExplosionShotAttacker attacker)
-        {
-            if (attacker != null)
-            {
-                _explosionShotAttackerPool.Enqueue(attacker);
-            }
         }
 
         private readonly List<ProjectileEntry> _projectiles = new List<ProjectileEntry>(64);
@@ -216,10 +183,28 @@ namespace GamePlay.CombatSystems
         private void UnregisterTargetInternal(IHitable target)
         {
             if (target == null) return;
-            if (_extraTargetSet.Remove(target))
-                _extraTargets.Remove(target);
+            if (!_extraTargetSet.Remove(target)) return;
+
+            for (int i = _extraTargets.Count - 1; i >= 0; i--)
+            {
+                if (!ReferenceEquals(_extraTargets[i], target)) continue;
+                RemoveExtraTargetAtSwapBack(i);
+                break;
+            }
         }
 
+        private void RemoveExtraTargetAtSwapBack(int index)
+        {
+            int last = _extraTargets.Count - 1;
+            if (index < 0 || index > last) return;
+
+            if (index != last)
+            {
+                _extraTargets[index] = _extraTargets[last];
+            }
+
+            _extraTargets.RemoveAt(last);
+        }
 
         private void ClearAllProjectilesInternal()
         {
@@ -240,7 +225,7 @@ namespace GamePlay.CombatSystems
             enabled = false;
         }
 
-        private void RegisterProjectileInternal(
+        private bool RegisterProjectileInternal(
             Transform projectileTransform,
             Vector3 startPoint,
             float groundY,
@@ -254,17 +239,23 @@ namespace GamePlay.CombatSystems
             IAttacker thrower,
             ProjectileSpinAxis spinAxis,
             ProjectileMotionMode motionMode,
-            bool alignRotationToDirection
+            bool alignRotationToDirection,
+            PoolEntity poolEntity
         )
         {
-            if (projectileTransform == null) return;
+            if (projectileTransform == null) return false;
+
+            if (_projectiles.Count >= Mathf.Max(1, maxActiveProjectiles))
+            {
+                PoolEntity overflowProjectile = projectileTransform.GetComponent<PoolEntity>();
+                TryDespawnProjectile(projectileTransform, overflowProjectile);
+                return false;
+            }
 
             if (!enabled)
             {
                 enabled = true;
             }
-
-            projectileTransform.parent = null;
 
             Vector3 dir = direction;
             if (motionMode == ProjectileMotionMode.Arc)
@@ -314,14 +305,19 @@ namespace GamePlay.CombatSystems
                 Attacker = attacker,
                 Thrower = thrower,
                 Mover = mover,
+                TargetMask = attacker != null ? attacker.TargetMask : 0,
                 Radius = radius,
-                PoolEntity = projectileTransform.GetComponent<PoolEntity>()
+                PoolEntity = poolEntity
             };
 
             _projectiles.Add(entry);
+            return true;
         }
 
-        private void Update()
+        private CollisionSystem _collisionSystem;
+        private GameplayManager _gameplayManager;
+
+        public void ManualUpdate()
         {
             if (_projectiles.Count == 0)
             {
@@ -329,6 +325,7 @@ namespace GamePlay.CombatSystems
                 return;
             }
 
+            if (_gameplayManager == null) _gameplayManager = GameplayManager.Instance;
             if (!GameplayManager.IsGameStarted)
             {
                 if (!_isGameplayPaused)
@@ -370,19 +367,21 @@ namespace GamePlay.CombatSystems
                 playerCol = _playerHitable.GetColliderData();
             }
 
-            var collisionSystem = CollisionSystem.Instance;
+            if (_collisionSystem == null) _collisionSystem = CollisionSystem.Instance;
+            var collisionSystem = _collisionSystem;
             int collisionCount = collisionSystem != null ? collisionSystem.Count : 0;
 
             // Iterate backwards for safe remove
             for (int i = _projectiles.Count - 1; i >= 0; i--)
             {
                 var p = _projectiles[i];
+                uint projectileTargetMask = p.TargetMask;
 
                 // If projectile transform got destroyed -> cleanup
                 if (p.Transform == null)
                 {
                     DisposeManaged(ref p);
-                    _projectiles.RemoveAt(i);
+                    RemoveProjectileAtSwapBack(i);
                     continue;
                 }
 
@@ -394,7 +393,7 @@ namespace GamePlay.CombatSystems
                         p.Mover?.OnMovementFinished();
                         DisposeManaged(ref p);
                         TryDespawnProjectile(p.Transform, p.PoolEntity);
-                        _projectiles.RemoveAt(i);
+                        RemoveProjectileAtSwapBack(i);
                     }
                     continue;
                 }
@@ -406,9 +405,6 @@ namespace GamePlay.CombatSystems
                 Vector3 previousPos = EvaluateProjectilePosition(p, previousT);
                 Vector3 pos = EvaluateProjectilePosition(p, t);
                 p.Transform.position = pos;
-
-                Vector3 direction = (pos - previousPos).normalized;
-                bool hasDirection = direction.sqrMagnitude > 0.001f;
 
                 if (Mathf.Abs(p.RotationSpeed) > 0.001f)
                 {
@@ -431,7 +427,7 @@ namespace GamePlay.CombatSystems
                 if (hasPlayer && p.Attacker != null)
                 {
                     // Mask check: attacker target mask must include player entity bit
-                    if ((p.Attacker.TargetMask & playerBit) != 0)
+                    if ((projectileTargetMask & playerBit) != 0)
                     {
                         if (CheckHitAlongSegment(previousPos, pos, p.Radius, playerPos, playerCol))
                         {
@@ -441,75 +437,40 @@ namespace GamePlay.CombatSystems
 
                             DisposeManaged(ref p);
                             TryDespawnProjectile(p.Transform, p.PoolEntity);
-                            _projectiles.RemoveAt(i);
+                            RemoveProjectileAtSwapBack(i);
                             continue;
                         }
                     }
                 }
-                if (p.Attacker != null && _extraTargets.Count > 0)
-                {
-                    for (int targetIndex = _extraTargets.Count - 1; targetIndex >= 0; targetIndex--)
-                    {
-                        var target = _extraTargets[targetIndex];
-                        if (target == null)
-                        {
-                            _extraTargets.RemoveAt(targetIndex);
-                            continue;
-                        }
-
-                        if (!target.IsActive) continue;
-                        if (ReferenceEquals(target, _playerHitable)) continue;
-
-                        uint targetBit = (uint)(1 << (int)target.EntityType);
-                        if ((p.Attacker.TargetMask & targetBit) == 0) continue;
-
-                        if (CheckHitAlongSegment(previousPos, pos, p.Radius, target.Position, target.GetColliderData()))
-                        {
-                            p.Attacker.OnAttackSucceed(target);
-                            target.OnHit(p.Thrower != null ? p.Thrower : p.Attacker);
-                            ApplyExplosionShotIfAvailable(p, target, pos, collisionSystem);
-
-                            DisposeManaged(ref p);
-                            TryDespawnProjectile(p.Transform, p.PoolEntity);
-                            _projectiles.RemoveAt(i);
-                            goto NextProjectile;
-                        }
-                    }
-                }
-
                 // Hit any registered collision target that matches the attacker mask.
-                // This covers EnemyUnit and CashTowerController, which already live in CollisionSystem.
+                // This includes character, enemy, and item targets in the shared spatial index.
                 if (collisionSystem != null && collisionCount > 0 && p.Attacker != null)
                 {
-                    for (int k = 0; k < collisionCount; k++)
+                    float queryPadding = p.Radius + collisionSystem.MaxHorizontalColliderExtent;
+                    collisionSystem.QueryIndicesNearSegment(previousPos, pos, queryPadding, _collisionQueryIndices);
+                    for (int candidateIndex = 0; candidateIndex < _collisionQueryIndices.Count; candidateIndex++)
                     {
-                        var target = collisionSystem.GetTargetBySortedIndex(k);
-                        if (target == null || !target.IsActive) continue;
-                        if (ReferenceEquals(target, _playerHitable)) continue;
-
-                        bool isExtraTarget = _extraTargetSet.Contains(target);
-
-                        if (isExtraTarget) continue;
-
+                        int k = _collisionQueryIndices[candidateIndex];
                         uint targetBit = collisionSystem.GetMask(k);
-                        if ((p.Attacker.TargetMask & targetBit) == 0) continue;
+                        if ((projectileTargetMask & targetBit) == 0) continue;
 
                         var targetTr = collisionSystem.GetTransform(k);
                         if (targetTr == null) continue;
 
                         Vector3 targetPos = targetTr.position;
-                        if (Mathf.Abs(targetPos.x - pos.x) > 6f || Mathf.Abs(targetPos.z - pos.z) > 6f) continue;
+                        var target = collisionSystem.GetTargetBySortedIndex(k);
+                        if (target == null || !target.IsActive) continue;
+                        if (ReferenceEquals(target, _playerHitable)) continue;
 
                         var colData = collisionSystem.GetColliderData(k);
                         if (CheckHitAlongSegment(previousPos, pos, p.Radius, targetPos, colData))
                         {
                             p.Attacker.OnAttackSucceed(target);
                             target.OnHit(p.Thrower != null ? p.Thrower : p.Attacker);
-                            ApplyExplosionShotIfAvailable(p, target, pos, collisionSystem);
 
                             DisposeManaged(ref p);
                             TryDespawnProjectile(p.Transform, p.PoolEntity);
-                            _projectiles.RemoveAt(i);
+                            RemoveProjectileAtSwapBack(i);
                             goto NextProjectile;
                         }
                     }
@@ -522,7 +483,7 @@ namespace GamePlay.CombatSystems
                     p.Mover?.OnMovementFinished();
                     DisposeManaged(ref p);
                     TryDespawnProjectile(p.Transform, p.PoolEntity);
-                    _projectiles.RemoveAt(i);
+                    RemoveProjectileAtSwapBack(i);
                     continue;
                 }
 
@@ -531,6 +492,19 @@ namespace GamePlay.CombatSystems
             NextProjectile:
                 ;
             }
+        }
+
+        private void RemoveProjectileAtSwapBack(int index)
+        {
+            int lastIndex = _projectiles.Count - 1;
+            if (index < 0 || index > lastIndex) return;
+
+            if (index != lastIndex)
+            {
+                _projectiles[index] = _projectiles[lastIndex];
+            }
+
+            _projectiles.RemoveAt(lastIndex);
         }
 
         private static Vector3 EvaluateProjectilePosition(in ProjectileEntry projectile, float t)
@@ -578,9 +552,10 @@ namespace GamePlay.CombatSystems
                 return;
             }
 
-            if (GameplayManager.Instance != null && GameplayManager.Instance.Turnable != null)
+            if (_gameplayManager == null) _gameplayManager = GameplayManager.Instance;
+            if (_gameplayManager != null && _gameplayManager.Turnable != null)
             {
-                playerWheelRef = GameplayManager.Instance.Turnable;
+                playerWheelRef = _gameplayManager.Turnable;
                 _playerHitable = playerWheelRef;
                 return;
             }
@@ -654,35 +629,89 @@ namespace GamePlay.CombatSystems
 
         private static bool CheckHitAlongSegment(Vector3 fromPos, Vector3 toPos, float projRadius, Vector3 targetFeetPos, ColliderData col)
         {
-            if (CheckHit(toPos, projRadius, targetFeetPos, col))
-            {
-                return true;
-            }
-
             Vector3 delta = toPos - fromPos;
-            float distance = delta.magnitude;
-            if (distance <= 0.0001f)
-            {
+            if (delta.sqrMagnitude <= 0.00000001f)
                 return CheckHit(fromPos, projRadius, targetFeetPos, col);
-            }
 
-            // Sweep by sub-steps to prevent tunneling through thin colliders (e.g. CapacityGate).
-            float stepSize = Mathf.Max(0.05f, projRadius * 0.5f);
-            int stepCount = Mathf.Clamp(Mathf.CeilToInt(distance / stepSize), 1, 8);
-            Vector3 step = delta / stepCount;
-            Vector3 samplePos = fromPos;
-
-            for (int i = 0; i <= stepCount; i++)
+            switch (col.Type)
             {
-                if (CheckHit(samplePos, projRadius, targetFeetPos, col))
-                {
-                    return true;
-                }
+                case ShapeType.Sphere:
+                    {
+                        float radius = Mathf.Max(0.01f, col.Size.x) + projRadius;
+                        Vector3 center = targetFeetPos + new Vector3(0f, col.Size.y, 0f);
+                        return SegmentIntersectsSphere(fromPos, delta, center, radius);
+                    }
 
-                samplePos += step;
+                case ShapeType.Box:
+                    {
+                        Vector3 half = col.Size + Vector3.one * projRadius;
+                        Vector3 center = targetFeetPos + new Vector3(0f, col.Size.y, 0f);
+                        return SegmentIntersectsAabb(fromPos, delta, center - half, center + half);
+                    }
+
+                case ShapeType.Cylinder:
+                    {
+                        float radius = Mathf.Max(0.01f, col.Size.x) + projRadius;
+                        float halfHeight = Mathf.Max(0.01f, col.Size.y);
+                        Vector3 center = targetFeetPos + new Vector3(0f, halfHeight, 0f);
+                        return SegmentIntersectsCylinder(fromPos, delta, center, radius, halfHeight + projRadius);
+                    }
+
+                default:
+                    return false;
+            }
+        }
+
+        private static bool SegmentIntersectsSphere(Vector3 origin, Vector3 delta, Vector3 center, float radius)
+        {
+            float lengthSqr = delta.sqrMagnitude;
+            float t = Mathf.Clamp01(Vector3.Dot(center - origin, delta) / lengthSqr);
+            return (origin + delta * t - center).sqrMagnitude <= radius * radius;
+        }
+
+        private static bool SegmentIntersectsAabb(Vector3 origin, Vector3 delta, Vector3 min, Vector3 max)
+        {
+            float entry = 0f;
+            float exit = 1f;
+            return UpdateSlab(origin.x, delta.x, min.x, max.x, ref entry, ref exit) &&
+                   UpdateSlab(origin.y, delta.y, min.y, max.y, ref entry, ref exit) &&
+                   UpdateSlab(origin.z, delta.z, min.z, max.z, ref entry, ref exit);
+        }
+
+        private static bool UpdateSlab(float origin, float delta, float min, float max, ref float entry, ref float exit)
+        {
+            if (Mathf.Abs(delta) <= 0.000001f)
+                return origin >= min && origin <= max;
+
+            float inverseDelta = 1f / delta;
+            float t0 = (min - origin) * inverseDelta;
+            float t1 = (max - origin) * inverseDelta;
+            if (t0 > t1)
+            {
+                float swap = t0;
+                t0 = t1;
+                t1 = swap;
             }
 
-            return false;
+            entry = Mathf.Max(entry, t0);
+            exit = Mathf.Min(exit, t1);
+            return entry <= exit;
+        }
+
+        private static bool SegmentIntersectsCylinder(Vector3 origin, Vector3 delta, Vector3 center, float radius, float halfHeight)
+        {
+            float entry = 0f;
+            float exit = 1f;
+            if (!UpdateSlab(origin.y, delta.y, center.y - halfHeight, center.y + halfHeight, ref entry, ref exit))
+                return false;
+
+            Vector2 radialOrigin = new Vector2(origin.x - center.x, origin.z - center.z);
+            Vector2 radialDelta = new Vector2(delta.x, delta.z);
+            float radialLengthSqr = radialDelta.sqrMagnitude;
+            float t = radialLengthSqr <= 0.00000001f
+                ? entry
+                : Mathf.Clamp(Vector2.Dot(-radialOrigin, radialDelta) / radialLengthSqr, entry, exit);
+            return (radialOrigin + radialDelta * t).sqrMagnitude <= radius * radius;
         }
 
         private static void DisposeManaged(ref ProjectileEntry p)
@@ -705,11 +734,14 @@ namespace GamePlay.CombatSystems
             }
         }
 
+        // Explosion Shot AOE is intentionally disabled for this playable scenario.
+#if false
         private void ApplyExplosionShotIfAvailable(ProjectileEntry projectile, IHitable primaryTarget, Vector3 hitPosition, CollisionSystem collisionSystem)
         {
             if (projectile.Attacker == null || primaryTarget == null) return;
 
-            var gameplayManager = GameplayManager.Instance;
+            if (_gameplayManager == null) _gameplayManager = GameplayManager.Instance;
+            var gameplayManager = _gameplayManager;
             if (gameplayManager == null || !gameplayManager.IsExplosionShotUnlocked) return;
 
             int percent = gameplayManager.ExplosionShotDamagePercent;
@@ -740,9 +772,14 @@ namespace GamePlay.CombatSystems
             }
 
             if (collisionSystem == null) return;
-            int count = collisionSystem.Count;
-            for (int i = 0; i < count; i++)
+
+            // Include target pivots outside the splash radius when their collider overlaps it.
+            // The exact radius test below remains authoritative.
+            float queryPadding = radius + collisionSystem.MaxHorizontalColliderExtent;
+            collisionSystem.QueryIndicesNearSegment(hitPosition, hitPosition, queryPadding, _aoeCollisionQueryIndices);
+            for (int candidateIndex = 0; candidateIndex < _aoeCollisionQueryIndices.Count; candidateIndex++)
             {
+                int i = _aoeCollisionQueryIndices[candidateIndex];
                 var target = collisionSystem.GetTargetBySortedIndex(i);
                 if (!ShouldApplyAoeToTarget(target, primaryTarget, splashAttacker.TargetMask)) continue;
                 if (_aoeAppliedTargets.Contains(target)) continue;
@@ -756,6 +793,7 @@ namespace GamePlay.CombatSystems
             }
             splashAttacker.Dispose();
         }
+#endif
 
         private bool ShouldApplyAoeToTarget(IHitable target, IHitable primaryTarget, uint targetMask)
         {

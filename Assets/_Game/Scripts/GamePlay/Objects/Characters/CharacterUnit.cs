@@ -8,7 +8,6 @@ using GamePlay.Entities;
 using GamePlay.Effects;
 using GamePlay.Items;
 using GamePlay.Weapons;
-using DG.Tweening;
 using Pools;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -26,18 +25,12 @@ namespace GamePlay.Characters
         [SerializeField] private GameObject[] visualModels;
 
         [Header("Weapons")]
-        [SerializeField] protected Transform[] weaponHolders;
-        [HideInInspector] protected Transform weaponHolder;
         [SerializeField] private Transform projectilePoint;
         [SerializeField] private Transform bodyscalable;
 
-        [Header("Effects")]
-        [FormerlySerializedAs("effectCaster")]
-        [SerializeField] protected EffectComponent effectComponent;
-
         [Header("Sound Effects")]
         [SerializeField] private AudioClipName attackSfx = AudioClipName.SFX_CharacterAttack;
-        [SerializeField, Min(1)] private int maxAttackSfxPerFrame = 6;
+        [SerializeField] private float maxAttackSfxPerFrame = 1;
         [SerializeField] private bool playAttackVfxOnObstacleHit = false;
         [SerializeField, Min(1)] private int maxAttackVfxPerFrame = 3;
         [SerializeField, Min(0f)] private float obstacleAttackDespawnDelay = 0.5f;
@@ -49,9 +42,7 @@ namespace GamePlay.Characters
 
         [SerializeField] public int Level = -1;
 
-        private GameObject _currentWeapon;
-        private WeaponUnit _currentWeaponUnit;
-        private Renderer[] _currentWeaponRenderers;
+        private int _appliedVisualLevel = -1;
         private bool _projectileTargetRegistered;
         private bool _isCountedInRuntime;
         public event Action<IAttacker> OnHitComplete;
@@ -72,57 +63,34 @@ namespace GamePlay.Characters
         public GameObject DieVfxPrefab => dieVfxPrefab;
         [SerializeField] private Vector3 dieVfxOffset = Vector3.zero;
         [SerializeField] private float dieVfxLifetime = 1.2f;
-        [SerializeField] private int maxDeathVfxPerFrame = 20;
+        [SerializeField] private int maxDeathVfxPerFrame = 5;
         [SerializeField] private bool playDeathVfxOnAttackDespawn = false;
         private static float s_lastDeathVfxTime = -999f;
         private static int s_lastDeathVfxFrame = -1;
-        private static int s_deathVfxCountInFrame = 0;
         private static int s_lastAttackSfxFrame = -1;
-        private static int s_attackSfxCountInFrame = 0;
         private static int s_lastAttackVfxFrame = -1;
         private const int AttackEffectFrameInterval = 15;
         private bool _isAttackDespawnScheduled;
 
+        private struct ScheduledDespawn
+        {
+            public CharacterUnit Unit;
+            public float Time;
+            public bool PlayDeathVfx;
+        }
+
+        private static readonly List<ScheduledDespawn> s_scheduledDespawns = new List<ScheduledDespawn>(128);
+
         public Transform ProjectilePoint => EnsureProjectilePoint();
 
-        private static GameObject SafePoolGet(GameObject prefab)
+        private static GameObject GetPooledObject(GameObject prefab)
         {
             if (prefab == null) return null;
 
-            try
-            {
-                var obj = prefab.Spawn();
-                return obj != null ? obj : Instantiate(prefab);
-            }
-            catch
-            {
-                try
-                {
-                    return Instantiate(prefab);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogWarning($"[CharacterUnit] SafePoolGet failed for prefab: {e.Message}");
-                    return null;
-                }
-            }
+            return prefab.Spawn();
         }
 
-        private static void SafePoolRelease(GameObject obj)
-        {
-            if (obj == null) return;
-
-            try
-            {
-                obj.Despawn();
-            }
-            catch
-            {
-                Destroy(obj);
-            }
-        }
-
-        private string _originalWeaponHolderName;
+        private readonly List<Transform> _transformQueryBuffer = new List<Transform>();
 
         protected override void Awake()
         {
@@ -130,11 +98,6 @@ namespace GamePlay.Characters
 
             BuildCapabilityPack();
             Level = -1;
-
-            if (weaponHolder != null)
-            {
-                _originalWeaponHolderName = weaponHolder.name;
-            }
 
             EnsureProjectilePoint();
             EnsureBodyScalable();
@@ -156,8 +119,7 @@ namespace GamePlay.Characters
             }
 
             ResetTransientRuntimeState();
-            Setup(level, includeWeapon: true);
-            ShowWeapon();
+            Setup(level);
 
             if ((ActiveFlags & CapabilityFlags.Move) != 0) Pack.Mover.Initialize();
             if ((ActiveFlags & CapabilityFlags.Attack) != 0) Pack.Attacker.Initialize();
@@ -180,7 +142,7 @@ namespace GamePlay.Characters
         public void InitializePreview(int level)
         {
             ResetTransientRuntimeState();
-            Setup(level, includeWeapon: false);
+            Setup(level);
 
             if ((ActiveFlags & CapabilityFlags.Animator) != 0)
             {
@@ -188,14 +150,11 @@ namespace GamePlay.Characters
                 Pack.Animator.PlayAnimation(AnimationType.Idle, 0f, null, 0);
             }
 
-            HideWeapon();
         }
 
         private void OnDisable()
         {
-            ReleaseCurrentWeapon();
-
-            DOTween.Kill(this, "AttackDespawn");
+            CancelScheduledDespawn();
             _isAttackDespawnScheduled = false;
 
             RegisterEvents(false);
@@ -214,71 +173,45 @@ namespace GamePlay.Characters
 
             // Limit level index to avoid out of bounds
             int safeIndex = Mathf.Clamp(levelIndex, 0, visualModels.Length - 1);
+            if (_appliedVisualLevel == safeIndex)
+            {
+                return;
+            }
 
-            Transform oldHolder = weaponHolder;
+            _appliedVisualLevel = safeIndex;
 
             for (int i = 0; i < visualModels.Length; i++)
             {
                 if (visualModels[i] != null)
                 {
                     bool isActive = (i == safeIndex);
-                    visualModels[i].SetActive(isActive);
+                    if (visualModels[i].activeSelf != isActive)
+                    {
+                        visualModels[i].SetActive(isActive);
+                    }
 
                     if (isActive)
                     {
-
                         if (Pack.Animator != null && Pack.Animator is AnimationComponent animComp)
                         {
                             animComp.SetAnimatorLevel(i);
                         }
 
-                        if (weaponHolders != null && i >= 0 && i < weaponHolders.Length && weaponHolders[i] != null)
-                        {
-                            weaponHolder = weaponHolders[i];
-
-                            if (_currentWeapon != null)
-                            {
-                                _currentWeapon.transform.SetParent(weaponHolder, false);
-                                _currentWeapon.transform.localPosition = Vector3.zero;
-                                _currentWeapon.transform.localRotation = Quaternion.identity;
-                                _currentWeapon.transform.localScale = Vector3.one;
-                            }
-                        }
                     }
                 }
             }
-
-            if (_currentWeaponUnit != null)
-            {
-                _currentWeaponUnit.ApplyVisualLevel(levelIndex);
-            }
         }
 
-        public void Setup(int level, bool includeWeapon = true)
+        public void Setup(int level)
         {
             Level = level;
             SetupComponents();
-            if (includeWeapon && _currentWeapon == null)
-            {
-                // Weapon is usually handled by PlayerArmySystem now
-            }
         }
 
         private void SetupComponents()
         {
             if ((ActiveFlags & CapabilityFlags.Attack) != 0)
                 Pack.Attacker.Setup(1); // Base damage, modified by ArmyUpgradeManager
-        }
-
-        private void SetupModel(bool includeWeapon = true)
-        {
-            if (!includeWeapon)
-            {
-                ReleaseCurrentWeapon();
-                return;
-            }
-
-            SetupWeapon();
         }
 
         private void RegisterEvents(bool register)
@@ -323,17 +256,11 @@ namespace GamePlay.Characters
 
             if (isObstacle)
             {
-                if (playAttackVfxOnObstacleHit && effectComponent != null && CanPlayAttackVfxThisFrame())
-                    effectComponent.PlayEffect(EffectType.Attack);
-
                 float despawnDelay = ResolveAttackDespawnDelay(obstacleAttackDespawnDelay);
                 Pack.Animator?.PlayAnimation(AnimationType.Attack, 0f, null, 1);
                 ScheduleAttackDespawn(despawnDelay, playDeathVfxOnAttackDespawn);
                 return;
             }
-
-            if (effectComponent != null && CanPlayAttackVfxThisFrame())
-                effectComponent.PlayEffect(EffectType.Attack);
 
             Pack.Animator?.PlayAnimation(AnimationType.Attack, 0f, null, 1);
             ScheduleAttackDespawn(ResolveAttackDespawnDelay(enemyAttackDespawnDelay), dieVfxPrefab != null);
@@ -363,85 +290,11 @@ namespace GamePlay.Characters
 
         public void PlayAttackEffect()
         {
-            if (effectComponent != null && CanPlayAttackVfxThisFrame())
-                effectComponent.PlayEffect(EffectType.Attack, transform.position, transform.rotation);
-        }
-
-
-        // -----------------------------------------------------------------------
-        // [FIX] SetupWeapon — use SafePoolGet instead of PoolManager.Instance.Get
-        // -----------------------------------------------------------------------
-        private void SetupWeapon()
-        {
-            // Now managed by SetWeaponPrefabOverride
-        }
-
-        public void HideWeapon()
-        {
-            SetWeaponVisible(false);
-        }
-
-        public void ShowWeapon()
-        {
-            if (_currentWeapon == null)
+            if (SoundManager.Instance != null && CanPlayAttackSfxThisFrame())
             {
-                SetupWeapon();
-            }
-
-            SetWeaponVisible(true);
-        }
-
-        public Transform ActiveWeaponHolder
-        {
-            get
-            {
-                if (weaponHolder != null) return weaponHolder;
-                if (weaponHolders == null || weaponHolders.Length == 0) return null;
-                int idx = Mathf.Clamp(Level >= 0 ? Level : 0, 0, weaponHolders.Length - 1);
-                return weaponHolders[idx];
-            }
-        }
-
-        public void SetWeaponPrefabOverride(GameObject prefab)
-        {
-            var holder = ActiveWeaponHolder;
-            if (holder != null)
-            {
-                for (int i = holder.childCount - 1; i >= 0; i--)
-                {
-                    var child = holder.GetChild(i);
-                    SafePoolRelease(child.gameObject);
-                }
-            }
-
-            _currentWeapon = null;
-            _currentWeaponRenderers = null;
-
-            if (prefab == null)
-            {
-                return;
-            }
-
-            _currentWeapon = SafePoolGet(prefab);
-
-            if (_currentWeapon == null)
-            {
-                return;
-            }
-
-            var weaponTransform = _currentWeapon.transform;
-            if (holder != null)
-            {
-                weaponTransform.SetParent(holder, false);
-            }
-            weaponTransform.localPosition = Vector3.zero;
-            weaponTransform.localRotation = Quaternion.identity;
-            weaponTransform.localScale = Vector3.one;
-
-            _currentWeaponRenderers = _currentWeapon.GetComponentsInChildren<Renderer>(true);
-            if (_currentWeapon.TryGetComponent<WeaponUnit>(out var weaponUnit))
-            {
-                weaponUnit.SetDefault();
+                var sfx = attackSfx != AudioClipName.None ? attackSfx : AudioClipName.SFX_CharacterAttack;
+                if (sfx != AudioClipName.None)
+                    SoundManager.Instance.PlayOneShot(sfx);
             }
         }
 
@@ -452,10 +305,11 @@ namespace GamePlay.Characters
                 return projectilePoint;
             }
 
-            var projectilePoints = GetComponentsInChildren<Transform>(true);
-            for (int i = 0; i < projectilePoints.Length; i++)
+            GetComponentsInChildren(true, _transformQueryBuffer);
+            int projectilePointCount = _transformQueryBuffer.Count;
+            for (int i = 0; i < projectilePointCount; i++)
             {
-                var candidate = projectilePoints[i];
+                var candidate = _transformQueryBuffer[i];
                 if (candidate == null)
                 {
                     continue;
@@ -467,6 +321,7 @@ namespace GamePlay.Characters
                     break;
                 }
             }
+            _transformQueryBuffer.Clear();
 
             return projectilePoint;
         }
@@ -481,30 +336,6 @@ namespace GamePlay.Characters
             return transform;
         }
 
-        public WeaponUnit DetachWeaponForProjectile()
-        {
-            if (_currentWeapon == null)
-            {
-                return null;
-            }
-
-            var weapon = _currentWeapon;
-            var weaponUnit = weapon.GetComponent<WeaponUnit>();
-            if (weaponUnit == null)
-            {
-                weaponUnit = weapon.GetComponentInChildren<WeaponUnit>(true);
-            }
-            if (weaponUnit == null)
-            {
-                return null;
-            }
-
-            _currentWeapon = null;
-            _currentWeaponRenderers = null;
-            weapon.transform.SetParent(null, true);
-            return weaponUnit;
-        }
-
         private void DespawnInterval(bool playDeathVfx = true)
         {
             RecycleImmediate(playDeathVfx);
@@ -512,7 +343,7 @@ namespace GamePlay.Characters
 
         public void RecycleImmediate(bool playDeathVfx = false)
         {
-            DOTween.Kill(this, "AttackDespawn");
+            CancelScheduledDespawn();
             _isAttackDespawnScheduled = false;
 
             if ((ActiveFlags & CapabilityFlags.Move) != 0) Pack.Mover.Dispose();
@@ -559,18 +390,16 @@ namespace GamePlay.Characters
             if (_isAttackDespawnScheduled)
                 return;
 
-            if (effectComponent != null)
-            {
-                effectComponent.PlayEffect(EffectType.Hit, transform.position, transform.rotation);
-            }
-
-            DespawnInterval();
+            // EnemyUnit and BossUnit both resolve their attack through this
+            // IHitable path. Make the death-VFX intent explicit rather than
+            // relying on DespawnInterval's optional-parameter default.
+            RecycleImmediate(playDeathVfx: true);
             OnHitComplete?.Invoke(source);
         }
 
         private void ScheduleAttackDespawn(float delay, bool playDeathVfx)
         {
-            DOTween.Kill(this, "AttackDespawn");
+            CancelScheduledDespawn();
             float safeDelay = Mathf.Max(0f, delay);
             if (safeDelay <= 0f)
             {
@@ -580,16 +409,63 @@ namespace GamePlay.Characters
             }
 
             _isAttackDespawnScheduled = true;
-            DOVirtual.DelayedCall(safeDelay, () =>
+            s_scheduledDespawns.Add(new ScheduledDespawn
             {
-                _isAttackDespawnScheduled = false;
-                DespawnInterval(playDeathVfx);
-            }, false).SetId(this).SetId("AttackDespawn");
+                Unit = this,
+                Time = Time.time + safeDelay,
+                PlayDeathVfx = playDeathVfx
+            });
+        }
+
+        private void CancelScheduledDespawn()
+        {
+            for (int i = s_scheduledDespawns.Count - 1; i >= 0; i--)
+            {
+                if (!ReferenceEquals(s_scheduledDespawns[i].Unit, this))
+                {
+                    continue;
+                }
+
+                int last = s_scheduledDespawns.Count - 1;
+                if (i != last)
+                {
+                    s_scheduledDespawns[i] = s_scheduledDespawns[last];
+                }
+
+                s_scheduledDespawns.RemoveAt(last);
+            }
+        }
+
+        public static void TickScheduledDespawns(float currentTime)
+        {
+            for (int i = s_scheduledDespawns.Count - 1; i >= 0; i--)
+            {
+                ScheduledDespawn scheduled = s_scheduledDespawns[i];
+                if (scheduled.Unit != null && currentTime < scheduled.Time)
+                {
+                    continue;
+                }
+
+                int last = s_scheduledDespawns.Count - 1;
+                if (i != last)
+                {
+                    s_scheduledDespawns[i] = s_scheduledDespawns[last];
+                }
+
+                s_scheduledDespawns.RemoveAt(last);
+                if (scheduled.Unit == null || !scheduled.Unit.isActiveAndEnabled)
+                {
+                    continue;
+                }
+
+                scheduled.Unit._isAttackDespawnScheduled = false;
+                scheduled.Unit.DespawnInterval(scheduled.PlayDeathVfx);
+            }
         }
 
         private void ResetTransientRuntimeState()
         {
-            DOTween.Kill(this, "AttackDespawn");
+            CancelScheduledDespawn();
 
             _isAttackDespawnScheduled = false;
             RegisterEvents(false);
@@ -603,10 +479,10 @@ namespace GamePlay.Characters
         private float ResolveAttackDespawnDelay(float configuredDelay)
         {
             float delay = Mathf.Max(0f, configuredDelay);
-            if (!(Pack.Animator is AnimationComponent animationComponent))
+            if (!(Pack.Animator is IAnimationClipLengthProvider clipLengthProvider))
                 return delay;
 
-            float attackClipLength = animationComponent.GetAnimationClipLength(AnimationType.Attack);
+            float attackClipLength = clipLengthProvider.GetAnimationClipLength(AnimationType.Attack);
             if (attackClipLength <= 0f)
                 return delay;
 
@@ -628,53 +504,62 @@ namespace GamePlay.Characters
             s_lastDeathVfxTime = Time.time;
 
             var spawnPos = Transform.position + dieVfxOffset;
-            var vfx = SafePoolGet(dieVfxPrefab);
+            if (!PooledVfxLifetimeScheduler.CanSchedule())
+                return;
+            var vfx = GetPooledObject(dieVfxPrefab);
             if (vfx == null) return;
 
             vfx.transform.position = spawnPos;
             vfx.transform.rotation = Quaternion.identity;
             vfx.SetActive(true);
 
-            DOVirtual.DelayedCall(Mathf.Max(0.05f, dieVfxLifetime), () =>
-            {
-                if (vfx != null) SafePoolRelease(vfx);
-            }, false).SetId(vfx);
+            PooledVfxLifetimeScheduler.Schedule(vfx, dieVfxLifetime);
         }
 
-
-
         public static bool IsBossMassKill = false;
+        private const int DeathVfxFrameInterval = 10;
+        private static int s_bossDeathVfxFrame = -1;
+        private static int s_bossDeathVfxCount = 0;
 
         private bool CanSpawnDeathVfxThisFrame()
         {
-            if (Time.frameCount != s_lastDeathVfxFrame)
+            int currentFrame = Time.frameCount;
+
+            if (IsBossMassKill)
             {
-                s_lastDeathVfxFrame = Time.frameCount;
-                s_deathVfxCountInFrame = 0;
+                if (s_bossDeathVfxFrame != currentFrame)
+                {
+                    s_bossDeathVfxFrame = currentFrame;
+                    s_bossDeathVfxCount = 0;
+                }
+
+                if (s_bossDeathVfxCount < maxDeathVfxPerFrame)
+                {
+                    s_bossDeathVfxCount++;
+                    s_lastDeathVfxFrame = currentFrame;
+                    return true;
+                }
+                return false;
             }
 
-            int limit = IsBossMassKill ? 10 : 1;
-
-            if (s_deathVfxCountInFrame >= limit)
+            if (s_lastDeathVfxFrame >= 0 && currentFrame - s_lastDeathVfxFrame < DeathVfxFrameInterval)
+            {
                 return false;
+            }
 
-            s_deathVfxCountInFrame++;
+            s_lastDeathVfxFrame = currentFrame;
             return true;
         }
 
+        private const int AttackSfxFrameInterval = 20;
+
         private bool CanPlayAttackSfxThisFrame()
         {
-            if (Time.frameCount != s_lastAttackSfxFrame)
-            {
-                s_lastAttackSfxFrame = Time.frameCount;
-                s_attackSfxCountInFrame = 0;
-            }
-
-            int cap = Mathf.Max(1, maxAttackSfxPerFrame);
-            if (s_attackSfxCountInFrame >= cap)
+            int currentFrame = Time.frameCount;
+            if (s_lastAttackSfxFrame >= 0 && currentFrame - s_lastAttackSfxFrame < AttackSfxFrameInterval)
                 return false;
 
-            s_attackSfxCountInFrame++;
+            s_lastAttackSfxFrame = currentFrame;
             return true;
         }
 
@@ -710,7 +595,6 @@ namespace GamePlay.Characters
 
         public override void Free()
         {
-            ReleaseCurrentWeapon();
             base.Free();
         }
 
@@ -770,32 +654,6 @@ namespace GamePlay.Characters
             if (!_projectileTargetRegistered) return;
             EnemyProjectileSystem.UnregisterTarget(this);
             _projectileTargetRegistered = false;
-        }
-
-        private void ReleaseCurrentWeapon()
-        {
-            if (_currentWeapon == null) return;
-
-            _currentWeapon.transform.SetParent(null, false);
-            SafePoolRelease(_currentWeapon);
-
-            _currentWeapon = null;
-            _currentWeaponRenderers = null;
-        }
-
-        private void SetWeaponVisible(bool visible)
-        {
-            if (_currentWeapon == null) return;
-
-            if (_currentWeaponRenderers == null || _currentWeaponRenderers.Length == 0)
-                _currentWeaponRenderers = _currentWeapon.GetComponentsInChildren<Renderer>(true);
-
-            for (int i = 0; i < _currentWeaponRenderers.Length; i++)
-            {
-                var renderer = _currentWeaponRenderers[i];
-                if (renderer == null) continue;
-                renderer.enabled = visible;
-            }
         }
 
         #region JUMP

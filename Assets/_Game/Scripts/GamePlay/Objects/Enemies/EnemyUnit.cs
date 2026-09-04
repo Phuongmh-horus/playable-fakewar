@@ -29,6 +29,7 @@ namespace GamePlay.Enemies
         [SerializeField] protected bool isKillHeroAsPercent;
         [SerializeField] protected float heroToRemain = 3f;
         protected bool _isAttacked;
+        private IHitable _pendingArmyHitTarget;
 
         public WeaponUnit WeaponPrefab;
         public Transform HandTransform;
@@ -39,6 +40,7 @@ namespace GamePlay.Enemies
 
 
         [Header("HP Bar Settings")]
+        [SerializeField] private GameObject _healthBarRoot;
 
         [SerializeField] private int defaultMaxHealth = 3;
 
@@ -53,20 +55,19 @@ namespace GamePlay.Enemies
 
         [SerializeField] private float dieVfxLifetime = 1.2f;
 
-        [SerializeField] private int maxDeathVfxPerFrame = 8;
-
-        private Renderer _mainRenderer;
+        [SerializeField] private int maxDeathVfxPerFrame = 5;
 
         private static int s_lastDeathVfxFrame = -1;
 
         private static int s_deathVfxCountInFrame = 0;
 
         private static int s_lastDieSfxFrame = -1;
-        private const int DieEffectFrameInterval = 15;
+        private const int DieEffectFrameInterval = 20;
 
         private WeaponUnit _currentWeapon;
 
         private bool _despawnHandled;
+        private bool _deathVfxHandled;
 
         private bool _initialized; // [FIX] Prevent double initialization in Luna
 
@@ -75,7 +76,6 @@ namespace GamePlay.Enemies
         private Vector3 _originalBarScale;
 
         private Vector3 _originalLocalPos;
-
         [SerializeField, HideInInspector] private bool _healthOverriddenFromContent;
 
 
@@ -203,19 +203,23 @@ namespace GamePlay.Enemies
             _healthComponent = Pack.Healable as HealthComponent;
             EnsureHitTextEffect(false);
             _despawnHandled = false;
+            _deathVfxHandled = false;
             _isAttacked = false;
+            _pendingArmyHitTarget = null;
 
             if (hitTextFlyEffect != null)
                 hitTextFlyEffect.enabled = true;
 
             if (hpBarRenderer != null)
             {
-                hpBarRenderer.gameObject.SetActive(true);
-                hpBarRenderer.enabled = true;
                 hpBarRenderer.sortingOrder = 50;
 
                 // Cache Scale FIRST
                 _originalBarScale = hpBarRenderer.transform.localScale;
+                _originalLocalPos = hpBarRenderer.transform.localPosition;
+                _healthBarRoot = hpBarRenderer.transform.parent != null
+                    ? hpBarRenderer.transform.parent.gameObject
+                    : hpBarRenderer.gameObject;
 
                 // Initialize Visuals
                 if (_healthComponent != null)
@@ -225,6 +229,11 @@ namespace GamePlay.Enemies
             }
 
             UpdateHealthText(_healthComponent != null ? _healthComponent.CurrentHealth : defaultMaxHealth);
+        }
+
+        protected virtual bool ShouldShowHealthUi(int currentHealth, int maxHealth)
+        {
+            return maxHealth > 0 && currentHealth < maxHealth;
         }
 
 
@@ -237,6 +246,7 @@ namespace GamePlay.Enemies
             if (_despawnHandled) return;
 
             _despawnHandled = true;
+            _pendingArmyHitTarget = null;
 
 
 
@@ -285,23 +295,27 @@ namespace GamePlay.Enemies
             if (_isAttacked) return;
 
             _isAttacked = true;
-            PlayAnimation(AnimationType.Attack, waitAttackAnimation, () =>
+            _pendingArmyHitTarget = armySource as IHitable;
+            PlayAnimation(AnimationType.Attack, waitAttackAnimation, CompleteArmyMeleeAttack, 0);
+        }
+
+        private void CompleteArmyMeleeAttack()
+        {
+            if (_pendingArmyHitTarget != null)
             {
-                // [FIX] Melee attack: deal damage to player army directly
-                if (armySource is IHitable hitableArmy)
+                _pendingArmyHitTarget.OnHit(this);
+            }
+            else if (GameplayManager.Instance != null && GameplayManager.Instance.ActiveArmy != null)
+            {
+                var army = GameplayManager.Instance.ActiveArmy;
+                if (army.Units.Count > 0)
                 {
-                    hitableArmy.OnHit(this);
+                    army.Units[0].OnHit(this);
                 }
-                else if (GameplayManager.Instance != null && GameplayManager.Instance.ActiveArmy != null)
-                {
-                    var army = GameplayManager.Instance.ActiveArmy;
-                    if (army.Units.Count > 0)
-                    {
-                        army.Units[0].OnHit(this);
-                    }
-                }
-                DespawnInterval();
-            }, 0);
+            }
+
+            _pendingArmyHitTarget = null;
+            DespawnInterval();
         }
 
 
@@ -312,8 +326,6 @@ namespace GamePlay.Enemies
 
         }
 
-
-
         public void AttachWeapon(WeaponUnit weaponUnit)
 
         {
@@ -321,8 +333,6 @@ namespace GamePlay.Enemies
             _currentWeapon = weaponUnit;
 
         }
-
-
 
         public void ThrowWeapon()
 
@@ -332,11 +342,8 @@ namespace GamePlay.Enemies
 
         }
 
-
-
         protected override void HandleHealthChange(int current, int max)
         {
-            // Debug.Log($"[EnemyUnit] HandleHealthChange: {current}/{max}");
             UpdateImage(current, max);
             UpdateHealthText(current);
 
@@ -345,9 +352,11 @@ namespace GamePlay.Enemies
 
             if (current <= 0)
             {
-                // Debug.Log($"[EnemyUnit] Health <= 0. Triggering PlayDeathVfx on {name}");
                 PlayDeathVfx();
-                PlayDieEffectOncePerFrame();
+                if (dieVfxPrefab == null)
+                {
+                    PlayDieEffectPerFrame();
+                }
             }
 
 
@@ -386,7 +395,7 @@ namespace GamePlay.Enemies
             }
         }
 
-        protected void PlayDieEffectOncePerFrame()
+        protected void PlayDieEffectPerFrame()
         {
             int currentFrame = Time.frameCount;
             if (s_lastDieSfxFrame >= 0 && currentFrame - s_lastDieSfxFrame < DieEffectFrameInterval)
@@ -395,7 +404,7 @@ namespace GamePlay.Enemies
             }
 
             s_lastDieSfxFrame = currentFrame;
-            Pack.Effector?.PlayEffect(EffectType.Die, transform.position, transform.rotation);
+            Pack.Effector?.PlayEffect(EffectType.Die, transform.position + Vector3.up * 3f, transform.rotation);
         }
 
 
@@ -404,6 +413,8 @@ namespace GamePlay.Enemies
         {
 
             if (hpBarRenderer == null) return;
+
+            SetHealthBarVisible(ShouldShowHealthUi(currentHealth, maxHealth));
 
 
 
@@ -465,6 +476,26 @@ namespace GamePlay.Enemies
 
         }
 
+        private void SetHealthBarVisible(bool visible)
+        {
+            if (_healthBarRoot == null)
+            {
+                _healthBarRoot = hpBarRenderer.transform.parent != null
+                    ? hpBarRenderer.transform.parent.gameObject
+                    : hpBarRenderer.gameObject;
+            }
+
+            if (_healthBarRoot.activeSelf != visible)
+            {
+                _healthBarRoot.SetActive(visible);
+            }
+
+            if (healthText != null && healthText.gameObject.activeSelf != visible)
+            {
+                healthText.gameObject.SetActive(visible);
+            }
+        }
+
 
 
         public void MarkHealthOverriddenFromContent()
@@ -472,11 +503,19 @@ namespace GamePlay.Enemies
             _healthOverriddenFromContent = true;
         }
 
+        private int _lastHealthTextValue = -1;
+
         protected void UpdateHealthText(int health)
         {
-            if (healthText == null) return;
+            if (healthText == null || _lastHealthTextValue == health) return;
+            if (_healthComponent != null &&
+                !ShouldShowHealthUi(health, _healthComponent.MaxHealth))
+            {
+                return;
+            }
 
-            healthText.text = health > 0 ? health.ToString() : "";
+            _lastHealthTextValue = health;
+            healthText.SetText(health > 0 ? "{0}" : string.Empty, health);
         }
 
 
@@ -488,6 +527,12 @@ namespace GamePlay.Enemies
 
                 return;
 
+            if (_deathVfxHandled)
+
+                return;
+
+            _deathVfxHandled = true;
+
             if (!CanSpawnDeathVfxThisFrame())
 
                 return;
@@ -495,6 +540,9 @@ namespace GamePlay.Enemies
 
 
             Vector3 spawnPos = transform.position + dieVfxOffset;
+
+            if (!PooledVfxLifetimeScheduler.CanSchedule())
+                return;
 
             GameObject vfx = dieVfxPrefab.Spawn();
 
@@ -510,41 +558,22 @@ namespace GamePlay.Enemies
 
 
 
-            DOVirtual.DelayedCall(Mathf.Max(0.05f, dieVfxLifetime), () =>
-            {
-                if (vfx != null) vfx.Despawn();
-            }, false).SetId(vfx);
+            PooledVfxLifetimeScheduler.Schedule(vfx, dieVfxLifetime);
 
         }
 
+        private const int DeathVfxFrameInterval = 10;
+
         private bool CanSpawnDeathVfxThisFrame()
-
         {
-
-            if (Time.frameCount != s_lastDeathVfxFrame)
-
+            int currentFrame = Time.frameCount;
+            if (s_lastDeathVfxFrame >= 0 && currentFrame - s_lastDeathVfxFrame < DeathVfxFrameInterval)
             {
-
-                s_lastDeathVfxFrame = Time.frameCount;
-
-                s_deathVfxCountInFrame = 0;
-
+                return false;
             }
 
-
-
-            int frameCap = Mathf.Max(1, maxDeathVfxPerFrame);
-
-            if (s_deathVfxCountInFrame >= frameCap)
-
-                return false;
-
-
-
-            s_deathVfxCountInFrame++;
-
+            s_lastDeathVfxFrame = currentFrame;
             return true;
-
         }
 
 

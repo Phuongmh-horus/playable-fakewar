@@ -34,10 +34,12 @@ namespace GamePlay.CombatSystems
             public Vector3 Direction;
             public Vector3 NormalizedDirection;
             public float MaxDistance;
+            public Vector2Int CollisionCell;
         }
 
         private readonly List<ManagedActorRefs> _actors = new List<ManagedActorRefs>();
         private readonly Queue<ManagedActorRefs> _actorRefsPool = new Queue<ManagedActorRefs>(64);
+        private readonly List<int> _collisionQueryIndices = new List<int>(64);
 
         private ManagedActorRefs GetActorRef()
         {
@@ -48,6 +50,7 @@ namespace GamePlay.CombatSystems
                 refs.Attacker = null;
                 refs.Jumper = null;
                 refs.Transform = null;
+                refs.CollisionCell = default;
                 return refs;
             }
             return new ManagedActorRefs();
@@ -76,14 +79,17 @@ namespace GamePlay.CombatSystems
             if (Instance == this) Instance = null;
         }
 
+        private CollisionSystem _collisionSystem;
+
         /// <summary>
         /// Call this from a manager (e.g., GameplayManager.Update) in playable.
         /// </summary>
         public void ManualUpdate()
         {
-            if (CollisionSystem.Instance == null) return;
+            if (_collisionSystem == null) _collisionSystem = CollisionSystem.Instance;
+            if (_collisionSystem == null) return;
 
-            CollisionSystem.Instance.EnsureDataIsReady();
+            _collisionSystem.EnsureDataIsReady();
 
             int i = 0;
             while (i < _actors.Count)
@@ -103,7 +109,7 @@ namespace GamePlay.CombatSystems
 
                 if (actor.Attacker != null)
                 {
-                    hasHit = TryFindHitTarget(actor, out hitTarget);
+                    hasHit = TryFindHitTarget(actor, _collisionSystem, out hitTarget);
                 }
 
                 if (hasHit && hitTarget != null && hitTarget.IsActive)
@@ -145,6 +151,7 @@ namespace GamePlay.CombatSystems
 
             var refs = GetActorRef();
             refs.Transform = unitTransform;
+            refs.CollisionCell = CollisionSystem.GetSpatialCell(unitTransform.position);
 
             if ((flags & CapabilityFlags.Move) != 0 && pack.Mover != null)
             {
@@ -179,24 +186,38 @@ namespace GamePlay.CombatSystems
 
             if (t >= 1f)
             {
-                actor.Transform.position = actor.StartPosition + actor.NormalizedDirection * actor.MaxDistance;
+                Vector3 endPosition = actor.StartPosition + actor.NormalizedDirection * actor.MaxDistance;
+                actor.Transform.position = endPosition;
+                NotifyCollisionCellChanged(actor, endPosition);
                 return true;
             }
 
-            actor.Transform.position = actor.StartPosition + actor.NormalizedDirection * (actor.MaxDistance * t);
+            Vector3 position = actor.StartPosition + actor.NormalizedDirection * (actor.MaxDistance * t);
+            actor.Transform.position = position;
+            NotifyCollisionCellChanged(actor, position);
             return false;
         }
 
-        private bool TryFindHitTarget(ManagedActorRefs actor, out IHitable hitTarget)
+        private static void NotifyCollisionCellChanged(ManagedActorRefs actor, Vector3 position)
+        {
+            Vector2Int nextCell = CollisionSystem.GetSpatialCell(position);
+            if (actor.CollisionCell == nextCell)
+            {
+                return;
+            }
+
+            actor.CollisionCell = nextCell;
+            CollisionSystem.NotifyMoved(actor.Transform);
+        }
+
+        private bool TryFindHitTarget(ManagedActorRefs actor, CollisionSystem collisionSystem, out IHitable hitTarget)
         {
             hitTarget = null;
 
-            var collisionSystem = CollisionSystem.Instance;
             if (collisionSystem == null) return false;
             if (actor.Attacker == null) return false;
 
-            int targetCount = collisionSystem.Count;
-            if (targetCount <= 0) return false;
+            if (collisionSystem.Count <= 0) return false;
 
             Vector3 actorPos = actor.Transform.position;
 
@@ -217,12 +238,12 @@ namespace GamePlay.CombatSystems
                 return false;
             }
 
-            for (int idx = 0; idx < targetCount; idx++)
+            float maxDx = broadPhaseRangeX + attackerSize + broadPhasePadding;
+            float maxDz = broadPhaseRangeZ + attackerSize + broadPhasePadding;
+            collisionSystem.QueryIndicesNearSegment(actorPos, actorPos, Mathf.Max(maxDx, maxDz), _collisionQueryIndices);
+            for (int candidateIndex = 0; candidateIndex < _collisionQueryIndices.Count; candidateIndex++)
             {
-                var target = collisionSystem.GetTargetBySortedIndex(idx);
-                if (target == null || !target.IsActive) continue;
-
-                // Fast mask check from cached category bits before touching collider data.
+                int idx = _collisionQueryIndices[candidateIndex];
                 uint targetMask = collisionSystem.GetMask(idx);
                 if ((attackerMask & targetMask) == 0) continue;
 
@@ -231,16 +252,17 @@ namespace GamePlay.CombatSystems
 
                 // Coarse culling: skip far targets before narrow phase math.
                 Vector3 targetPos = targetTr.position;
-                float maxDx = broadPhaseRangeX + attackerSize + broadPhasePadding;
-                float maxDz = broadPhaseRangeZ + attackerSize + broadPhasePadding;
                 if (Mathf.Abs(targetPos.x - actorPos.x) > maxDx) continue;
                 if (Mathf.Abs(targetPos.z - actorPos.z) > maxDz) continue;
+
+                var target = collisionSystem.GetTargetBySortedIndex(idx);
+                if (target == null || !target.IsActive) continue;
 
                 var col = collisionSystem.GetColliderData(idx);
 
                 // Improved Collision Logic for Box Shapes (Fixes "Wide but Thin" detection)
                 bool isHit = false;
-                
+
                 if (col.Type == ShapeType.Box)
                 {
                     // AABB Check (Axis-Aligned Bounding Box)
@@ -313,7 +335,7 @@ namespace GamePlay.CombatSystems
         private void RemoveAtSwapBack(int index)
         {
             int lastIndex = _actors.Count - 1;
-            
+
             var removedRef = _actors[index];
             ReturnActorRef(removedRef);
 

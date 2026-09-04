@@ -803,6 +803,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
+    MaxVfxPerFrame: 0
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!1 &2355996076441702460
@@ -2349,8 +2350,6 @@ MonoBehaviour:
   colliderSize: {x: 1, y: 1, z: 1}
   LeftOffset: 0
   RightOffset: 0
-  deathScaleEffect: {fileID: 0}
-  _tutElement: {fileID: 0}
   autoAddHitTextFlyEffectAtRuntime: 1
   Data:
     Type: 4
@@ -2408,6 +2407,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
+    MaxVfxPerFrame: 0
   audioSource: {fileID: -1665847385224587374}
   warnIfNoAudioRouteInEditor: 0
 --- !u!82 &-1665847385224587374
@@ -2852,6 +2852,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
+    MaxVfxPerFrame: 0
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!1 &6629245355337682208
@@ -3525,6 +3526,7 @@ MonoBehaviour:
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
+    MaxVfxPerFrame: 0
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!1 &7615530547345912228

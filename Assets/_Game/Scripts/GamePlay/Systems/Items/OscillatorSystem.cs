@@ -26,6 +26,7 @@ namespace GamePlay.OscillationSystems
         }
 
         private readonly List<OscEntry> _entries = new List<OscEntry>(128);
+        private readonly Dictionary<IOscillator, int> _entryIndices = new Dictionary<IOscillator, int>(128);
 
         #region PUBLIC METHODS
 
@@ -68,7 +69,7 @@ namespace GamePlay.OscillationSystems
 
                 if (!e.IsActive || e.Transform == null || IsUnityNull(e.Oscillator))
                 {
-                    _entries.RemoveAt(i);
+                    RemoveAtSwapBack(i);
                     continue;
                 }
 
@@ -83,7 +84,6 @@ namespace GamePlay.OscillationSystems
                 // write-back (struct)
                 _entries[i] = e;
             }
-
         }
 
         #endregion
@@ -100,6 +100,19 @@ namespace GamePlay.OscillationSystems
             float radius = (component.RightOffset + component.LeftOffset) * 0.5f;
             float midPoint = component.RightOffset - radius;
 
+            if (_entryIndices.TryGetValue(component, out int existingIndex))
+            {
+                var existingEntry = _entries[existingIndex];
+                existingEntry.Transform = unitTransform;
+                existingEntry.Oscillator = component;
+                existingEntry.BaseLocalPos = unitTransform.localPosition;
+                existingEntry.Radius = radius;
+                existingEntry.MidPoint = midPoint;
+                existingEntry.IsActive = true;
+                _entries[existingIndex] = existingEntry;
+                return;
+            }
+
             var entry = new OscEntry
             {
                 Transform = unitTransform,
@@ -112,6 +125,7 @@ namespace GamePlay.OscillationSystems
             };
 
             _entries.Add(entry);
+            _entryIndices[component] = _entries.Count - 1;
 
         }
 
@@ -119,14 +133,34 @@ namespace GamePlay.OscillationSystems
         {
             if (oscillator == null) return;
 
-            for (int i = _entries.Count - 1; i >= 0; i--)
+            if (_entryIndices.TryGetValue(oscillator, out int index))
             {
-                if (_entries[i].Oscillator == oscillator)
+                RemoveAtSwapBack(index);
+            }
+        }
+
+        private void RemoveAtSwapBack(int index)
+        {
+            int last = _entries.Count - 1;
+            if (index < 0 || index > last) return;
+
+            var removedEntry = _entries[index];
+            if (removedEntry.Oscillator != null)
+            {
+                _entryIndices.Remove(removedEntry.Oscillator);
+            }
+
+            if (index != last)
+            {
+                var movedEntry = _entries[last];
+                _entries[index] = movedEntry;
+                if (movedEntry.Oscillator != null)
                 {
-                    _entries.RemoveAt(i);
-                    return;
+                    _entryIndices[movedEntry.Oscillator] = index;
                 }
             }
+
+            _entries.RemoveAt(last);
         }
 
         // Safe check UnityEngine.Object null qua interface

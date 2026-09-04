@@ -14,10 +14,20 @@ namespace GamePlay.Enemies
 
         [Header("Boss Settings")]
         [SerializeField, Min(0f)] private float delayBetweenAttacks = 1f;
+        [SerializeField, Min(0f)] private float bossAttractionThreshold = 15f;
+        [SerializeField, Min(0.1f)] private float armyAttackRange = 1f;
         [SerializeField, Min(0f)] private float deathAnimationDuration = 1f;
+        [SerializeField, Min(0.05f), Tooltip("Minimum interval between boss hit VFX spawns.")]
+        private float hitEffectCooldown = 0.12f;
+
+        public float AttractionThreshold => bossAttractionThreshold;
 
         private float _nextAttackTime;
+        private float _nextArmyTargetScanTime;
         private bool _deathHandled;
+        private bool _hasEngagedArmy;
+        private IHitable _pendingArmyHitTarget;
+        private float _nextHitEffectTime;
 
         public override void Initialize()
         {
@@ -44,6 +54,8 @@ namespace GamePlay.Enemies
             _nextAttackTime = 0f;
             _deathHandled = false;
             _isAttacked = false;
+            _hasEngagedArmy = false;
+            _pendingArmyHitTarget = null;
         }
 
         protected override void DespawnInterval()
@@ -58,8 +70,9 @@ namespace GamePlay.Enemies
 
         private void HandleBossDamaged(int damage)
         {
-            if (damage > 0)
+            if (damage > 0 && Time.time >= _nextHitEffectTime)
             {
+                _nextHitEffectTime = Time.time + Mathf.Max(0.05f, hitEffectCooldown);
                 // Play EffectType.Hit with a forward offset
                 Vector3 hitPos = transform.position + transform.forward * 1.5f;
                 Pack.Effector?.PlayEffect(EffectType.Hit, hitPos, transform.rotation);
@@ -70,32 +83,20 @@ namespace GamePlay.Enemies
         {
             if ((Pack.Healable?.IsDead ?? false) || _deathHandled || _isAttacked || Time.time < _nextAttackTime) return;
 
-            var army = GameplayManager.Instance?.ActiveArmy;
-            if (army != null && army.Units.Count > 0)
+            if (Time.time < _nextArmyTargetScanTime)
             {
-                float closestDist = float.MaxValue;
-                GamePlay.Characters.CharacterUnit closestUnit = null;
-
-                for (int i = 0; i < army.Units.Count; i++)
-                {
-                    var unit = army.Units[i];
-                    if (unit != null && unit.IsActive && !(unit.Pack.Healable?.IsDead ?? false))
-                    {
-                        float dist = Vector3.Distance(transform.position, unit.transform.position);
-                        if (dist < closestDist)
-                        {
-                            closestDist = dist;
-                            closestUnit = unit;
-                        }
-                    }
-                }
-
-                if (closestUnit != null && closestDist < 1.0f)
-                {
-                    Pack.Mover?.OnMovementFinished();
-                    TryAttackArmy(closestUnit.Pack.Attacker);
-                }
+                return;
             }
+            _nextArmyTargetScanTime = Time.time + 0.1f;
+
+            if (TryGetClosestActiveArmyAttacker(_hasEngagedArmy, out var armyAttacker))
+            {
+                Pack.Mover?.OnMovementFinished();
+                TryAttackArmy(armyAttacker);
+                return;
+            }
+
+            _hasEngagedArmy = false;
         }
 
         protected override void HandleWheelCollision()
@@ -106,27 +107,16 @@ namespace GamePlay.Enemies
             }
 
             _isAttacked = true;
+            _hasEngagedArmy = true;
             PlayableWaveDefenseEntitySystem.Instance?.Unregister(this);
+            SoundManager.Instance?.PlayOneShot(AudioClipName.SFX_EnemyAttack);
 
-            PlayAnimation(AnimationType.Attack, waitForAction: waitAttackAnimation, onComplete: () =>
-            {
-                if (_deathHandled || (Pack.Healable?.IsDead ?? false))
-                {
-                    return;
-                }
-
-                HandleKillHero();
-                if (!isHandleKillHero)
-                {
-                    OnWheelCollision?.Invoke();
-                }
-
-                FinishAttackCycle();
-            });
+            PlayAnimation(AnimationType.Attack, waitForAction: waitAttackAnimation, onComplete: CompleteWheelAttack);
         }
 
         public override void HandlePlayerArmyMeleeContact(IAttacker armySource)
         {
+            _hasEngagedArmy = true;
             TryAttackArmy(armySource);
         }
 
@@ -152,7 +142,12 @@ namespace GamePlay.Enemies
             PlayDeathVfx();
             PlayAnimation(AnimationType.Death, deathAnimationDuration, DespawnInterval);
             Pack.Effector?.PlayEffect(EffectType.Die, transform.position, transform.rotation);
-            PlayDieEffectOncePerFrame();
+            PlayDieEffectPerFrame();
+        }
+
+        protected override bool ShouldShowHealthUi(int currentHealth, int maxHealth)
+        {
+            return maxHealth > 0;
         }
 
         private void TryAttackArmy(IAttacker armySource)
@@ -163,39 +158,107 @@ namespace GamePlay.Enemies
             }
 
             _isAttacked = true;
+            _hasEngagedArmy = true;
+            _pendingArmyHitTarget = armySource as IHitable;
             PlayableWaveDefenseEntitySystem.Instance?.Unregister(this);
             SoundManager.Instance?.PlayOneShot(AudioClipName.SFX_EnemyAttack);
 
-            PlayAnimation(AnimationType.Attack, waitForAction: waitAttackAnimation, onComplete: () =>
+            PlayAnimation(AnimationType.Attack, waitForAction: waitAttackAnimation, onComplete: CompleteArmyAttack);
+        }
+
+        private void CompleteWheelAttack()
+        {
+            if (_deathHandled || (Pack.Healable?.IsDead ?? false))
             {
-                if (_deathHandled || (Pack.Healable?.IsDead ?? false))
+                return;
+            }
+
+            HandleKillHero();
+            if (!isHandleKillHero)
+            {
+                OnWheelCollision?.Invoke();
+            }
+
+            FinishAttackCycle();
+        }
+
+        private void CompleteArmyAttack()
+        {
+            if (_deathHandled || (Pack.Healable?.IsDead ?? false))
+            {
+                _pendingArmyHitTarget = null;
+                return;
+            }
+
+            HandleKillHero();
+            if (!isHandleKillHero)
+            {
+                if (_pendingArmyHitTarget != null)
                 {
-                    return;
+                    _pendingArmyHitTarget.OnHit(this);
+                }
+                else if (GameplayManager.Instance != null && GameplayManager.Instance.ActiveArmy != null)
+                {
+                    var army = GameplayManager.Instance.ActiveArmy;
+                    if (army.Units.Count > 0)
+                    {
+                        army.Units[0].OnHit(this);
+                    }
+                }
+            }
+
+            _pendingArmyHitTarget = null;
+            FinishAttackCycle();
+        }
+
+        private bool TryGetClosestActiveArmyAttacker(bool allowAnyDistance, out IAttacker armyAttacker)
+        {
+            armyAttacker = null;
+
+            var army = GameplayManager.Instance?.ActiveArmy;
+            if (army == null || army.Units.Count == 0)
+            {
+                return false;
+            }
+
+            float closestDistSqr = float.MaxValue;
+            GamePlay.Characters.CharacterUnit closestUnit = null;
+            Vector3 bossPosition = transform.position;
+
+            for (int i = 0; i < army.Units.Count; i++)
+            {
+                var unit = army.Units[i];
+                if (unit == null || !unit.IsActive || (unit.Pack.Healable?.IsDead ?? false))
+                {
+                    continue;
                 }
 
-                HandleKillHero();
-                if (!isHandleKillHero)
+                Vector3 delta = unit.transform.position - bossPosition;
+                float distSqr = delta.sqrMagnitude;
+                if (distSqr < closestDistSqr)
                 {
-                    if (armySource is IHitable hitableArmy)
-                    {
-                        hitableArmy.OnHit(this);
-                    }
-                    else if (GameplayManager.Instance != null && GameplayManager.Instance.ActiveArmy != null)
-                    {
-                        var army = GameplayManager.Instance.ActiveArmy;
-                        if (army.Units.Count > 0)
-                        {
-                            army.Units[0].OnHit(this);
-                        }
-                    }
+                    closestDistSqr = distSqr;
+                    closestUnit = unit;
                 }
+            }
 
-                FinishAttackCycle();
-            });
+            if (closestUnit == null)
+            {
+                return false;
+            }
+
+            if (!allowAnyDistance && closestDistSqr > armyAttackRange * armyAttackRange)
+            {
+                return false;
+            }
+
+            armyAttacker = closestUnit.Pack.Attacker;
+            return true;
         }
 
         private void FinishAttackCycle()
         {
+            _pendingArmyHitTarget = null;
             _isAttacked = false;
             _nextAttackTime = Time.time + Mathf.Max(0f, delayBetweenAttacks);
         }

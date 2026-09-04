@@ -170,7 +170,7 @@ namespace GamePlay.Managers
             });
         }
 
-        private void Update()
+        public void ManualUpdate()
         {
             if (!GameplayManager.IsGameStarted) return;
             if (lanes == null || lanes.Count == 0) return;

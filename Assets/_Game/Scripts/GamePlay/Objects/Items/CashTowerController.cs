@@ -146,7 +146,7 @@ namespace GamePlay.Items
             _lastHitFxFrame = -1;
             _lastDamageFrame = -1;
             _tookDirectDamageThisFrame = false;
-            _tookAoeDamageThisFrame = false;
+            //_tookAoeDamageThisFrame = false;
 
             if (hitTextFlyEffect != null)
             {
@@ -155,7 +155,7 @@ namespace GamePlay.Items
             }
 
             _originalScale = transform.localScale;
-            
+
             // Sync UI text right away to fix 1-frame delayed update issues
             HandleHealthChanged(healthComponent != null ? healthComponent.CurrentHealth : 0, healthComponent != null ? healthComponent.MaxHealth : 0);
         }
@@ -201,7 +201,6 @@ namespace GamePlay.Items
 
         private int _lastDamageFrame = -1;
         private bool _tookDirectDamageThisFrame = false;
-        private bool _tookAoeDamageThisFrame = false;
 
         protected override void HandleNonWheelCollision(IAttacker source)
         {
@@ -210,23 +209,13 @@ namespace GamePlay.Items
             {
                 _lastDamageFrame = currentFrame;
                 _tookDirectDamageThisFrame = false;
-                _tookAoeDamageThisFrame = false;
+            }
+            if (source == null)
+            {
+                return;
             }
 
-            bool isAoe = source != null && source.GetType().Name == "ExplosionShotAttacker";
-
-            if (isAoe)
-            {
-                if (_tookDirectDamageThisFrame || _tookAoeDamageThisFrame)
-                {
-                    return; // Skip AOE damage if we already took direct or AOE damage this frame
-                }
-                _tookAoeDamageThisFrame = true;
-            }
-            else
-            {
-                _tookDirectDamageThisFrame = true;
-            }
+            _tookDirectDamageThisFrame = true;
 
             PlayNonWheelHitEffect();
             base.HandleNonWheelCollision(source);
@@ -272,7 +261,7 @@ namespace GamePlay.Items
         private void EnsureCollisionRegistration()
         {
             if (_hitComponent == null) return;
-            
+
             if (!ReferenceEquals(Pack.Hitable, _hitComponent))
             {
                 _hitComponent.Initialize();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using GamePlay.CombatSystems;
 using GamePlay.CollisionSystems;
 using GamePlay.ComponentSystems;
+using GamePlay.HealthSystems;
 using GamePlay.OscillationSystems;
 using TMPro;
 using UnityEngine;
@@ -13,6 +14,12 @@ namespace GamePlay.Items
     public class StatModifierGate : StatModifierItem<StatModifierGateData>
     {
         private static readonly int FillAmountProp = Shader.PropertyToID("_FillAmount");
+        private const int GateRenderQueue = 3100;
+        private const int GateTextRenderQueue = 3101;
+        private const string GateShaderName = "Playable/Gate Glow Instanced";
+
+        private static Material _sharedGateMaterial;
+        private static Material _sharedGateTextMaterial;
 
         [Header("Display Settings")]
         [SerializeField] protected TextMeshPro valueText;
@@ -23,7 +30,6 @@ namespace GamePlay.Items
         [SerializeField] protected Color increaseColor = Color.cyan;
         [SerializeField] protected Color decreaseColor = Color.red;
         private MaterialPropertyBlock _propBlock;
-        private MaterialPropertyBlock _textDepthMpb;
         private MaterialPropertyBlock _progressMpb;
 
         [Header("Armor Visual Settings")]
@@ -67,34 +73,26 @@ namespace GamePlay.Items
         private Quaternion _baseRotation;
         private Coroutine _scalePulseRoutine;
         private Sequence _bendSequence;
-        private TMP_Text[] _cachedTexts;
         private bool _isCollectedByArmy;
         private HitTextFlyEffect _flyTextEffect;
+        private float _nextBendFeedbackTime;
+        private float _nextScalePulseTime;
+        private float _nextAudioTime;
+        private HealthComponent _fireSoldierHealth;
+        private int _nextFireSoldierReward;
 
         private static void PreparePropertyBlock(Renderer renderer, MaterialPropertyBlock block)
         {
             if (block == null) return;
-
-#if LUNA_WEBGL || UNITY_WEBGL
             block.Clear();
-#else
-            if (renderer != null)
-            {
-                renderer.GetPropertyBlock(block);
-            }
-            else
-            {
-                block.Clear();
-            }
-#endif
         }
 
         protected override void Awake()
         {
             base.Awake();
             SetupArmorParts();
-            _textDepthMpb = new MaterialPropertyBlock();
             _progressMpb = new MaterialPropertyBlock();
+            ConfigureRenderGrouping();
 
             // Ensure EntityType is MovingGate at runtime (for collision masks)
             if (_entityType == Entities.EntityType.None)
@@ -102,6 +100,55 @@ namespace GamePlay.Items
                 _entityType = Entities.EntityType.MovingGate;
             }
             _flyTextEffect = GetComponent<HitTextFlyEffect>();
+        }
+
+        private void ConfigureRenderGrouping()
+        {
+            if (gateRenderer != null && gateRenderer.sharedMaterial != null)
+            {
+                if (_sharedGateMaterial == null)
+                {
+                    var gateShader = Shader.Find(GateShaderName);
+                    if (gateShader != null)
+                    {
+                        _sharedGateMaterial = new Material(gateRenderer.sharedMaterial)
+                        {
+                            name = "GateGlowInstanced (Shared Runtime)",
+                            shader = gateShader,
+                            renderQueue = GateRenderQueue,
+                            enableInstancing = true,
+                            hideFlags = HideFlags.DontSave
+                        };
+                    }
+                }
+
+                if (_sharedGateMaterial != null)
+                    gateRenderer.sharedMaterial = _sharedGateMaterial;
+            }
+
+            var texts = GetComponentsInChildren<TMP_Text>(true);
+            for (int i = 0; i < texts.Length; i++)
+            {
+                var text = texts[i];
+                if (text == null || text.fontSharedMaterial == null) continue;
+
+                if (_sharedGateTextMaterial == null)
+                {
+                    _sharedGateTextMaterial = new Material(text.fontSharedMaterial)
+                    {
+                        name = "GateCounterText (Shared Runtime)",
+                        renderQueue = GateTextRenderQueue,
+                        hideFlags = HideFlags.DontSave
+                    };
+                }
+
+                text.isOverlay = false;
+                text.fontSharedMaterial = _sharedGateTextMaterial;
+
+                var textRenderer = text.GetComponent<Renderer>();
+                if (textRenderer != null)
+                    textRenderer.sortingOrder = 0;
+            }
         }
 
         private void SetupArmorParts()
@@ -116,7 +163,21 @@ namespace GamePlay.Items
         public override void Initialize()
         {
             _isCollectedByArmy = false;
+            _nextFireSoldierReward = 1;
             base.Initialize();
+
+            _fireSoldierHealth = Data != null && Data.Type == StatType.Character
+                ? GetComponentInChildren<HealthComponent>(true)
+                : null;
+
+            if (Data != null && Data.Type == StatType.Character)
+            {
+                Data.Value = 0;
+                if (_fireSoldierHealth != null)
+                {
+                    _fireSoldierHealth.SetHealth(_fireSoldierHealth.MaxHealth);
+                }
+            }
 
             _originalScale = transform.localScale;
             _baseRotation = transform.localRotation;
@@ -157,84 +218,17 @@ namespace GamePlay.Items
             UpdateImage();
 
             DisableOscillationIfSide();
-
-            // [FIX] Robust Luna Z-Sorting Fix (Delayed)
-            DOVirtual.DelayedCall(0.01f, FixTextDepthNow, false);
-        }
-
-        private void FixTextDepthNow()
-        {
-            CacheTextsIfNeeded();
-            if (_cachedTexts == null || _cachedTexts.Length == 0) return;
-
-            foreach (var t in _cachedTexts)
-            {
-                if (t == null) continue;
-                t.ForceMeshUpdate();
-                ApplyDepthToSingleText(t);
-            }
-        }
-
-        /// <summary>
-        /// [FIX] Luna/WebGL: Force correct depth rendering on a TMP_Text component.
-        /// Must be called after every text change because TMP mesh regeneration
-        /// resets material properties in Luna, causing text to sink behind the ground.
-        /// </summary>
-        private void ApplyDepthToSingleText(TMP_Text t)
-        {
-            if (t == null) return;
-
-            // Force overlay to avoid Luna depth issues (text sinking into ground)
-            try
-            {
-                if (t.fontSharedMaterial != null)
-                {
-                    t.isOverlay = true;
-                }
-            }
-            catch { }
-
-            var renderer = t.GetComponent<Renderer>();
-            if (renderer == null || renderer.sharedMaterials == null || renderer.sharedMaterials.Length == 0) return;
-
-            if (_textDepthMpb == null) _textDepthMpb = new MaterialPropertyBlock();
-
-            try
-            {
-                PreparePropertyBlock(renderer, _textDepthMpb);
-                _textDepthMpb.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Always);
-                renderer.SetPropertyBlock(_textDepthMpb);
-            }
-            catch { }
-
-            renderer.sortingOrder = 1000;
-
-            var shared = renderer.sharedMaterial;
-            if (shared != null && shared.renderQueue != 4000)
-            {
-                try
-                {
-                    shared.renderQueue = 4000;
-                }
-                catch { }
-            }
         }
 
         private void DisableOscillationIfSide()
         {
-            // [FIX] Delay check to ensure World Position is fully resolved.
-            DOVirtual.DelayedCall(0.02f, () =>
+            if (!onlyCenterOscillates) return;
+            if ((ActiveFlags & CapabilityFlags.Oscillate) == 0 || Pack.Oscillator == null) return;
+
+            if (Mathf.Abs(Transform.position.x) > centerXThreshold)
             {
-                if (!onlyCenterOscillates) return;
-                if ((ActiveFlags & CapabilityFlags.Oscillate) == 0 || Pack.Oscillator == null) return;
-
-                float worldX = Transform.position.x;
-                bool isCenter = Mathf.Abs(worldX) <= 0.5f;
-
-                if (isCenter) return;
-
                 OscillationSystem.Unregister(Pack.Oscillator);
-            }, false);
+            }
         }
 
         protected override void AdjustStatModifierValue(int value = 0)
@@ -257,14 +251,23 @@ namespace GamePlay.Items
 
             if (_flyTextEffect != null && Data != null)
             {
-                _flyTextEffect.ShowCustomText("+" + Data.Value.ToString(), Color.yellow);
+                _flyTextEffect.ShowCustomNumber(Data.Value, Color.yellow);
             }
 
-            PlayScalePulse();
-            if (SoundManager.Instance != null)
-                SoundManager.Instance.PlayOneShot(hitByWheelSound);
+            // if (Time.time >= _nextScalePulseTime)
+            // {
+            //     _nextScalePulseTime = Time.time + 0.1f;
+            //     PlayScalePulse();
+            // }
 
-            Pack.Effector?.PlayEffect(EffectType.Land);
+            if (Time.time >= _nextAudioTime)
+            {
+                _nextAudioTime = Time.time + 0.1f;
+                if (SoundManager.Instance != null)
+                    SoundManager.Instance.PlayOneShot(hitByWheelSound);
+
+                Pack.Effector?.PlayEffect(EffectType.Land);
+            }
         }
 
         protected override void HandleNonWheelCollision(IAttacker source)
@@ -275,16 +278,16 @@ namespace GamePlay.Items
                 return;
             }
 
-            if (source != null && source.EntityType != Entities.EntityType.Character && source.EntityType != Entities.EntityType.Wheel)
+            if (Data != null && Data.Type == StatType.Character)
             {
-                if (Data.Type == StatType.Character)
-                {
-                    return; // FireSoldier ko nhan damage tu dan
-                }
-                if (Data.Armor <= 0)
-                {
-                    return; // Gate da vo giap ko nhan them damage tu dan
-                }
+                ApplyFireSoldierDamage(source);
+                PlayBend();
+                return;
+            }
+
+            if (source != null && source.EntityType != Entities.EntityType.Wheel && Data.Armor <= 0)
+            {
+                return;
             }
 
             base.HandleNonWheelCollision(source);
@@ -293,8 +296,49 @@ namespace GamePlay.Items
 
         protected override void HandleHealthChange(int current, int max)
         {
-            // Do not despawn when health reaches 0. Gates should only be collected by the Army.
-            // Armor damage is handled via AdjustStatModifierValue.
+            if (Data != null && Data.Type == StatType.Character)
+            {
+                UpdateImage();
+            }
+        }
+
+        private void ApplyFireSoldierDamage(IAttacker source)
+        {
+            if (source == null || source.Damage <= 0)
+            {
+                return;
+            }
+
+            if (_fireSoldierHealth == null)
+            {
+                _fireSoldierHealth = GetComponentInChildren<HealthComponent>(true);
+            }
+
+            if (_fireSoldierHealth == null)
+            {
+                return;
+            }
+
+            int remainingDamage = source.Damage;
+            int maxHealth = Mathf.Max(1, _fireSoldierHealth.MaxHealth);
+            while (remainingDamage > 0)
+            {
+                int currentHealth = Mathf.Clamp(_fireSoldierHealth.CurrentHealth, 1, maxHealth);
+                int damageThisCycle = Mathf.Min(remainingDamage, currentHealth);
+                remainingDamage -= damageThisCycle;
+
+                if (damageThisCycle < currentHealth)
+                {
+                    _fireSoldierHealth.SetHealth(currentHealth - damageThisCycle);
+                    break;
+                }
+
+                Data.Value = _nextFireSoldierReward;
+                _nextFireSoldierReward++;
+                _lastTextValue = int.MinValue;
+                UpdateText();
+                _fireSoldierHealth.SetHealth(maxHealth);
+            }
         }
 
         public void CollectByArmy()
@@ -306,20 +350,20 @@ namespace GamePlay.Items
 
             _isCollectedByArmy = true;
 
-            if (Data != null)
+            if (Data != null && Data.Type == StatType.Character)
             {
-                var copyData = new StatModifierGateData
-                {
-                    Type = Data.Type,
-                    Value = (Data.Type == StatType.FireRate || Data.Type == StatType.FireRange) ? Data.Value / 20 : Data.Value,
-                    Armor = Data.Armor
-                };
-                GameplayManager.Instance?.ChangeStatModifierData(copyData);
-
+                GameplayManager.Instance?.ActiveArmy?.AddCharacterReward(Mathf.Max(0, Data.Value));
             }
-
+            else if (Data != null)
+            {
+                GameplayManager.Instance?.ChangeStatModifierData(Data);
+            }
+            if (_flyTextEffect != null && Data != null)
+            {
+                _flyTextEffect.ShowCustomText(FormatSignedValue(Data.Value), Color.yellow);
+            }
             Pack.Effector?.PlayEffect(EffectType.Land);
-            DespawnInterval();
+            DespawnInterval(skipScaleDown: true);
         }
 
         private void PlayScalePulse()
@@ -365,6 +409,9 @@ namespace GamePlay.Items
         private void PlayBend()
         {
             if (!isActiveAndEnabled) return;
+            if (Time.time < _nextBendFeedbackTime) return;
+
+            _nextBendFeedbackTime = Time.time + 0.1f;
 
             KillBendSequence();
             transform.localRotation = _baseRotation;
@@ -415,6 +462,11 @@ namespace GamePlay.Items
 
         protected override void DespawnInterval()
         {
+            DespawnInterval(skipScaleDown: false);
+        }
+
+        private void DespawnInterval(bool skipScaleDown)
+        {
             if (_isDespawning) return;
             _isDespawning = true;
 
@@ -424,6 +476,13 @@ namespace GamePlay.Items
             if (Pack.Hitable != null)
             {
                 CollisionSystem.Unregister(Pack.Hitable);
+            }
+
+            if (skipScaleDown)
+            {
+                _isDespawning = false;
+                base.DespawnInterval();
+                return;
             }
 
             StartCoroutine(ScaleDownRoutine());
@@ -544,36 +603,33 @@ namespace GamePlay.Items
             if (_armorPerPart <= 0f) _armorPerPart = 1f;
         }
 
+        private int _lastTextValue = int.MinValue;
+
         private void UpdateText()
         {
-            if (valueText != null)
-                valueText.text = Data.Value.ToString();
-
-            ApplyDepthToAllTexts();
-        }
-
-        private void CacheTextsIfNeeded()
-        {
-            if (_cachedTexts != null && _cachedTexts.Length > 0) return;
-            _cachedTexts = GetComponentsInChildren<TMP_Text>(true);
-        }
-
-        private void ApplyDepthToAllTexts()
-        {
-            CacheTextsIfNeeded();
-            if (_cachedTexts == null || _cachedTexts.Length == 0) return;
-
-            for (int i = 0; i < _cachedTexts.Length; i++)
+            if (valueText != null && Data != null && _lastTextValue != Data.Value)
             {
-                var t = _cachedTexts[i];
-                if (t == null) continue;
-                ApplyDepthToSingleText(t);
+                _lastTextValue = Data.Value;
+                valueText.SetText(Data.Value > 0 ? "+{0}" : "{0}", Data.Value);
             }
+        }
+
+        private static string FormatSignedValue(int value)
+        {
+            return value > 0 ? "+" + value : value.ToString();
         }
 
         private void UpdateImage()
         {
             if (progressSprite == null) return;
+
+            if (Data != null && Data.Type == StatType.Character && _fireSoldierHealth != null)
+            {
+                if (hpBar != null) hpBar.SetActive(true);
+                float healthPercent = (float)_fireSoldierHealth.CurrentHealth / Mathf.Max(1, _fireSoldierHealth.MaxHealth);
+                SetProgressFill(healthPercent);
+                return;
+            }
 
             if (Data.Armor <= 0)
             {
@@ -585,9 +641,12 @@ namespace GamePlay.Items
 
             float armorPercent = _maxArmor > 0 ? (float)Data.Armor / _maxArmor : 0f;
 
-            float min = 0.532f;
-            float max = 0.792f;
-            float fillAmount = Mathf.Lerp(min, max, armorPercent);
+            SetProgressFill(armorPercent);
+        }
+
+        private void SetProgressFill(float percent)
+        {
+            float fillAmount = Mathf.Lerp(0.532f, 0.792f, Mathf.Clamp01(percent));
 
             if (progressSprite.sharedMaterials == null || progressSprite.sharedMaterials.Length == 0) return;
 
