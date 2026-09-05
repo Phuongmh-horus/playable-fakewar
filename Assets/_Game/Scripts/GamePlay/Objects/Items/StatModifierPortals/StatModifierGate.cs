@@ -27,7 +27,7 @@ namespace GamePlay.Items
 
         [Header("Color Settings")]
         [SerializeField] protected MeshRenderer gateRenderer;
-        [SerializeField] protected Color increaseColor = Color.cyan;
+        [SerializeField] protected Color increaseColor = Color.green;
         [SerializeField] protected Color decreaseColor = Color.red;
         private MaterialPropertyBlock _propBlock;
         private MaterialPropertyBlock _progressMpb;
@@ -46,9 +46,6 @@ namespace GamePlay.Items
         [Header("Bounce Config")]
         [SerializeField] protected float bounceHeight = 0.5f;
         [SerializeField] protected float bounceDuration = 0.3f;
-
-        [Header("Sound Effects")]
-        [SerializeField] private AudioClipName hitByWheelSound = AudioClipName.None;
 
         [Header("Hit Scale Pulse")]
         [SerializeField] private float scaleUp = 1.08f;
@@ -78,8 +75,15 @@ namespace GamePlay.Items
         private float _nextBendFeedbackTime;
         private float _nextScalePulseTime;
         private float _nextAudioTime;
+        private int _nextHitEffectFrame;
         private HealthComponent _fireSoldierHealth;
-        private int _nextFireSoldierReward;
+        private MultiSlotDynamicGate _multiSlotGate;
+        private Transform _runtimeGateSurface;
+        private Transform _runtimeLeftPillar;
+        private Transform _runtimeRightPillar;
+        private Vector3 _runtimeSurfaceBaseScale;
+        private float _runtimeLayoutReferenceWidth;
+        private bool _runtimeLayoutCached;
 
         private static void PreparePropertyBlock(Renderer renderer, MaterialPropertyBlock block)
         {
@@ -163,7 +167,7 @@ namespace GamePlay.Items
         public override void Initialize()
         {
             _isCollectedByArmy = false;
-            _nextFireSoldierReward = 1;
+            _nextHitEffectFrame = 0;
             base.Initialize();
 
             _fireSoldierHealth = Data != null && Data.Type == StatType.Character
@@ -172,12 +176,13 @@ namespace GamePlay.Items
 
             if (Data != null && Data.Type == StatType.Character)
             {
-                Data.Value = 0;
                 if (_fireSoldierHealth != null)
                 {
                     _fireSoldierHealth.SetHealth(_fireSoldierHealth.MaxHealth);
                 }
             }
+
+            _multiSlotGate = GetComponentInParent<MultiSlotDynamicGate>();
 
             _originalScale = transform.localScale;
             _baseRotation = transform.localRotation;
@@ -247,6 +252,18 @@ namespace GamePlay.Items
 
         protected override void HandleWheelCollision()
         {
+            if (TryCollectMultiSlotGate())
+            {
+                return;
+            }
+
+            if (Data != null && Data.Type == StatType.Character &&
+                GameplayManager.Instance?.ActiveArmy != null)
+            {
+                CollectByArmy();
+                return;
+            }
+
             base.HandleWheelCollision();
 
             if (_flyTextEffect != null && Data != null)
@@ -263,25 +280,33 @@ namespace GamePlay.Items
             if (Time.time >= _nextAudioTime)
             {
                 _nextAudioTime = Time.time + 0.1f;
-                if (SoundManager.Instance != null)
-                    SoundManager.Instance.PlayOneShot(hitByWheelSound);
-
                 Pack.Effector?.PlayEffect(EffectType.Land);
             }
         }
 
         protected override void HandleNonWheelCollision(IAttacker source)
         {
-            if (source != null && source.EntityType == Entities.EntityType.Character)
+            if (source is PlayerArmy.PlayerArmySystem ||
+                (source != null && source.EntityType == Entities.EntityType.Character))
             {
+                if (TryCollectMultiSlotGate())
+                {
+                    return;
+                }
+
                 CollectByArmy();
                 return;
             }
 
             if (Data != null && Data.Type == StatType.Character)
             {
+                _multiSlotGate?.RegisterSlotDamage(this, source.Damage);
                 ApplyFireSoldierDamage(source);
-                PlayBend();
+                if (source.EntityType == Entities.EntityType.PlayerWeapon ||
+                    source.EntityType == Entities.EntityType.EnemyWeapon)
+                {
+                    TryPlayProjectileHitEffect();
+                }
                 return;
             }
 
@@ -291,7 +316,17 @@ namespace GamePlay.Items
             }
 
             base.HandleNonWheelCollision(source);
-            PlayBend();
+        }
+
+        private void TryPlayProjectileHitEffect()
+        {
+            if (Time.frameCount < _nextHitEffectFrame)
+            {
+                return;
+            }
+
+            _nextHitEffectFrame = Time.frameCount + 12;
+            Pack.Effector?.PlayEffect(EffectType.Hit, transform.position + Vector3.up * 5f + Vector3.forward * -5f);
         }
 
         protected override void HandleHealthChange(int current, int max)
@@ -333,15 +368,42 @@ namespace GamePlay.Items
                     break;
                 }
 
-                Data.Value = _nextFireSoldierReward;
-                _nextFireSoldierReward++;
+                if (_multiSlotGate == null || _multiSlotGate.TryExpandActiveSlot(this))
+                {
+                    IncreaseCharacterGateReward();
+                }
                 _lastTextValue = int.MinValue;
+                UpdateGateColor();
                 UpdateText();
+                UpdateImage();
                 _fireSoldierHealth.SetHealth(maxHealth);
             }
         }
 
         public void CollectByArmy()
+        {
+            if (TryCollectMultiSlotGate())
+            {
+                return;
+            }
+
+            ApplyArmyCollection();
+            DespawnInterval(skipScaleDown: true);
+        }
+
+        private bool TryCollectMultiSlotGate()
+        {
+            MultiSlotDynamicGate multiSlotGate = _multiSlotGate;
+            if (multiSlotGate == null)
+            {
+                multiSlotGate = GetComponentInParent<MultiSlotDynamicGate>();
+                _multiSlotGate = multiSlotGate;
+            }
+
+            return multiSlotGate != null && multiSlotGate.TryCollectByArmy(this);
+        }
+
+        internal void ApplyArmyCollection()
         {
             if (_isCollectedByArmy)
             {
@@ -352,7 +414,15 @@ namespace GamePlay.Items
 
             if (Data != null && Data.Type == StatType.Character)
             {
-                GameplayManager.Instance?.ActiveArmy?.AddCharacterReward(Mathf.Max(0, Data.Value));
+                var army = GameplayManager.Instance?.ActiveArmy;
+                if (Data.Operation == StatModifierOperation.Multiply)
+                {
+                    army?.ApplyCharacterMultiplier(Data.Multiplier);
+                }
+                else
+                {
+                    army?.ApplyCharacterDelta(Data.Value);
+                }
             }
             else if (Data != null)
             {
@@ -360,10 +430,9 @@ namespace GamePlay.Items
             }
             if (_flyTextEffect != null && Data != null)
             {
-                _flyTextEffect.ShowCustomText(FormatSignedValue(Data.Value), Color.yellow);
+                _flyTextEffect.ShowCustomText(FormatDisplayValue(), Color.yellow);
             }
             Pack.Effector?.PlayEffect(EffectType.Land);
-            DespawnInterval(skipScaleDown: true);
         }
 
         private void PlayScalePulse()
@@ -404,23 +473,6 @@ namespace GamePlay.Items
 
             transform.localScale = _originalScale;
             _scalePulseRoutine = null;
-        }
-
-        private void PlayBend()
-        {
-            if (!isActiveAndEnabled) return;
-            if (Time.time < _nextBendFeedbackTime) return;
-
-            _nextBendFeedbackTime = Time.time + 0.1f;
-
-            KillBendSequence();
-            transform.localRotation = _baseRotation;
-            Quaternion toRot = _baseRotation * Quaternion.Euler(-bendAngle, 0f, 0f);
-
-            _bendSequence = DOTween.Sequence();
-            _bendSequence.SetId(this);
-            _bendSequence.Append(transform.DOLocalRotateQuaternion(toRot, bendDuration).SetEase(Ease.OutQuad));
-            _bendSequence.Append(transform.DOLocalRotateQuaternion(_baseRotation, returnDuration).SetEase(Ease.InQuad));
         }
 
         private void StopScalePulse()
@@ -574,7 +626,7 @@ namespace GamePlay.Items
             try
             {
                 PreparePropertyBlock(gateRenderer, _propBlock);
-                Color targetColor = Data.Value > 0 ? increaseColor : decreaseColor;
+                Color targetColor = IsDecreaseGate() ? decreaseColor : increaseColor;
                 _propBlock.SetColor("_Color", targetColor);
                 gateRenderer.SetPropertyBlock(_propBlock);
             }
@@ -604,14 +656,52 @@ namespace GamePlay.Items
         }
 
         private int _lastTextValue = int.MinValue;
+        private float _lastMultiplierValue = float.NaN;
+        private StatModifierOperation _lastOperation = (StatModifierOperation)(-1);
 
         private void UpdateText()
         {
-            if (valueText != null && Data != null && _lastTextValue != Data.Value)
+            if (valueText != null && Data != null &&
+                (_lastTextValue != Data.Value ||
+                 !Mathf.Approximately(_lastMultiplierValue, Data.Multiplier) ||
+                 _lastOperation != Data.Operation))
             {
                 _lastTextValue = Data.Value;
-                valueText.SetText(Data.Value > 0 ? "+{0}" : "{0}", Data.Value);
+                _lastMultiplierValue = Data.Multiplier;
+                _lastOperation = Data.Operation;
+                valueText.SetText(FormatDisplayValue());
             }
+        }
+
+        private void IncreaseCharacterGateReward()
+        {
+            if (Data.Operation == StatModifierOperation.Multiply)
+            {
+                Data.Multiplier += 0.5f;
+            }
+            else
+            {
+                Data.Value += 1;
+            }
+        }
+
+        private bool IsDecreaseGate()
+        {
+            if (Data == null) return false;
+            return Data.Operation == StatModifierOperation.Multiply
+                ? Data.Multiplier < 1f
+                : Data.Value < 0;
+        }
+
+        private string FormatDisplayValue()
+        {
+            if (Data == null) return string.Empty;
+            if (Data.Operation == StatModifierOperation.Multiply)
+            {
+                return "x" + Data.Multiplier.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+            }
+
+            return FormatSignedValue(Data.Value);
         }
 
         private static string FormatSignedValue(int value)
@@ -662,6 +752,83 @@ namespace GamePlay.Items
         }
 
 
+
+        public void ApplyRuntimeWidth(float width, float referenceWidth)
+        {
+            width = Mathf.Max(0.01f, width);
+            EnsureRuntimeLayout(referenceWidth);
+
+            if (_runtimeGateSurface != null && _runtimeLayoutReferenceWidth > 0.0001f)
+            {
+                Vector3 surfaceScale = _runtimeSurfaceBaseScale;
+                surfaceScale.x *= width / _runtimeLayoutReferenceWidth;
+                _runtimeGateSurface.localScale = surfaceScale;
+            }
+
+            SetGateLocalX(_runtimeLeftPillar, -width * 0.5f);
+            SetGateLocalX(_runtimeRightPillar, width * 0.5f);
+
+            if (hitComponent != null)
+            {
+                Vector3 hitSize = hitComponent.colliderSize;
+                hitSize.x = width;
+                hitComponent.colliderSize = hitSize;
+                hitComponent.InvalidateColliderData();
+                CollisionSystem.NotifyColliderChanged(hitComponent);
+            }
+        }
+
+        private void EnsureRuntimeLayout(float referenceWidth)
+        {
+            if (_runtimeLayoutCached)
+            {
+                return;
+            }
+
+            _runtimeGateSurface = FindChildContains(transform, "Quad_3");
+            if (_runtimeGateSurface != null)
+            {
+                _runtimeSurfaceBaseScale = _runtimeGateSurface.localScale;
+            }
+
+            Transform frame = FindChildContains(transform, "FT_cong");
+            if (frame != null)
+            {
+                for (int i = 0; i < frame.childCount; i++)
+                {
+                    Transform child = frame.GetChild(i);
+                    if (child.GetComponent<Renderer>() == null)
+                    {
+                        continue;
+                    }
+
+                    float localX = transform.InverseTransformPoint(child.position).x;
+                    if (_runtimeLeftPillar == null || localX < transform.InverseTransformPoint(_runtimeLeftPillar.position).x)
+                    {
+                        _runtimeLeftPillar = child;
+                    }
+                    if (_runtimeRightPillar == null || localX > transform.InverseTransformPoint(_runtimeRightPillar.position).x)
+                    {
+                        _runtimeRightPillar = child;
+                    }
+                }
+            }
+
+            _runtimeLayoutReferenceWidth = Mathf.Max(0.01f, referenceWidth);
+            _runtimeLayoutCached = true;
+        }
+
+        private void SetGateLocalX(Transform target, float localX)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            Vector3 gateLocalPosition = transform.InverseTransformPoint(target.position);
+            gateLocalPosition.x = localX;
+            target.position = transform.TransformPoint(gateLocalPosition);
+        }
 
         private static Transform FindChildContains(Transform root, string contains)
         {

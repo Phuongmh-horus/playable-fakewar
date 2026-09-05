@@ -50,6 +50,11 @@ namespace GamePlay.ComponentSystems
             isActive = false;
         }
 
+        public void InvalidateColliderData()
+        {
+            _isInitializedCache = false;
+        }
+
         public void OnHit(IAttacker source)
         {
             OnHitComplete?.Invoke(source);

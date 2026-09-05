@@ -144,13 +144,16 @@ namespace GamePlay.Map
                 if (IsRoadSegmentRoot(item.transform))
                     continue;
 
-                var spawnable = GetSpawnableByCombinedIndex(contentIndex, out var sourceData, out int sourceIndex);
-                if (spawnable != null)
+                if (ContentDataLinker.IsContentEntry(item))
                 {
-                    spawnable.ApplyPropertyOverrides(item);
-                    LinkGeneratedItem(item, sourceData, sourceIndex, spawnable);
+                    var spawnable = GetSpawnableByCombinedIndex(contentIndex, out var sourceData, out int sourceIndex);
+                    if (spawnable != null)
+                    {
+                        spawnable.ApplyPropertyOverrides(item);
+                        LinkGeneratedItem(item, sourceData, sourceIndex, spawnable);
+                    }
+                    contentIndex++;
                 }
-                contentIndex++;
 
                 if (initializeItems && Application.isPlaying)
                     item.Initialize();

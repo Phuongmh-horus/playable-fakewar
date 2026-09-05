@@ -308,6 +308,7 @@ namespace GamePlay.Map
             CaptureHealthOverride(item, spawnable);
             CaptureFireGateOverride(item, spawnable);
             CaptureSoldierBallOverride(item, spawnable);
+            CaptureMultiSlotDynamicGateOverride(item, spawnable);
         }
 
         private void CaptureHealthOverride(ItemUnit item, SpawnableObject spawnable)
@@ -334,6 +335,8 @@ namespace GamePlay.Map
             {
                 overrideValue = true,
                 Value = gate.Data.Value,
+                Operation = gate.Data.Operation,
+                Multiplier = gate.Data.Multiplier,
                 Armor = gate.Data.Armor,
                 LeftOffset = gate.LeftOffset,
                 RightOffset = gate.RightOffset
@@ -354,6 +357,46 @@ namespace GamePlay.Map
                 Level = soldierBall.Data.Level,
                 LeftOffset = soldierBall.LeftOffset,
                 RightOffset = soldierBall.RightOffset
+            });
+        }
+
+        private void CaptureMultiSlotDynamicGateOverride(ItemUnit item, SpawnableObject spawnable)
+        {
+            MultiSlotDynamicGate gate = item as MultiSlotDynamicGate;
+            if (gate == null)
+            {
+                return;
+            }
+
+            var slotOverrides = new MultiSlotGateSlotOverride[gate.SlotCount];
+            for (int i = 0; i < slotOverrides.Length; i++)
+            {
+                StatModifierGate slot = gate.GetSlot(i);
+                if (slot == null || slot.Data == null)
+                {
+                    slotOverrides[i] = new MultiSlotGateSlotOverride();
+                    continue;
+                }
+
+                var health = slot.GetComponentInChildren<HealthComponent>(true);
+                slotOverrides[i] = new MultiSlotGateSlotOverride
+                {
+                    overrideSlot = true,
+                    operation = slot.Data.Operation,
+                    value = slot.Data.Value,
+                    multiplier = slot.Data.Multiplier,
+                    armor = slot.Data.Armor,
+                    maxHealth = health != null ? health.MaxHealth : 10
+                };
+            }
+
+            ReplaceOverride(spawnable.propertyOverrides, new MultiSlotDynamicGateOverride
+            {
+                overrideWidthLayout = true,
+                defaultWidthGrowPercent = gate.DefaultWidthGrowPercent,
+                defaultMinimumWidthPercent = gate.DefaultMinimumWidthPercent,
+                totalWidth = gate.TotalWidth,
+                slots = slotOverrides
             });
         }
 
@@ -473,7 +516,7 @@ namespace GamePlay.Map
             for (int i = 0; i < items.Length; i++)
             {
                 ItemUnit item = items[i];
-                if (item == null || item.transform == root) continue;
+                if (item == null || item.transform == root || !ContentDataLinker.IsContentEntry(item)) continue;
                 _items.Add(item);
             }
 

@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1157737138313645664
+--- !u!1 &3019793364644681759
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,51 +8,55 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5609292887726337656}
-  - component: {fileID: 7375257029540412116}
+  - component: {fileID: 5517110556724764188}
+  - component: {fileID: 7102653796030052115}
   m_Layer: 0
-  m_Name: ProgressSprite
+  m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5609292887726337656
-Transform:
+--- !u!224 &5517110556724764188
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1157737138313645664}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.81, y: 1.1, z: 1.0080645}
+  m_GameObject: {fileID: 3019793364644681759}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -0.1}
+  m_LocalScale: {x: 28.18621, y: 20.454544, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7645983136263762198}
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
---- !u!212 &7375257029540412116
+  m_Father: {fileID: 6000632359527350293}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!212 &7102653796030052115
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1157737138313645664}
+  m_GameObject: {fileID: 3019793364644681759}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 2
-  m_LightProbeUsage: 0
-  m_ReflectionProbeUsage: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b095b042f1aefe6468fbba1fc812a7d9, type: 2}
+  - {fileID: 2100000, guid: 271930816aa30c04ba172f5b9c79cd86, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -72,51 +76,18 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: 1575219604, guid: e6f61f34b59e49c48bbbf73a304f9735, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_SortingOrder: 1
+  m_Sprite: {fileID: 21300000, guid: b616e087e0a9412459dd499f138660e5, type: 3}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 6.06, y: 6.095717}
+  m_Size: {x: 3.8, y: 0.44}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!1 &5092033588395912544
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7645983136263762198}
-  m_Layer: 0
-  m_Name: Progress
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7645983136263762198
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5092033588395912544}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 8, z: 0.2}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 1
-  m_Children:
-  - {fileID: 2972319547269034129}
-  - {fileID: 5609292887726337656}
-  m_Father: {fileID: 6524933506058905331}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5745234145295871957
 GameObject:
   m_ObjectHideFlags: 0
@@ -151,7 +122,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 7645983136263762198}
+  - {fileID: 6000632359527350293}
   - {fileID: 4435296146558918356}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -187,10 +158,10 @@ MonoBehaviour:
   heroToRemain: 70
   WeaponPrefab: {fileID: 0}
   HandTransform: {fileID: 0}
-  hpBarRenderer: {fileID: 7375257029540412116}
+  hpBarRenderer: {fileID: 7102653796030052115}
   healthText: {fileID: 0}
   hitTextFlyEffect: {fileID: 0}
-  _healthBarRoot: {fileID: 5092033588395912544}
+  _healthBarRoot: {fileID: 0}
   defaultMaxHealth: 100
   dieVfxPrefab: {fileID: 3658844881536662745, guid: d6dec12e7220e8f4c9d3d1c9f4ef1311, type: 3}
   dieVfxOffset: {x: 0, y: 3, z: 0}
@@ -198,9 +169,10 @@ MonoBehaviour:
   maxDeathVfxPerFrame: 5
   _healthOverriddenFromContent: 0
   delayBetweenAttacks: 1
-  bossAttractionThreshold: 15
-  armyAttackRange: 1
+  bossAttractionThreshold: 20
+  armyAttackRange: 1.5
   deathAnimationDuration: 1
+  hitEffectCooldown: 0.5
 --- !u!114 &7079246473552049795
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285,6 +257,7 @@ MonoBehaviour:
   - Type: 14
     VfxPrefab: {fileID: 462670460786600360, guid: 285fb53922afad341b016d11032d75ea, type: 3}
     ParentToTarget: 1
+    VfxScale: {x: 3, y: 3, z: 3}
     SfxClip: {fileID: 8300000, guid: 78df047f488dc4547ac19845de5e7d2c, type: 3}
     LoopSfx: 0
     SfxVolume: 1
@@ -293,6 +266,7 @@ MonoBehaviour:
   - Type: 12
     VfxPrefab: {fileID: 0}
     ParentToTarget: 0
+    VfxScale: {x: 1, y: 1, z: 1}
     SfxClip: {fileID: 8300000, guid: 220e030009277ec4493a41ce8f074f1f, type: 3}
     LoopSfx: 0
     SfxVolume: 1
@@ -300,7 +274,7 @@ MonoBehaviour:
     MaxVfxPerFrame: 0
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
---- !u!1 &7589702209646420117
+--- !u!1 &6076674087865414279
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -308,8 +282,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2972319547269034129}
-  - component: {fileID: 2069747382540472077}
+  - component: {fileID: 4616960407471442488}
+  - component: {fileID: 1455317720081303050}
   m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
@@ -317,36 +291,40 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2972319547269034129
-Transform:
+--- !u!224 &4616960407471442488
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7589702209646420117}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_GameObject: {fileID: 6076674087865414279}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.52, y: 0.81, z: 0.7428571}
+  m_LocalScale: {x: 29.38222, y: 35, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7645983136263762198}
+  m_Father: {fileID: 6000632359527350293}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &2069747382540472077
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!212 &1455317720081303050
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7589702209646420117}
+  m_GameObject: {fileID: 6076674087865414279}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 2
-  m_LightProbeUsage: 0
-  m_ReflectionProbeUsage: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
@@ -373,17 +351,54 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 1520064832, guid: e6f61f34b59e49c48bbbf73a304f9735, type: 3}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 8e7fdebdc0c65da4dbdadddbc62b67f5, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
-  m_DrawMode: 1
-  m_Size: {x: 7.967044, y: 0.78786343}
+  m_DrawMode: 0
+  m_Size: {x: 3.8, y: 0.44}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &6130256366267193350
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6000632359527350293}
+  m_Layer: 0
+  m_Name: BossHealthBar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &6000632359527350293
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6130256366267193350}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.049999997, y: 0.049999997, z: 0.049999997}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 4616960407471442488}
+  - {fileID: 5517110556724764188}
+  m_Father: {fileID: 6524933506058905331}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 8}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &8835773635295976934
 GameObject:
   m_ObjectHideFlags: 0

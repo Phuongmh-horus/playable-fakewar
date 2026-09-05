@@ -59,8 +59,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
-  m_ConstrainProportionsScale: 1
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7108007955070156979}
   - {fileID: 6141771299814596413}
@@ -124,8 +124,8 @@ MonoBehaviour:
     m_Bits: 4294967295
   size: {x: 1, y: 1}
   shapeType: 1
-  colliderOffsets: {x: 0, y: 2, z: 0}
-  colliderSize: {x: 5, y: 5, z: 1}
+  colliderOffsets: {x: 0, y: 3, z: 0}
+  colliderSize: {x: 7, y: 6, z: 0.5}
   LeftOffset: 0
   RightOffset: 0
   autoAddHitTextFlyEffectAtRuntime: 0
@@ -134,10 +134,11 @@ MonoBehaviour:
     Value: 1
     Armor: 0
     Operation: 0
+    Multiplier: 1
   valueText: {fileID: 4924048394309986732}
   hitComponent: {fileID: 7612487940696613836}
   gateRenderer: {fileID: 481225401967869322}
-  increaseColor: {r: 0, g: 0.80784315, b: 1, a: 1}
+  increaseColor: {r: 0.1764706, g: 1, b: 0, a: 1}
   decreaseColor: {r: 1, g: 0, b: 0, a: 1}
   armorParent: {fileID: 0}
   groundYOffset: 0
@@ -148,7 +149,6 @@ MonoBehaviour:
   throwDuration: 0.5
   bounceHeight: 0.5
   bounceDuration: 0.3
-  hitByWheelSound: 19
   scaleUp: 1.08
   scaleUpDuration: 0.08
   scaleDownDuration: 0.15
@@ -172,7 +172,7 @@ MonoBehaviour:
   CacheTransform: {fileID: 4507396324829435445}
   poolEntity: {fileID: 3360367997036094387}
   shapeType: 1
-  colliderSize: {x: 5, y: 5, z: 0.4}
+  colliderSize: {x: 7, y: 6, z: 0.4}
   isActive: 1
   isCustomCaster: 0
   hitTransform: {fileID: 0}
@@ -215,7 +215,7 @@ MonoBehaviour:
   heightOffset: 7
   zOffset: -3
   prewarmPoolCount: 20
-  frameCooldown: 5
+  frameCooldown: 10
 --- !u!114 &6339603737489692449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -234,11 +234,21 @@ MonoBehaviour:
   - Type: 8
     VfxPrefab: {fileID: 0}
     ParentToTarget: 0
+    VfxScale: {x: 2, y: 2, z: 2}
     SfxClip: {fileID: 8300000, guid: 9091e30ab02c322468d630ec56e3ce3b, type: 3}
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0.5
     MaxVfxPerFrame: 0
+  - Type: 14
+    VfxPrefab: {fileID: 462670460786600360, guid: 285fb53922afad341b016d11032d75ea, type: 3}
+    ParentToTarget: 1
+    VfxScale: {x: 1.5, y: 1.5, z: 1.5}
+    SfxClip: {fileID: 8300000, guid: 78df047f488dc4547ac19845de5e7d2c, type: 3}
+    LoopSfx: 1
+    SfxVolume: 1
+    WaitForAction: 0
+    MaxVfxPerFrame: 1
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!1 &6187967907177621336
@@ -351,7 +361,7 @@ Transform:
   m_GameObject: {fileID: 7016322267275254508}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.5, z: 0}
+  m_LocalPosition: {x: 0, y: 2.2, z: 0}
   m_LocalScale: {x: 4.6, y: 5, z: 0.92}
   m_ConstrainProportionsScale: 0
   m_Children: []

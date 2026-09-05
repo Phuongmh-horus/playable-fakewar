@@ -7656,10 +7656,6 @@
                 "excluded": true
             },
             {
-                "name": "ImageSlider",
-                "excluded": true
-            },
-            {
                 "name": "PlayerArmy.ArmyUnit",
                 "excluded": true
             },
@@ -7681,14 +7677,6 @@
             },
             {
                 "name": "TurntableDataSO",
-                "excluded": true
-            },
-            {
-                "name": "UICapacityBar",
-                "excluded": true
-            },
-            {
-                "name": "UICapacityBar.ActiveVfxSprite",
                 "excluded": true
             },
             {
@@ -7868,10 +7856,6 @@
                 "excluded": false
             },
             {
-                "name": "FrameWork.UI.CenteredGridLayoutGroup.HorizontalAlignment",
-                "excluded": false
-            },
-            {
                 "name": "GamePlay.AnimationSystems.AnimationType",
                 "excluded": false
             },
@@ -7954,10 +7938,6 @@
             {
                 "name": "ItemDataSO",
                 "excluded": true
-            },
-            {
-                "name": "PlayableWaveDefenseEntitySystem.Entry",
-                "excluded": false
             },
             {
                 "name": "PlayerArmy.ArmyUnit.WeaponPoolMarker",
@@ -8968,8 +8948,40 @@
                 "excluded": true
             },
             {
-                "name": "OptimizedFeature.Scripts.VATSocketTransformData",
+                "name": "MultiSlotGateSlotOverride",
+                "excluded": true
+            },
+            {
+                "name": "OptimizedFeature.Scripts.VATAnimatorBlendChildData",
+                "excluded": true
+            },
+            {
+                "name": "OptimizedFeature.Scripts.VATAnimatorConditionData",
+                "excluded": true
+            },
+            {
+                "name": "OptimizedFeature.Scripts.VATAssetAnimatorSO",
+                "excluded": true
+            },
+            {
+                "name": "MultiSlotDynamicGateOverride",
+                "excluded": true
+            },
+            {
+                "name": "GamePlay.AnimationSystems.IAnimationClipLengthProvider",
                 "excluded": false
+            },
+            {
+                "name": "OptimizedFeature.Scripts.VATAnimatorBlendTreeMode",
+                "excluded": true
+            },
+            {
+                "name": "OptimizedFeature.Scripts.VATAnimatorConditionMode",
+                "excluded": true
+            },
+            {
+                "name": "OptimizedFeature.Scripts.VATAnimatorParameterType",
+                "excluded": true
             }
         ],
         "unusedMethods": [
@@ -9179,7 +9191,7 @@
                     },
                     {
                         "name": "Value#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Value#set",
@@ -9195,7 +9207,7 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "toString",
@@ -9433,11 +9445,11 @@
                     },
                     {
                         "name": "customFormat",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "addGroup",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "parseFloat",
@@ -9629,7 +9641,7 @@
                 "instanceMethods": [
                     {
                         "name": "format",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "equals",
@@ -11435,7 +11447,7 @@
                 "instanceMethods": [
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getDefaultValue",
@@ -11463,7 +11475,7 @@
                     },
                     {
                         "name": "$ctor1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
@@ -11471,11 +11483,11 @@
                     },
                     {
                         "name": "moveNext",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Dispose",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "System$Collections$IEnumerator$reset",
@@ -11633,11 +11645,11 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetEnumerator",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "System$Collections$Generic$IEnumerable$1$GetEnumerator",
@@ -12943,7 +12955,7 @@
                     },
                     {
                         "name": "Dequeue",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Peek",
@@ -17441,7 +17453,7 @@
                     },
                     {
                         "name": "TransformPoint$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "TransformPoint",
@@ -17955,7 +17967,7 @@
                     },
                     {
                         "name": "WorldToScreenPoint",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ScreenToWorldPoint",
@@ -17975,7 +17987,7 @@
                     },
                     {
                         "name": "WorldToViewportPoint",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ScreenToViewportPoint",
@@ -18185,7 +18197,7 @@
                     },
                     {
                         "name": "sharedMaterial#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sharedMaterials#get",
@@ -20305,7 +20317,7 @@
                     },
                     {
                         "name": "fontSharedMaterial#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "fontSharedMaterials#get",
@@ -21037,11 +21049,11 @@
                     },
                     {
                         "name": "SetText$2",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetText$3",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetText$4",
@@ -21069,7 +21081,7 @@
                     },
                     {
                         "name": "SetText$10",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetText$11",
@@ -21149,11 +21161,11 @@
                     },
                     {
                         "name": "AddFloatToInternalTextBackingArray",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "AddIntegerToInternalTextBackingArray",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "InternalTextBackingArrayToString",
@@ -23154,14 +23166,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "GetExplosionShotAttacker",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ReturnExplosionShotAttacker",
-                        "excluded": true
-                    },
-                    {
                         "name": "Awake",
                         "excluded": false
                     },
@@ -23194,10 +23198,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
                         "name": "ShiftProjectileTimes",
                         "excluded": true
                     },
@@ -23206,12 +23206,44 @@
                         "excluded": false
                     },
                     {
-                        "name": "ApplyExplosionShotIfAvailable",
+                        "name": "ShouldApplyAoeToTarget",
+                        "excluded": true
+                    },
+                    {
+                        "name": "MaxActiveProjectiles#get",
                         "excluded": false
                     },
                     {
-                        "name": "ShouldApplyAoeToTarget",
+                        "name": "CanRegisterProjectile",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SegmentIntersectsSphere",
                         "excluded": true
+                    },
+                    {
+                        "name": "SegmentIntersectsAabb",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateSlab",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SegmentIntersectsCylinder",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RemoveExtraTargetAtSwapBack",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ManualUpdate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RemoveProjectileAtSwapBack",
+                        "excluded": false
                     }
                 ]
             },
@@ -23252,15 +23284,15 @@
                         "excluded": false
                     },
                     {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
                         "name": "UnregisterAllEnemies",
                         "excluded": false
                     },
                     {
                         "name": "CompactInactiveEnemies",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ManualUpdate",
                         "excluded": false
                     }
                 ]
@@ -23288,10 +23320,6 @@
                     {
                         "name": "EnsureLaneSetup",
                         "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": true
                     },
                     {
                         "name": "OnDisable",
@@ -23392,6 +23420,10 @@
                     {
                         "name": "RotateYOnly",
                         "excluded": true
+                    },
+                    {
+                        "name": "ManualUpdate",
+                        "excluded": true
                     }
                 ]
             },
@@ -23434,6 +23466,10 @@
                     {
                         "name": "UnregisterInternal",
                         "excluded": true
+                    },
+                    {
+                        "name": "RemoveAtSwapBack",
+                        "excluded": true
                     }
                 ]
             },
@@ -23460,14 +23496,6 @@
                     {
                         "name": "ResolveUpgradeSteps",
                         "excluded": false
-                    },
-                    {
-                        "name": "OptimizeRenderHierarchy",
-                        "excluded": true
-                    },
-                    {
-                        "name": "TrySetSkinnedProperties",
-                        "excluded": true
                     },
                     {
                         "name": "PlayableEra#get",
@@ -23646,10 +23674,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "ResetStatModifierData",
-                        "excluded": true
-                    },
-                    {
                         "name": "SetMainWeapon",
                         "excluded": true
                     },
@@ -23684,6 +23708,10 @@
                     {
                         "name": "GetGoldGateRewardPerProgressTick",
                         "excluded": true
+                    },
+                    {
+                        "name": "TryTrimInactivePools",
+                        "excluded": false
                     }
                 ]
             },
@@ -24050,6 +24078,14 @@
                     {
                         "name": "WarmupHitTextRuntimeCache",
                         "excluded": false
+                    },
+                    {
+                        "name": "NotifyCollisionPositionChanged",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ReleaseGeneratedContent",
+                        "excluded": true
                     }
                 ]
             },
@@ -26839,15 +26875,15 @@
                     },
                     {
                         "name": "op_Equality",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "op_Inequality",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getDefaultValue",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "x#get",
@@ -26899,15 +26935,15 @@
                     },
                     {
                         "name": "equals",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Equals",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getHashCode",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "toString",
@@ -27503,7 +27539,7 @@
                     },
                     {
                         "name": "Clear",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetParameter$3",
@@ -32619,7 +32655,7 @@
                     },
                     {
                         "name": "SetSharedMaterial",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetSharedMaterials",
@@ -34496,6 +34532,10 @@
                     {
                         "name": "UpgradeLevel",
                         "excluded": false
+                    },
+                    {
+                        "name": "SetLevel",
+                        "excluded": false
                     }
                 ]
             },
@@ -34904,204 +34944,6 @@
                 ]
             },
             {
-                "className": "CullingCell",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetSqrDistanceToPoint",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "CullingComponent",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "GridOrigin#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CellCountX#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CellCountX#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CellCountZ#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CellCountZ#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CellSizeX#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CellSizeX#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CellSizeZ#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CellSizeZ#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "FrameInterval#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FrameInterval#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "DefaultCullDistance#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "DefaultCullDistance#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "TargetTransform#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TargetTransform#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GridOriginTransform#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GridOriginTransform#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDrawGizmosSelected",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "CullingObject",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "IsDynamic#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsDynamic#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CustomCullDistance#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnEnable",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TryRegister",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDisable",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetCulled",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ForceSetCulled",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "CullingState",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "CullingSystem",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDestroy",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "InitializeGrid",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Register",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Unregister",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AddDynamicObject",
-                        "excluded": true
-                    },
-                    {
-                        "name": "RemoveDynamicObject",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetCellFromPosition",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PerformCullingCheck",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetTargetPosition",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "CurrencyData",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -35390,40 +35232,6 @@
                 ]
             },
             {
-                "className": "FrameWork.UI.CenteredGridLayoutGroup",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CalculateLayoutInputHorizontal",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetLayoutHorizontal",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetLayoutVertical",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UpdateChildren",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetCellsAlongAxis$1",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnRectTransformDimensionsChange",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
                 "className": "GameEventBus",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -35562,6 +35370,70 @@
                     {
                         "name": "GetColliderData",
                         "excluded": false
+                    },
+                    {
+                        "name": "NotifyMoved",
+                        "excluded": false
+                    },
+                    {
+                        "name": "NotifyMoved$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "NotifyMovedBatch",
+                        "excluded": false
+                    },
+                    {
+                        "name": "NotifyColliderChanged",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetSpatialCell",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetHorizontalColliderExtent",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MaxHorizontalColliderExtent#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "QueryIndicesNearSegment",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ClearSpatialBuckets",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateSpatialCell",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RefreshTargetData",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AddToSpatialBucket",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RemoveFromSpatialBucket",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ReplaceSpatialBucketIndex",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateMaxHorizontalColliderExtent",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RecalculateMaxHorizontalColliderExtent",
+                        "excluded": false
                     }
                 ]
             },
@@ -35641,6 +35513,10 @@
                     },
                     {
                         "name": "RemoveAtSwapBack",
+                        "excluded": true
+                    },
+                    {
+                        "name": "NotifyCollisionCellChanged",
                         "excluded": true
                     }
                 ]
@@ -35848,15 +35724,15 @@
                         "excluded": true
                     },
                     {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
                         "name": "HandleInput",
                         "excluded": false
                     },
                     {
                         "name": "GetMoveDelta",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ManualUpdate",
                         "excluded": false
                     }
                 ]
@@ -35944,6 +35820,10 @@
                     {
                         "name": "MarkDirty",
                         "excluded": true
+                    },
+                    {
+                        "name": "IsContentEntry",
+                        "excluded": false
                     }
                 ]
             },
@@ -36246,6 +36126,14 @@
                     {
                         "name": "ShowText",
                         "excluded": false
+                    },
+                    {
+                        "name": "CanSpawnTextThisFrame",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShowCustomNumber",
+                        "excluded": false
                     }
                 ]
             },
@@ -36494,10 +36382,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "Register",
-                        "excluded": false
-                    },
-                    {
                         "name": "Unregister",
                         "excluded": false
                     },
@@ -36519,6 +36403,18 @@
                     },
                     {
                         "name": "RemoveAtSwapBack",
+                        "excluded": false
+                    },
+                    {
+                        "name": "NotifyCollisionCellChanged",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsValidMovingGateBlocker",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RegisterItem",
                         "excluded": false
                     }
                 ]
@@ -36559,6 +36455,26 @@
                 "instanceMethods": [
                     {
                         "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
                         "excluded": true
                     }
                 ]
@@ -36654,6 +36570,34 @@
                     {
                         "name": "GetOrCreateRoot",
                         "excluded": false
+                    },
+                    {
+                        "name": "SecondsSinceLastSpawn#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnsurePrewarmAsync",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetInactiveCount",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IsPooled",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TrySpawn",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TrimInactive",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FindPoolableInParents",
+                        "excluded": false
                     }
                 ]
             },
@@ -36694,12 +36638,20 @@
                         "excluded": false
                     },
                     {
-                        "name": "Update",
+                        "name": "SetRotating",
                         "excluded": false
                     },
                     {
-                        "name": "SetRotating",
+                        "name": "OnEnable",
                         "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Tick",
+                        "excluded": true
                     }
                 ]
             },
@@ -36938,32 +36890,6 @@
                 ]
             },
             {
-                "className": "MeshRendererCullingObject",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyCulling",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CacheAnimatorModes",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EnsureTargetsCached",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "Pools.GenericPoolable",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -37160,6 +37086,10 @@
                     {
                         "name": "ComputeAnimationClipLength",
                         "excluded": true
+                    },
+                    {
+                        "name": "InvokePendingCompletion",
+                        "excluded": false
                     }
                 ]
             },
@@ -37169,14 +37099,6 @@
                 "instanceMethods": [
                     {
                         "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SafePoolGet",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SafePoolRelease",
                         "excluded": false
                     },
                     {
@@ -37198,10 +37120,6 @@
                     {
                         "name": "ProjectilePoint#get",
                         "excluded": false
-                    },
-                    {
-                        "name": "ActiveWeaponHolder#get",
-                        "excluded": true
                     },
                     {
                         "name": "IsActive#get",
@@ -37248,10 +37166,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "SetupModel",
-                        "excluded": true
-                    },
-                    {
                         "name": "RegisterEvents",
                         "excluded": false
                     },
@@ -37280,32 +37194,12 @@
                         "excluded": false
                     },
                     {
-                        "name": "SetupWeapon",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HideWeapon",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ShowWeapon",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetWeaponPrefabOverride",
-                        "excluded": true
-                    },
-                    {
                         "name": "EnsureProjectilePoint",
                         "excluded": false
                     },
                     {
                         "name": "EnsureBodyScalable",
                         "excluded": false
-                    },
-                    {
-                        "name": "DetachWeaponForProjectile",
-                        "excluded": true
                     },
                     {
                         "name": "DespawnInterval",
@@ -37341,7 +37235,7 @@
                     },
                     {
                         "name": "CanPlayAttackSfxThisFrame",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CanPlayAttackVfxThisFrame",
@@ -37368,66 +37262,24 @@
                         "excluded": false
                     },
                     {
-                        "name": "ReleaseCurrentWeapon",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetWeaponVisible",
-                        "excluded": false
-                    },
-                    {
                         "name": "TryAddTarget",
                         "excluded": true
                     },
                     {
                         "name": "ClearHits",
                         "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "GamePlay.CombatSystems.EnemyProjectileSystem.ExplosionShotAttacker",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Transform#get",
-                        "excluded": true
                     },
                     {
-                        "name": "IsEnabled#get",
-                        "excluded": true
+                        "name": "GetPooledObject",
+                        "excluded": false
                     },
                     {
-                        "name": "init",
-                        "excluded": true
+                        "name": "TickScheduledDespawns",
+                        "excluded": false
                     },
                     {
-                        "name": "ctor",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Setup$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Setup",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Initialize",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnUpdate",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Dispose",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnAttackSucceed",
-                        "excluded": true
+                        "name": "CancelScheduledDespawn",
+                        "excluded": false
                     }
                 ]
             },
@@ -37594,6 +37446,14 @@
                     {
                         "name": "StopActiveLoopingSfx",
                         "excluded": false
+                    },
+                    {
+                        "name": "CanSpawnVfxThisFrame",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CleanupDestroyedRuntimeCaches",
+                        "excluded": false
                     }
                 ]
             },
@@ -37697,7 +37557,7 @@
                     },
                     {
                         "name": "SetHealth",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Heal",
@@ -37758,18 +37618,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "Awake$1",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDestroy",
-                        "excluded": true
-                    },
-                    {
                         "name": "SetLength",
                         "excluded": true
                     },
@@ -37779,22 +37627,6 @@
                     },
                     {
                         "name": "UpdateConnectionPoints",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetupConveyor",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SyncWithWorldSpeed",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ScrollConveyor",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ClearConveyor",
                         "excluded": true
                     }
                 ]
@@ -37830,18 +37662,6 @@
                     {
                         "name": "Dispose",
                         "excluded": true
-                    },
-                    {
-                        "name": "RegisterEvents",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleMoveComplete",
-                        "excluded": true
-                    },
-                    {
-                        "name": "HandleAttackComplete",
-                        "excluded": false
                     },
                     {
                         "name": "DespawnInterval",
@@ -37958,39 +37778,7 @@
                         "excluded": true
                     },
                     {
-                        "name": "SubscribeWeaponChange",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UnsubscribeWeaponChange",
-                        "excluded": true
-                    },
-                    {
                         "name": "HandleAddArmyCardEvent",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnWeaponChanged",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyWeaponOverrideToAllUnits",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ResolveWeaponPrefab",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ResolveProjectilePrefab",
-                        "excluded": true
-                    },
-                    {
-                        "name": "UpdateProjectilePrefab",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Update",
                         "excluded": false
                     },
                     {
@@ -37999,7 +37787,7 @@
                     },
                     {
                         "name": "AddUnit$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RemoveUnit",
@@ -38030,10 +37818,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "ResolveSharedNextAttackTimeForSpawn",
-                        "excluded": false
-                    },
-                    {
                         "name": "PlayEffect",
                         "excluded": false
                     },
@@ -38059,10 +37843,6 @@
                     },
                     {
                         "name": "RefreshCombatDamage",
-                        "excluded": false
-                    },
-                    {
-                        "name": "RefreshFireRange",
                         "excluded": false
                     },
                     {
@@ -38099,7 +37879,7 @@
                     },
                     {
                         "name": "ApplyDamageModifier",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ApplyExplosionShotModifier",
@@ -38263,6 +38043,82 @@
                     },
                     {
                         "name": "GetBodyRoot",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetAttackPhase",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CountActiveSceneUnits",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ManualUpdate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ProcessPendingSpawns",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AddCharacterReward",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ApplyCharacterDelta",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyCharacterMultiplier",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RefreshLevelDamageBonus",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ProcessPendingVisualUpgrades",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryCollectFireSoldierWithFormation",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetFormationHalfExtents",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FindDueProjectileAttackIndex",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RemovePendingProjectileAttackAtSwapBack",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolveRuntimeUnitAnimation",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CompactFormation",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BuildOccupiedArmyIndices",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FindNextAvailableArmyIndex",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetProjectileResumeAttackTime",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolveSoldierBallContact",
                         "excluded": false
                     }
                 ]
@@ -38492,7 +38348,19 @@
                         "excluded": false
                     },
                     {
-                        "name": "PlayDieEffectOncePerFrame",
+                        "name": "ShouldShowHealthUi",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CompleteArmyMeleeAttack",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayDieEffectPerFrame",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetHealthBarVisible",
                         "excluded": false
                     }
                 ]
@@ -38539,6 +38407,30 @@
                     },
                     {
                         "name": "FinishAttackCycle",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AttractionThreshold#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShouldShowHealthUi",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayAttackEffect",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CompleteWheelAttack",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CompleteArmyAttack",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TryGetClosestActiveArmyAttacker",
                         "excluded": false
                     }
                 ]
@@ -38650,10 +38542,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "OnDisable",
-                        "excluded": false
-                    },
-                    {
                         "name": "Initialize",
                         "excluded": false
                     },
@@ -38670,18 +38558,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "GetCharacterUnitPrefab",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SpawnSoldier",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ClearBelts",
-                        "excluded": false
-                    },
-                    {
                         "name": "UpdateHealthText",
                         "excluded": false
                     },
@@ -38691,6 +38567,14 @@
                     },
                     {
                         "name": "DespawnInterval",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HandleNonWheelCollision",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyBreakBuff",
                         "excluded": false
                     }
                 ]
@@ -38705,7 +38589,7 @@
                     },
                     {
                         "name": "FindChildContains",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Awake",
@@ -38717,14 +38601,6 @@
                     },
                     {
                         "name": "Initialize",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FixTextDepthNow",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyDepthToSingleText",
                         "excluded": false
                     },
                     {
@@ -38749,7 +38625,7 @@
                     },
                     {
                         "name": "CollectByArmy",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "PlayScalePulse",
@@ -38812,19 +38688,55 @@
                         "excluded": false
                     },
                     {
-                        "name": "CacheTextsIfNeeded",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyDepthToAllTexts",
-                        "excluded": false
-                    },
-                    {
                         "name": "UpdateImage",
                         "excluded": false
                     },
                     {
                         "name": "PreparePropertyBlock",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FormatSignedValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ConfigureRenderGrouping",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyFireSoldierDamage",
+                        "excluded": false
+                    },
+                    {
+                        "name": "DespawnInterval$1",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IncreaseCharacterGateReward",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsDecreaseGate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FormatDisplayValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetProgressFill",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ApplyRuntimeWidth",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnsureRuntimeLayout",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetGateLocalX",
                         "excluded": false
                     }
                 ]
@@ -38863,10 +38775,6 @@
                     },
                     {
                         "name": "OnBreak",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleBreakableDestroyed",
                         "excluded": false
                     },
                     {
@@ -40378,36 +40286,6 @@
                 ]
             },
             {
-                "className": "OptimizedFeature.Scripts.VAT_ObjectMesh",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "SocketName#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "init",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": true
-                    },
-                    {
-                        "name": "BindSocketData",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SynchronizeFrame",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
                 "className": "OptimizedFeature.Scripts.VAT_RenderComponent",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -40441,11 +40319,7 @@
                     },
                     {
                         "name": "IsVisible#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "IsVisible#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "init",
@@ -40468,20 +40342,12 @@
                         "excluded": false
                     },
                     {
-                        "name": "TryRegisterWithVATSystem",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
                         "name": "Play$1",
                         "excluded": false
                     },
                     {
                         "name": "Play",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "PlayInternal",
@@ -40493,11 +40359,11 @@
                     },
                     {
                         "name": "CrossFade",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CrossFadeInternal",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetVATAssetData",
@@ -40513,11 +40379,11 @@
                     },
                     {
                         "name": "SetVisibility",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetWorldBounds",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ManualUpdate",
@@ -40533,6 +40399,266 @@
                     },
                     {
                         "name": "UpdateShaderFrames",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetCachedMaterialArray",
+                        "excluded": false
+                    },
+                    {
+                        "name": "DefaultStateHash#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CurrentBlendTreeId#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CurrentStateNormalizedTime#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CurrentFrameLower#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CurrentFrameUpper#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CurrentBlendWeight#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayDefaultState",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayBlendTree",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CrossFadeBlendTree",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Stop",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HasParameter$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HasParameter",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetTrigger$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetTrigger",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResetTrigger$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResetTrigger",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IsTriggerSet$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IsTriggerSet",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetBool$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetBool",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetBool$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetBool",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetFloat$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetFloat",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetFloat$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetFloat",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetVector2$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetVector2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetVector2$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetVector2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResetAllTriggers",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CrossFadeInternal$1",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RefreshAnimatorData",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RefreshWeaponSubRenders",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetWeaponAsset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetWeaponAsset$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EquipWeapon",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetWeaponAssetInternal",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IsWeaponFrameManifestCompatible",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetExternalVisibility",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyVisibility",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetRuntimeBatchHidden",
+                        "excluded": true
+                    },
+                    {
+                        "name": "MarkLocalBoundsDirty",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RebuildLocalBounds",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CollectRuntimeBatchSources",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RebuildAnimatorRuntimeData",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FindParameterValue$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "FindParameterValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "FindParameterValueById",
+                        "excluded": true
+                    },
+                    {
+                        "name": "FindParameterData",
+                        "excluded": true
+                    },
+                    {
+                        "name": "FindBlendTree",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TryEvaluateTransitions",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsTransitionReady",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HasReachedExitTime",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EvaluateCondition",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ConsumeTransitionTriggers",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TryResolveTransitionTarget",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateCurrentBlendTreeSelection",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolveBlendTreeClip",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResolveBlendChildStateHash",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetNormalizedTime",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ApplyCurrentFrameToRenderer",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetBakedMaterialCount",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnsurePropertyBlocks",
                         "excluded": false
                     }
                 ]
@@ -40588,7 +40714,47 @@
                         "excluded": false
                     },
                     {
-                        "name": "GetSocket",
+                        "name": "EffectiveDefaultStateName#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AnimatorParameters#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AnimatorParameters#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AnimatorTransitions#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AnimatorTransitions#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AnimatorBlendTrees#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AnimatorBlendTrees#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetAnimatorDefaultStateName",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EnsureLegacyAnimatorLists",
+                        "excluded": false
+                    },
+                    {
+                        "name": "InitializeWeaponCache",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetWeaponAsset",
                         "excluded": true
                     }
                 ]
@@ -40621,26 +40787,600 @@
                 "instanceMethods": [
                     {
                         "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RegisterAnimator",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UnregisterAnimator",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ProcessPendingRequests",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDestroy",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Characters.CharacterUnit.ScheduledDespawn",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Effects.PooledVfxLifetimeScheduler",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CanSchedule",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Schedule",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Tick",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Effects.PooledVfxLifetimeScheduler.Entry",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Rendering.PlayableRenderVisibilitySystem",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Configure",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RefreshVisibility",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetAllVisible",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RemoveAtSwapBack",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Rendering.PlayableRenderVisibilitySystem.Entry",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VAT_RenderComponent.RuntimeParameterValue",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATAnimatorBlendTreeData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATAnimatorParameterData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATAnimatorTransitionData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATRuntimeMeshBatcher",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "SetSourceRuntimeBatchHidden",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateBatches",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Clear",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Dispose",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RestoreOriginalRenderers",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATRuntimeMeshBatcher.Source",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATWeaponAssetEntry",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "WeaponHash#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "WeaponHash#set",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATWeaponAssetSO",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnValidate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetClip",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "OptimizedFeature.Scripts.VATWeaponRenderComponent",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetCachedMaterialArray",
+                        "excluded": false
+                    },
+                    {
+                        "name": "WeaponAsset#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "WeaponHash#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Renderer#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IsVisible#get",
                         "excluded": true
                     },
                     {
                         "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetFrameSource",
                         "excluded": true
                     },
                     {
-                        "name": "RegisterAnimator",
+                        "name": "SetWeaponHash",
                         "excluded": true
                     },
                     {
-                        "name": "UnregisterAnimator",
+                        "name": "SetWeaponAsset",
                         "excluded": true
                     },
                     {
-                        "name": "ProcessPendingRequests",
+                        "name": "SetVisibility",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetRuntimeBatchHidden",
                         "excluded": true
                     },
                     {
-                        "name": "Update",
+                        "name": "ApplyFrame",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyCurrentFrameToRenderer",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AppendRuntimeBatchSource",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetWorldBounds",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EnsureComponents",
+                        "excluded": false
+                    },
+                    {
+                        "name": "NormalizeToFrameSourceSpace",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyWeaponAsset",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnsurePropertyBlocks",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "PlayableWaveDefenseEntitySystem.Entry",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.AnimationSystems.VATAnimationComponent",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Initialize",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Dispose",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayAnimation",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetAnimationClipLength",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResolveStateName",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolveVATRenderer",
+                        "excluded": false
+                    },
+                    {
+                        "name": "InvokePendingCompletion",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Items.MultiSlotDynamicGate",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "DefaultWidthGrowPercent#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DefaultMinimumWidthPercent#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TotalWidth#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EffectiveMinimumWidthPercent#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SlotCount#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetSlot",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ApplyContentOverride",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Initialize",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RegisterSlotDamage",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryExpandActiveSlot",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetPassiveRoom",
+                        "excluded": false
+                    },
+                    {
+                        "name": "InitializeLayout",
+                        "excluded": false
+                    },
+                    {
+                        "name": "InitializeSlots",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetSlotIndex",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RebuildGateGeometry",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Items.NoProjectileFireZone",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Contains",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RemoveZone",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Activate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Deactivate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ContainsPosition",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Items.NoProjectileFireZone.ActiveZone",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
                         "excluded": true
                     }
                 ]

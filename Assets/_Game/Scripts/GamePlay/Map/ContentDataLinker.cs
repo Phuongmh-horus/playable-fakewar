@@ -33,6 +33,17 @@ namespace GamePlay.Map
         public Vector3 OriginalRotation => originalRotation;
         public Vector3 OriginalScale => originalScale;
 
+        public static bool IsContentEntry(ItemUnit item)
+        {
+            if (item == null)
+            {
+                return false;
+            }
+
+            MultiSlotDynamicGate parentGate = item.GetComponentInParent<MultiSlotDynamicGate>();
+            return parentGate == null || parentGate == item;
+        }
+
         public void Link(ContentDataSO source, int index, SpawnableObject spawnable, ItemUnit item)
         {
             sourceDataSO = source;

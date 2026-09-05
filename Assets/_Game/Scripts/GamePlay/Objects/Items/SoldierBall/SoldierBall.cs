@@ -21,6 +21,7 @@ namespace GamePlay.Items
         [Header("Effects")]
         [SerializeField] protected EffectComponent effectComponent;
         private bool _hasAppliedBreakBuff;
+        private int _nextBreakEffectFrame;
 
         public override void Initialize()
         {
@@ -30,6 +31,7 @@ namespace GamePlay.Items
             }
 
             _hasAppliedBreakBuff = false;
+            _nextBreakEffectFrame = 0;
 
             if (upgradeShowObject != null)
             {
@@ -50,6 +52,23 @@ namespace GamePlay.Items
         {
         }
 
+        protected override void HandleNonWheelCollision(GamePlay.ComponentSystems.IAttacker source)
+        {
+            base.HandleNonWheelCollision(source);
+            TryPlayBreakEffect();
+        }
+
+        private void TryPlayBreakEffect()
+        {
+            if (Time.frameCount < _nextBreakEffectFrame)
+            {
+                return;
+            }
+
+            _nextBreakEffectFrame = Time.frameCount + 12;
+            effectComponent?.PlayEffect(EffectType.Break, transform.position + Vector3.up * 1.5f + Vector3.forward * -2f);
+        }
+
         protected override void HandleHealthChange(int current, int max)
         {
             UpdateHealthText(current);
@@ -57,10 +76,6 @@ namespace GamePlay.Items
             if (current <= 0)
             {
                 ApplyBreakBuff();
-                if (effectComponent != null)
-                {
-                    effectComponent.PlayEffect(EffectType.Break, transform.position + Vector3.up * 1.5f + Vector3.forward * -1.5f);
-                }
                 DespawnInterval();
                 OnBreak();
             }
@@ -68,15 +83,20 @@ namespace GamePlay.Items
 
         private void ApplyBreakBuff()
         {
-            if (_hasAppliedBreakBuff || Data == null ||
-                Data.ChangeType != SoldierBallData.EChangeType.Increase ||
-                (Data.Type != StatType.FireRate && Data.Type != StatType.Damage))
+            if (_hasAppliedBreakBuff || Data == null || Data.Type == StatType.None)
             {
                 return;
             }
 
             _hasAppliedBreakBuff = true;
-            GameplayManager.Instance?.ChangeStatModifierData(Data);
+            GameplayManager manager = GameplayManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+
+            manager.ChangeStatModifierData(Data);
+            manager.RunUpgradeEffect();
         }
 
         protected virtual void OnBreak()

@@ -18,6 +18,7 @@ namespace GamePlay.ComponentSystems
             [Header("VFX")]
             public GameObject VfxPrefab;
             public bool ParentToTarget = true;
+            public Vector3 VfxScale = Vector3.one;
 
             [Header("SFX (Optional)")]
             public AudioClip SfxClip;
@@ -220,7 +221,13 @@ namespace GamePlay.ComponentSystems
 
             try
             {
-                return PoolSystem.TrySpawn(prefab.transform, Vector3.zero, Quaternion.identity)?.gameObject;
+                Transform instance = PoolSystem.TrySpawn(prefab.transform, Vector3.zero, Quaternion.identity);
+                if (instance == null)
+                {
+                    instance = PoolSystem.Spawn(prefab.transform, Vector3.zero, Quaternion.identity);
+                }
+
+                return instance != null ? instance.gameObject : null;
             }
             catch
             {
@@ -249,34 +256,12 @@ namespace GamePlay.ComponentSystems
 
             if (entry.SfxClip == null) return;
 
-            if (entry.LoopSfx)
-            {
-                var loopAudioSource = ResolveOrCreateAudioSource();
-                if (loopAudioSource == null)
-                {
-                    return;
-                }
-
-                if (_activeLoopingEffectType == effectType &&
-                    _activeLoopingClip == entry.SfxClip &&
-                    loopAudioSource.isPlaying &&
-                    loopAudioSource.loop)
-                {
-                    return;
-                }
-
-                StopActiveLoopingSfx();
-                loopAudioSource.clip = entry.SfxClip;
-                loopAudioSource.loop = true;
-                loopAudioSource.volume = Mathf.Clamp01(entry.SfxVolume);
-                loopAudioSource.Play();
-                _activeLoopingEffectType = effectType;
-                _activeLoopingClip = entry.SfxClip;
-                return;
-            }
-
             float sfxVolume = Mathf.Clamp01(entry.SfxVolume);
             SoundManager.Instance?.PlayOneShot(entry.SfxClip, sfxVolume);
+            if (entry.LoopSfx)
+            {
+                PooledVfxLifetimeScheduler.ScheduleSfxReplay(entry.SfxClip, sfxVolume, entry.SfxClip.length);
+            }
         }
 
         private void PlayVfx(EffectType effectType, EffectEntry entry, Vector3 position, Quaternion rotation, Transform parent)
@@ -310,6 +295,7 @@ namespace GamePlay.ComponentSystems
                 vfx.transform.SetParent(targetParent, false);
                 vfx.transform.position = position;
                 vfx.transform.rotation = rotation;
+                vfx.transform.localScale = IsUsableScale(entry.VfxScale) ? entry.VfxScale : Vector3.one;
                 vfx.SetActive(true);
 
                 var particles = GetCachedParticleSystems(vfx);
@@ -320,7 +306,7 @@ namespace GamePlay.ComponentSystems
                 }
 
                 float lifeTime = GetParticleLifetime(vfx);
-                PlayParticles(particles);
+                PlayParticles(particles, effectType == EffectType.Hit || effectType == EffectType.Break);
 
                 PooledVfxLifetimeScheduler.Schedule(vfx, Mathf.Max(0.1f, lifeTime));
             }
@@ -342,10 +328,7 @@ namespace GamePlay.ComponentSystems
                 return true;
             }
 
-            // Older scene instances contain permissive overrides (2-8). Keep one
-            // global spawn per prefab/frame so dense simultaneous hits cannot revive
-            // the original overdraw/GC burst before every scene is resaved.
-            frameCap = 3;
+            frameCap = Mathf.Max(1, frameCap);
 
             int frame = Time.frameCount;
             if (s_vfxSpawnFrame != frame)
@@ -363,6 +346,11 @@ namespace GamePlay.ComponentSystems
 
             s_vfxSpawnCountsThisFrame[prefabId] = count + 1;
             return true;
+        }
+
+        private static bool IsUsableScale(Vector3 scale)
+        {
+            return scale.x > 0.0001f && scale.y > 0.0001f && scale.z > 0.0001f;
         }
 
         private Transform ResolveVfxParent(EffectType effectType, EffectEntry entry, Transform parent, bool isUiVfx)
@@ -419,12 +407,17 @@ namespace GamePlay.ComponentSystems
             return cached;
         }
 
-        private static void PlayParticles(ParticleSystem[] particles)
+        private static void PlayParticles(ParticleSystem[] particles, bool forceOneShot)
         {
             for (int i = 0; i < particles.Length; i++)
             {
                 var ps = particles[i];
                 if (ps == null) continue;
+                if (forceOneShot)
+                {
+                    var main = ps.main;
+                    main.loop = false;
+                }
                 ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
                 ps.Play(true);
             }

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9c24b51b8e63d26419b3dc0ae6f21385
+guid: 92f0da910d556e4458c3ef7bd010bba6
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -37,7 +37,7 @@ ModelImporter:
       takeName: Take 001
       internalID: 1827226128182048838
       firstFrame: 0
-      lastFrame: 20
+      lastFrame: 42
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -124,7 +124,7 @@ ModelImporter:
     hasTranslationDoF: 0
     hasExtraRoot: 0
     skeletonHasParents: 1
-  lastHumanDescriptionAvatarSource: {fileID: 9000000, guid: ec8dcebe656a45a4da56adf4835d2c9b, type: 3}
+  lastHumanDescriptionAvatarSource: {fileID: 9000000, guid: f6e85342f69e7c742801a6873fd1fee5, type: 3}
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
   humanoidOversampling: 1

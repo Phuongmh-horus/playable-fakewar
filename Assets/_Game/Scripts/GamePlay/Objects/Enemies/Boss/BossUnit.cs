@@ -8,6 +8,9 @@ namespace GamePlay.Enemies
 {
     public class BossUnit : EnemyUnit
     {
+        private static readonly Vector3 AttackEffectLocalPosition = new Vector3(1.25f, 5f, 2f);
+        private static readonly Quaternion AttackEffectLocalRotation = Quaternion.Euler(0f, 209.6f, -195.536f);
+
         public static event Action<float> OnHealthChanged = delegate { };
 
         public static event Action OnWheelCollision = delegate { };
@@ -17,6 +20,7 @@ namespace GamePlay.Enemies
         [SerializeField, Min(0f)] private float bossAttractionThreshold = 15f;
         [SerializeField, Min(0.1f)] private float armyAttackRange = 1f;
         [SerializeField, Min(0f)] private float deathAnimationDuration = 1f;
+        [SerializeField] private float attackEffectDelay = 0.12f;
         [SerializeField, Min(0.05f), Tooltip("Minimum interval between boss hit VFX spawns.")]
         private float hitEffectCooldown = 0.12f;
 
@@ -28,6 +32,7 @@ namespace GamePlay.Enemies
         private bool _hasEngagedArmy;
         private IHitable _pendingArmyHitTarget;
         private float _nextHitEffectTime;
+        private float _scheduledAttackEffectTime = -1f;
 
         public override void Initialize()
         {
@@ -56,6 +61,7 @@ namespace GamePlay.Enemies
             _isAttacked = false;
             _hasEngagedArmy = false;
             _pendingArmyHitTarget = null;
+            _scheduledAttackEffectTime = -1f;
         }
 
         protected override void DespawnInterval()
@@ -65,6 +71,8 @@ namespace GamePlay.Enemies
                 _healthComponent.OnTakeDamaged -= HandleBossDamaged;
             }
 
+            _scheduledAttackEffectTime = -1f;
+
             base.DespawnInterval();
         }
 
@@ -73,7 +81,6 @@ namespace GamePlay.Enemies
             if (damage > 0 && Time.time >= _nextHitEffectTime)
             {
                 _nextHitEffectTime = Time.time + Mathf.Max(0.05f, hitEffectCooldown);
-                // Play EffectType.Hit with a forward offset
                 Vector3 hitPos = transform.position + transform.forward * 1.5f;
                 Pack.Effector?.PlayEffect(EffectType.Hit, hitPos, transform.rotation);
             }
@@ -81,12 +88,15 @@ namespace GamePlay.Enemies
 
         private void FixedUpdate()
         {
+            TryPlayScheduledAttackEffect();
+
             if ((Pack.Healable?.IsDead ?? false) || _deathHandled || _isAttacked || Time.time < _nextAttackTime) return;
 
             if (Time.time < _nextArmyTargetScanTime)
             {
                 return;
             }
+            TryPlayScheduledAttackEffect();
             _nextArmyTargetScanTime = Time.time + 0.1f;
 
             if (TryGetClosestActiveArmyAttacker(_hasEngagedArmy, out var armyAttacker))
@@ -109,9 +119,8 @@ namespace GamePlay.Enemies
             _isAttacked = true;
             _hasEngagedArmy = true;
             PlayableWaveDefenseEntitySystem.Instance?.Unregister(this);
-            SoundManager.Instance?.PlayOneShot(AudioClipName.SFX_EnemyAttack);
-
             PlayAnimation(AnimationType.Attack, waitForAction: waitAttackAnimation, onComplete: CompleteWheelAttack);
+            ScheduleAttackEffect();
         }
 
         public override void HandlePlayerArmyMeleeContact(IAttacker armySource)
@@ -139,6 +148,7 @@ namespace GamePlay.Enemies
             _isAttacked = true;
             UpdateImage(current, max);
             UpdateHealthText(current);
+            _scheduledAttackEffectTime = -1f;
             PlayDeathVfx();
             PlayAnimation(AnimationType.Death, deathAnimationDuration, DespawnInterval);
             Pack.Effector?.PlayEffect(EffectType.Die, transform.position, transform.rotation);
@@ -161,9 +171,36 @@ namespace GamePlay.Enemies
             _hasEngagedArmy = true;
             _pendingArmyHitTarget = armySource as IHitable;
             PlayableWaveDefenseEntitySystem.Instance?.Unregister(this);
-            SoundManager.Instance?.PlayOneShot(AudioClipName.SFX_EnemyAttack);
-
             PlayAnimation(AnimationType.Attack, waitForAction: waitAttackAnimation, onComplete: CompleteArmyAttack);
+            ScheduleAttackEffect();
+        }
+
+        private void ScheduleAttackEffect()
+        {
+            _scheduledAttackEffectTime = Time.time + attackEffectDelay;
+        }
+
+        private void TryPlayScheduledAttackEffect()
+        {
+            if (_scheduledAttackEffectTime < 0f || Time.time < _scheduledAttackEffectTime)
+            {
+                return;
+            }
+
+            _scheduledAttackEffectTime = -1f;
+            if (_deathHandled || (Pack.Healable?.IsDead ?? false))
+            {
+                return;
+            }
+
+            PlayAttackEffect();
+        }
+
+        private void PlayAttackEffect()
+        {
+            Vector3 worldPosition = transform.TransformPoint(AttackEffectLocalPosition);
+            Quaternion worldRotation = transform.rotation * AttackEffectLocalRotation;
+            Pack.Effector?.PlayEffect(EffectType.Attack, worldPosition, worldRotation, transform);
         }
 
         private void CompleteWheelAttack()
@@ -173,6 +210,7 @@ namespace GamePlay.Enemies
                 return;
             }
 
+            _scheduledAttackEffectTime = -1f;
             HandleKillHero();
             if (!isHandleKillHero)
             {
@@ -190,6 +228,7 @@ namespace GamePlay.Enemies
                 return;
             }
 
+            _scheduledAttackEffectTime = -1f;
             HandleKillHero();
             if (!isHandleKillHero)
             {

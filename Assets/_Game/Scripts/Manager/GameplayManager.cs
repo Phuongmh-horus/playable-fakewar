@@ -481,7 +481,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             if (prefab != null)
             {
                 // [FIX] Reduce prewarm count for vfx_hero_upgrade to optimize performance
-                int prewarmCount = prefab.name.ToLower().Contains("upgrade") ? 1 : 10;
+                int prewarmCount = prefab.name.ToLower().Contains("upgrade") ? 5 : 10;
                 yield return PoolSystem.EnsurePrewarmAsync(prefab.transform, prewarmCount, Mathf.Max(1, spawnItemsPerFrame));
             }
         }
@@ -1119,10 +1119,19 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
     private void ApplySoldierBallData(SoldierBallData soldierBallData)
     {
-        if (soldierBallData == null ||
-            soldierBallData.ChangeType != SoldierBallData.EChangeType.Increase ||
-            ActiveArmy == null)
+        if (soldierBallData == null || ActiveArmy == null)
         {
+            return;
+        }
+
+        if (soldierBallData.ChangeType == SoldierBallData.EChangeType.Upgrade)
+        {
+            if (soldierBallData.Type == StatType.CharacterLevel)
+            {
+                int targetLevel = Mathf.Max(1, soldierBallData.Level);
+                ActiveArmy.UpgradeAllUnitsToLevel(targetLevel);
+            }
+
             return;
         }
 

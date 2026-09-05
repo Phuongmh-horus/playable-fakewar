@@ -78,6 +78,9 @@ namespace PlayerArmy
         [SerializeField, Min(1)] private int collisionTickInterval = 2;
         [SerializeField, Min(1)] private int attackTickInterval = 2;
         [SerializeField, Min(1)] private int pruneTickInterval = 15;
+        [SerializeField, Min(1), Tooltip("Frames to wait after a character loss before compacting the honeycomb formation.")]
+        private int formationCompactDelayFrames = 60;
+        private float formationCompactSpeed = 20f;
 
         [Header("Runtime Units")]
         [SerializeField] private List<CharacterUnit> characterUnits = new List<CharacterUnit>();
@@ -90,6 +93,9 @@ namespace PlayerArmy
         private int _tickOffset;
         private Vector2Int _lastFormationSpatialCell;
         private bool _hasFormationSpatialCell;
+        private bool _formationDirty;
+        private int _formationCompactFrame;
+        private bool _isCompactingFormation;
 
         private HashSet<int> _currentEnemyContactIds = new HashSet<int>();
         private HashSet<int> _previousEnemyContactIds = new HashSet<int>();
@@ -104,7 +110,6 @@ namespace PlayerArmy
         private readonly HashSet<CharacterUnit> _pendingProjectileUnits = new HashSet<CharacterUnit>();
         private readonly List<CharacterUnit> _unitSnapshotBuffer = new List<CharacterUnit>(64);
         private readonly List<CardSpawnRequestData> _singleCardRequestBuffer = new List<CardSpawnRequestData>(1);
-        private readonly Dictionary<int, GamePlay.Items.StatModifierGate> _fireSoldierGateCache = new Dictionary<int, GamePlay.Items.StatModifierGate>(16);
         private readonly List<int> _collisionQueryIndices = new List<int>(64);
         private readonly bool[] _occupiedArmyIndices = new bool[HardMaxActiveSpawnedUnits];
         private int _resolvedWeaponDamage;
@@ -113,8 +118,6 @@ namespace PlayerArmy
         private float _baseAttackInterval;
         private float _baseProjectileDuration;
         private int _fireRateBonusPoints;
-        private float _baseFireRange;
-        private float _fireRangeBonus;
         private bool _wasProjectileFireSuppressed;
         private float _projectileFireResumeTime = float.NegativeInfinity;
         private static readonly Dictionary<int, Vector2Int[]> s_honeycombRingCache = new Dictionary<int, Vector2Int[]>(16);
@@ -318,6 +321,7 @@ namespace PlayerArmy
             float dt = Time.deltaTime;
 
             UpdateMovement(dt);
+            ProcessPendingFormationCompact(dt);
 
             if (currentState == PlayerArmyState.Active)
             {
@@ -384,7 +388,7 @@ namespace PlayerArmy
             if (unit == null || !characterUnits.Contains(unit)) return false;
             characterUnits.Remove(unit);
             UnregisterRuntimeUnit(unit, deactivate);
-            CompactFormation();
+            RequestFormationCompact();
             TryTriggerLoseWhenArmyEmpty();
             return true;
         }
@@ -600,31 +604,16 @@ namespace PlayerArmy
 
         public void ApplyFireRangeModifier(int value)
         {
-            if (value == 0)
-            {
-                return;
-            }
-
-            _fireRangeBonus += value;
-            RefreshFireRange();
         }
 
         private void ApplyUnitCombatProfile()
         {
-            // _baseFireRange is kept unchanged since weapon visual config is removed.
-            // Consider moving _baseFireRange configuration to the Inspector.
             RefreshCombatDamage();
-            RefreshFireRange();
         }
 
         private void RefreshCombatDamage()
         {
             attackDamage = Mathf.Max(1, _baseAttackDamage + Mathf.Max(0, _resolvedWeaponDamage) + _levelDamageBonus);
-        }
-        private void RefreshFireRange()
-        {
-            projectileDistance = Mathf.Max(0f, _baseFireRange + _fireRangeBonus);
-
         }
         private int ResolveEffectiveAttackDamage()
         {
@@ -722,8 +711,21 @@ namespace PlayerArmy
 
         public void AddCharacterReward(int amount)
         {
-            int safeAmount = Mathf.Max(0, amount);
-            if (safeAmount <= 0)
+            ApplyCharacterDelta(amount);
+        }
+
+        public void ApplyCharacterDelta(int amount)
+        {
+            int currentCount = CountActiveUnits();
+            int targetCount = Mathf.Max(0, currentCount + amount);
+            if (targetCount < currentCount)
+            {
+                KillCurrentUnitsToRemainingCount(targetCount);
+                return;
+            }
+
+            int spawnCount = targetCount - currentCount;
+            if (spawnCount <= 0)
             {
                 return;
             }
@@ -731,11 +733,18 @@ namespace PlayerArmy
             _singleCardRequestBuffer.Clear();
             _singleCardRequestBuffer.Add(new CardSpawnRequestData
             {
-                Amount = safeAmount,
+                Amount = spawnCount,
                 Level = ResolveCurrentArmyLevel(),
                 CardType = CardType.Character
             });
             AddCards(_singleCardRequestBuffer, CardSpawnEffectType.Drop);
+        }
+
+        public void ApplyCharacterMultiplier(float multiplier)
+        {
+            int currentCount = CountActiveUnits();
+            int targetCount = Mathf.Max(0, Mathf.RoundToInt(currentCount * multiplier));
+            ApplyCharacterDelta(targetCount - currentCount);
         }
 
         public void ApplyFireRateModifier(int value)
@@ -904,6 +913,8 @@ namespace PlayerArmy
             {
                 CharacterUnit.IsBossMassKill = false;
             }
+
+            PruneInactiveSpawnedUnits();
         }
 
         public void ApplyLevelUpgrade(int levelIndex)
@@ -962,8 +973,6 @@ namespace PlayerArmy
         //             continue;
         //         }
         //
-        //         unit.RecycleImmediate(false);
-        //     }
         //
         //     characterUnits.Clear();
         // }
@@ -1073,7 +1082,6 @@ namespace PlayerArmy
             _currentLevelIndex = 0;
             _levelDamageBonus = 0;
             RefreshCombatDamage();
-            RefreshFireRange();
         }
 
         private void UpdateMovement(float dt)
@@ -1154,7 +1162,6 @@ namespace PlayerArmy
             float myHalfZ = mySize.y * 0.5f;
             float preCullX = Mathf.Max(myHalfX + 1f, collisionCheckRangeX);
             float preCullZ = Mathf.Max(myHalfZ + 1f, collisionCheckRangeZ);
-            int formationUnitCount = Mathf.Min(characterUnits.Count, HardMaxActiveSpawnedUnits);
             Vector3 queryStart = myPos - transform.forward * preCullZ;
             Vector3 queryEnd = myPos + transform.forward * preCullZ;
             collisionSystem.QueryIndicesNearSegment(queryStart, queryEnd, preCullX, _collisionQueryIndices);
@@ -1202,12 +1209,6 @@ namespace PlayerArmy
                 bool hitX = absDistX <= (myHalfX + tHalfX);
                 bool hitZ = absDistZ <= (myHalfZ + tHalfZ);
 
-                if (target.EntityType == EntityType.MovingGate &&
-                    TryCollectFireSoldierWithFormation(target, targetTr, tPos, tHalfX, tHalfZ, formationUnitCount))
-                {
-                    continue;
-                }
-
                 if (!hitX || !hitZ)
                 {
                     continue;
@@ -1220,7 +1221,7 @@ namespace PlayerArmy
 
                     if (!_previousEnemyContactIds.Contains(enemyInstanceId))
                     {
-                        ResolveEnemyContact(target, tPos);
+                        ResolveEnemyContact(target, tPos, tHalfX, tHalfZ);
                     }
                 }
                 else if (targetTr.GetComponentInParent<GamePlay.Items.SoldierBall>() != null)
@@ -1250,56 +1251,6 @@ namespace PlayerArmy
             var tmpEnv = _previousEnvironmentContactIds;
             _previousEnvironmentContactIds = _currentEnvironmentContactIds;
             _currentEnvironmentContactIds = tmpEnv;
-        }
-
-        private bool TryCollectFireSoldierWithFormation(
-            IHitable target,
-            Transform targetTransform,
-            Vector3 targetPosition,
-            float targetHalfX,
-            float targetHalfZ,
-            int formationUnitCount)
-        {
-            int targetId = targetTransform.GetInstanceID();
-            if (!_fireSoldierGateCache.TryGetValue(targetId, out var gate) || gate == null)
-            {
-                gate = targetTransform.GetComponentInParent<GamePlay.Items.StatModifierGate>();
-                _fireSoldierGateCache[targetId] = gate;
-            }
-
-            if (gate == null || gate.Data == null || gate.Data.Type != GamePlay.Items.StatType.Character)
-            {
-                return false;
-            }
-
-            if (formationUnitCount <= 0)
-            {
-                return false;
-            }
-
-            Transform root = GetBodyRoot();
-            Vector3 localTargetPosition = root.InverseTransformPoint(targetPosition);
-            GetFormationHalfExtents(formationUnitCount, out float formationHalfX, out float formationHalfZ);
-
-            if (Mathf.Abs(localTargetPosition.x) > formationHalfX + targetHalfX ||
-                Mathf.Abs(localTargetPosition.z) > formationHalfZ + targetHalfZ)
-            {
-                return false;
-            }
-
-            gate.CollectByArmy();
-            return true;
-        }
-
-        private void GetFormationHalfExtents(int unitCount, out float halfX, out float halfZ)
-        {
-            int cappedCount = Mathf.Max(1, unitCount);
-            int outerRing = Mathf.CeilToInt((Mathf.Sqrt(12f * cappedCount - 3f) - 3f) / 6f);
-            float spacing = Mathf.Max(0.01f, unitSpacing);
-            const float characterColliderPadding = 0.75f;
-
-            halfX = outerRing * spacing * 1.5f + characterColliderPadding;
-            halfZ = outerRing * spacing * HoneycombForwardStepFactor + characterColliderPadding;
         }
 
         private void UpdateCharacterAttacks()
@@ -1591,7 +1542,7 @@ namespace PlayerArmy
                     damage,
                     EnemyProjectileSystem.ProjectileSpinAxis.None,
                     EnemyProjectileSystem.ProjectileMotionMode.Straight,
-                    null,
+                    this,
                     false))
             {
                 wp.Despawn();
@@ -1844,15 +1795,70 @@ namespace PlayerArmy
 
             if (removedAny)
             {
-                CompactFormation();
+                RequestFormationCompact();
                 TryTriggerLoseWhenArmyEmpty();
             }
         }
 
-        private void CompactFormation()
+        private void RequestFormationCompact()
         {
+            _formationDirty = true;
+            _formationCompactFrame = Time.frameCount + Mathf.Max(1, formationCompactDelayFrames);
+        }
+
+        private void ProcessPendingFormationCompact(float deltaTime)
+        {
+            if (_formationDirty)
+            {
+                if (Time.frameCount < _formationCompactFrame)
+                {
+                    return;
+                }
+
+                _formationDirty = false;
+                BeginFormationCompact();
+            }
+
+            if (!_isCompactingFormation)
+            {
+                return;
+            }
+
             Transform root = GetBodyRoot();
             int activeCount = CountActiveUnits();
+            int formationIndex = 0;
+            bool reachedAllTargets = true;
+            float maxStep = Mathf.Max(0.1f, formationCompactSpeed) * Mathf.Max(0f, deltaTime);
+
+            for (int i = 0; i < characterUnits.Count; i++)
+            {
+                CharacterUnit unit = characterUnits[i];
+                if (unit == null || !unit.IsActive)
+                {
+                    continue;
+                }
+
+                Vector3 targetPosition = GetHoneycombSpawnPosition(root, formationIndex, activeCount);
+                unit.transform.position = Vector3.MoveTowards(unit.transform.position, targetPosition, maxStep);
+                if ((unit.transform.position - targetPosition).sqrMagnitude > 0.0001f)
+                {
+                    reachedAllTargets = false;
+                }
+
+                formationIndex++;
+            }
+
+            if (!reachedAllTargets)
+            {
+                return;
+            }
+
+            _isCompactingFormation = false;
+            CollisionSystem.NotifyMovedBatch(characterUnits);
+        }
+
+        private void BeginFormationCompact()
+        {
             int formationIndex = 0;
 
             for (int i = 0; i < characterUnits.Count; i++)
@@ -1864,9 +1870,10 @@ namespace PlayerArmy
                 }
 
                 unit.ArmyIndex = formationIndex;
-                unit.transform.position = GetHoneycombSpawnPosition(root, formationIndex, activeCount);
                 formationIndex++;
             }
+
+            _isCompactingFormation = formationIndex > 0;
         }
 
         private void TryTriggerLoseWhenArmyEmpty()
@@ -2018,16 +2025,17 @@ namespace PlayerArmy
                    entityType == EntityType.MovingGate;
         }
 
-        private void ResolveEnemyContact(IHitable enemyTarget, Vector3 enemyPos)
+        private void ResolveEnemyContact(IHitable enemyTarget, Vector3 enemyPos, float enemyHalfX, float enemyHalfZ)
         {
             if (enemyTarget == null)
             {
                 return;
             }
 
-            if (TryGetClosestActiveCharacterUnit(enemyPos, out var victim))
+            if (TryGetOverlappingCharacterUnit(enemyPos, enemyHalfX, enemyHalfZ, out var victim))
             {
                 victim.OnHit(enemyTarget as IAttacker ?? this);
+                PruneInactiveSpawnedUnits();
             }
 
             enemyTarget.OnHit(this);
@@ -2035,26 +2043,10 @@ namespace PlayerArmy
 
         private void ResolveSoldierBallContact(Vector3 ballPosition, float ballHalfX, float ballHalfZ)
         {
-            for (int i = characterUnits.Count - 1; i >= 0; i--)
+            if (TryGetOverlappingCharacterUnit(ballPosition, ballHalfX, ballHalfZ, out var collidedUnit))
             {
-                CharacterUnit unit = characterUnits[i];
-                if (unit == null || !unit.IsActive)
-                {
-                    continue;
-                }
-
-                ColliderData unitCollider = unit.GetColliderData();
-                float unitHalfX = Mathf.Abs(unitCollider.Size.x);
-                float unitHalfZ = unitCollider.Type == ShapeType.Box
-                    ? Mathf.Abs(unitCollider.Size.z)
-                    : Mathf.Max(Mathf.Abs(unitCollider.Size.x), Mathf.Abs(unitCollider.Size.z));
-                Vector3 unitPosition = unit.Position;
-
-                if (Mathf.Abs(unitPosition.x - ballPosition.x) <= ballHalfX + unitHalfX &&
-                    Mathf.Abs(unitPosition.z - ballPosition.z) <= ballHalfZ + unitHalfZ)
-                {
-                    unit.RecycleImmediate(true);
-                }
+                collidedUnit.RecycleImmediate(true);
+                PruneInactiveSpawnedUnits();
             }
         }
 
@@ -2150,7 +2142,7 @@ namespace PlayerArmy
             return count;
         }
 
-        private bool TryGetClosestActiveCharacterUnit(Vector3 enemyPos, out CharacterUnit victim)
+        private bool TryGetOverlappingCharacterUnit(Vector3 targetPosition, float targetHalfX, float targetHalfZ, out CharacterUnit victim)
         {
             victim = null;
 
@@ -2163,7 +2155,18 @@ namespace PlayerArmy
                     continue;
                 }
 
-                Vector3 delta = unit.Position - enemyPos;
+                ColliderData unitCollider = unit.GetColliderData();
+                float unitHalfX = Mathf.Abs(unitCollider.Size.x);
+                float unitHalfZ = unitCollider.Type == ShapeType.Box
+                    ? Mathf.Abs(unitCollider.Size.z)
+                    : Mathf.Max(Mathf.Abs(unitCollider.Size.x), Mathf.Abs(unitCollider.Size.z));
+                Vector3 delta = unit.Position - targetPosition;
+                if (Mathf.Abs(delta.x) > targetHalfX + unitHalfX ||
+                    Mathf.Abs(delta.z) > targetHalfZ + unitHalfZ)
+                {
+                    continue;
+                }
+
                 delta.y = 0f;
                 float distance = delta.sqrMagnitude;
                 if (distance >= bestDistance)

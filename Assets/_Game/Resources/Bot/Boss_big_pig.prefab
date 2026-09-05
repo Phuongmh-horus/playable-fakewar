@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5457912951021333660}
-  - component: {fileID: 4229014943212804814}
   m_Layer: 0
   m_Name: BossHealthBar
   m_TagString: Untagged
@@ -38,19 +37,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 5.12}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &4229014943212804814
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3874172170059248056}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae712bdda39df4a43865fe1bb98246a2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fillRenderer: {fileID: 103336366739226230}
 --- !u!1 &4915610174892445383
 GameObject:
   m_ObjectHideFlags: 0
@@ -236,8 +222,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2213366963606420760}
-  - component: {fileID: 3793135697687198588}
-  - component: {fileID: 3256679566004625681}
   m_Layer: 0
   m_Name: Boss_big_pig
   m_TagString: Untagged
@@ -263,46 +247,6 @@ Transform:
   - {fileID: 5457912951021333660}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3793135697687198588
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7350721906537872892}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48a7f7a5bfa63c64da403f695b1df787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CachedTransform: {fileID: 2213366963606420760}
-  _animator: {fileID: 6702684675287990300}
-  healthBar: {fileID: 4229014943212804814}
-  reactionEffect: {fileID: 3256679566004625681}
---- !u!114 &3256679566004625681
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7350721906537872892}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e022d6a3d72beb041a93351dded9069f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _reactionTrans: {fileID: 2213366963606420760}
-  Effect:
-    rid: 7497776102425231360
-  references:
-    version: 2
-    RefIds:
-    - rid: 7497776102425231360
-      type: {class: HitFlashEffect, ns: , asm: Assembly-CSharp}
-      data:
-        duration: 0.15
-        renderers:
-        - {fileID: 5797416029044165448}
 --- !u!1001 &895703519036603789
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -390,7 +334,7 @@ PrefabInstance:
     - target: {fileID: 6636795891882342085, guid: 0c5105c0515ffbd4bb82a7b27bb819e5, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 69113d3213e52f746a4f62b8843faec9, type: 2}
+      objectReference: {fileID: 2100000, guid: 7e3f6039a63dc7a44b3a39939bb1cd56, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -399,16 +343,6 @@ PrefabInstance:
 --- !u!4 &856973551692094054 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0c5105c0515ffbd4bb82a7b27bb819e5, type: 3}
-  m_PrefabInstance: {fileID: 895703519036603789}
-  m_PrefabAsset: {fileID: 0}
---- !u!137 &5797416029044165448 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 6636795891882342085, guid: 0c5105c0515ffbd4bb82a7b27bb819e5, type: 3}
-  m_PrefabInstance: {fileID: 895703519036603789}
-  m_PrefabAsset: {fileID: 0}
---- !u!95 &6702684675287990300 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 0c5105c0515ffbd4bb82a7b27bb819e5, type: 3}
   m_PrefabInstance: {fileID: 895703519036603789}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7046366917006138493

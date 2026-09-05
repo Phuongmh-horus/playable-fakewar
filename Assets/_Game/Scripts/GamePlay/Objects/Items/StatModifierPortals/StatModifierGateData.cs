@@ -12,6 +12,9 @@ namespace GamePlay.Items
     public class StatModifierGateData : StatModifierData
     {
         public StatModifierOperation Operation = StatModifierOperation.Add;
+
+        [UnityEngine.Tooltip("Giá trị dùng khi Operation là Multiply. Nhỏ hơn 1 sẽ giảm số lượng character.")]
+        public float Multiplier = 1f;
     }
 
 }

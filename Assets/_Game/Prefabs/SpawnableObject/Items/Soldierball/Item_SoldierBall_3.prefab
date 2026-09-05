@@ -327,7 +327,7 @@ MonoBehaviour:
   size: {x: 1, y: 1}
   shapeType: 1
   colliderOffsets: {x: 0, y: 2, z: 0}
-  colliderSize: {x: 6, y: 5, z: 5}
+  colliderSize: {x: 8, y: 5, z: 5}
   LeftOffset: 0
   RightOffset: 0
   autoAddHitTextFlyEffectAtRuntime: 1
@@ -357,8 +357,8 @@ MonoBehaviour:
   CacheTransform: {fileID: 7946232523800976864}
   poolEntity: {fileID: -3187097488725319018}
   shapeType: 1
-  colliderSize: {x: 6, y: 5, z: 5}
-  isActive: 0
+  colliderSize: {x: 8, y: 5, z: 5}
+  isActive: 1
   isCustomCaster: 0
   hitTransform: {fileID: 0}
 --- !u!114 &2018191943066992144
@@ -379,11 +379,12 @@ MonoBehaviour:
   - Type: 16
     VfxPrefab: {fileID: 462670460786600360, guid: 285fb53922afad341b016d11032d75ea, type: 3}
     ParentToTarget: 1
+    VfxScale: {x: 2.5, y: 2.5, z: 2.5}
     SfxClip: {fileID: 8300000, guid: 8722649368b212547a32989ae027ecd5, type: 3}
     LoopSfx: 0
     SfxVolume: 1
-    WaitForAction: 0.5
-    MaxVfxPerFrame: 2
+    WaitForAction: 0
+    MaxVfxPerFrame: 1
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
 --- !u!114 &4888467948349191867
@@ -453,7 +454,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 11, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1287897007415136162}
@@ -518,58 +519,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 112915414316587118}
     m_Modifications:
-    - target: {fileID: -5851302795195811382, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
-      propertyPath: m_CastShadows
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -5851302795195811382, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
-      propertyPath: m_ReceiveShadows
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -5851302795195811382, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
-      propertyPath: m_LightProbeUsage
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -5851302795195811382, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
-      propertyPath: m_ReflectionProbeUsage
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2975849219566397938, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.93025756
-      objectReference: {fileID: 0}
-    - target: {fileID: 2975849219566397938, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0.3669071
-      objectReference: {fileID: 0}
-    - target: {fileID: 2975849219566397938, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2975849219566397938, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2975849219566397938, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: -43.05
-      objectReference: {fileID: 0}
-    - target: {fileID: 8038133794217366526, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
-      propertyPath: m_CastShadows
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8038133794217366526, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
-      propertyPath: m_ReceiveShadows
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8038133794217366526, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
-      propertyPath: m_LightProbeUsage
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8038133794217366526, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
-      propertyPath: m_ReflectionProbeUsage
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalScale.x
       value: 3
@@ -649,6 +598,58 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -5851302795195811382, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5851302795195811382, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5851302795195811382, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
+      propertyPath: m_LightProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5851302795195811382, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
+      propertyPath: m_ReflectionProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2975849219566397938, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.93025756
+      objectReference: {fileID: 0}
+    - target: {fileID: 2975849219566397938, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.3669071
+      objectReference: {fileID: 0}
+    - target: {fileID: 2975849219566397938, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2975849219566397938, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2975849219566397938, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -43.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 8038133794217366526, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8038133794217366526, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8038133794217366526, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
+      propertyPath: m_LightProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8038133794217366526, guid: 418d168bca50da64c9534b9fde066b25, type: 3}
+      propertyPath: m_ReflectionProbeUsage
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -461,12 +461,13 @@ namespace GamePlay.CombatSystems
                         var target = collisionSystem.GetTargetBySortedIndex(k);
                         if (target == null || !target.IsActive) continue;
                         if (ReferenceEquals(target, _playerHitable)) continue;
+                        if (ReferenceEquals(target, p.Thrower)) continue;
 
                         var colData = collisionSystem.GetColliderData(k);
                         if (CheckHitAlongSegment(previousPos, pos, p.Radius, targetPos, colData))
                         {
                             p.Attacker.OnAttackSucceed(target);
-                            target.OnHit(p.Thrower != null ? p.Thrower : p.Attacker);
+                            target.OnHit(p.Attacker);
 
                             DisposeManaged(ref p);
                             TryDespawnProjectile(p.Transform, p.PoolEntity);

@@ -320,6 +320,11 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
 
     private static bool ShouldSkipMovement(ItemUnit item)
     {
+        if (item is MultiSlotDynamicGate)
+        {
+            return true;
+        }
+
         if (item is WallBreakable)
         {
             return true;

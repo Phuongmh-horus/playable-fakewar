@@ -21,10 +21,8 @@ namespace GamePlay.Enemies
 
     public class EnemyUnit : ItemUnit
     {
-        private static readonly List<MonoBehaviour> s_enemyBuffer = new List<MonoBehaviour>(64);
-
         [Header("Animation Settings")]
-        [SerializeField] protected float waitAttackAnimation = 1f;
+        [SerializeField] protected float waitAttackAnimation = 0.5f;
         [SerializeField] protected bool isHandleKillHero;
         [SerializeField] protected bool isKillHeroAsPercent;
         [SerializeField] protected float heroToRemain = 3f;

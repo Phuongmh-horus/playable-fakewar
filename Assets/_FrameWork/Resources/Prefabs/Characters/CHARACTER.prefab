@@ -557,7 +557,7 @@ MonoBehaviour:
   obstacleAttackDespawnDelay: 0.5
   enemyAttackDespawnDelay: 0.5
   hitShapeType: 2
-  hitColliderSize: {x: 3, y: 3, z: 2}
+  hitColliderSize: {x: 2, y: 3, z: 2}
   Level: -1
   AttackCounter: 0
   dieVfxPrefab: {fileID: 6069244634948046370, guid: ac7538e53b41618498c868ccb1d1f210, type: 3}
@@ -580,7 +580,7 @@ MonoBehaviour:
   CacheTransform: {fileID: 4839683856078174234}
   poolEntity: {fileID: 6269225836784746350}
   shapeType: 2
-  colliderSize: {x: 3, y: 3, z: 2}
+  colliderSize: {x: 2, y: 4, z: 2}
   isActive: 1
   isCustomCaster: 0
   hitTransform: {fileID: 0}
