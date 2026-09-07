@@ -243,7 +243,7 @@ MonoBehaviour:
   - Type: 14
     VfxPrefab: {fileID: 462670460786600360, guid: 285fb53922afad341b016d11032d75ea, type: 3}
     ParentToTarget: 1
-    VfxScale: {x: 1.5, y: 1.5, z: 1.5}
+    VfxScale: {x: 2, y: 2, z: 2}
     SfxClip: {fileID: 8300000, guid: 78df047f488dc4547ac19845de5e7d2c, type: 3}
     LoopSfx: 1
     SfxVolume: 1

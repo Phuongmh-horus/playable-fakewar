@@ -23571,7 +23571,7 @@
                     },
                     {
                         "name": "RunUpgradeEffect",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RunUpgradeEffect$1",
@@ -24085,7 +24085,7 @@
                     },
                     {
                         "name": "ReleaseGeneratedContent",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -27149,7 +27149,7 @@
                     },
                     {
                         "name": "length#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
@@ -37454,6 +37454,10 @@
                     {
                         "name": "CleanupDestroyedRuntimeCaches",
                         "excluded": false
+                    },
+                    {
+                        "name": "IsUsableScale",
+                        "excluded": false
                     }
                 ]
             },
@@ -37487,6 +37491,10 @@
                     },
                     {
                         "name": "GetColliderData",
+                        "excluded": false
+                    },
+                    {
+                        "name": "InvalidateColliderData",
                         "excluded": false
                     }
                 ]
@@ -38034,10 +38042,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "TryGetClosestActiveCharacterUnit",
-                        "excluded": false
-                    },
-                    {
                         "name": "GetUnitAttackSource",
                         "excluded": true
                     },
@@ -38071,7 +38075,7 @@
                     },
                     {
                         "name": "ApplyCharacterMultiplier",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RefreshLevelDamageBonus",
@@ -38079,14 +38083,6 @@
                     },
                     {
                         "name": "ProcessPendingVisualUpgrades",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TryCollectFireSoldierWithFormation",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetFormationHalfExtents",
                         "excluded": false
                     },
                     {
@@ -38099,10 +38095,6 @@
                     },
                     {
                         "name": "ResolveRuntimeUnitAnimation",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CompactFormation",
                         "excluded": false
                     },
                     {
@@ -38119,6 +38111,22 @@
                     },
                     {
                         "name": "ResolveSoldierBallContact",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RequestFormationCompact",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ProcessPendingFormationCompact",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BeginFormationCompact",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryGetOverlappingCharacterUnit",
                         "excluded": false
                     }
                 ]
@@ -38419,7 +38427,7 @@
                     },
                     {
                         "name": "PlayAttackEffect",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CompleteWheelAttack",
@@ -38427,10 +38435,18 @@
                     },
                     {
                         "name": "CompleteArmyAttack",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "TryGetClosestActiveArmyAttacker",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ScheduleAttackEffect",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryPlayScheduledAttackEffect",
                         "excluded": false
                     }
                 ]
@@ -38576,6 +38592,10 @@
                     {
                         "name": "ApplyBreakBuff",
                         "excluded": false
+                    },
+                    {
+                        "name": "TryPlayBreakEffect",
+                        "excluded": false
                     }
                 ]
             },
@@ -38634,10 +38654,6 @@
                     {
                         "name": "CoScalePulse",
                         "excluded": false
-                    },
-                    {
-                        "name": "PlayBend",
-                        "excluded": true
                     },
                     {
                         "name": "StopScalePulse",
@@ -38737,6 +38753,18 @@
                     },
                     {
                         "name": "SetGateLocalX",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryPlayProjectileHitEffect",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryCollectMultiSlotGate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyArmyCollection",
                         "excluded": false
                     }
                 ]
@@ -40860,6 +40888,10 @@
                     {
                         "name": "Tick",
                         "excluded": false
+                    },
+                    {
+                        "name": "ScheduleSfxReplay",
+                        "excluded": false
                     }
                 ]
             },
@@ -41326,6 +41358,10 @@
                     {
                         "name": "RebuildGateGeometry",
                         "excluded": false
+                    },
+                    {
+                        "name": "TryCollectByArmy",
+                        "excluded": false
                     }
                 ]
             },
@@ -41382,6 +41418,32 @@
                     {
                         "name": "$clone",
                         "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Effects.PooledVfxLifetimeScheduler.SfxReplayEntry",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
                     }
                 ]
             }
@@ -41533,11 +41595,11 @@
                         "name": "Assets/Kho/Charater/texture/T_Color.tga"
                     },
                     {
-                        "maxWidth": 512,
-                        "maxHeight": 512,
+                        "maxWidth": 256,
+                        "maxHeight": 256,
                         "format": "jpeg",
                         "compression": "quantSize",
-                        "quality": 65,
+                        "quality": 70,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_EN_pig.tga"
@@ -41566,7 +41628,7 @@
                         "maxWidth": 512,
                         "maxHeight": 512,
                         "format": "png32",
-                        "compression": "quantSize",
+                        "compression": "quantQuality",
                         "quality": 65,
                         "script": "",
                         "ext": "",
@@ -41603,18 +41665,18 @@
                         "name": "Assets/Kho/Evironment/ENV_02/texture/T_ENV_02_water.tga"
                     },
                     {
-                        "maxWidth": 512,
-                        "maxHeight": 512,
+                        "maxWidth": 256,
+                        "maxHeight": 256,
                         "format": "jpeg",
                         "compression": "quantQuality",
-                        "quality": 65,
+                        "quality": 70,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_MC_basic.tga"
                     },
                     {
-                        "maxWidth": 512,
-                        "maxHeight": 512,
+                        "maxWidth": 256,
+                        "maxHeight": 256,
                         "format": "jpeg",
                         "compression": "quantSize",
                         "quality": 65,
@@ -41633,8 +41695,8 @@
                         "name": "Assets/Kho/Charater/texture/T_EN_basic_2.tga"
                     },
                     {
-                        "maxWidth": 512,
-                        "maxHeight": 512,
+                        "maxWidth": 1024,
+                        "maxHeight": 1024,
                         "format": "jpeg",
                         "compression": "quantSize",
                         "quality": 65,
@@ -41681,6 +41743,146 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_New_VAT_Texture.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "jpeg",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Resources/Sprites/icon 2.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "quantQuality",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Resources/Sprites/Win_Endcard.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "quantQuality",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_FrameWork/Sprites/Sprite Atlas.spriteatlas"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "quantQuality",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_PlayableAds/Assets/Image/Lose_Panel.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "jpeg",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/VFX_Library/Textures/TX_VFX_Noise24.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "jpeg",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/VFX_Library/Textures/T_VFX_Slash_M_1.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "jpeg",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/VFX_Library/Textures/T_VFX_Slash_M.png"
+                    },
+                    {
+                        "maxWidth": 1030,
+                        "maxHeight": 104,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Body_Texture.png"
+                    },
+                    {
+                        "maxWidth": 537,
+                        "maxHeight": 104,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_crossbow_Texture.png"
+                    },
+                    {
+                        "maxWidth": 178,
+                        "maxHeight": 104,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_gun_Texture.png"
+                    },
+                    {
+                        "maxWidth": 569,
+                        "maxHeight": 104,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_pistol_Texture.png"
+                    },
+                    {
+                        "maxWidth": 1237,
+                        "maxHeight": 62,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Body_Texture.png"
+                    },
+                    {
+                        "maxWidth": 567,
+                        "maxHeight": 40,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Small_pig_VATData/Small_pig_VAT_Body_Texture.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "jpeg",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/VFX_Library/Textures/TX_VFX_Noise05.png"
                     }
                 ]
             },
@@ -41698,8 +41900,8 @@
                     {
                         "channels": 1,
                         "startTime": "00:00.000",
-                        "endTime": "00:15.137",
-                        "lengthInSeconds": 15.13700008392334,
+                        "endTime": "00:19.529",
+                        "lengthInSeconds": 19.52899932861328,
                         "bitrate": 64,
                         "script": "",
                         "ext": "",

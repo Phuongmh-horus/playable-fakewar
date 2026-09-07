@@ -66,7 +66,7 @@ namespace GamePlay.Items
             }
 
             _nextBreakEffectFrame = Time.frameCount + 12;
-            effectComponent?.PlayEffect(EffectType.Break, transform.position + Vector3.up * 1.5f + Vector3.forward * -2f);
+            effectComponent?.PlayEffect(EffectType.Break, transform.position + Vector3.up * 3f + Vector3.forward * -5f);
         }
 
         protected override void HandleHealthChange(int current, int max)

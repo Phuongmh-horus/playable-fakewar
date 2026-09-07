@@ -326,7 +326,7 @@ namespace GamePlay.Items
             }
 
             _nextHitEffectFrame = Time.frameCount + 12;
-            Pack.Effector?.PlayEffect(EffectType.Hit, transform.position + Vector3.up * 5f + Vector3.forward * -5f);
+            Pack.Effector?.PlayEffect(EffectType.Hit, transform.position + Vector3.up * 4f + Vector3.forward * -5f);
         }
 
         protected override void HandleHealthChange(int current, int max)
