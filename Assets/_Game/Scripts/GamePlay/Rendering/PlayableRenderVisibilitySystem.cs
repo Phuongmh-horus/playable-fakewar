@@ -22,6 +22,7 @@ namespace GamePlay.Rendering
         }
 
         private readonly List<Entry> _entries = new List<Entry>(512);
+        private readonly List<Renderer> _rendererBuffer = new List<Renderer>(32);
         private Transform _focus;
         private float _nextRefreshTime;
 
@@ -44,10 +45,11 @@ namespace GamePlay.Rendering
                     continue;
                 }
 
-                Renderer[] renderers = item.GetComponentsInChildren<Renderer>(true);
-                for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
+                _rendererBuffer.Clear();
+                item.GetComponentsInChildren(true, _rendererBuffer);
+                for (int rendererIndex = 0; rendererIndex < _rendererBuffer.Count; rendererIndex++)
                 {
-                    Renderer renderer = renderers[rendererIndex];
+                    Renderer renderer = _rendererBuffer[rendererIndex];
                     if (renderer == null)
                     {
                         continue;

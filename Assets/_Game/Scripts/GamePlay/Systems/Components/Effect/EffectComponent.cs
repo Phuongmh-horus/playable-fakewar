@@ -292,9 +292,17 @@ namespace GamePlay.ComponentSystems
                     return;
                 }
 
-                vfx.transform.SetParent(targetParent, false);
-                vfx.transform.position = position;
-                vfx.transform.rotation = rotation;
+                if (targetParent != null)
+                {
+                    vfx.transform.SetParent(targetParent, false);
+                    vfx.transform.localPosition = targetParent.InverseTransformPoint(position);
+                    vfx.transform.localRotation = Quaternion.Inverse(targetParent.rotation) * rotation;
+                }
+                else
+                {
+                    vfx.transform.SetParent(null, false);
+                    vfx.transform.SetPositionAndRotation(position, rotation);
+                }
                 vfx.transform.localScale = IsUsableScale(entry.VfxScale) ? entry.VfxScale : Vector3.one;
                 vfx.SetActive(true);
 
@@ -357,15 +365,6 @@ namespace GamePlay.ComponentSystems
         {
             if (entry.ParentToTarget)
             {
-                // [FIX] Force Hit, Break, and Die VFX to world space so they don't disappear if target dies.
-                if (effectType == EffectType.Hit || effectType == EffectType.Break || effectType == EffectType.Die)
-                {
-                    if (!isUiVfx)
-                    {
-                        return null; // Force world space
-                    }
-                }
-
                 return parent != null ? parent : CacheTransform;
             }
 

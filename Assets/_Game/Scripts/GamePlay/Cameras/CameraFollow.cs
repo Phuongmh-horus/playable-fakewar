@@ -55,9 +55,6 @@ public class CameraFollow : MonoBehaviour
     private Vector3 _cachedCapacityBarWorldPos;
     private int _capacityBarWorldPosFrame = -1;
 
-    [Header("Capacity Bar Target")]
-    [SerializeField] private float capacityBarPlaneY = 0f;
-
     [Header("Track Preview Path (Scene References)")]
     [SerializeField] private Transform trackPreviewStartPoint;
     [SerializeField] private Transform trackPreviewEndPoint;

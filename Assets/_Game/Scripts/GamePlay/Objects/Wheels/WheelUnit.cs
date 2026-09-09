@@ -649,13 +649,13 @@ namespace GamePlay.Crushers
                     var targetTr = collisionSystem.GetTransform(i);
                     if (targetTr == null) continue;
 
-                    Vector3 tPos = targetTr.position;
+                    var target = collisionSystem.GetTargetBySortedIndex(i);
+                    if (target == null || !target.IsActive || ReferenceEquals(target, this)) continue;
+
+                    Vector3 tPos = target.Position;
                     float distX = Mathf.Abs(tPos.x - myPos.x);
                     float distZ = Mathf.Abs(tPos.z - myPos.z);
                     if (distX > preCullX || distZ > preCullZ) continue;
-
-                    var target = collisionSystem.GetTargetBySortedIndex(i);
-                    if (target == null || !target.IsActive || ReferenceEquals(target, this)) continue;
 
                     var colData = collisionSystem.GetColliderData(i);
                     uint categoryBits = colData.CategoryBits != 0

@@ -152,9 +152,7 @@ MonoBehaviour:
   scaleUp: 1.08
   scaleUpDuration: 0.08
   scaleDownDuration: 0.15
-  bendAngle: 12
-  bendDuration: 0.08
-  returnDuration: 0.15
+  projectileHitEffectLocalPosition: {x: 0, y: 2, z: 2}
   onlyCenterOscillates: 0
   centerXThreshold: 0.1
 --- !u!114 &7612487940696613836
@@ -188,8 +186,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a392e452bed495b8987bcb6ab3686d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10
-  currentHealth: 10
+  maxHealth: 50
+  currentHealth: 50
   isImmortal: 1
 --- !u!114 &-4877352769531665167
 MonoBehaviour:
@@ -240,12 +238,12 @@ MonoBehaviour:
     SfxVolume: 1
     WaitForAction: 0.5
     MaxVfxPerFrame: 0
-  - Type: 14
+  - Type: 16
     VfxPrefab: {fileID: 462670460786600360, guid: 285fb53922afad341b016d11032d75ea, type: 3}
     ParentToTarget: 1
-    VfxScale: {x: 2, y: 2, z: 2}
+    VfxScale: {x: 2.5, y: 2.5, z: 2.5}
     SfxClip: {fileID: 8300000, guid: 78df047f488dc4547ac19845de5e7d2c, type: 3}
-    LoopSfx: 1
+    LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0
     MaxVfxPerFrame: 1

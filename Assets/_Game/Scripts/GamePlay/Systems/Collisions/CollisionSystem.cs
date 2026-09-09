@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using GamePlay.ComponentSystems;
+using GamePlay.Items;
 using UnityEngine;
 
 namespace GamePlay.CollisionSystems
@@ -21,6 +22,7 @@ namespace GamePlay.CollisionSystems
         private readonly List<Transform> _transforms = new List<Transform>(1024);
         private readonly List<uint> _masks = new List<uint>(1024);
         private readonly List<ColliderData> _colliders = new List<ColliderData>(1024);
+        private readonly List<bool> _isSoldierBalls = new List<bool>(1024);
         private readonly List<Vector2Int> _spatialCells = new List<Vector2Int>(1024);
         private readonly Dictionary<IHitable, int> _targetIndices = new Dictionary<IHitable, int>(1024);
         private readonly Dictionary<Transform, IHitable> _transformTargets = new Dictionary<Transform, IHitable>(1024);
@@ -189,7 +191,7 @@ namespace GamePlay.CollisionSystems
                         var transform = GetTransform(index);
                         if (transform == null) continue;
 
-                        Vector3 position = transform.position;
+                        Vector3 position = _targets[index].Position;
                         if (position.x < minX || position.x > maxX ||
                             position.z < minZ || position.z > maxZ)
                         {
@@ -217,8 +219,6 @@ namespace GamePlay.CollisionSystems
                 return;
             }
 
-            CompactInvalidEntries();
-
             // Prevent duplicate registration of the same IHitable (common in pooled re-init paths).
             if (_targetIndices.TryGetValue(target, out int existingIndex))
             {
@@ -236,6 +236,7 @@ namespace GamePlay.CollisionSystems
                     _transformTargets[tr] = target;
                     _masks[existingIndex] = 1u << (int)target.EntityType;
                     _colliders[existingIndex] = target.GetColliderData();
+                    _isSoldierBalls[existingIndex] = tr.GetComponentInParent<SoldierBall>() != null;
                     UpdateMaxHorizontalColliderExtent(_colliders[existingIndex]);
                     UpdateSpatialCell(existingIndex);
                     return;
@@ -250,7 +251,8 @@ namespace GamePlay.CollisionSystems
 
             var colData = target.GetColliderData();
             _colliders.Add(colData);
-            _spatialCells.Add(GetSpatialCell(tr.position));
+            _isSoldierBalls.Add(tr.GetComponentInParent<SoldierBall>() != null);
+            _spatialCells.Add(GetSpatialCell(target.Position));
             _targetIndices[target] = _targets.Count - 1;
             _transformTargets[tr] = target;
             AddToSpatialBucket(_spatialCells[_spatialCells.Count - 1], _targets.Count - 1);
@@ -261,6 +263,7 @@ namespace GamePlay.CollisionSystems
         {
             if (targets == null || transforms == null || targets.Count != transforms.Count) return;
 
+            CompactInvalidEntries();
             for (int i = 0; i < targets.Count; i++)
             {
                 AddTarget(targets[i], transforms[i]);
@@ -292,6 +295,7 @@ namespace GamePlay.CollisionSystems
             _transforms.Clear();
             _masks.Clear();
             _colliders.Clear();
+            _isSoldierBalls.Clear();
             _spatialCells.Clear();
             _targetIndices.Clear();
             _transformTargets.Clear();
@@ -386,6 +390,7 @@ namespace GamePlay.CollisionSystems
                 _transforms[index] = _transforms[last];
                 _masks[index] = _masks[last];
                 _colliders[index] = _colliders[last];
+                _isSoldierBalls[index] = _isSoldierBalls[last];
                 _spatialCells[index] = _spatialCells[last];
 
                 var movedTarget = _targets[index];
@@ -405,6 +410,7 @@ namespace GamePlay.CollisionSystems
             _transforms.RemoveAt(last);
             _masks.RemoveAt(last);
             _colliders.RemoveAt(last);
+            _isSoldierBalls.RemoveAt(last);
             _spatialCells.RemoveAt(last);
 
             if (removedExtent >= _maxHorizontalColliderExtent)
@@ -422,7 +428,7 @@ namespace GamePlay.CollisionSystems
 
         private void UpdateSpatialCell(int index)
         {
-            Vector2Int nextCell = GetSpatialCell(_transforms[index].position);
+            Vector2Int nextCell = GetSpatialCell(_targets[index].Position);
             if (_spatialCells[index] == nextCell) return;
 
             RemoveFromSpatialBucket(_spatialCells[index], index);
@@ -533,6 +539,11 @@ namespace GamePlay.CollisionSystems
         {
             if (index < 0 || index >= _colliders.Count) return default;
             return _colliders[index];
+        }
+
+        public bool IsSoldierBall(int index)
+        {
+            return index >= 0 && index < _isSoldierBalls.Count && _isSoldierBalls[index];
         }
     }
 }

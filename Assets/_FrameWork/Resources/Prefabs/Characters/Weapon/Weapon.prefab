@@ -245,6 +245,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -6380873019934596588, guid: cc3fc261b86e7c243b4aceaa446423b1, type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -6380873019934596588, guid: cc3fc261b86e7c243b4aceaa446423b1, type: 3}
       propertyPath: m_LightProbeUsage
       value: 0
       objectReference: {fileID: 0}
@@ -259,7 +263,7 @@ PrefabInstance:
     - target: {fileID: -6380873019934596588, guid: cc3fc261b86e7c243b4aceaa446423b1, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 92bf8b76ea6ba0f4aa6e696e0021b119, type: 2}
+      objectReference: {fileID: 2100000, guid: 461ee54d97a82414895082f211204bea, type: 2}
     - target: {fileID: -3699971643763114865, guid: cc3fc261b86e7c243b4aceaa446423b1, type: 3}
       propertyPath: m_Quality
       value: 2
@@ -291,7 +295,7 @@ PrefabInstance:
     - target: {fileID: -3699971643763114865, guid: cc3fc261b86e7c243b4aceaa446423b1, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 92bf8b76ea6ba0f4aa6e696e0021b119, type: 2}
+      objectReference: {fileID: 2100000, guid: 461ee54d97a82414895082f211204bea, type: 2}
     - target: {fileID: 919132149155446097, guid: cc3fc261b86e7c243b4aceaa446423b1, type: 3}
       propertyPath: m_Name
       value: Crossbow

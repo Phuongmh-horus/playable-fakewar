@@ -6,6 +6,7 @@
 		[HDR][Header(_____Base_____)] _MainColor( "MainColor", Color ) = ( 1, 1, 1, 0 )
 		_OpacityStrength( "OpacityStrength", Range( 0, 6 ) ) = 1
 		_TextureIntensity( "TextureIntensity", Range( 0, 15 ) ) = 1
+		[Toggle(_USEDEPTHFADE_ON)] _UseDepthFade( "Use Depth Fade", Float ) = 0
 		_FD( "FD", Range( 0, 2 ) ) = 0
 		_CameraOffset( "CameraOffset", Float ) = 0
 		_CDFOffset( "CDF Offset", Float ) = 0
@@ -73,6 +74,7 @@
 			#include "UnityCG.cginc"
 
 			#pragma shader_feature_local_fragment _MAINRBGOFFSET_ON
+			#pragma shader_feature_local_fragment _USEDEPTHFADE_ON
 			#pragma shader_feature_local _USECUSTOM1YDISTORTION_ON
 			#pragma shader_feature_local _USENOISE_ON
 
@@ -226,13 +228,23 @@
                 half2 uv_Mask = baseUV * _MaskTex_ST.xy + _MaskTex_ST.zw + half2(_MaskFlowX, _MaskFlowY) * timeFlow;
                 half maskVal = tex2D(_MaskTex, uv_Mask).r;
 
-                // --- Fades (Tính toán Depth chuẩn Built-in) ---
-                float sceneDepth = SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, UNITY_PROJ_COORD(i.screenPos));
-                sceneDepth = LinearEyeDepth(sceneDepth);
-                float fragDepth = i.screenPos.z / i.screenPos.w;
-                
-                half depthFade = saturate(abs(sceneDepth - fragDepth) / max(0.001h, _FD));
-                half cameraFade = saturate((customEye - _ProjectionParams.y - _CDFOffset) / max(0.001h, _CDF));
+				// The off variant omits the depth texture sample for WebGL-safe slash effects.
+				half depthFade = 1.0h;
+				#ifdef _USEDEPTHFADE_ON
+				if (_FD > 0.001h)
+				{
+					float sceneDepth = SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, UNITY_PROJ_COORD(i.screenPos));
+					sceneDepth = LinearEyeDepth(sceneDepth);
+					float fragDepth = i.screenPos.z / i.screenPos.w;
+					depthFade = saturate(abs(sceneDepth - fragDepth) / _FD);
+				}
+				#endif
+
+				half cameraFade = 1.0h;
+				if (_CDF > 0.001h)
+				{
+					cameraFade = saturate((customEye - _ProjectionParams.y - _CDFOffset) / _CDF);
+				}
 
                 // --- Final Color & Alpha ---
                 half3 finalColor = _MainColor.rgb * mainTexColor.rgb * _TextureIntensity * i.color.rgb;

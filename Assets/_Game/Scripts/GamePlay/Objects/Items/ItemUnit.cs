@@ -41,7 +41,7 @@ namespace GamePlay.Items
         public float RightOffset;
 
         [Header("Runtime Fallbacks")]
-        [SerializeField] protected bool autoAddHitTextFlyEffectAtRuntime = true;
+        [SerializeField] protected bool autoAddHitTextFlyEffectAtRuntime = false;
 
         private bool _initDataFirst;
 

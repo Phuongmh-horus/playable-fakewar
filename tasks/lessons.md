@@ -8,3 +8,5 @@
 - When adding a new serialized gameplay value, update every matching content override and scene-capture path, including composite or multi-slot variants.
 - After undoing related gameplay files, validate cross-file APIs immediately; partial undo can leave callers and implementations out of sync.
 - For a persistent Unity runtime bug, do not conclude from component presence or a plausible static call path; verify the serialized data, runtime initialization order, collision registration, and the actual event that should trigger the behavior.
+- Do not replace a gameplay-critical pooled `Spawn` with `TrySpawn` unless the pool readiness and exhaustion behavior have been verified in the target Luna/WebGL build; a silent null must never suppress player projectiles or rewards.
+- For target-bound VFX, honor the prefab's `ParentToTarget` setting; do not add an effect-type override that silently forces world-space behavior.

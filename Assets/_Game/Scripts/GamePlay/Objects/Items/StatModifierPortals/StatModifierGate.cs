@@ -52,10 +52,8 @@ namespace GamePlay.Items
         [SerializeField] private float scaleUpDuration = 0.08f;
         [SerializeField] private float scaleDownDuration = 0.15f;
 
-        [Header("Hit Bend")]
-        [SerializeField] private float bendAngle = 12f;
-        [SerializeField] private float bendDuration = 0.08f;
-        [SerializeField] private float returnDuration = 0.15f;
+        [Header("Projectile Hit Effect")]
+        [SerializeField] private Vector3 projectileHitEffectLocalPosition = new Vector3(0f, 4f, -1f);
 
         [Header("Oscillation")]
         [SerializeField] private bool onlyCenterOscillates = true;
@@ -72,8 +70,6 @@ namespace GamePlay.Items
         private Sequence _bendSequence;
         private bool _isCollectedByArmy;
         private HitTextFlyEffect _flyTextEffect;
-        private float _nextBendFeedbackTime;
-        private float _nextScalePulseTime;
         private float _nextAudioTime;
         private int _nextHitEffectFrame;
         private HealthComponent _fireSoldierHealth;
@@ -326,7 +322,8 @@ namespace GamePlay.Items
             }
 
             _nextHitEffectFrame = Time.frameCount + 12;
-            Pack.Effector?.PlayEffect(EffectType.Hit, transform.position + Vector3.up * 4f + Vector3.forward * -5f);
+            Vector3 hitEffectPosition = transform.TransformPoint(projectileHitEffectLocalPosition);
+            Pack.Effector?.PlayEffect(EffectType.Break, hitEffectPosition, transform.rotation, transform);
         }
 
         protected override void HandleHealthChange(int current, int max)
@@ -356,28 +353,56 @@ namespace GamePlay.Items
 
             int remainingDamage = source.Damage;
             int maxHealth = Mathf.Max(1, _fireSoldierHealth.MaxHealth);
-            while (remainingDamage > 0)
+            int resolvedHealth = Mathf.Clamp(_fireSoldierHealth.CurrentHealth, 1, maxHealth);
+            bool rewardChanged = false;
+
+            if (_multiSlotGate == null)
             {
-                int currentHealth = Mathf.Clamp(_fireSoldierHealth.CurrentHealth, 1, maxHealth);
-                int damageThisCycle = Mathf.Min(remainingDamage, currentHealth);
-                remainingDamage -= damageThisCycle;
-
-                if (damageThisCycle < currentHealth)
+                if (remainingDamage < resolvedHealth)
                 {
-                    _fireSoldierHealth.SetHealth(currentHealth - damageThisCycle);
-                    break;
+                    resolvedHealth -= remainingDamage;
                 }
-
-                if (_multiSlotGate == null || _multiSlotGate.TryExpandActiveSlot(this))
+                else
                 {
-                    IncreaseCharacterGateReward();
+                    remainingDamage -= resolvedHealth;
+                    int completedCycles = 1 + remainingDamage / maxHealth;
+                    int residualDamage = remainingDamage % maxHealth;
+                    resolvedHealth = residualDamage == 0 ? maxHealth : maxHealth - residualDamage;
+                    IncreaseCharacterGateReward(completedCycles);
+                    rewardChanged = true;
                 }
+            }
+            else
+            {
+                while (remainingDamage > 0)
+                {
+                    int damageThisCycle = Mathf.Min(remainingDamage, resolvedHealth);
+                    remainingDamage -= damageThisCycle;
+
+                    if (damageThisCycle < resolvedHealth)
+                    {
+                        resolvedHealth -= damageThisCycle;
+                        break;
+                    }
+
+                    if (_multiSlotGate.TryExpandActiveSlot(this))
+                    {
+                        IncreaseCharacterGateReward();
+                        rewardChanged = true;
+                    }
+                    resolvedHealth = maxHealth;
+                }
+            }
+
+            if (rewardChanged)
+            {
                 _lastTextValue = int.MinValue;
                 UpdateGateColor();
                 UpdateText();
-                UpdateImage();
-                _fireSoldierHealth.SetHealth(maxHealth);
             }
+
+            _fireSoldierHealth.SetHealth(resolvedHealth);
+            UpdateImage();
         }
 
         public void CollectByArmy()
@@ -675,13 +700,19 @@ namespace GamePlay.Items
 
         private void IncreaseCharacterGateReward()
         {
+            IncreaseCharacterGateReward(1);
+        }
+
+        private void IncreaseCharacterGateReward(int amount)
+        {
+            amount = Mathf.Max(0, amount);
             if (Data.Operation == StatModifierOperation.Multiply)
             {
-                Data.Multiplier += 0.5f;
+                Data.Multiplier += 0.5f * amount;
             }
             else
             {
-                Data.Value += 1;
+                Data.Value += amount;
             }
         }
 
@@ -768,13 +799,21 @@ namespace GamePlay.Items
             SetGateLocalX(_runtimeLeftPillar, -width * 0.5f);
             SetGateLocalX(_runtimeRightPillar, width * 0.5f);
 
+            Vector3 itemColliderSize = colliderSize;
+            itemColliderSize.x = width;
+            colliderSize = itemColliderSize;
+
             if (hitComponent != null)
             {
                 Vector3 hitSize = hitComponent.colliderSize;
                 hitSize.x = width;
                 hitComponent.colliderSize = hitSize;
                 hitComponent.InvalidateColliderData();
-                CollisionSystem.NotifyColliderChanged(hitComponent);
+            }
+
+            if (Pack.Hitable != null)
+            {
+                CollisionSystem.NotifyColliderChanged(Pack.Hitable);
             }
         }
 

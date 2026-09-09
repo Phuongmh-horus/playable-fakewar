@@ -30,10 +30,15 @@ namespace WeaponCraft
 
         // Fly animation pool (temporarily instantiated at root).
         private readonly Dictionary<int, Queue<GameObject>> _flyPool = new Dictionary<int, Queue<GameObject>>(16);
+        private readonly List<GameObject> _activeFlyBuffer = new List<GameObject>(8);
+        private readonly Vector3[] _cornerBuffer = new Vector3[4];
 
         private Canvas _canvas;
         private Camera _uiCam;
         private bool _isDestroyed;
+        private WeaponCraftConfigSO _prewarmedConfig;
+        private WaitForSeconds _mergeSpawnDelayWait;
+        private readonly WaitForSeconds _milestoneHoldWait = new WaitForSeconds(0.3f);
 
         public event System.Action<WeaponItem> OnMergeCompleted;
         public int SlotCount => slots.Count;
@@ -43,6 +48,7 @@ namespace WeaponCraft
             _config = config;
             EnsureSlotData();
             ResolveCanvas();
+            _mergeSpawnDelayWait = mergeSpawnDelay > 0f ? new WaitForSeconds(mergeSpawnDelay) : null;
         }
 
         private void Awake()
@@ -84,6 +90,9 @@ namespace WeaponCraft
         public void PrewarmWeapons()
         {
             if (_config?.TierVisuals == null) return;
+            if (_prewarmedConfig == _config) return;
+
+            _prewarmedConfig = _config;
 
             // 1. Scan scene-placed objects in slots and register them
             for (int i = 0; i < slots.Count; i++)
@@ -256,12 +265,12 @@ namespace WeaponCraft
                     rt.localScale = Vector3.one;
                 }
                 gateFlyGo.SetActive(true);
-                yield return DOTween.To(() => rt.anchoredPosition, x => rt.anchoredPosition = x, uiCenterLocal, flyDuration).SetEase(Ease.OutQuad).WaitForCompletion();
+                yield return rt.DOAnchorPos(uiCenterLocal, flyDuration).SetEase(Ease.OutQuad).WaitForCompletion();
                 DespawnFlyPrefab(gateFlyGo);
             }
 
             // Container to Slots (Simulate filling up to the first milestone)
-            var flyGos = new List<GameObject>();
+            _activeFlyBuffer.Clear();
             Sequence initSeq = DOTween.Sequence();
 
             for (int i = 0; i < firstMilestone.Count; i++)
@@ -280,17 +289,17 @@ namespace WeaponCraft
                         rt.localScale = Vector3.one;
                     }
                     go.SetActive(true);
-                    flyGos.Add(go);
+                    _activeFlyBuffer.Add(go);
 
                     float delay = i * 0.05f;
-                    initSeq.Insert(delay, DOTween.To(() => rt.anchoredPosition, x => rt.anchoredPosition = x, targetPos, flyDuration).SetEase(Ease.OutQuad));
+                    initSeq.Insert(delay, rt.DOAnchorPos(targetPos, flyDuration).SetEase(Ease.OutQuad));
                 }
             }
 
-            if (flyGos.Count > 0)
+            if (_activeFlyBuffer.Count > 0)
                 yield return initSeq.WaitForCompletion();
 
-            for (int i = 0; i < flyGos.Count; i++) DespawnFlyPrefab(flyGos[i]);
+            for (int i = 0; i < _activeFlyBuffer.Count; i++) DespawnFlyPrefab(_activeFlyBuffer[i]);
 
             // Turn on real visuals for first milestone
             for (int i = 0; i < firstMilestone.Count; i++)
@@ -306,9 +315,9 @@ namespace WeaponCraft
                 var nextState = milestones[m];
                 var prevState = milestones[m - 1];
 
-                if (mergeSpawnDelay > 0f) yield return new WaitForSeconds(mergeSpawnDelay);
+                if (_mergeSpawnDelayWait != null) yield return _mergeSpawnDelayWait;
 
-                flyGos.Clear();
+                _activeFlyBuffer.Clear();
                 Sequence slideSeq = DOTween.Sequence();
 
                 // Slide Up Anim (Slot i moves to Slot i-1)
@@ -329,9 +338,9 @@ namespace WeaponCraft
                             rt.localScale = Vector3.one;
                         }
                         go.SetActive(true);
-                        flyGos.Add(go);
+                        _activeFlyBuffer.Add(go);
 
-                        slideSeq.Insert(0, DOTween.To(() => rt.anchoredPosition, x => rt.anchoredPosition = x, endPos, flyDuration).SetEase(Ease.InOutQuad));
+                        slideSeq.Insert(0, rt.DOAnchorPos(endPos, flyDuration).SetEase(Ease.InOutQuad));
                     }
                 }
 
@@ -340,10 +349,10 @@ namespace WeaponCraft
                 // Hide real visuals while sliding
                 for (int i = 0; i < slots.Count; i++) ClearSlot(i);
 
-                if (flyGos.Count > 0)
+                if (_activeFlyBuffer.Count > 0)
                     yield return slideSeq.WaitForCompletion();
 
-                for (int i = 0; i < flyGos.Count; i++) DespawnFlyPrefab(flyGos[i]);
+                for (int i = 0; i < _activeFlyBuffer.Count; i++) DespawnFlyPrefab(_activeFlyBuffer[i]);
 
                 // Turn on real visuals for next milestone
                 for (int i = 0; i < nextState.Count; i++)
@@ -367,7 +376,7 @@ namespace WeaponCraft
                 }
 
                 // Add delay so player can see the intermediate tier before the next merge clears it
-                yield return new WaitForSeconds(0.3f);
+                yield return _milestoneHoldWait;
             }
         }
 
@@ -417,9 +426,8 @@ namespace WeaponCraft
             if (slotRT == null) return Vector2.zero;
             var root = GetFlyRoot();
             if (root == null) return Vector2.zero;
-            var corners = new Vector3[4];
-            slotRT.GetWorldCorners(corners);
-            return root.InverseTransformPoint((corners[0] + corners[2]) * 0.5f);
+            slotRT.GetWorldCorners(_cornerBuffer);
+            return root.InverseTransformPoint((_cornerBuffer[0] + _cornerBuffer[2]) * 0.5f);
         }
 
         private Vector2 WorldToRootLocal(Vector3 worldPos)

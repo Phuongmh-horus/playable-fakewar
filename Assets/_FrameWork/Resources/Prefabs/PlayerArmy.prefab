@@ -75,17 +75,16 @@ MonoBehaviour:
   characterPrefab: {fileID: 6269225836784746350, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
   weaponProjectilePrefab: {fileID: 1917486832313472047, guid: 0785d7b4421d72d4fb1f5abdc6753a85, type: 3}
   fallbackCharacterLevel: 1
-  maxActiveSpawnedUnits: 51
+  maxActiveSpawnedUnits: 37
   unitSpacing: 1.5
   useSceneUnitsOnly: 1
-  characterPrewarmReserve: 35
+  characterPrewarmReserve: 36
   attackMode: 2
   meleeAttackSize: {x: 1.4, y: 2.2}
   rangedAttackSize: {x: 1.8, y: 6}
   attackOriginOffset: 0.9
   _baseAttackDamage: 5
   damageBonusPerUpgrade: 50
-  _baseProjectileDamage: 5
   attackInterval: 0.5
   projectileDistance: 50
   projectileDuration: 0.5

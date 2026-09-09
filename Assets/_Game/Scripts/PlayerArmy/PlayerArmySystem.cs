@@ -55,7 +55,6 @@ namespace PlayerArmy
         [Header("Damage Settings")]
         [SerializeField, Min(1)] private int _baseAttackDamage = 5;
         [SerializeField, Min(0)] private int damageBonusPerUpgrade = 50;
-        [SerializeField] private int _baseProjectileDamage = 5;
         private int attackDamage = 5;
 
         [Header("Projectile")]
@@ -145,6 +144,7 @@ namespace PlayerArmy
         private float _lastSwordSkillIncrementTime = -1f;
         private int _lastLaunchFrame = -1;
         private int _currentAttackEvalIndex = 0;
+        private float _nextPendingProjectileTime = float.PositiveInfinity;
 
         private int _pendingSpawnAmount = 0;
         private int _pendingSpawnLevel = -1;
@@ -442,7 +442,7 @@ namespace PlayerArmy
                 return null;
             }
 
-            var unit = characterPrefab.Spawn(position, rotation, GetBodyRoot());
+            CharacterUnit unit = characterPrefab.Spawn(position, rotation, GetBodyRoot());
             if (unit == null)
             {
                 return null;
@@ -534,7 +534,6 @@ namespace PlayerArmy
             }
 
             int spawnCount = Mathf.Min(_pendingSpawnAmount, MaxSpawnsPerFrame);
-            _pendingSpawnAmount -= spawnCount;
             int level = _pendingSpawnLevel;
             bool playMoveAnimation = _pendingSpawnPlayAnimation;
             float? nextAttackTime = null;
@@ -544,6 +543,7 @@ namespace PlayerArmy
             int availableSlots = activeUnitCap - characterUnits.Count;
             if (availableSlots <= 0)
             {
+                _pendingSpawnAmount = 0;
                 return;
             }
 
@@ -556,6 +556,7 @@ namespace PlayerArmy
             BuildOccupiedArmyIndices();
             ApplyUnitCombatProfile();
 
+            int spawnedCount = 0;
             for (int i = 0; i < spawnCount; i++)
             {
                 int index = FindNextAvailableArmyIndex();
@@ -567,18 +568,23 @@ namespace PlayerArmy
                 _occupiedArmyIndices[index] = true;
                 Vector3 spawnPosition = GetHoneycombSpawnPosition(root, index, totalCount);
                 var unit = CreateRuntimeCharacterUnit(resolvedLevel, spawnPosition, rotation, nextAttackTime, playMoveAnimation, false);
-                if (unit != null)
+                if (unit == null)
                 {
-                    if (!characterUnits.Contains(unit))
-                    {
-                        characterUnits.Add(unit);
-                    }
-
-                    unit.ArmyIndex = index;
-                    unit.transform.SetPositionAndRotation(spawnPosition, rotation);
+                    break;
                 }
+
+                spawnedCount++;
+                if (!characterUnits.Contains(unit))
+                {
+                    characterUnits.Add(unit);
+                }
+
+                unit.ArmyIndex = index;
+                unit.transform.SetPositionAndRotation(spawnPosition, rotation);
             }
 
+
+            _pendingSpawnAmount -= spawnedCount;
         }
 
         public void PlayEffect(EffectType effectType, Transform anchor = null, Action onComplete = null, float waitForAction = 0f)
@@ -663,6 +669,7 @@ namespace PlayerArmy
         {
             _pendingProjectileAttacks.Clear();
             _pendingProjectileUnits.Clear();
+            _nextPendingProjectileTime = float.PositiveInfinity;
         }
 
         private void ClearContactState()
@@ -1160,8 +1167,9 @@ namespace PlayerArmy
             uint myMask = TargetMask;
             float myHalfX = mySize.x * 0.5f;
             float myHalfZ = mySize.y * 0.5f;
-            float preCullX = Mathf.Max(myHalfX + 1f, collisionCheckRangeX);
-            float preCullZ = Mathf.Max(myHalfZ + 1f, collisionCheckRangeZ);
+            float targetExtent = collisionSystem.MaxHorizontalColliderExtent;
+            float preCullX = Mathf.Max(myHalfX + targetExtent, collisionCheckRangeX);
+            float preCullZ = Mathf.Max(myHalfZ + targetExtent, collisionCheckRangeZ);
             Vector3 queryStart = myPos - transform.forward * preCullZ;
             Vector3 queryEnd = myPos + transform.forward * preCullZ;
             collisionSystem.QueryIndicesNearSegment(queryStart, queryEnd, preCullX, _collisionQueryIndices);
@@ -1181,18 +1189,18 @@ namespace PlayerArmy
                     continue;
                 }
 
-                Vector3 tPos = targetTr.position;
+                var target = collisionSystem.GetTargetBySortedIndex(i);
+                if (target == null || !target.IsActive || ReferenceEquals(target, this))
+                {
+                    continue;
+                }
+
+                Vector3 tPos = target.Position;
                 float distX = tPos.x - myPos.x;
                 float distZ = tPos.z - myPos.z;
                 float absDistX = Mathf.Abs(distX);
                 float absDistZ = Mathf.Abs(distZ);
                 if (absDistX > preCullX || absDistZ > preCullZ)
-                {
-                    continue;
-                }
-
-                var target = collisionSystem.GetTargetBySortedIndex(i);
-                if (target == null || !target.IsActive || ReferenceEquals(target, this))
                 {
                     continue;
                 }
@@ -1224,7 +1232,7 @@ namespace PlayerArmy
                         ResolveEnemyContact(target, tPos, tHalfX, tHalfZ);
                     }
                 }
-                else if (targetTr.GetComponentInParent<GamePlay.Items.SoldierBall>() != null)
+                else if (collisionSystem.IsSoldierBall(i))
                 {
                     ResolveSoldierBallContact(tPos, tHalfX, tHalfZ);
                 }
@@ -1405,11 +1413,13 @@ namespace PlayerArmy
 
             //unit.PlayAnimation(AnimationType.Attack, 0.4f, null, 1);
 
+            float triggerTime = Time.time + 0.4f;
             _pendingProjectileAttacks.Add(new PendingProjectileAttack
             {
                 Unit = unit,
-                TriggerTime = Time.time + 0.4f
+                TriggerTime = triggerTime
             });
+            _nextPendingProjectileTime = Mathf.Min(_nextPendingProjectileTime, triggerTime);
 
             return true;
         }
@@ -1431,6 +1441,11 @@ namespace PlayerArmy
             }
 
             float now = Time.time;
+            if (now < _nextPendingProjectileTime)
+            {
+                return;
+            }
+
             int launchBudget = 0;
 
             // Limit projectile launches across multiple frames
@@ -1441,34 +1456,19 @@ namespace PlayerArmy
             }
 
             int logicalShotLimit = Mathf.Max(1, maxLogicalShotsPerProjectile);
+            int scanIndex = _pendingProjectileAttacks.Count - 1;
             while (launchBudget > 0 && EnemyProjectileSystem.CanRegisterProjectile())
             {
-                int leadIndex = FindDueProjectileAttackIndex(now);
-                if (leadIndex < 0)
+                if (!TryDequeueDueProjectileAttack(now, ref scanIndex, out PendingProjectileAttack leadAttack))
                 {
                     break;
                 }
 
-                PendingProjectileAttack leadAttack = RemovePendingProjectileAttackAtSwapBack(leadIndex);
                 int logicalShotCount = 1;
-                int scanIndex = _pendingProjectileAttacks.Count - 1;
-                while (scanIndex >= 0 && logicalShotCount < logicalShotLimit)
+                while (logicalShotCount < logicalShotLimit &&
+                       TryDequeueDueProjectileAttack(now, ref scanIndex, out _))
                 {
-                    PendingProjectileAttack pendingAttack = _pendingProjectileAttacks[scanIndex];
-                    if (pendingAttack.Unit == null || !pendingAttack.Unit.IsActive)
-                    {
-                        RemovePendingProjectileAttackAtSwapBack(scanIndex);
-                        scanIndex--;
-                        continue;
-                    }
-
-                    if (pendingAttack.TriggerTime <= now)
-                    {
-                        RemovePendingProjectileAttackAtSwapBack(scanIndex);
-                        logicalShotCount++;
-                    }
-
-                    scanIndex--;
+                    logicalShotCount++;
                 }
 
                 if (ExecuteThrownProjectileAttack(leadAttack.Unit, logicalShotCount))
@@ -1477,12 +1477,18 @@ namespace PlayerArmy
                 }
                 launchBudget--;
             }
+
+            RefreshNextPendingProjectileTime();
         }
 
-        private int FindDueProjectileAttackIndex(float now)
+        private bool TryDequeueDueProjectileAttack(
+            float now,
+            ref int scanIndex,
+            out PendingProjectileAttack dueAttack)
         {
-            for (int index = _pendingProjectileAttacks.Count - 1; index >= 0; index--)
+            while (scanIndex >= 0)
             {
+                int index = scanIndex--;
                 PendingProjectileAttack attack = _pendingProjectileAttacks[index];
                 if (attack.Unit == null || !attack.Unit.IsActive)
                 {
@@ -1492,11 +1498,13 @@ namespace PlayerArmy
 
                 if (attack.TriggerTime <= now)
                 {
-                    return index;
+                    dueAttack = RemovePendingProjectileAttackAtSwapBack(index);
+                    return true;
                 }
             }
 
-            return -1;
+            dueAttack = default;
+            return false;
         }
 
         private PendingProjectileAttack RemovePendingProjectileAttackAtSwapBack(int index)
@@ -1510,7 +1518,26 @@ namespace PlayerArmy
 
             _pendingProjectileAttacks.RemoveAt(lastIndex);
             _pendingProjectileUnits.Remove(attack.Unit);
+            if (_pendingProjectileAttacks.Count == 0)
+            {
+                _nextPendingProjectileTime = float.PositiveInfinity;
+            }
             return attack;
+        }
+
+        private void RefreshNextPendingProjectileTime()
+        {
+            float nextTime = float.PositiveInfinity;
+            for (int index = 0; index < _pendingProjectileAttacks.Count; index++)
+            {
+                PendingProjectileAttack attack = _pendingProjectileAttacks[index];
+                if (attack.Unit != null && attack.Unit.IsActive && attack.TriggerTime < nextTime)
+                {
+                    nextTime = attack.TriggerTime;
+                }
+            }
+
+            _nextPendingProjectileTime = nextTime;
         }
 
         public bool LaunchPlayerProjectile(CharacterUnit unit, Vector3 startPoint, Vector3 forward, Quaternion rotation, float distance, int damage)
@@ -2043,9 +2070,33 @@ namespace PlayerArmy
 
         private void ResolveSoldierBallContact(Vector3 ballPosition, float ballHalfX, float ballHalfZ)
         {
-            if (TryGetOverlappingCharacterUnit(ballPosition, ballHalfX, ballHalfZ, out var collidedUnit))
+            bool despawnedAny = false;
+            for (int i = 0; i < characterUnits.Count; i++)
             {
-                collidedUnit.RecycleImmediate(true);
+                CharacterUnit unit = characterUnits[i];
+                if (unit == null || !unit.IsActive)
+                {
+                    continue;
+                }
+
+                ColliderData unitCollider = unit.GetColliderData();
+                float unitHalfX = Mathf.Abs(unitCollider.Size.x);
+                float unitHalfZ = unitCollider.Type == ShapeType.Box
+                    ? Mathf.Abs(unitCollider.Size.z)
+                    : Mathf.Max(Mathf.Abs(unitCollider.Size.x), Mathf.Abs(unitCollider.Size.z));
+                Vector3 delta = unit.Position - ballPosition;
+                if (Mathf.Abs(delta.x) > ballHalfX + unitHalfX ||
+                    Mathf.Abs(delta.z) > ballHalfZ + unitHalfZ)
+                {
+                    continue;
+                }
+
+                unit.RecycleImmediate(true);
+                despawnedAny = true;
+            }
+
+            if (despawnedAny)
+            {
                 PruneInactiveSpawnedUnits();
             }
         }

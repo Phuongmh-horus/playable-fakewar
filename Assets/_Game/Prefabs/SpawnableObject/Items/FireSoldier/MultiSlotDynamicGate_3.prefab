@@ -148,8 +148,8 @@ MonoBehaviour:
   - {fileID: 2269021306130995483}
   - {fileID: 2609263418513291591}
   - {fileID: 9020052186164364575}
-  defaultWidthGrowPercent: 3
-  defaultMinimumWidthPercent: 15
+  defaultWidthGrowPercent: 4
+  defaultMinimumWidthPercent: 20
   totalWidth: 0
 --- !u!1 &7191692475970087965
 GameObject:

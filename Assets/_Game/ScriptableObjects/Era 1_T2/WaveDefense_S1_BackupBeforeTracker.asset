@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c2079c0368c943943aafbc09708e34e6, type: 3}
-  m_Name: WaveDefense_S1
+  m_Name: WaveDefense_S1_BackupBeforeTracker
   m_EditorClassIdentifier: 
   ContentId: 0
   ContentName: WaveDefense
@@ -22,8 +22,8 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880384
-    - rid: 2516020342052880385
+    - rid: 2516020268941705649
+    - rid: 2516020268941705650
     overrideMaxHp: 1
     maxHp: 5
   - Prefab: {fileID: -3187097488725319018, guid: 2d38a3f3894e954469794c8cec55d784, type: 3}
@@ -32,27 +32,27 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 0.7, y: 0.7, z: 0.7}
     propertyOverrides:
-    - rid: 2516020342052880386
-    - rid: 2516020342052880387
+    - rid: 2516020268941705651
+    - rid: 2516020268941705652
     overrideMaxHp: 1
-    maxHp: 20
+    maxHp: 30
   - Prefab: {fileID: -3187097488725319018, guid: 722adc8290fbe444187ec9b6bdad8cbd, type: 3}
     PositionOnMap: 75
     PositionOffset: {x: 0, y: 0, z: 0}
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 0.7, y: 0.7, z: 0.7}
     propertyOverrides:
-    - rid: 2516020342052880388
-    - rid: 2516020342052880389
+    - rid: 2516020268941705653
+    - rid: 2516020268941705654
     overrideMaxHp: 1
-    maxHp: 20
+    maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
     PositionOnMap: 92.29999
     PositionOffset: {x: -10.700012, y: 0, z: 0}
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880390
+    - rid: 2516020268941705655
     overrideMaxHp: 1
     maxHp: 15
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -61,7 +61,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880391
+    - rid: 2516020268941705656
     overrideMaxHp: 1
     maxHp: 15
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -70,7 +70,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880392
+    - rid: 2516020268941705657
     overrideMaxHp: 1
     maxHp: 15
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -79,7 +79,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880393
+    - rid: 2516020268941705658
     overrideMaxHp: 1
     maxHp: 15
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -88,7 +88,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880394
+    - rid: 2516020268941705659
     overrideMaxHp: 1
     maxHp: 15
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -97,7 +97,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880395
+    - rid: 2516020268941705660
     overrideMaxHp: 1
     maxHp: 15
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -106,7 +106,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880396
+    - rid: 2516020268941705661
     overrideMaxHp: 1
     maxHp: 15
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -115,7 +115,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880397
+    - rid: 2516020268941705662
     overrideMaxHp: 1
     maxHp: 15
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -124,7 +124,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880398
+    - rid: 2516020268941705663
     overrideMaxHp: 1
     maxHp: 15
   - Prefab: {fileID: 3360367997036094387, guid: ef8a3aed54a409a4fb48a1e34e0e5c28, type: 3}
@@ -133,8 +133,8 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880399
-    - rid: 2516020342052880400
+    - rid: 2516020268941705664
+    - rid: 2516020268941705665
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 3360367997036094387, guid: ef8a3aed54a409a4fb48a1e34e0e5c28, type: 3}
@@ -143,8 +143,8 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880401
-    - rid: 2516020342052880402
+    - rid: 2516020268941705666
+    - rid: 2516020268941705667
     overrideMaxHp: 1
     maxHp: 50
   - Prefab: {fileID: 3360367997036094387, guid: ef8a3aed54a409a4fb48a1e34e0e5c28, type: 3}
@@ -153,8 +153,8 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880403
-    - rid: 2516020342052880404
+    - rid: 2516020268941705668
+    - rid: 2516020268941705669
     overrideMaxHp: 1
     maxHp: 100
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -163,7 +163,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880405
+    - rid: 2516020268941705670
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -172,7 +172,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880406
+    - rid: 2516020268941705671
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -181,7 +181,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880407
+    - rid: 2516020268941705672
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -190,7 +190,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880408
+    - rid: 2516020268941705673
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -199,7 +199,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880409
+    - rid: 2516020268941705674
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -208,7 +208,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880410
+    - rid: 2516020268941705675
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -217,7 +217,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880411
+    - rid: 2516020268941705676
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -226,7 +226,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880412
+    - rid: 2516020268941705677
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -235,7 +235,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880413
+    - rid: 2516020268941705678
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -244,7 +244,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880414
+    - rid: 2516020268941705679
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -253,7 +253,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880415
+    - rid: 2516020268941705680
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -262,7 +262,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880416
+    - rid: 2516020268941705681
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -271,7 +271,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880417
+    - rid: 2516020268941705682
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -280,7 +280,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880418
+    - rid: 2516020268941705683
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -289,7 +289,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880419
+    - rid: 2516020268941705684
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -298,7 +298,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880420
+    - rid: 2516020268941705685
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -307,7 +307,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880421
+    - rid: 2516020268941705686
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -316,7 +316,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880422
+    - rid: 2516020268941705687
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -325,7 +325,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880423
+    - rid: 2516020268941705688
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -334,7 +334,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880424
+    - rid: 2516020268941705689
     overrideMaxHp: 1
     maxHp: 20
   - Prefab: {fileID: 7029471784715356516, guid: bc9e227ad9e373448a5609cbe44dd5b8, type: 3}
@@ -343,9 +343,8 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880425
-    - rid: 2516020342052880426
-    overrideMaxHp: 1
+    - rid: 2516020268941705691
+    overrideMaxHp: 0
     maxHp: 50
   - Prefab: {fileID: -3187097488725319018, guid: a95342978fb67cd44a54a3d86e9152f1, type: 3}
     PositionOnMap: 210
@@ -353,8 +352,8 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 0.7, y: 0.7, z: 0.7}
     propertyOverrides:
-    - rid: 2516020342052880427
-    - rid: 2516020342052880428
+    - rid: 2516020268941705694
+    - rid: 2516020268941705695
     overrideMaxHp: 1
     maxHp: 150
   - Prefab: {fileID: -3187097488725319018, guid: 2d38a3f3894e954469794c8cec55d784, type: 3}
@@ -363,27 +362,17 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 0.7, y: 0.7, z: 0.7}
     propertyOverrides:
-    - rid: 2516020342052880429
-    - rid: 2516020342052880430
+    - rid: 2516020268941705696
+    - rid: 2516020268941705697
     overrideMaxHp: 1
-    maxHp: 100
-  - Prefab: {fileID: -3187097488725319018, guid: 2d38a3f3894e954469794c8cec55d784, type: 3}
-    PositionOnMap: 210
-    PositionOffset: {x: 9.5, y: 0, z: 0}
-    Rotation: {x: -0, y: 0, z: 0}
-    Scale: {x: 0.7, y: 0.7, z: 0.7}
-    propertyOverrides:
-    - rid: 2516020342052880431
-    - rid: 2516020342052880432
-    overrideMaxHp: 1
-    maxHp: 100
+    maxHp: 150
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
     PositionOnMap: 228.50998
     PositionOffset: {x: -7.3499756, y: 0, z: 0}
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880433
+    - rid: 2516020268941705698
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -392,7 +381,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880434
+    - rid: 2516020268941705699
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -401,7 +390,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880435
+    - rid: 2516020268941705700
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -410,7 +399,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880436
+    - rid: 2516020268941705701
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -419,7 +408,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880437
+    - rid: 2516020268941705702
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -428,7 +417,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880438
+    - rid: 2516020268941705703
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -437,7 +426,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880439
+    - rid: 2516020268941705704
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -446,7 +435,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880440
+    - rid: 2516020268941705705
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -455,7 +444,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880441
+    - rid: 2516020268941705706
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -464,7 +453,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880442
+    - rid: 2516020268941705707
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -473,7 +462,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880443
+    - rid: 2516020268941705708
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -482,7 +471,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880444
+    - rid: 2516020268941705709
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -491,7 +480,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880445
+    - rid: 2516020268941705710
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -500,7 +489,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880446
+    - rid: 2516020268941705711
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -509,7 +498,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880447
+    - rid: 2516020268941705712
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -518,7 +507,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880448
+    - rid: 2516020268941705713
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -527,7 +516,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880449
+    - rid: 2516020268941705714
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -536,7 +525,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880450
+    - rid: 2516020268941705715
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -545,7 +534,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880451
+    - rid: 2516020268941705716
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -554,7 +543,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880452
+    - rid: 2516020268941705717
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -563,7 +552,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880453
+    - rid: 2516020268941705718
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -572,7 +561,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880454
+    - rid: 2516020268941705719
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -581,7 +570,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880455
+    - rid: 2516020268941705720
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -590,7 +579,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880456
+    - rid: 2516020268941705721
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -599,7 +588,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880457
+    - rid: 2516020268941705722
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -608,7 +597,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880458
+    - rid: 2516020268941705723
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -617,7 +606,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880459
+    - rid: 2516020268941705724
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -626,7 +615,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880460
+    - rid: 2516020268941705725
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -635,7 +624,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880461
+    - rid: 2516020268941705726
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -644,7 +633,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880462
+    - rid: 2516020268941705727
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7322825091847387214, guid: efae95a237edee4449bdec5e9a07af90, type: 3}
@@ -653,9 +642,8 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880463
-    - rid: 2516020342052880464
-    overrideMaxHp: 1
+    - rid: 2516020268941705729
+    overrideMaxHp: 0
     maxHp: 200
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
     PositionOnMap: 281.44
@@ -663,7 +651,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880465
+    - rid: 2516020268941705730
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -672,7 +660,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880466
+    - rid: 2516020268941705731
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -681,7 +669,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880467
+    - rid: 2516020268941705732
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -690,7 +678,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880468
+    - rid: 2516020268941705733
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -699,27 +687,27 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880469
+    - rid: 2516020268941705734
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: -3187097488725319018, guid: 722adc8290fbe444187ec9b6bdad8cbd, type: 3}
     PositionOnMap: 308.3
+    PositionOffset: {x: 0.9000244, y: 0, z: 0}
+    Rotation: {x: -0, y: 0, z: 0}
+    Scale: {x: 0.7, y: 0.7, z: 0.7}
+    propertyOverrides:
+    - rid: 2516020268941705735
+    - rid: 2516020268941705736
+    overrideMaxHp: 1
+    maxHp: 200
+  - Prefab: {fileID: -3187097488725319018, guid: 2d38a3f3894e954469794c8cec55d784, type: 3}
+    PositionOnMap: 308.4
     PositionOffset: {x: 9.799988, y: 0, z: 0}
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 0.7, y: 0.7, z: 0.7}
     propertyOverrides:
-    - rid: 2516020342052880470
-    - rid: 2516020342052880471
-    overrideMaxHp: 1
-    maxHp: 250
-  - Prefab: {fileID: -3187097488725319018, guid: 2d38a3f3894e954469794c8cec55d784, type: 3}
-    PositionOnMap: 308.4
-    PositionOffset: {x: 0, y: 0, z: 0}
-    Rotation: {x: -0, y: 0, z: 0}
-    Scale: {x: 0.7, y: 0.7, z: 0.7}
-    propertyOverrides:
-    - rid: 2516020342052880472
-    - rid: 2516020342052880473
+    - rid: 2516020268941705737
+    - rid: 2516020268941705738
     overrideMaxHp: 1
     maxHp: 200
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -728,7 +716,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880474
+    - rid: 2516020268941705739
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -737,7 +725,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880475
+    - rid: 2516020268941705740
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -746,7 +734,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880476
+    - rid: 2516020268941705741
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -755,7 +743,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880477
+    - rid: 2516020268941705742
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -764,7 +752,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880478
+    - rid: 2516020268941705743
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -773,7 +761,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880479
+    - rid: 2516020268941705744
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -782,7 +770,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880480
+    - rid: 2516020268941705745
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -791,7 +779,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880481
+    - rid: 2516020268941705746
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -800,7 +788,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880482
+    - rid: 2516020268941705747
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -809,7 +797,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880483
+    - rid: 2516020268941705748
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -818,7 +806,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880484
+    - rid: 2516020268941705749
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -827,7 +815,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880485
+    - rid: 2516020268941705750
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -836,7 +824,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880486
+    - rid: 2516020268941705751
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -845,7 +833,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880487
+    - rid: 2516020268941705752
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -854,7 +842,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880488
+    - rid: 2516020268941705753
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -863,7 +851,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880489
+    - rid: 2516020268941705754
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -872,7 +860,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880490
+    - rid: 2516020268941705755
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -881,7 +869,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880491
+    - rid: 2516020268941705756
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -890,7 +878,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880492
+    - rid: 2516020268941705757
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -899,7 +887,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880493
+    - rid: 2516020268941705758
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -908,7 +896,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880494
+    - rid: 2516020268941705759
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -917,7 +905,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880495
+    - rid: 2516020268941705760
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -926,7 +914,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880496
+    - rid: 2516020268941705761
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -935,7 +923,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880497
+    - rid: 2516020268941705762
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 3360367997036094387, guid: ef8a3aed54a409a4fb48a1e34e0e5c28, type: 3}
@@ -944,8 +932,8 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880498
-    - rid: 2516020342052880499
+    - rid: 2516020268941705763
+    - rid: 2516020268941705764
     overrideMaxHp: 1
     maxHp: 200
   - Prefab: {fileID: -3187097488725319018, guid: ab7c3f0230c63b74c901775a93b29c35, type: 3}
@@ -954,8 +942,8 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 0.7, y: 0.7, z: 0.7}
     propertyOverrides:
-    - rid: 2516020342052880500
-    - rid: 2516020342052880501
+    - rid: 2516020268941705765
+    - rid: 2516020268941705766
     overrideMaxHp: 1
     maxHp: 500
   - Prefab: {fileID: 3360367997036094387, guid: ef8a3aed54a409a4fb48a1e34e0e5c28, type: 3}
@@ -964,8 +952,8 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880502
-    - rid: 2516020342052880503
+    - rid: 2516020268941705767
+    - rid: 2516020268941705768
     overrideMaxHp: 1
     maxHp: 500
   - Prefab: {fileID: -3187097488725319018, guid: 5211b984b4a245347a4aeb8f7deadf17, type: 3}
@@ -974,8 +962,7 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 0.8, y: 0.8, z: 0.8}
     propertyOverrides:
-    - rid: 2516020342052880504
-    - rid: 2516020342052880505
+    - rid: 2516020268941705769
     overrideMaxHp: 1
     maxHp: 500
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -984,7 +971,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880506
+    - rid: 2516020268941705771
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -993,16 +980,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880507
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
-    PositionOnMap: 381.25995
-    PositionOffset: {x: -0.8300171, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880508
+    - rid: 2516020268941705772
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1011,7 +989,16 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880509
+    - rid: 2516020268941705773
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
+    PositionOnMap: 381.25995
+    PositionOffset: {x: -0.8300171, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705774
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1020,7 +1007,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880510
+    - rid: 2516020268941705775
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1029,7 +1016,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880511
+    - rid: 2516020268941705776
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1038,7 +1025,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880512
+    - rid: 2516020268941705777
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1047,7 +1034,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880513
+    - rid: 2516020268941705778
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: -3187097488725319018, guid: 5211b984b4a245347a4aeb8f7deadf17, type: 3}
@@ -1056,8 +1043,7 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 0.8, y: 0.8, z: 0.8}
     propertyOverrides:
-    - rid: 2516020342052880514
-    - rid: 2516020342052880515
+    - rid: 2516020268941705779
     overrideMaxHp: 1
     maxHp: 500
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1066,7 +1052,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880516
+    - rid: 2516020268941705781
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1075,52 +1061,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880517
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
-    PositionOnMap: 397.69995
-    PositionOffset: {x: 7.369995, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880518
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
-    PositionOnMap: 397.69995
-    PositionOffset: {x: -6.75, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880519
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
-    PositionOnMap: 397.69995
-    PositionOffset: {x: 10.200012, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880520
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
-    PositionOnMap: 397.69995
-    PositionOffset: {x: -10.01001, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880521
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
-    PositionOnMap: 397.69995
-    PositionOffset: {x: 4.159973, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880522
+    - rid: 2516020268941705782
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1129,7 +1070,43 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880523
+    - rid: 2516020268941705783
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
+    PositionOnMap: 397.69995
+    PositionOffset: {x: 10.200012, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705784
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
+    PositionOnMap: 397.69995
+    PositionOffset: {x: 4.159973, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705785
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
+    PositionOnMap: 397.69995
+    PositionOffset: {x: 7.369995, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705786
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
+    PositionOnMap: 397.69995
+    PositionOffset: {x: -6.75, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705787
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1138,7 +1115,16 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880524
+    - rid: 2516020268941705788
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
+    PositionOnMap: 397.69995
+    PositionOffset: {x: -10.01001, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705789
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1147,7 +1133,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880525
+    - rid: 2516020268941705790
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1156,7 +1142,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880526
+    - rid: 2516020268941705791
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1165,7 +1151,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880527
+    - rid: 2516020268941705792
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1174,7 +1160,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880528
+    - rid: 2516020268941705793
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1183,7 +1169,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880529
+    - rid: 2516020268941705794
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1192,7 +1178,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880530
+    - rid: 2516020268941705795
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1201,7 +1187,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880531
+    - rid: 2516020268941705796
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1210,7 +1196,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880532
+    - rid: 2516020268941705797
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1219,7 +1205,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880533
+    - rid: 2516020268941705798
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1228,7 +1214,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880534
+    - rid: 2516020268941705799
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7029471784715356516, guid: bc9e227ad9e373448a5609cbe44dd5b8, type: 3}
@@ -1237,44 +1223,16 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880535
-    - rid: 2516020342052880536
-    overrideMaxHp: 1
+    - rid: 2516020268941705801
+    overrideMaxHp: 0
     maxHp: 300
-  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
-    PositionOnMap: 459.46
-    PositionOffset: {x: 13.450012, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880537
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
-    PositionOnMap: 459.68002
-    PositionOffset: {x: 9.969971, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880538
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
-    PositionOnMap: 459.91
-    PositionOffset: {x: 6.6500244, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880539
-    overrideMaxHp: 1
-    maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
     PositionOnMap: 460.02002
     PositionOffset: {x: 0, y: 0, z: 0}
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880540
+    - rid: 2516020268941705802
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1283,7 +1241,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880541
+    - rid: 2516020268941705803
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1292,7 +1250,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880542
+    - rid: 2516020268941705804
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1301,7 +1259,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880543
+    - rid: 2516020268941705805
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1310,7 +1268,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880544
+    - rid: 2516020268941705806
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1319,34 +1277,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880545
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
-    PositionOnMap: 462.73
-    PositionOffset: {x: 11.869995, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880546
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
-    PositionOnMap: 463.24002
-    PositionOffset: {x: 7.919983, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880547
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
-    PositionOnMap: 465.67
-    PositionOffset: {x: 10.169983, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880548
+    - rid: 2516020268941705807
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1355,7 +1286,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880549
+    - rid: 2516020268941705808
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1364,7 +1295,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880550
+    - rid: 2516020268941705809
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1373,7 +1304,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880551
+    - rid: 2516020268941705810
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1382,16 +1313,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880552
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
-    PositionOnMap: 466.13998
-    PositionOffset: {x: -7.380005, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880553
+    - rid: 2516020268941705811
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1400,16 +1322,61 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880554
+    - rid: 2516020268941705812
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
-    PositionOnMap: 481.73
-    PositionOffset: {x: -0.84002686, y: 0, z: 0}
+    PositionOnMap: 466.13998
+    PositionOffset: {x: -7.380005, y: 0, z: 0}
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880555
+    - rid: 2516020268941705813
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
+    PositionOnMap: 468.55002
+    PositionOffset: {x: 9.969971, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705814
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
+    PositionOnMap: 471.6
+    PositionOffset: {x: 11.869995, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705815
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
+    PositionOnMap: 472.11002
+    PositionOffset: {x: 7.919983, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705816
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
+    PositionOnMap: 474.54
+    PositionOffset: {x: 10.169983, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705817
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
+    PositionOnMap: 475.53
+    PositionOffset: {x: 6.6500244, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705818
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1418,7 +1385,16 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880556
+    - rid: 2516020268941705819
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
+    PositionOnMap: 482.95004
+    PositionOffset: {x: -0.84002686, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705820
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1427,16 +1403,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880557
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
-    PositionOnMap: 483.29
-    PositionOffset: {x: -0.85998535, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880558
+    - rid: 2516020268941705821
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1445,7 +1412,16 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880559
+    - rid: 2516020268941705822
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
+    PositionOnMap: 484.51004
+    PositionOffset: {x: -0.85998535, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705823
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1454,7 +1430,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880560
+    - rid: 2516020268941705824
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1463,16 +1439,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880561
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
-    PositionOnMap: 485.66
-    PositionOffset: {x: -1.0200195, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880562
+    - rid: 2516020268941705825
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1481,7 +1448,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880563
+    - rid: 2516020268941705826
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1490,16 +1457,16 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880564
+    - rid: 2516020268941705827
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
-    PositionOnMap: 487.59
-    PositionOffset: {x: -0.960022, y: 0, z: 0}
+    PositionOnMap: 486.88004
+    PositionOffset: {x: -1.0200195, y: 0, z: 0}
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880565
+    - rid: 2516020268941705828
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1508,7 +1475,16 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880566
+    - rid: 2516020268941705829
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
+    PositionOnMap: 488.81003
+    PositionOffset: {x: -0.960022, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705830
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: -3187097488725319018, guid: 5211b984b4a245347a4aeb8f7deadf17, type: 3}
@@ -1517,8 +1493,7 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 0.7, y: 0.7, z: 0.7}
     propertyOverrides:
-    - rid: 2516020342052880567
-    - rid: 2516020342052880568
+    - rid: 2516020268941705831
     overrideMaxHp: 1
     maxHp: 500
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1527,7 +1502,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880569
+    - rid: 2516020268941705833
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1536,7 +1511,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880570
+    - rid: 2516020268941705834
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1545,7 +1520,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880571
+    - rid: 2516020268941705835
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1554,34 +1529,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880572
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
-    PositionOnMap: 503.47998
-    PositionOffset: {x: -8.01001, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880573
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
-    PositionOnMap: 503.62
-    PositionOffset: {x: 0.2800293, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880574
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
-    PositionOnMap: 503.71002
-    PositionOffset: {x: -11.200012, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880575
+    - rid: 2516020268941705836
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: -3187097488725319018, guid: 5211b984b4a245347a4aeb8f7deadf17, type: 3}
@@ -1590,17 +1538,43 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 0.7, y: 0.7, z: 0.7}
     propertyOverrides:
-    - rid: 2516020342052880576
-    - rid: 2516020342052880577
+    - rid: 2516020268941705837
     overrideMaxHp: 1
-    maxHp: 500
+    maxHp: 1000
+  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
+    PositionOnMap: 503.47998
+    PositionOffset: {x: -8.01001, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705839
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
+    PositionOnMap: 503.62
+    PositionOffset: {x: 0.2800293, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705840
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
+    PositionOnMap: 503.71002
+    PositionOffset: {x: -11.200012, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705841
+    overrideMaxHp: 1
+    maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
     PositionOnMap: 506.47998
     PositionOffset: {x: -9.190002, y: 0, z: 0}
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880578
+    - rid: 2516020268941705842
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: -3187097488725319018, guid: 5211b984b4a245347a4aeb8f7deadf17, type: 3}
@@ -1609,8 +1583,7 @@ MonoBehaviour:
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 0.7, y: 0.7, z: 0.7}
     propertyOverrides:
-    - rid: 2516020342052880579
-    - rid: 2516020342052880580
+    - rid: 2516020268941705843
     overrideMaxHp: 1
     maxHp: 1000
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1619,7 +1592,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880581
+    - rid: 2516020268941705845
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1628,7 +1601,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880582
+    - rid: 2516020268941705846
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1637,7 +1610,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880583
+    - rid: 2516020268941705847
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1646,7 +1619,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880584
+    - rid: 2516020268941705848
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1655,7 +1628,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880585
+    - rid: 2516020268941705849
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1664,7 +1637,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880586
+    - rid: 2516020268941705850
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1673,7 +1646,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880587
+    - rid: 2516020268941705851
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1682,7 +1655,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880588
+    - rid: 2516020268941705852
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1691,7 +1664,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880589
+    - rid: 2516020268941705853
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1700,7 +1673,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880590
+    - rid: 2516020268941705854
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1709,7 +1682,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880591
+    - rid: 2516020268941705855
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1718,7 +1691,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880592
+    - rid: 2516020268941705856
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1727,7 +1700,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880593
+    - rid: 2516020268941705857
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1736,7 +1709,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880594
+    - rid: 2516020268941705858
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: b176056b49dbde940a74be7abfc0b0fd, type: 3}
@@ -1745,25 +1718,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880595
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
-    PositionOnMap: 529.5
-    PositionOffset: {x: -7.2199707, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880596
-    overrideMaxHp: 1
-    maxHp: 30
-  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
-    PositionOnMap: 529.5
-    PositionOffset: {x: -15.119934, y: 0, z: 0}
-    Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1, y: 1, z: 1}
-    propertyOverrides:
-    - rid: 2516020342052880597
+    - rid: 2516020268941705859
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
@@ -1772,7 +1727,25 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
-    - rid: 2516020342052880598
+    - rid: 2516020268941705860
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
+    PositionOnMap: 529.5
+    PositionOffset: {x: -7.2199707, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705861
+    overrideMaxHp: 1
+    maxHp: 30
+  - Prefab: {fileID: 7662387699070818353, guid: d172010ceb0e75b47840ec3610daf244, type: 3}
+    PositionOnMap: 529.5
+    PositionOffset: {x: -15.119934, y: 0, z: 0}
+    Rotation: {x: 0, y: 180, z: 0}
+    Scale: {x: 1, y: 1, z: 1}
+    propertyOverrides:
+    - rid: 2516020268941705862
     overrideMaxHp: 1
     maxHp: 30
   - Prefab: {fileID: 7295300047386825524, guid: a77f96997bc557e49a0e2eb93195eb73, type: 3}
@@ -1781,19 +1754,19 @@ MonoBehaviour:
     Rotation: {x: 0, y: 180, z: 0}
     Scale: {x: 1.5, y: 1.5, z: 1.5}
     propertyOverrides:
-    - rid: 2516020342052880599
+    - rid: 2516020268941705863
     overrideMaxHp: 1
     maxHp: 4000
   HasBoss: 1
   references:
     version: 2
     RefIds:
-    - rid: 2516020342052880384
+    - rid: 2516020268941705649
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 5
-    - rid: 2516020342052880385
+    - rid: 2516020268941705650
       type: {class: FireGateOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideValue: 1
@@ -1803,12 +1776,12 @@ MonoBehaviour:
         Armor: 0
         LeftOffset: 0
         RightOffset: 0
-    - rid: 2516020342052880386
+    - rid: 2516020268941705651
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
-        maxHp: 20
-    - rid: 2516020342052880387
+        maxHp: 30
+    - rid: 2516020268941705652
       type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideValue: 1
@@ -1818,12 +1791,12 @@ MonoBehaviour:
         Level: 0
         LeftOffset: 0
         RightOffset: 0
-    - rid: 2516020342052880388
+    - rid: 2516020268941705653
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
-        maxHp: 20
-    - rid: 2516020342052880389
+        maxHp: 30
+    - rid: 2516020268941705654
       type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideValue: 1
@@ -1833,57 +1806,57 @@ MonoBehaviour:
         Level: 0
         LeftOffset: 0
         RightOffset: 0
-    - rid: 2516020342052880390
+    - rid: 2516020268941705655
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 15
-    - rid: 2516020342052880391
+    - rid: 2516020268941705656
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 15
-    - rid: 2516020342052880392
+    - rid: 2516020268941705657
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 15
-    - rid: 2516020342052880393
+    - rid: 2516020268941705658
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 15
-    - rid: 2516020342052880394
+    - rid: 2516020268941705659
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 15
-    - rid: 2516020342052880395
+    - rid: 2516020268941705660
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 15
-    - rid: 2516020342052880396
+    - rid: 2516020268941705661
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 15
-    - rid: 2516020342052880397
+    - rid: 2516020268941705662
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 15
-    - rid: 2516020342052880398
+    - rid: 2516020268941705663
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 15
-    - rid: 2516020342052880399
+    - rid: 2516020268941705664
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880400
+    - rid: 2516020268941705665
       type: {class: FireGateOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideValue: 1
@@ -1893,12 +1866,12 @@ MonoBehaviour:
         Armor: 0
         LeftOffset: 0
         RightOffset: 0
-    - rid: 2516020342052880401
+    - rid: 2516020268941705666
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 50
-    - rid: 2516020342052880402
+    - rid: 2516020268941705667
       type: {class: FireGateOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideValue: 1
@@ -1908,12 +1881,12 @@ MonoBehaviour:
         Armor: 0
         LeftOffset: 0
         RightOffset: 0
-    - rid: 2516020342052880403
+    - rid: 2516020268941705668
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 100
-    - rid: 2516020342052880404
+    - rid: 2516020268941705669
       type: {class: FireGateOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideValue: 1
@@ -1923,112 +1896,107 @@ MonoBehaviour:
         Armor: 0
         LeftOffset: 0
         RightOffset: 0
-    - rid: 2516020342052880405
+    - rid: 2516020268941705670
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880406
+    - rid: 2516020268941705671
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880407
+    - rid: 2516020268941705672
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880408
+    - rid: 2516020268941705673
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880409
+    - rid: 2516020268941705674
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880410
+    - rid: 2516020268941705675
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880411
+    - rid: 2516020268941705676
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880412
+    - rid: 2516020268941705677
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880413
+    - rid: 2516020268941705678
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880414
+    - rid: 2516020268941705679
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880415
+    - rid: 2516020268941705680
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880416
+    - rid: 2516020268941705681
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880417
+    - rid: 2516020268941705682
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880418
+    - rid: 2516020268941705683
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880419
+    - rid: 2516020268941705684
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880420
+    - rid: 2516020268941705685
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880421
+    - rid: 2516020268941705686
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880422
+    - rid: 2516020268941705687
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880423
+    - rid: 2516020268941705688
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880424
+    - rid: 2516020268941705689
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 20
-    - rid: 2516020342052880425
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 50
-    - rid: 2516020342052880426
+    - rid: 2516020268941705691
       type: {class: MultiSlotDynamicGateOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideWidthLayout: 1
@@ -2054,12 +2022,12 @@ MonoBehaviour:
           multiplier: 0.5
           armor: 0
           maxHealth: 300
-    - rid: 2516020342052880427
+    - rid: 2516020268941705694
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 150
-    - rid: 2516020342052880428
+    - rid: 2516020268941705695
       type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideValue: 1
@@ -2069,12 +2037,12 @@ MonoBehaviour:
         Level: 1
         LeftOffset: 0
         RightOffset: 0
-    - rid: 2516020342052880429
+    - rid: 2516020268941705696
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
-        maxHp: 100
-    - rid: 2516020342052880430
+        maxHp: 150
+    - rid: 2516020268941705697
       type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideValue: 1
@@ -2084,590 +2052,160 @@ MonoBehaviour:
         Level: 0
         LeftOffset: 0
         RightOffset: 0
-    - rid: 2516020342052880431
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 100
-    - rid: 2516020342052880432
-      type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideValue: 1
-        Type: 1
-        ChangeType: 0
-        Value: 50
-        Level: 0
-        LeftOffset: 0
-        RightOffset: 0
-    - rid: 2516020342052880433
+    - rid: 2516020268941705698
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880434
+    - rid: 2516020268941705699
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880435
+    - rid: 2516020268941705700
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880436
+    - rid: 2516020268941705701
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880437
+    - rid: 2516020268941705702
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880438
+    - rid: 2516020268941705703
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880439
+    - rid: 2516020268941705704
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880440
+    - rid: 2516020268941705705
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880441
+    - rid: 2516020268941705706
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880442
+    - rid: 2516020268941705707
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880443
+    - rid: 2516020268941705708
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880444
+    - rid: 2516020268941705709
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880445
+    - rid: 2516020268941705710
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880446
+    - rid: 2516020268941705711
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880447
+    - rid: 2516020268941705712
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880448
+    - rid: 2516020268941705713
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880449
+    - rid: 2516020268941705714
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880450
+    - rid: 2516020268941705715
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880451
+    - rid: 2516020268941705716
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880452
+    - rid: 2516020268941705717
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880453
+    - rid: 2516020268941705718
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880454
+    - rid: 2516020268941705719
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880455
+    - rid: 2516020268941705720
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880456
+    - rid: 2516020268941705721
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880457
+    - rid: 2516020268941705722
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880458
+    - rid: 2516020268941705723
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880459
+    - rid: 2516020268941705724
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880460
+    - rid: 2516020268941705725
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880461
+    - rid: 2516020268941705726
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880462
+    - rid: 2516020268941705727
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880463
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 200
-    - rid: 2516020342052880464
+    - rid: 2516020268941705729
       type: {class: MultiSlotDynamicGateOverride, ns: , asm: Assembly-CSharp}
       data:
-        overrideWidthLayout: 1
-        defaultWidthGrowPercent: 4
-        defaultMinimumWidthPercent: 20
-        totalWidth: 0
-        slots:
-        - overrideSlot: 1
-          operation: 0
-          value: -6
-          multiplier: 1
-          armor: 0
-          maxHealth: 200
-        - overrideSlot: 1
-          operation: 0
-          value: 3
-          multiplier: 1
-          armor: 0
-          maxHealth: 300
-    - rid: 2516020342052880465
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880466
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880467
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880468
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880469
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880470
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 250
-    - rid: 2516020342052880471
-      type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideValue: 1
-        Type: 3
-        ChangeType: 0
-        Value: 5
-        Level: 0
-        LeftOffset: 0
-        RightOffset: 0
-    - rid: 2516020342052880472
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 200
-    - rid: 2516020342052880473
-      type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideValue: 1
-        Type: 1
-        ChangeType: 1
-        Value: 50
-        Level: 0
-        LeftOffset: 0
-        RightOffset: 0
-    - rid: 2516020342052880474
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880475
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880476
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880477
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880478
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880479
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880480
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880481
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880482
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880483
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880484
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880485
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880486
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880487
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880488
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880489
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880490
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880491
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880492
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880493
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880494
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880495
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880496
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880497
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880498
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 200
-    - rid: 2516020342052880499
-      type: {class: FireGateOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideValue: 1
-        Value: 1
-        Operation: 0
-        Multiplier: 1
-        Armor: 0
-        LeftOffset: 0
-        RightOffset: 0
-    - rid: 2516020342052880500
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 500
-    - rid: 2516020342052880501
-      type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideValue: 1
-        Type: 7
-        ChangeType: 1
-        Value: 0
-        Level: 2
-        LeftOffset: 0
-        RightOffset: 0
-    - rid: 2516020342052880502
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 500
-    - rid: 2516020342052880503
-      type: {class: FireGateOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideValue: 1
-        Value: 1
-        Operation: 1
-        Multiplier: 0.5
-        Armor: 0
-        LeftOffset: 0
-        RightOffset: 0
-    - rid: 2516020342052880504
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 500
-    - rid: 2516020342052880505
-      type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideValue: 1
-        Type: 0
-        ChangeType: 0
-        Value: 0
-        Level: 0
-        LeftOffset: 0
-        RightOffset: 0
-    - rid: 2516020342052880506
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880507
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880508
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880509
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880510
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880511
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880512
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880513
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880514
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 500
-    - rid: 2516020342052880515
-      type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideValue: 1
-        Type: 0
-        ChangeType: 0
-        Value: 0
-        Level: 0
-        LeftOffset: 0
-        RightOffset: 0
-    - rid: 2516020342052880516
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880517
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880518
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880519
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880520
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880521
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880522
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880523
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880524
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880525
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880526
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880527
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880528
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880529
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880530
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880531
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880532
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880533
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880534
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880535
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 300
-    - rid: 2516020342052880536
-      type: {class: MultiSlotDynamicGateOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideWidthLayout: 1
+        overrideWidthLayout: 0
         defaultWidthGrowPercent: 3
         defaultMinimumWidthPercent: 15
         totalWidth: 0
@@ -2684,338 +2222,688 @@ MonoBehaviour:
           multiplier: 1
           armor: 0
           maxHealth: 300
+    - rid: 2516020268941705730
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705731
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705732
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705733
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705734
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705735
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 200
+    - rid: 2516020268941705736
+      type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideValue: 1
+        Type: 3
+        ChangeType: 0
+        Value: 5
+        Level: 0
+        LeftOffset: 0
+        RightOffset: 0
+    - rid: 2516020268941705737
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 200
+    - rid: 2516020268941705738
+      type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideValue: 1
+        Type: 1
+        ChangeType: 1
+        Value: 50
+        Level: 0
+        LeftOffset: 0
+        RightOffset: 0
+    - rid: 2516020268941705739
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705740
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705741
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705742
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705743
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705744
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705745
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705746
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705747
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705748
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705749
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705750
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705751
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705752
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705753
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705754
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705755
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705756
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705757
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705758
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705759
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705760
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705761
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705762
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705763
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 200
+    - rid: 2516020268941705764
+      type: {class: FireGateOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideValue: 1
+        Value: 1
+        Operation: 0
+        Multiplier: 1
+        Armor: 0
+        LeftOffset: 0
+        RightOffset: 0
+    - rid: 2516020268941705765
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 500
+    - rid: 2516020268941705766
+      type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideValue: 1
+        Type: 7
+        ChangeType: 1
+        Value: 0
+        Level: 2
+        LeftOffset: 0
+        RightOffset: 0
+    - rid: 2516020268941705767
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 500
+    - rid: 2516020268941705768
+      type: {class: FireGateOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideValue: 1
+        Value: 1
+        Operation: 1
+        Multiplier: 0.5
+        Armor: 0
+        LeftOffset: 0
+        RightOffset: 0
+    - rid: 2516020268941705769
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 500
+    - rid: 2516020268941705771
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705772
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705773
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705774
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705775
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705776
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705777
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705778
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705779
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 500
+    - rid: 2516020268941705781
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705782
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705783
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705784
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705785
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705786
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705787
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705788
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705789
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705790
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705791
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705792
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705793
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705794
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705795
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705796
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705797
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705798
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705799
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705801
+      type: {class: MultiSlotDynamicGateOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideWidthLayout: 0
+        defaultWidthGrowPercent: 3
+        defaultMinimumWidthPercent: 15
+        totalWidth: 0
+        slots:
+        - overrideSlot: 1
+          operation: 0
+          value: 3
+          multiplier: 1
+          armor: 0
+          maxHealth: 300
+        - overrideSlot: 1
+          operation: 0
+          value: -6
+          multiplier: 1
+          armor: 0
+          maxHealth: 200
         - overrideSlot: 1
           operation: 1
           value: 1
           multiplier: 1
           armor: 0
-          maxHealth: 400
-    - rid: 2516020342052880537
+          maxHealth: 500
+    - rid: 2516020268941705802
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880538
+    - rid: 2516020268941705803
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880539
+    - rid: 2516020268941705804
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880540
+    - rid: 2516020268941705805
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880541
+    - rid: 2516020268941705806
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880542
+    - rid: 2516020268941705807
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880543
+    - rid: 2516020268941705808
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880544
+    - rid: 2516020268941705809
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880545
+    - rid: 2516020268941705810
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880546
+    - rid: 2516020268941705811
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880547
+    - rid: 2516020268941705812
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880548
+    - rid: 2516020268941705813
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880549
+    - rid: 2516020268941705814
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880550
+    - rid: 2516020268941705815
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880551
+    - rid: 2516020268941705816
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880552
+    - rid: 2516020268941705817
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880553
+    - rid: 2516020268941705818
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880554
+    - rid: 2516020268941705819
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880555
+    - rid: 2516020268941705820
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880556
+    - rid: 2516020268941705821
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880557
+    - rid: 2516020268941705822
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880558
+    - rid: 2516020268941705823
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880559
+    - rid: 2516020268941705824
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880560
+    - rid: 2516020268941705825
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880561
+    - rid: 2516020268941705826
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880562
+    - rid: 2516020268941705827
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880563
+    - rid: 2516020268941705828
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880564
+    - rid: 2516020268941705829
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880565
+    - rid: 2516020268941705830
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880566
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880567
+    - rid: 2516020268941705831
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 500
-    - rid: 2516020342052880568
-      type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideValue: 1
-        Type: 0
-        ChangeType: 0
-        Value: 0
-        Level: 0
-        LeftOffset: 0
-        RightOffset: 0
-    - rid: 2516020342052880569
+    - rid: 2516020268941705833
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880570
+    - rid: 2516020268941705834
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880571
+    - rid: 2516020268941705835
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880572
+    - rid: 2516020268941705836
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880573
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880574
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880575
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880576
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 500
-    - rid: 2516020342052880577
-      type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideValue: 1
-        Type: 0
-        ChangeType: 0
-        Value: 0
-        Level: 0
-        LeftOffset: 0
-        RightOffset: 0
-    - rid: 2516020342052880578
-      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideMaxHp: 1
-        maxHp: 30
-    - rid: 2516020342052880579
+    - rid: 2516020268941705837
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 1000
-    - rid: 2516020342052880580
-      type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
-      data:
-        overrideValue: 1
-        Type: 0
-        ChangeType: 0
-        Value: 0
-        Level: 0
-        LeftOffset: 0
-        RightOffset: 0
-    - rid: 2516020342052880581
+    - rid: 2516020268941705839
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880582
+    - rid: 2516020268941705840
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880583
+    - rid: 2516020268941705841
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880584
+    - rid: 2516020268941705842
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880585
+    - rid: 2516020268941705843
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 1000
+    - rid: 2516020268941705845
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880586
+    - rid: 2516020268941705846
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880587
+    - rid: 2516020268941705847
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880588
+    - rid: 2516020268941705848
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880589
+    - rid: 2516020268941705849
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880590
+    - rid: 2516020268941705850
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880591
+    - rid: 2516020268941705851
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880592
+    - rid: 2516020268941705852
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880593
+    - rid: 2516020268941705853
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880594
+    - rid: 2516020268941705854
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880595
+    - rid: 2516020268941705855
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880596
+    - rid: 2516020268941705856
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880597
+    - rid: 2516020268941705857
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880598
+    - rid: 2516020268941705858
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
         maxHp: 30
-    - rid: 2516020342052880599
+    - rid: 2516020268941705859
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705860
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705861
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705862
+      type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
+      data:
+        overrideMaxHp: 1
+        maxHp: 30
+    - rid: 2516020268941705863
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1

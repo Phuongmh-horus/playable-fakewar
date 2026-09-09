@@ -11,6 +11,7 @@ public class ArmyUpgradeManager : MonoBehaviour
     [SerializeField] private int startLevelIndex = 0;
 
     private int _currentLevelIndex;
+    private PlayerArmySystem _armySystem;
     public int CurrentLevel => _currentLevelIndex;
 
     private void Awake()
@@ -28,6 +29,7 @@ public class ArmyUpgradeManager : MonoBehaviour
     private void Start()
     {
         _currentLevelIndex = startLevelIndex;
+        _armySystem = GameplayManager.Instance != null ? GameplayManager.Instance.ActiveArmy : null;
     }
 
     public void UpgradeLevel()
@@ -45,10 +47,11 @@ public class ArmyUpgradeManager : MonoBehaviour
 
         _currentLevelIndex = targetLevel;
 
-        var armySystem = FindObjectOfType<PlayerArmySystem>();
-        if (armySystem != null)
+        if (_armySystem == null || !_armySystem.isActiveAndEnabled)
         {
-            armySystem.ApplyLevelUpgrade(_currentLevelIndex);
+            _armySystem = GameplayManager.Instance != null ? GameplayManager.Instance.ActiveArmy : null;
         }
+
+        _armySystem?.ApplyLevelUpgrade(_currentLevelIndex);
     }
 }

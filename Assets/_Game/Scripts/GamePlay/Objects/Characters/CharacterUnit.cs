@@ -30,9 +30,6 @@ namespace GamePlay.Characters
 
         [Header("Sound Effects")]
         [SerializeField] private AudioClipName attackSfx = AudioClipName.SFX_CharacterAttack;
-        [SerializeField] private float maxAttackSfxPerFrame = 1;
-        [SerializeField] private bool playAttackVfxOnObstacleHit = false;
-        [SerializeField, Min(1)] private int maxAttackVfxPerFrame = 3;
         [SerializeField, Min(0f)] private float obstacleAttackDespawnDelay = 0.5f;
         [SerializeField, Min(0f)] private float enemyAttackDespawnDelay = 0.5f;
 
@@ -54,7 +51,7 @@ namespace GamePlay.Characters
         private readonly IHitable[] _hitBuffer = new IHitable[5];
         private int _hitCount;
 
-        private bool _isCombatActive = false;
+        //private bool _isCombatActive = false;
         public int AttackCounter = 0;
         public float NextAttackTime { get; set; }
 
@@ -158,9 +155,10 @@ namespace GamePlay.Characters
             _isAttackDespawnScheduled = false;
 
             RegisterEvents(false);
+            CombatSystem.Unregister(transform);
             UnregisterProjectileTarget();
             ClearHits();
-            _isCombatActive = false;
+            // _isCombatActive = false;
 
             if (!_isCountedInRuntime) return;
             CharacterCount = Mathf.Max(0, CharacterCount - 1);
@@ -353,6 +351,7 @@ namespace GamePlay.Characters
             if ((ActiveFlags & CapabilityFlags.Heal) != 0) Pack.Healable.Dispose();
 
             RegisterEvents(false);
+            CombatSystem.Unregister(transform);
             UnregisterProjectileTarget();
 
             if (_isCountedInRuntime)
@@ -362,7 +361,7 @@ namespace GamePlay.Characters
             }
 
             ClearHits();
-            _isCombatActive = false;
+            // _isCombatActive = false;
 
             if (playDeathVfx)
             {
@@ -471,7 +470,7 @@ namespace GamePlay.Characters
             RegisterEvents(false);
             UnregisterProjectileTarget();
             ClearHits();
-            _isCombatActive = false;
+            // _isCombatActive = false;
         }
 
 

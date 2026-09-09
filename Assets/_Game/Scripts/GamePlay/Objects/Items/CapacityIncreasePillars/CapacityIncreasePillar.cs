@@ -73,7 +73,7 @@ public class CapacityIncreasePillar : StatModifierItem<StatModifierCapacityData>
     private int _pendingCapacityGain;
     private int _pendingDeliveredEventGain;
     private int _inFlightCapacityGain;
-    private bool _ignoreBrickCallbacks;
+    //private bool _ignoreBrickCallbacks;
     private float _nextVisualSpawnTime;
     private int _lastHitFxFrame = -1;
     private readonly StatModifierCapacityData _capacityGainData = new StatModifierCapacityData();
@@ -115,13 +115,13 @@ public class CapacityIncreasePillar : StatModifierItem<StatModifierCapacityData>
         _pendingCapacityGain = 0;
         _pendingDeliveredEventGain = 0;
         _inFlightCapacityGain = 0;
-        _ignoreBrickCallbacks = false;
+        //_ignoreBrickCallbacks = false;
         _nextVisualSpawnTime = 0f;
     }
 
     private void OnEnable()
     {
-        _ignoreBrickCallbacks = false;
+        //_ignoreBrickCallbacks = false;
         _lastHitFxFrame = -1;
     }
 
@@ -175,7 +175,7 @@ public class CapacityIncreasePillar : StatModifierItem<StatModifierCapacityData>
         _pendingCapacityGain = 0;
         _pendingDeliveredEventGain = 0;
         _inFlightCapacityGain = 0;
-        _ignoreBrickCallbacks = false;
+        //_ignoreBrickCallbacks = false;
         _nextVisualSpawnTime = 0f;
 
         EnsureHitTextEffect(true);
@@ -449,7 +449,7 @@ public class CapacityIncreasePillar : StatModifierItem<StatModifierCapacityData>
     private void OnDisable()
     {
         StopScalePulse();
-        _ignoreBrickCallbacks = false;
+        //_ignoreBrickCallbacks = false;
         FlushQueuedCapacityGain();
         FlushDeliveredEvent();
 

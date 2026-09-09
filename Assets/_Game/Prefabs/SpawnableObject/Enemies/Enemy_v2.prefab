@@ -229,7 +229,6 @@ GameObject:
   - component: {fileID: 7662387699070818353}
   - component: {fileID: 3036404202336357057}
   - component: {fileID: 6047698961148238943}
-  - component: {fileID: 3700546570925187143}
   - component: {fileID: 1502503654052837142}
   - component: {fileID: 1630027477888121390}
   m_Layer: 0
@@ -281,7 +280,7 @@ MonoBehaviour:
   colliderSize: {x: 3, y: 3, z: 3}
   LeftOffset: 0
   RightOffset: 0
-  autoAddHitTextFlyEffectAtRuntime: 1
+  autoAddHitTextFlyEffectAtRuntime: 0
   waitAttackAnimation: 1
   isHandleKillHero: 0
   isKillHeroAsPercent: 0
@@ -290,13 +289,12 @@ MonoBehaviour:
   HandTransform: {fileID: 0}
   hpBarRenderer: {fileID: 7375257029540412116}
   healthText: {fileID: 0}
-  hitTextFlyEffect: {fileID: 3700546570925187143}
+  hitTextFlyEffect: {fileID: 0}
   _healthBarRoot: {fileID: 5092033588395912544}
   defaultMaxHealth: 15
   dieVfxPrefab: {fileID: 0}
   dieVfxOffset: {x: 0, y: 3, z: 0}
   dieVfxLifetime: 1.2
-  maxDeathVfxPerFrame: 5
   _healthOverriddenFromContent: 0
 --- !u!114 &3036404202336357057
 MonoBehaviour:
@@ -332,31 +330,6 @@ MonoBehaviour:
   maxHealth: 15
   currentHealth: 15
   isImmortal: 0
---- !u!114 &3700546570925187143
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5745234145295871957}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c59eda737b5baeb409ca60466c9b31e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  healthComponent: {fileID: 6047698961148238943}
-  healthTextPrefab: {fileID: 6512158636180351403, guid: 5efc501b0b4aa06408c9b9b97d9f516a, type: 3}
-  autoResolveHealthComponent: 1
-  defaultTextPrefabResourcePath: Prefabs/HitDamage
-  flyUpDistance: 2
-  flyUpDuration: 0.25
-  fallDownDistance: 2.5
-  fallDuration: 0.25
-  horizontalRandomRange: 2
-  heightOffset: 3
-  zOffset: -2
-  prewarmPoolCount: 20
-  frameCooldown: 10
 --- !u!114 &1502503654052837142
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -375,6 +348,7 @@ MonoBehaviour:
   - Type: 12
     VfxPrefab: {fileID: 3658844881536662745, guid: d6dec12e7220e8f4c9d3d1c9f4ef1311, type: 3}
     ParentToTarget: 1
+    VfxScale: {x: 1, y: 1, z: 1}
     SfxClip: {fileID: 8300000, guid: e4e21ff8c56cce442905240c5cadbda3, type: 3}
     LoopSfx: 0
     SfxVolume: 1

@@ -725,20 +725,6 @@ MonoBehaviour:
     upToDate: 0
     keywords: []
   - shaderCompilerPlatform: 5
-    shader: {fileID: 200, guid: 0000000000000000f000000000000000, type: 0}
-    passType: 0
-    passId: 0
-    subShaderIndex: 0
-    upToDate: 0
-    keywords: []
-  - shaderCompilerPlatform: 9
-    shader: {fileID: 200, guid: 0000000000000000f000000000000000, type: 0}
-    passType: 0
-    passId: 0
-    subShaderIndex: 0
-    upToDate: 0
-    keywords: []
-  - shaderCompilerPlatform: 5
     shader: {fileID: 4800000, guid: f39ac312bdf240248ca2ad514ef0eb4f, type: 3}
     passType: 0
     passId: 0
@@ -881,6 +867,20 @@ MonoBehaviour:
     keywords: []
   - shaderCompilerPlatform: 9
     shader: {fileID: 4800000, guid: 4bfa5a0ee77844b6974d6aec54abf5e2, type: 3}
+    passType: 0
+    passId: 0
+    subShaderIndex: 0
+    upToDate: 0
+    keywords: []
+  - shaderCompilerPlatform: 5
+    shader: {fileID: 200, guid: 0000000000000000f000000000000000, type: 0}
+    passType: 0
+    passId: 0
+    subShaderIndex: 0
+    upToDate: 0
+    keywords: []
+  - shaderCompilerPlatform: 9
+    shader: {fileID: 200, guid: 0000000000000000f000000000000000, type: 0}
     passType: 0
     passId: 0
     subShaderIndex: 0
@@ -1062,6 +1062,36 @@ MonoBehaviour:
     - DIRECTIONAL
     - LIGHTPROBE_SH
   - shaderCompilerPlatform: 5
+    shader: {fileID: 4800000, guid: 68e6db2ebdc24f95958faec2be5558d6, type: 3}
+    passType: 0
+    passId: 0
+    subShaderIndex: 0
+    upToDate: 0
+    keywords:
+    - UNDERLAY_ON
+  - shaderCompilerPlatform: 9
+    shader: {fileID: 4800000, guid: 68e6db2ebdc24f95958faec2be5558d6, type: 3}
+    passType: 0
+    passId: 0
+    subShaderIndex: 0
+    upToDate: 0
+    keywords:
+    - UNDERLAY_ON
+  - shaderCompilerPlatform: 5
+    shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+    passType: 0
+    passId: 0
+    subShaderIndex: 0
+    upToDate: 0
+    keywords: []
+  - shaderCompilerPlatform: 9
+    shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+    passType: 0
+    passId: 0
+    subShaderIndex: 0
+    upToDate: 0
+    keywords: []
+  - shaderCompilerPlatform: 5
     shader: {fileID: 10721, guid: 0000000000000000f000000000000000, type: 0}
     passType: 0
     passId: 0
@@ -1092,33 +1122,35 @@ MonoBehaviour:
     keywords:
     - _ALPHABLEND_ON
   - shaderCompilerPlatform: 5
-    shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+    shader: {fileID: 203, guid: 0000000000000000f000000000000000, type: 0}
     passType: 0
     passId: 0
     subShaderIndex: 0
     upToDate: 0
     keywords: []
   - shaderCompilerPlatform: 9
-    shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+    shader: {fileID: 203, guid: 0000000000000000f000000000000000, type: 0}
     passType: 0
     passId: 0
     subShaderIndex: 0
     upToDate: 0
     keywords: []
   - shaderCompilerPlatform: 5
-    shader: {fileID: 203, guid: 0000000000000000f000000000000000, type: 0}
+    shader: {fileID: 4800000, guid: 33b5908c9e4247145b8d7d7efdfbf0ef, type: 3}
     passType: 0
     passId: 0
     subShaderIndex: 0
     upToDate: 0
-    keywords: []
+    keywords:
+    - _USENOISE_ON
   - shaderCompilerPlatform: 9
-    shader: {fileID: 203, guid: 0000000000000000f000000000000000, type: 0}
+    shader: {fileID: 4800000, guid: 33b5908c9e4247145b8d7d7efdfbf0ef, type: 3}
     passType: 0
     passId: 0
     subShaderIndex: 0
     upToDate: 0
-    keywords: []
+    keywords:
+    - _USENOISE_ON
   - shaderCompilerPlatform: 5
     shader: {fileID: 4800000, guid: 9c86c796515895e4f90d15a8c12276aa, type: 3}
     passType: 0
@@ -1134,22 +1166,6 @@ MonoBehaviour:
     upToDate: 0
     keywords: []
   - shaderCompilerPlatform: 5
-    shader: {fileID: 4800000, guid: 68e6db2ebdc24f95958faec2be5558d6, type: 3}
-    passType: 0
-    passId: 0
-    subShaderIndex: 0
-    upToDate: 0
-    keywords:
-    - UNDERLAY_ON
-  - shaderCompilerPlatform: 9
-    shader: {fileID: 4800000, guid: 68e6db2ebdc24f95958faec2be5558d6, type: 3}
-    passType: 0
-    passId: 0
-    subShaderIndex: 0
-    upToDate: 0
-    keywords:
-    - UNDERLAY_ON
-  - shaderCompilerPlatform: 5
     shader: {fileID: 10770, guid: 0000000000000000f000000000000000, type: 0}
     passType: 0
     passId: 0
@@ -1158,20 +1174,6 @@ MonoBehaviour:
     keywords: []
   - shaderCompilerPlatform: 9
     shader: {fileID: 10770, guid: 0000000000000000f000000000000000, type: 0}
-    passType: 0
-    passId: 0
-    subShaderIndex: 0
-    upToDate: 0
-    keywords: []
-  - shaderCompilerPlatform: 5
-    shader: {fileID: 4800000, guid: f39ac312bdf240248ca2ad514ef0eb4f, type: 3}
-    passType: 0
-    passId: 0
-    subShaderIndex: 0
-    upToDate: 0
-    keywords: []
-  - shaderCompilerPlatform: 9
-    shader: {fileID: 4800000, guid: f39ac312bdf240248ca2ad514ef0eb4f, type: 3}
     passType: 0
     passId: 0
     subShaderIndex: 0
@@ -1192,6 +1194,20 @@ MonoBehaviour:
     upToDate: 0
     keywords: []
   - shaderCompilerPlatform: 5
+    shader: {fileID: 4800000, guid: f39ac312bdf240248ca2ad514ef0eb4f, type: 3}
+    passType: 0
+    passId: 0
+    subShaderIndex: 0
+    upToDate: 0
+    keywords: []
+  - shaderCompilerPlatform: 9
+    shader: {fileID: 4800000, guid: f39ac312bdf240248ca2ad514ef0eb4f, type: 3}
+    passType: 0
+    passId: 0
+    subShaderIndex: 0
+    upToDate: 0
+    keywords: []
+  - shaderCompilerPlatform: 5
     shader: {fileID: 4800000, guid: 4bfa5a0ee77844b6974d6aec54abf5e2, type: 3}
     passType: 0
     passId: 0
@@ -1205,41 +1221,9 @@ MonoBehaviour:
     subShaderIndex: 0
     upToDate: 0
     keywords: []
-  - shaderCompilerPlatform: 5
-    shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
-    passType: 8
-    passId: 2
-    subShaderIndex: 0
-    upToDate: 0
-    keywords:
-    - _ALPHAPREMULTIPLY_ON
-  - shaderCompilerPlatform: 9
-    shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
-    passType: 8
-    passId: 2
-    subShaderIndex: 0
-    upToDate: 0
-    keywords:
-    - _ALPHAPREMULTIPLY_ON
-  - shaderCompilerPlatform: 5
-    shader: {fileID: 4800000, guid: 33b5908c9e4247145b8d7d7efdfbf0ef, type: 3}
-    passType: 0
-    passId: 0
-    subShaderIndex: 0
-    upToDate: 0
-    keywords:
-    - _USENOISE_ON
-  - shaderCompilerPlatform: 9
-    shader: {fileID: 4800000, guid: 33b5908c9e4247145b8d7d7efdfbf0ef, type: 3}
-    passType: 0
-    passId: 0
-    subShaderIndex: 0
-    upToDate: 0
-    keywords:
-    - _USENOISE_ON
   _includedShaderVariants: []
   _excludedShaderVariants: []
-  version: 553
+  version: 2857
   _shaderParsedShaders:
   - ParsedSubShaders:
     - Index: 0
@@ -17941,29 +17925,28 @@ MonoBehaviour:
           FragmentProgram: "\n#version 100\n\n#ifdef GL_FRAGMENT_PRECISION_HIGH\n   
             precision highp float;\n#else\n    precision mediump float;\n#endif\nprecision
             highp int;\nuniform \tvec4 _Time;\nuniform \tvec4 _ProjectionParams;\nuniform
-            \tvec4 _ZBufferParams;\nuniform \tvec4 _MainTex_ST;\nuniform \tvec4 _DissolveTex_ST;\nuniform
-            \tvec4 _MaskTex_ST;\nuniform \tmediump vec4 _MainColor;\nuniform \tmediump
-            float _OpacityStrength;\nuniform \tmediump float _TextureIntensity;\nuniform
-            \tmediump float _FD;\nuniform \tmediump float _CDFOffset;\nuniform \tmediump
-            float _CDF;\nuniform \tmediump float _OpacityPower;\nuniform \tmediump
-            float _Main90degreeUVFlip;\nuniform \tmediump float _MainUVSwitch;\nuniform
-            \tmediump float _UseMainUVCustom1ZW;\nuniform \tmediump float _MainRIsAlpha;\nuniform
-            \tmediump float _MainFlowX;\nuniform \tmediump float _MainFlowY;\nuniform
-            \tmediump float _MainClampX;\nuniform \tmediump float _MainClampY;\nuniform
-            \tmediump float _MaskFlowX;\nuniform \tmediump float _MaskFlowY;\nuniform
-            \tmediump float _MainTexRDissolve;\nuniform \tmediump float _UseManual_DebugDissolve;\nuniform
-            \tmediump float _ManualDissolve;\nuniform \tmediump float _SmoothDissolve;\nuniform
-            \tmediump float _DissolveFlowX;\nuniform \tmediump float _DissolveFlowY;\nuniform
-            lowp sampler2D _MainTex;\nuniform lowp sampler2D _DissolveTex;\nuniform
-            lowp sampler2D _MaskTex;\nuniform highp sampler2D _CameraDepthTexture;\nvarying
+            \tvec4 _MainTex_ST;\nuniform \tvec4 _DissolveTex_ST;\nuniform \tvec4
+            _MaskTex_ST;\nuniform \tmediump vec4 _MainColor;\nuniform \tmediump float
+            _OpacityStrength;\nuniform \tmediump float _TextureIntensity;\nuniform
+            \tmediump float _CDFOffset;\nuniform \tmediump float _CDF;\nuniform \tmediump
+            float _OpacityPower;\nuniform \tmediump float _Main90degreeUVFlip;\nuniform
+            \tmediump float _MainUVSwitch;\nuniform \tmediump float _UseMainUVCustom1ZW;\nuniform
+            \tmediump float _MainRIsAlpha;\nuniform \tmediump float _MainFlowX;\nuniform
+            \tmediump float _MainFlowY;\nuniform \tmediump float _MainClampX;\nuniform
+            \tmediump float _MainClampY;\nuniform \tmediump float _MaskFlowX;\nuniform
+            \tmediump float _MaskFlowY;\nuniform \tmediump float _MainTexRDissolve;\nuniform
+            \tmediump float _UseManual_DebugDissolve;\nuniform \tmediump float _ManualDissolve;\nuniform
+            \tmediump float _SmoothDissolve;\nuniform \tmediump float _DissolveFlowX;\nuniform
+            \tmediump float _DissolveFlowY;\nuniform lowp sampler2D _MainTex;\nuniform
+            lowp sampler2D _DissolveTex;\nuniform lowp sampler2D _MaskTex;\nvarying
             highp vec4 vs_TEXCOORD0;\nvarying highp vec4 vs_TEXCOORD1;\nvarying mediump
-            vec4 vs_COLOR0;\nvarying highp vec4 vs_TEXCOORD2;\n#define SV_Target0
-            gl_FragData[0]\nvec3 u_xlat0;\nlowp vec4 u_xlat10_0;\nmediump vec2 u_xlat16_1;\nmediump
-            vec3 u_xlat16_2;\nvec2 u_xlat3;\nlowp float u_xlat10_3;\nfloat u_xlat4;\nmediump
-            float u_xlat16_5;\nvec2 u_xlat8;\nmediump vec2 u_xlat16_9;\nvoid main()\n{\n   
-            u_xlat0.xy = vs_TEXCOORD1.xy * _MainTex_ST.xy + _MainTex_ST.zw;\n   
-            u_xlat8.xy = vs_TEXCOORD0.xy * _MainTex_ST.xy + _MainTex_ST.zw;\n   
-            u_xlat16_1.xy = (-u_xlat8.xy) + u_xlat0.xy;\n    u_xlat16_1.xy = vec2(_MainUVSwitch)
+            vec4 vs_COLOR0;\n#define SV_Target0 gl_FragData[0]\nvec2 u_xlat0;\nlowp
+            vec4 u_xlat10_0;\nmediump vec2 u_xlat16_1;\nmediump vec3 u_xlat16_2;\nvec2
+            u_xlat3;\nlowp float u_xlat10_3;\nbool u_xlatb4;\nmediump float u_xlat16_5;\nvec2
+            u_xlat8;\nmediump vec2 u_xlat16_9;\nvoid main()\n{\n    u_xlat0.xy =
+            vs_TEXCOORD1.xy * _MainTex_ST.xy + _MainTex_ST.zw;\n    u_xlat8.xy =
+            vs_TEXCOORD0.xy * _MainTex_ST.xy + _MainTex_ST.zw;\n    u_xlat16_1.xy
+            = (-u_xlat8.xy) + u_xlat0.xy;\n    u_xlat16_1.xy = vec2(_MainUVSwitch)
             * u_xlat16_1.xy + u_xlat8.xy;\n    u_xlat16_1.xy = vec2(vec2(_UseMainUVCustom1ZW,
             _UseMainUVCustom1ZW)) * vs_TEXCOORD1.xy + u_xlat16_1.xy;\n    u_xlat16_9.xy
             = (-u_xlat16_1.xy) + u_xlat16_1.yx;\n    u_xlat16_1.xy = vec2(vec2(_Main90degreeUVFlip,
@@ -17993,18 +17976,13 @@ MonoBehaviour:
             + _MaskTex_ST.zw;\n    u_xlat0.xy = vec2(_MaskFlowX, _MaskFlowY) * _Time.yy
             + u_xlat0.xy;\n    u_xlat10_0.x = texture2D(_MaskTex, u_xlat0.xy).x;\n   
             u_xlat16_1.x = u_xlat10_0.x * u_xlat16_1.x;\n    u_xlat16_1.x = u_xlat16_1.x
-            * _OpacityStrength;\n    u_xlat0.xyz = vs_TEXCOORD2.xyz / vs_TEXCOORD2.www;\n   
-            u_xlat0.x = texture2D(_CameraDepthTexture, u_xlat0.xy).x;\n    u_xlat0.x
-            = _ZBufferParams.z * u_xlat0.x + _ZBufferParams.w;\n    u_xlat0.x = float(1.0)
-            / u_xlat0.x;\n    u_xlat0.x = (-u_xlat0.z) + u_xlat0.x;\n    u_xlat4
-            = max(_FD, 0.00100000005);\n    u_xlat0.x = abs(u_xlat0.x) / u_xlat4;\n   
-            u_xlat0.x = min(u_xlat0.x, 1.0);\n    u_xlat16_1.x = u_xlat0.x * u_xlat16_1.x;\n   
-            u_xlat0.x = vs_TEXCOORD1.z + (-_ProjectionParams.y);\n    u_xlat0.x =
-            u_xlat0.x + (-_CDFOffset);\n    u_xlat4 = max(_CDF, 0.00100000005);\n   
-            u_xlat0.x = u_xlat0.x / u_xlat4;\n    u_xlat0.x = clamp(u_xlat0.x, 0.0,
-            1.0);\n    SV_Target0.w = u_xlat0.x * u_xlat16_1.x;\n    return;\n}\n\n"
+            * _OpacityStrength;\n    u_xlat0.x = vs_TEXCOORD1.z + (-_ProjectionParams.y);\n   
+            u_xlat0.x = u_xlat0.x + (-_CDFOffset);\n    u_xlat0.x = u_xlat0.x / _CDF;\n   
+            u_xlat0.x = clamp(u_xlat0.x, 0.0, 1.0);\n    u_xlatb4 = 0.00100000005<_CDF;\n   
+            u_xlat16_5 = (u_xlatb4) ? u_xlat0.x : 1.0;\n    SV_Target0.w = u_xlat16_5
+            * u_xlat16_1.x;\n    return;\n}\n\n"
           LOD: 0
-          readDepth: 1
+          readDepth: 0
           PassId: 0
           SubShaderIndex: 0
           Keywords: []
@@ -18068,33 +18046,32 @@ MonoBehaviour:
             UNITY_LOCATION(x) layout(location = x)\n#define UNITY_BINDING(x) layout(binding
             = x, std140)\n#else\n#define UNITY_LOCATION(x)\n#define UNITY_BINDING(x)
             layout(std140)\n#endif\nuniform \tvec4 _Time;\nuniform \tvec4 _ProjectionParams;\nuniform
-            \tvec4 _ZBufferParams;\nuniform \tvec4 _MainTex_ST;\nuniform \tvec4 _DissolveTex_ST;\nuniform
-            \tvec4 _MaskTex_ST;\nuniform \tmediump vec4 _MainColor;\nuniform \tmediump
-            float _OpacityStrength;\nuniform \tmediump float _TextureIntensity;\nuniform
-            \tmediump float _FD;\nuniform \tmediump float _CDFOffset;\nuniform \tmediump
-            float _CDF;\nuniform \tmediump float _OpacityPower;\nuniform \tmediump
-            float _Main90degreeUVFlip;\nuniform \tmediump float _MainUVSwitch;\nuniform
-            \tmediump float _UseMainUVCustom1ZW;\nuniform \tmediump float _MainRIsAlpha;\nuniform
-            \tmediump float _MainFlowX;\nuniform \tmediump float _MainFlowY;\nuniform
-            \tmediump float _MainClampX;\nuniform \tmediump float _MainClampY;\nuniform
-            \tmediump float _MaskFlowX;\nuniform \tmediump float _MaskFlowY;\nuniform
-            \tmediump float _MainTexRDissolve;\nuniform \tmediump float _UseManual_DebugDissolve;\nuniform
-            \tmediump float _ManualDissolve;\nuniform \tmediump float _SmoothDissolve;\nuniform
-            \tmediump float _DissolveFlowX;\nuniform \tmediump float _DissolveFlowY;\nUNITY_LOCATION(0)
-            uniform mediump sampler2D _MainTex;\nUNITY_LOCATION(1) uniform mediump
-            sampler2D _DissolveTex;\nUNITY_LOCATION(2) uniform mediump sampler2D
-            _MaskTex;\nUNITY_LOCATION(3) uniform highp sampler2D _CameraDepthTexture;\nin
-            highp vec4 vs_TEXCOORD0;\nin highp vec4 vs_TEXCOORD1;\nin mediump vec4
-            vs_COLOR0;\nin highp vec4 vs_TEXCOORD2;\nlayout(location = 0) out mediump
-            vec4 SV_Target0;\nvec3 u_xlat0;\nmediump vec4 u_xlat16_0;\nmediump vec2
-            u_xlat16_1;\nmediump vec3 u_xlat16_2;\nvec2 u_xlat3;\nmediump float u_xlat16_3;\nfloat
-            u_xlat4;\nmediump float u_xlat16_5;\nvec2 u_xlat8;\nmediump vec2 u_xlat16_9;\nvoid
-            main()\n{\n    u_xlat0.xy = vs_TEXCOORD1.xy * _MainTex_ST.xy + _MainTex_ST.zw;\n   
-            u_xlat8.xy = vs_TEXCOORD0.xy * _MainTex_ST.xy + _MainTex_ST.zw;\n   
-            u_xlat16_1.xy = (-u_xlat8.xy) + u_xlat0.xy;\n    u_xlat16_1.xy = vec2(_MainUVSwitch)
-            * u_xlat16_1.xy + u_xlat8.xy;\n    u_xlat16_1.xy = vec2(vec2(_UseMainUVCustom1ZW,
-            _UseMainUVCustom1ZW)) * vs_TEXCOORD1.xy + u_xlat16_1.xy;\n    u_xlat16_9.xy
-            = (-u_xlat16_1.xy) + u_xlat16_1.yx;\n    u_xlat16_1.xy = vec2(vec2(_Main90degreeUVFlip,
+            \tvec4 _MainTex_ST;\nuniform \tvec4 _DissolveTex_ST;\nuniform \tvec4
+            _MaskTex_ST;\nuniform \tmediump vec4 _MainColor;\nuniform \tmediump float
+            _OpacityStrength;\nuniform \tmediump float _TextureIntensity;\nuniform
+            \tmediump float _CDFOffset;\nuniform \tmediump float _CDF;\nuniform \tmediump
+            float _OpacityPower;\nuniform \tmediump float _Main90degreeUVFlip;\nuniform
+            \tmediump float _MainUVSwitch;\nuniform \tmediump float _UseMainUVCustom1ZW;\nuniform
+            \tmediump float _MainRIsAlpha;\nuniform \tmediump float _MainFlowX;\nuniform
+            \tmediump float _MainFlowY;\nuniform \tmediump float _MainClampX;\nuniform
+            \tmediump float _MainClampY;\nuniform \tmediump float _MaskFlowX;\nuniform
+            \tmediump float _MaskFlowY;\nuniform \tmediump float _MainTexRDissolve;\nuniform
+            \tmediump float _UseManual_DebugDissolve;\nuniform \tmediump float _ManualDissolve;\nuniform
+            \tmediump float _SmoothDissolve;\nuniform \tmediump float _DissolveFlowX;\nuniform
+            \tmediump float _DissolveFlowY;\nUNITY_LOCATION(0) uniform mediump sampler2D
+            _MainTex;\nUNITY_LOCATION(1) uniform mediump sampler2D _DissolveTex;\nUNITY_LOCATION(2)
+            uniform mediump sampler2D _MaskTex;\nin highp vec4 vs_TEXCOORD0;\nin
+            highp vec4 vs_TEXCOORD1;\nin mediump vec4 vs_COLOR0;\nlayout(location
+            = 0) out mediump vec4 SV_Target0;\nvec2 u_xlat0;\nmediump vec4 u_xlat16_0;\nmediump
+            vec2 u_xlat16_1;\nmediump vec3 u_xlat16_2;\nvec2 u_xlat3;\nmediump float
+            u_xlat16_3;\nbool u_xlatb4;\nmediump float u_xlat16_5;\nvec2 u_xlat8;\nmediump
+            vec2 u_xlat16_9;\nvoid main()\n{\n    u_xlat0.xy = vs_TEXCOORD1.xy *
+            _MainTex_ST.xy + _MainTex_ST.zw;\n    u_xlat8.xy = vs_TEXCOORD0.xy *
+            _MainTex_ST.xy + _MainTex_ST.zw;\n    u_xlat16_1.xy = (-u_xlat8.xy) +
+            u_xlat0.xy;\n    u_xlat16_1.xy = vec2(_MainUVSwitch) * u_xlat16_1.xy
+            + u_xlat8.xy;\n    u_xlat16_1.xy = vec2(vec2(_UseMainUVCustom1ZW, _UseMainUVCustom1ZW))
+            * vs_TEXCOORD1.xy + u_xlat16_1.xy;\n    u_xlat16_9.xy = (-u_xlat16_1.xy)
+            + u_xlat16_1.yx;\n    u_xlat16_1.xy = vec2(vec2(_Main90degreeUVFlip,
             _Main90degreeUVFlip)) * u_xlat16_9.xy + u_xlat16_1.xy;\n    u_xlat16_9.xy
             = u_xlat16_1.xy;\n    u_xlat16_9.xy = clamp(u_xlat16_9.xy, 0.0, 1.0);\n   
             u_xlat16_9.xy = (-u_xlat16_1.xy) + u_xlat16_9.xy;\n    u_xlat16_1.xy
@@ -18121,18 +18098,13 @@ MonoBehaviour:
             + _MaskTex_ST.zw;\n    u_xlat0.xy = vec2(_MaskFlowX, _MaskFlowY) * _Time.yy
             + u_xlat0.xy;\n    u_xlat16_0.x = texture(_MaskTex, u_xlat0.xy).x;\n   
             u_xlat16_1.x = u_xlat16_0.x * u_xlat16_1.x;\n    u_xlat16_1.x = u_xlat16_1.x
-            * _OpacityStrength;\n    u_xlat0.xyz = vs_TEXCOORD2.xyz / vs_TEXCOORD2.www;\n   
-            u_xlat0.x = texture(_CameraDepthTexture, u_xlat0.xy).x;\n    u_xlat0.x
-            = _ZBufferParams.z * u_xlat0.x + _ZBufferParams.w;\n    u_xlat0.x = float(1.0)
-            / u_xlat0.x;\n    u_xlat0.x = (-u_xlat0.z) + u_xlat0.x;\n    u_xlat4
-            = max(_FD, 0.00100000005);\n    u_xlat0.x = abs(u_xlat0.x) / u_xlat4;\n   
-            u_xlat0.x = min(u_xlat0.x, 1.0);\n    u_xlat16_1.x = u_xlat0.x * u_xlat16_1.x;\n   
-            u_xlat0.x = vs_TEXCOORD1.z + (-_ProjectionParams.y);\n    u_xlat0.x =
-            u_xlat0.x + (-_CDFOffset);\n    u_xlat4 = max(_CDF, 0.00100000005);\n   
-            u_xlat0.x = u_xlat0.x / u_xlat4;\n    u_xlat0.x = clamp(u_xlat0.x, 0.0,
-            1.0);\n    SV_Target0.w = u_xlat0.x * u_xlat16_1.x;\n    return;\n}\n\n"
+            * _OpacityStrength;\n    u_xlat0.x = vs_TEXCOORD1.z + (-_ProjectionParams.y);\n   
+            u_xlat0.x = u_xlat0.x + (-_CDFOffset);\n    u_xlat0.x = u_xlat0.x / _CDF;\n   
+            u_xlat0.x = clamp(u_xlat0.x, 0.0, 1.0);\n    u_xlatb4 = 0.00100000005<_CDF;\n   
+            u_xlat16_5 = (u_xlatb4) ? u_xlat0.x : 1.0;\n    SV_Target0.w = u_xlat16_5
+            * u_xlat16_1.x;\n    return;\n}\n\n"
           LOD: 0
-          readDepth: 1
+          readDepth: 0
           PassId: 0
           SubShaderIndex: 0
           Keywords: []
@@ -18187,10 +18159,9 @@ MonoBehaviour:
           FragmentProgram: "\n#version 100\n\n#ifdef GL_FRAGMENT_PRECISION_HIGH\n   
             precision highp float;\n#else\n    precision mediump float;\n#endif\nprecision
             highp int;\nuniform \tvec4 _Time;\nuniform \tvec4 _ProjectionParams;\nuniform
-            \tvec4 _ZBufferParams;\nuniform \tvec4 _MainTex_ST;\nuniform \tvec4 _NoiseTex_ST;\nuniform
-            \tvec4 _DissolveTex_ST;\nuniform \tvec4 _MaskTex_ST;\nuniform \tmediump
-            vec4 _MainColor;\nuniform \tmediump float _OpacityStrength;\nuniform
-            \tmediump float _TextureIntensity;\nuniform \tmediump float _FD;\nuniform
+            \tvec4 _MainTex_ST;\nuniform \tvec4 _NoiseTex_ST;\nuniform \tvec4 _DissolveTex_ST;\nuniform
+            \tvec4 _MaskTex_ST;\nuniform \tmediump vec4 _MainColor;\nuniform \tmediump
+            float _OpacityStrength;\nuniform \tmediump float _TextureIntensity;\nuniform
             \tmediump float _CDFOffset;\nuniform \tmediump float _CDF;\nuniform \tmediump
             float _OpacityPower;\nuniform \tmediump float _Main90degreeUVFlip;\nuniform
             \tmediump float _MainUVSwitch;\nuniform \tmediump float _UseMainUVCustom1ZW;\nuniform
@@ -18204,12 +18175,11 @@ MonoBehaviour:
             \tmediump float _NoiseFlowX;\nuniform \tmediump float _NoiseFlowY;\nuniform
             \tmediump float _NoiseAffectsXAxis;\nuniform \tmediump float _NoiseAffectsYAxis;\nuniform
             lowp sampler2D _NoiseTex;\nuniform lowp sampler2D _MainTex;\nuniform
-            lowp sampler2D _DissolveTex;\nuniform lowp sampler2D _MaskTex;\nuniform
-            highp sampler2D _CameraDepthTexture;\nvarying highp vec4 vs_TEXCOORD0;\nvarying
-            highp vec4 vs_TEXCOORD1;\nvarying mediump vec4 vs_COLOR0;\nvarying highp
-            vec4 vs_TEXCOORD2;\n#define SV_Target0 gl_FragData[0]\nvec3 u_xlat0;\nlowp
+            lowp sampler2D _DissolveTex;\nuniform lowp sampler2D _MaskTex;\nvarying
+            highp vec4 vs_TEXCOORD0;\nvarying highp vec4 vs_TEXCOORD1;\nvarying mediump
+            vec4 vs_COLOR0;\n#define SV_Target0 gl_FragData[0]\nvec2 u_xlat0;\nlowp
             vec4 u_xlat10_0;\nmediump vec2 u_xlat16_1;\nmediump vec3 u_xlat16_2;\nvec2
-            u_xlat3;\nlowp float u_xlat10_3;\nfloat u_xlat4;\nmediump float u_xlat16_5;\nvec2
+            u_xlat3;\nlowp float u_xlat10_3;\nbool u_xlatb4;\nmediump float u_xlat16_5;\nvec2
             u_xlat8;\nmediump vec2 u_xlat16_9;\nvoid main()\n{\n    u_xlat0.xy =
             vs_TEXCOORD1.xy * _MainTex_ST.xy + _MainTex_ST.zw;\n    u_xlat8.xy =
             vs_TEXCOORD0.xy * _MainTex_ST.xy + _MainTex_ST.zw;\n    u_xlat16_1.xy
@@ -18248,18 +18218,13 @@ MonoBehaviour:
             + _MaskTex_ST.zw;\n    u_xlat0.xy = vec2(_MaskFlowX, _MaskFlowY) * _Time.yy
             + u_xlat0.xy;\n    u_xlat10_0.x = texture2D(_MaskTex, u_xlat0.xy).x;\n   
             u_xlat16_1.x = u_xlat10_0.x * u_xlat16_1.x;\n    u_xlat16_1.x = u_xlat16_1.x
-            * _OpacityStrength;\n    u_xlat0.xyz = vs_TEXCOORD2.xyz / vs_TEXCOORD2.www;\n   
-            u_xlat0.x = texture2D(_CameraDepthTexture, u_xlat0.xy).x;\n    u_xlat0.x
-            = _ZBufferParams.z * u_xlat0.x + _ZBufferParams.w;\n    u_xlat0.x = float(1.0)
-            / u_xlat0.x;\n    u_xlat0.x = (-u_xlat0.z) + u_xlat0.x;\n    u_xlat4
-            = max(_FD, 0.00100000005);\n    u_xlat0.x = abs(u_xlat0.x) / u_xlat4;\n   
-            u_xlat0.x = min(u_xlat0.x, 1.0);\n    u_xlat16_1.x = u_xlat0.x * u_xlat16_1.x;\n   
-            u_xlat0.x = vs_TEXCOORD1.z + (-_ProjectionParams.y);\n    u_xlat0.x =
-            u_xlat0.x + (-_CDFOffset);\n    u_xlat4 = max(_CDF, 0.00100000005);\n   
-            u_xlat0.x = u_xlat0.x / u_xlat4;\n    u_xlat0.x = clamp(u_xlat0.x, 0.0,
-            1.0);\n    SV_Target0.w = u_xlat0.x * u_xlat16_1.x;\n    return;\n}\n\n"
+            * _OpacityStrength;\n    u_xlat0.x = vs_TEXCOORD1.z + (-_ProjectionParams.y);\n   
+            u_xlat0.x = u_xlat0.x + (-_CDFOffset);\n    u_xlat0.x = u_xlat0.x / _CDF;\n   
+            u_xlat0.x = clamp(u_xlat0.x, 0.0, 1.0);\n    u_xlatb4 = 0.00100000005<_CDF;\n   
+            u_xlat16_5 = (u_xlatb4) ? u_xlat0.x : 1.0;\n    SV_Target0.w = u_xlat16_5
+            * u_xlat16_1.x;\n    return;\n}\n\n"
           LOD: 0
-          readDepth: 1
+          readDepth: 0
           PassId: 0
           SubShaderIndex: 0
           Keywords:
@@ -18324,10 +18289,9 @@ MonoBehaviour:
             UNITY_LOCATION(x) layout(location = x)\n#define UNITY_BINDING(x) layout(binding
             = x, std140)\n#else\n#define UNITY_LOCATION(x)\n#define UNITY_BINDING(x)
             layout(std140)\n#endif\nuniform \tvec4 _Time;\nuniform \tvec4 _ProjectionParams;\nuniform
-            \tvec4 _ZBufferParams;\nuniform \tvec4 _MainTex_ST;\nuniform \tvec4 _NoiseTex_ST;\nuniform
-            \tvec4 _DissolveTex_ST;\nuniform \tvec4 _MaskTex_ST;\nuniform \tmediump
-            vec4 _MainColor;\nuniform \tmediump float _OpacityStrength;\nuniform
-            \tmediump float _TextureIntensity;\nuniform \tmediump float _FD;\nuniform
+            \tvec4 _MainTex_ST;\nuniform \tvec4 _NoiseTex_ST;\nuniform \tvec4 _DissolveTex_ST;\nuniform
+            \tvec4 _MaskTex_ST;\nuniform \tmediump vec4 _MainColor;\nuniform \tmediump
+            float _OpacityStrength;\nuniform \tmediump float _TextureIntensity;\nuniform
             \tmediump float _CDFOffset;\nuniform \tmediump float _CDF;\nuniform \tmediump
             float _OpacityPower;\nuniform \tmediump float _Main90degreeUVFlip;\nuniform
             \tmediump float _MainUVSwitch;\nuniform \tmediump float _UseMainUVCustom1ZW;\nuniform
@@ -18342,12 +18306,11 @@ MonoBehaviour:
             \tmediump float _NoiseAffectsXAxis;\nuniform \tmediump float _NoiseAffectsYAxis;\nUNITY_LOCATION(0)
             uniform mediump sampler2D _NoiseTex;\nUNITY_LOCATION(1) uniform mediump
             sampler2D _MainTex;\nUNITY_LOCATION(2) uniform mediump sampler2D _DissolveTex;\nUNITY_LOCATION(3)
-            uniform mediump sampler2D _MaskTex;\nUNITY_LOCATION(4) uniform highp
-            sampler2D _CameraDepthTexture;\nin highp vec4 vs_TEXCOORD0;\nin highp
-            vec4 vs_TEXCOORD1;\nin mediump vec4 vs_COLOR0;\nin highp vec4 vs_TEXCOORD2;\nlayout(location
-            = 0) out mediump vec4 SV_Target0;\nvec3 u_xlat0;\nmediump vec4 u_xlat16_0;\nmediump
+            uniform mediump sampler2D _MaskTex;\nin highp vec4 vs_TEXCOORD0;\nin
+            highp vec4 vs_TEXCOORD1;\nin mediump vec4 vs_COLOR0;\nlayout(location
+            = 0) out mediump vec4 SV_Target0;\nvec2 u_xlat0;\nmediump vec4 u_xlat16_0;\nmediump
             vec2 u_xlat16_1;\nmediump vec3 u_xlat16_2;\nvec2 u_xlat3;\nmediump float
-            u_xlat16_3;\nfloat u_xlat4;\nmediump float u_xlat16_5;\nvec2 u_xlat8;\nmediump
+            u_xlat16_3;\nbool u_xlatb4;\nmediump float u_xlat16_5;\nvec2 u_xlat8;\nmediump
             vec2 u_xlat16_9;\nvoid main()\n{\n    u_xlat0.xy = vs_TEXCOORD1.xy *
             _MainTex_ST.xy + _MainTex_ST.zw;\n    u_xlat8.xy = vs_TEXCOORD0.xy *
             _MainTex_ST.xy + _MainTex_ST.zw;\n    u_xlat16_1.xy = (-u_xlat8.xy) +
@@ -18386,18 +18349,13 @@ MonoBehaviour:
             + _MaskTex_ST.zw;\n    u_xlat0.xy = vec2(_MaskFlowX, _MaskFlowY) * _Time.yy
             + u_xlat0.xy;\n    u_xlat16_0.x = texture(_MaskTex, u_xlat0.xy).x;\n   
             u_xlat16_1.x = u_xlat16_0.x * u_xlat16_1.x;\n    u_xlat16_1.x = u_xlat16_1.x
-            * _OpacityStrength;\n    u_xlat0.xyz = vs_TEXCOORD2.xyz / vs_TEXCOORD2.www;\n   
-            u_xlat0.x = texture(_CameraDepthTexture, u_xlat0.xy).x;\n    u_xlat0.x
-            = _ZBufferParams.z * u_xlat0.x + _ZBufferParams.w;\n    u_xlat0.x = float(1.0)
-            / u_xlat0.x;\n    u_xlat0.x = (-u_xlat0.z) + u_xlat0.x;\n    u_xlat4
-            = max(_FD, 0.00100000005);\n    u_xlat0.x = abs(u_xlat0.x) / u_xlat4;\n   
-            u_xlat0.x = min(u_xlat0.x, 1.0);\n    u_xlat16_1.x = u_xlat0.x * u_xlat16_1.x;\n   
-            u_xlat0.x = vs_TEXCOORD1.z + (-_ProjectionParams.y);\n    u_xlat0.x =
-            u_xlat0.x + (-_CDFOffset);\n    u_xlat4 = max(_CDF, 0.00100000005);\n   
-            u_xlat0.x = u_xlat0.x / u_xlat4;\n    u_xlat0.x = clamp(u_xlat0.x, 0.0,
-            1.0);\n    SV_Target0.w = u_xlat0.x * u_xlat16_1.x;\n    return;\n}\n\n"
+            * _OpacityStrength;\n    u_xlat0.x = vs_TEXCOORD1.z + (-_ProjectionParams.y);\n   
+            u_xlat0.x = u_xlat0.x + (-_CDFOffset);\n    u_xlat0.x = u_xlat0.x / _CDF;\n   
+            u_xlat0.x = clamp(u_xlat0.x, 0.0, 1.0);\n    u_xlatb4 = 0.00100000005<_CDF;\n   
+            u_xlat16_5 = (u_xlatb4) ? u_xlat0.x : 1.0;\n    SV_Target0.w = u_xlat16_5
+            * u_xlat16_1.x;\n    return;\n}\n\n"
           LOD: 0
-          readDepth: 1
+          readDepth: 0
           PassId: 0
           SubShaderIndex: 0
           Keywords:
@@ -18419,6 +18377,7 @@ MonoBehaviour:
         - UNITY_SINGLE_PASS_STEREO
         - _MAINRBGOFFSET_ON
         - _USECUSTOM1YDISTORTION_ON
+        - _USEDEPTHFADE_ON
         - _USENOISE_ON
         - __
         - _
@@ -18471,7 +18430,7 @@ MonoBehaviour:
           keywords:
           - _USENOISE_ON
         CompilationErrors: []
-        HasDepthReader: 1
+        HasDepthReader: 0
         Id: 0
         SubShaderIndex: 0
         SerializedObjectId: 0
@@ -18503,6 +18462,7 @@ MonoBehaviour:
     - FOG_LINEAR
     - _MAINRBGOFFSET_ON
     - _USECUSTOM1YDISTORTION_ON
+    - _USEDEPTHFADE_ON
     - _USENOISE_ON
     - STEREO_CUBEMAP_RENDER_ON
     - STEREO_INSTANCING_ON
@@ -18548,9 +18508,9 @@ MonoBehaviour:
   _sceneLightData:
     PointLightCount: 0
     SpotLightCount: 0
-    DirectionalLightCount: 4
-    LightmapOn: 1
-    DirlightmapCombined: 1
+    DirectionalLightCount: 0
+    LightmapOn: 0
+    DirlightmapCombined: 0
     DirectionalCookieExists: 0
     PointCookieExists: 0
     SpotCookieExists: 0

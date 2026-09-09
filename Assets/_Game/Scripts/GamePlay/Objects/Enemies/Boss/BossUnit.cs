@@ -8,7 +8,7 @@ namespace GamePlay.Enemies
 {
     public class BossUnit : EnemyUnit
     {
-        private static readonly Vector3 AttackEffectLocalPosition = new Vector3(1.25f, 5f, 2f);
+        private static readonly Vector3 AttackEffectLocalPosition = new Vector3(1.25f, 5f, 1.5f);
         private static readonly Quaternion AttackEffectLocalRotation = Quaternion.Euler(0f, 209.6f, -195.536f);
 
         public static event Action<float> OnHealthChanged = delegate { };
@@ -18,7 +18,7 @@ namespace GamePlay.Enemies
         [Header("Boss Settings")]
         [SerializeField, Min(0f)] private float delayBetweenAttacks = 1f;
         [SerializeField, Min(0f)] private float bossAttractionThreshold = 15f;
-        [SerializeField, Min(0.1f)] private float armyAttackRange = 1f;
+        [SerializeField, Min(0.1f)] private float armyAttackRange = 2f;
         [SerializeField, Min(0f)] private float deathAnimationDuration = 1f;
         [SerializeField] private float attackEffectDelay = 0.12f;
         [SerializeField, Min(0.05f), Tooltip("Minimum interval between boss hit VFX spawns.")]

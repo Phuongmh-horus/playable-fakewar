@@ -53,11 +53,7 @@ namespace GamePlay.Enemies
 
         [SerializeField] private float dieVfxLifetime = 1.2f;
 
-        [SerializeField] private int maxDeathVfxPerFrame = 5;
-
         private static int s_lastDeathVfxFrame = -1;
-
-        private static int s_deathVfxCountInFrame = 0;
 
         private static int s_lastDieSfxFrame = -1;
         private const int DieEffectFrameInterval = 20;

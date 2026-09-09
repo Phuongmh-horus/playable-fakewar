@@ -21,9 +21,6 @@ namespace GamePlay.Roads
         [SerializeField] private Transform totalSegment;
         [SerializeField] private Transform middlePoint;
 
-        [Header("Validates")]
-        [SerializeField] private bool autoUpdateOnValidate = true;
-
         [Header("Connections")]
         [SerializeField] private Transform entryPoint;
         [SerializeField] private Transform exitPoint;

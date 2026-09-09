@@ -247,8 +247,6 @@ namespace GamePlay.CombatSystems
 
             if (_projectiles.Count >= Mathf.Max(1, maxActiveProjectiles))
             {
-                PoolEntity overflowProjectile = projectileTransform.GetComponent<PoolEntity>();
-                TryDespawnProjectile(projectileTransform, overflowProjectile);
                 return false;
             }
 
@@ -457,12 +455,12 @@ namespace GamePlay.CombatSystems
                         var targetTr = collisionSystem.GetTransform(k);
                         if (targetTr == null) continue;
 
-                        Vector3 targetPos = targetTr.position;
                         var target = collisionSystem.GetTargetBySortedIndex(k);
                         if (target == null || !target.IsActive) continue;
                         if (ReferenceEquals(target, _playerHitable)) continue;
                         if (ReferenceEquals(target, p.Thrower)) continue;
 
+                        Vector3 targetPos = target.Position;
                         var colData = collisionSystem.GetColliderData(k);
                         if (CheckHitAlongSegment(previousPos, pos, p.Radius, targetPos, colData))
                         {

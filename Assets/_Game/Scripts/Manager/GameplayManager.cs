@@ -34,18 +34,25 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     [SerializeField] private bool autoGenerateMapInEditor = true;
     [SerializeField] private bool autoGenerateContentInEditor = false;
     [SerializeField] private bool regenerateOnEraChangeOnly = true;
-    [SerializeField] private bool usePrebakedMapInPlayMode = true;
-    [SerializeField] private bool usePrebakedContentInPlayMode = true;
+    // [SerializeField] private bool usePrebakedMapInPlayMode = true;
+    // [SerializeField] private bool usePrebakedContentInPlayMode = true;
     private EraDataSO _lastEraEditor;
     private ContentDataSO _lastContentEditor;
     private bool _isGeneratingEditor;
     private bool _generateQueued;
 
 #endif
-    [SerializeField] private bool disableEndGameCameraSwitch = true;
     [SerializeField] private bool useCtaOnlyEndgameMode = false;
-    [SerializeField] private bool useWeaponCraft = true;
+    [SerializeField] private bool useWeaponCraft = false;
     [SerializeField] private List<CardSpawnRequestData> initialCards; // Configurable via Inspectornerator;
+
+    // Disable content and UI roots for systems not used by this playable level.
+    private bool stripUnusedFeatures = true;
+    private bool stripCapacityContent = true;
+    private bool stripCurrencyContent = true;
+    private bool stripWeaponCraftContent = true;
+    // [SerializeField, Tooltip("Assign optional UI/system roots such as Currency UI and WeaponCraft UI. They are disabled during boot when Strip Unused Features is enabled.")]
+    private GameObject[] unusedFeatureRoots;
 
     [Header("End Game Audio")]
     [SerializeField] private AudioClipName winEndcardSfx = AudioClipName.SFX_Level_Complete;
@@ -72,8 +79,8 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     private bool IsArmyMode => true;
 
     [Header("Startup Performance")]
-    [SerializeField] private int initItemsPerFrame = 3; // Reduced to prevent lag spikes
-    [SerializeField] private int spawnItemsPerFrame = 3;
+    [SerializeField] private int initItemsPerFrame = 5;
+    [SerializeField] private int spawnItemsPerFrame = 5;
 
     [Header("Runtime Memory Recovery")]
     [SerializeField] private bool trimInactivePools = true;
@@ -188,7 +195,10 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
         // Critical effects: every frame (smooth animations)
         BrickFallMotion.TickActiveMotions(dt);
-        CurrencyDropItem.TickActiveDrops(dt);
+        if (!stripUnusedFeatures || !stripCurrencyContent)
+        {
+            CurrencyDropItem.TickActiveDrops(dt);
+        }
         DebrisBlock.TickActiveBlocks(dt);
 
         if (_waveSys == null) _waveSys = PlayableWaveDefenseEntitySystem.Instance;
@@ -397,6 +407,8 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 #endif
         }
 
+        StripUnusedPlayableFeatures();
+
         // Spawn / Binding Army
         if (playerArmyPrefab != null)
         {
@@ -530,6 +542,78 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         CurrencyDropItem.ClearActiveDrops();
         DeathScaleEffect.ClearAll();
         DebrisBlock.ClearActiveBlocks();
+    }
+
+    private void StripUnusedPlayableFeatures()
+    {
+        if (!stripUnusedFeatures)
+        {
+            return;
+        }
+
+        useWeaponCraft = !stripWeaponCraftContent && useWeaponCraft;
+
+        if (unusedFeatureRoots != null)
+        {
+            for (int i = 0; i < unusedFeatureRoots.Length; i++)
+            {
+                GameObject root = unusedFeatureRoots[i];
+                if (root != null)
+                {
+                    root.SetActive(false);
+                }
+            }
+        }
+
+        if (contentGenerator == null || contentGenerator.generatedObjects == null)
+        {
+            return;
+        }
+
+        List<ItemUnit> generated = contentGenerator.generatedObjects;
+        for (int i = generated.Count - 1; i >= 0; i--)
+        {
+            ItemUnit item = generated[i];
+            if (item == null)
+            {
+                continue;
+            }
+
+            if (stripCurrencyContent)
+            {
+                DropCurrencyEffect[] currencyEffects = item.GetComponentsInChildren<DropCurrencyEffect>(true);
+                for (int effectIndex = 0; effectIndex < currencyEffects.Length; effectIndex++)
+                {
+                    if (currencyEffects[effectIndex] != null)
+                    {
+                        currencyEffects[effectIndex].enabled = false;
+                    }
+                }
+            }
+
+            if (ShouldStripItem(item))
+            {
+                item.gameObject.SetActive(false);
+                generated.RemoveAt(i);
+            }
+        }
+    }
+
+    private bool ShouldStripItem(ItemUnit item)
+    {
+        if (stripCapacityContent &&
+            (item is CapacityIncreaseGate || item is CapacityIncreasePillar))
+        {
+            return true;
+        }
+
+        if (stripCurrencyContent && item is CurrencyDropItem)
+        {
+            return true;
+        }
+
+        return stripWeaponCraftContent &&
+               (item is WeaponCraft.WeaponModifierGate || item is WeaponCraft.GoldModifierGate);
     }
 
 
@@ -731,18 +815,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
                 SpawnPlayerArmy(playableEra);
 
             return;
-        }
-
-        if (!disableEndGameCameraSwitch)
-        {
-            if (isWin)
-            {
-                CameraManager.Instance.SetCameraStateByName(CameraFollow.CameraStateName.Finish);
-            }
-            else
-            {
-                CameraManager.Instance.SetCameraStateByName(CameraFollow.CameraStateName.LoseState);
-            }
         }
 
         if (isWin)

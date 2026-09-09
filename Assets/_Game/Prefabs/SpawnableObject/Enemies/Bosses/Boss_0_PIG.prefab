@@ -151,7 +151,7 @@ MonoBehaviour:
   colliderSize: {x: 5, y: 5, z: 10}
   LeftOffset: 0
   RightOffset: 0
-  autoAddHitTextFlyEffectAtRuntime: 1
+  autoAddHitTextFlyEffectAtRuntime: 0
   waitAttackAnimation: 0.5
   isHandleKillHero: 1
   isKillHeroAsPercent: 1
@@ -166,12 +166,12 @@ MonoBehaviour:
   dieVfxPrefab: {fileID: 3658844881536662745, guid: d6dec12e7220e8f4c9d3d1c9f4ef1311, type: 3}
   dieVfxOffset: {x: 0, y: 3, z: 0}
   dieVfxLifetime: 1.2
-  maxDeathVfxPerFrame: 5
   _healthOverriddenFromContent: 0
   delayBetweenAttacks: 1
   bossAttractionThreshold: 20
   armyAttackRange: 1.5
   deathAnimationDuration: 1
+  attackEffectDelay: 0.48
   hitEffectCooldown: 0.5
 --- !u!114 &7079246473552049795
 MonoBehaviour:

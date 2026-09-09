@@ -33,6 +33,11 @@ namespace WeaponCraft
         private Coroutine _processRoutine;
         private int _equippedTopTier = -1;
         private readonly ItemComparer _comparer = new ItemComparer();
+        private readonly List<PendingItem> _batchBuffer = new List<PendingItem>(16);
+        private readonly List<List<int>> _milestoneBuffer = new List<List<int>>(8);
+        private readonly Stack<List<int>> _milestoneTierPool = new Stack<List<int>>(8);
+        private readonly List<WeaponItem> _mergeSourceBuffer = new List<WeaponItem>(4);
+        private readonly Dictionary<int, int> _tierCountsBuffer = new Dictionary<int, int>(8);
 
         // ── Events / Properties ───────────────────────────────────────────────────
         public event Action<WeaponItem> ItemAdded;
@@ -148,21 +153,25 @@ namespace WeaponCraft
         private IEnumerator ProcessLoop()
         {
             int slotCount = visualSystem != null ? visualSystem.SlotCount : 6;
-            
+
             while (_pending.Count > 0)
             {
-                var batch = new List<PendingItem>(_pending.Count);
-                while (_pending.Count > 0) batch.Add(_pending.Dequeue());
+                _batchBuffer.Clear();
+                if (_batchBuffer.Capacity < _pending.Count)
+                {
+                    _batchBuffer.Capacity = _pending.Count;
+                }
+                while (_pending.Count > 0) _batchBuffer.Add(_pending.Dequeue());
 
-                var milestones = new List<List<int>>();
+                ReleaseMilestoneBuffer();
                 int currentTopTier = _items.Count > 0 ? _items[0].Tier : 0;
 
                 // 1. Drain all pending into _items.
-                for (int i = 0; i < batch.Count; i++) _items.Add(batch[i].Item);
+                for (int i = 0; i < _batchBuffer.Count; i++) _items.Add(_batchBuffer[i].Item);
                 _items.Sort(_comparer);
 
                 // Always add the initial milestone (Add phase).
-                milestones.Add(GetSlotTiers(slotCount));
+                AddMilestone(slotCount);
 
                 // 2. Resolve merges tier by tier.
                 int mergeCount = GetMergeCount();
@@ -173,15 +182,15 @@ namespace WeaponCraft
                     if (tier < 0) break;
 
                     // Collect sources
-                    var sources = new List<WeaponItem>(mergeCount);
-                    for (int i = _items.Count - 1; i >= 0 && sources.Count < mergeCount; i--)
-                        if (_items[i].Tier == tier) sources.Add(_items[i]);
+                    _mergeSourceBuffer.Clear();
+                    for (int i = _items.Count - 1; i >= 0 && _mergeSourceBuffer.Count < mergeCount; i--)
+                        if (_items[i].Tier == tier) _mergeSourceBuffer.Add(_items[i]);
 
                     // Remove sources
-                    for (int i = 0; i < sources.Count; i++)
+                    for (int i = 0; i < _mergeSourceBuffer.Count; i++)
                     {
-                        _items.Remove(sources[i]);
-                        _seqMap.Remove(sources[i]);
+                        _items.Remove(_mergeSourceBuffer[i]);
+                        _seqMap.Remove(_mergeSourceBuffer[i]);
                     }
 
                     // Create result
@@ -194,43 +203,62 @@ namespace WeaponCraft
                     if (_items[0].Tier > currentTopTier)
                     {
                         currentTopTier = _items[0].Tier;
-                        milestones.Add(GetSlotTiers(slotCount));
+                        AddMilestone(slotCount);
                     }
                 }
 
                 EnsureVisualSystem();
                 if (visualSystem != null)
-                    yield return visualSystem.PlayMilestones(batch[0].FlyFrom, milestones);
+                    yield return visualSystem.PlayMilestones(_batchBuffer[0].FlyFrom, _milestoneBuffer);
 
                 visualSystem?.SyncVisuals(_items);
                 NotifyTopChanged();
             }
+            ReleaseMilestoneBuffer();
             _processRoutine = null;
         }
 
-        private List<int> GetSlotTiers(int slotCount)
+        private void AddMilestone(int slotCount)
         {
-            var tiers = new List<int>(slotCount);
+            List<int> tiers = _milestoneTierPool.Count > 0
+                ? _milestoneTierPool.Pop()
+                : new List<int>(slotCount);
+            tiers.Clear();
+            if (tiers.Capacity < slotCount)
+            {
+                tiers.Capacity = slotCount;
+            }
             for (int i = 0; i < slotCount; i++)
             {
                 tiers.Add(i < _items.Count ? _items[i].Tier : 0);
             }
-            return tiers;
+            _milestoneBuffer.Add(tiers);
+        }
+
+        private void ReleaseMilestoneBuffer()
+        {
+            for (int i = 0; i < _milestoneBuffer.Count; i++)
+            {
+                List<int> milestone = _milestoneBuffer[i];
+                milestone.Clear();
+                _milestoneTierPool.Push(milestone);
+            }
+            _milestoneBuffer.Clear();
         }
 
         private int FindLowestMergeable(int mergeCount, int maxTier)
         {
-            var counts = new Dictionary<int, int>(8);
+            _tierCountsBuffer.Clear();
             for (int i = 0; i < _items.Count; i++)
             {
                 int t = _items[i].Tier;
-                counts.TryGetValue(t, out int c);
-                counts[t] = c + 1;
+                _tierCountsBuffer.TryGetValue(t, out int count);
+                _tierCountsBuffer[t] = count + 1;
             }
             int lowest = int.MaxValue;
-            foreach (var kv in counts)
-                if (kv.Key < maxTier && kv.Value >= mergeCount && kv.Key < lowest)
-                    lowest = kv.Key;
+            foreach (var pair in _tierCountsBuffer)
+                if (pair.Key < maxTier && pair.Value >= mergeCount && pair.Key < lowest)
+                    lowest = pair.Key;
             return lowest == int.MaxValue ? -1 : lowest;
         }
 
@@ -321,7 +349,7 @@ namespace WeaponCraft
                     if (config.TierVisuals[i] != null && config.TierVisuals[i].Tier > max)
                         max = config.TierVisuals[i].Tier;
 
-            
+
 
             return Mathf.Max(1, max);
         }

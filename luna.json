@@ -1,8 +1,8 @@
 {
     "version": "7.0.0",
     "projectId": "1bc38d6f8d96f394b8b169b9e5a7dcba",
-    "applicationID": 38068,
-    "creativeName": "WS_kichban1_thua",
+    "applicationID": 42014,
+    "creativeName": "WS_kichban2_map1_thua",
     "pgServer": "EU",
     "window": {
         "‐⁏": true
@@ -7800,23 +7800,11 @@
                 "excluded": true
             },
             {
-                "name": "CapacityIncreasePillar",
-                "excluded": true
-            },
-            {
                 "name": "DiamondSpike",
                 "excluded": true
             },
             {
                 "name": "GamePlay.Items.StatModifierBoard",
-                "excluded": true
-            },
-            {
-                "name": "WeaponCraft.GoldModifierGate",
-                "excluded": true
-            },
-            {
-                "name": "WeaponCraft.WeaponModifierGate",
                 "excluded": true
             },
             {
@@ -17365,7 +17353,7 @@
                     },
                     {
                         "name": "up#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "up#set",
@@ -18961,7 +18949,7 @@
                     },
                     {
                         "name": "highlightedColor#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "highlightedColor#set",
@@ -18969,7 +18957,7 @@
                     },
                     {
                         "name": "pressedColor#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "pressedColor#set",
@@ -18977,7 +18965,7 @@
                     },
                     {
                         "name": "selectedColor#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "selectedColor#set",
@@ -19073,7 +19061,7 @@
                     },
                     {
                         "name": "mode#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "mode#set",
@@ -19173,7 +19161,7 @@
                     },
                     {
                         "name": "highlightedSprite#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "highlightedSprite#set",
@@ -19181,7 +19169,7 @@
                     },
                     {
                         "name": "pressedSprite#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "pressedSprite#set",
@@ -19189,7 +19177,7 @@
                     },
                     {
                         "name": "selectedSprite#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "selectedSprite#set",
@@ -23712,6 +23700,14 @@
                     {
                         "name": "TryTrimInactivePools",
                         "excluded": false
+                    },
+                    {
+                        "name": "StripUnusedPlayableFeatures",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShouldStripItem",
+                        "excluded": false
                     }
                 ]
             },
@@ -23926,10 +23922,6 @@
                         "excluded": true
                     },
                     {
-                        "name": "GetSlotTiers",
-                        "excluded": true
-                    },
-                    {
                         "name": "FindLowestMergeable",
                         "excluded": true
                     },
@@ -23967,6 +23959,14 @@
                     },
                     {
                         "name": "GetMaxTier",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AddMilestone",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ReleaseMilestoneBuffer",
                         "excluded": true
                     }
                 ]
@@ -27085,7 +27085,7 @@
                     },
                     {
                         "name": "Invoke",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Invoke$1",
@@ -29587,7 +29587,7 @@
                     },
                     {
                         "name": "highlightedTrigger#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "highlightedTrigger#set",
@@ -29595,7 +29595,7 @@
                     },
                     {
                         "name": "pressedTrigger#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "pressedTrigger#set",
@@ -29603,7 +29603,7 @@
                     },
                     {
                         "name": "selectedTrigger#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "selectedTrigger#set",
@@ -29887,7 +29887,7 @@
                     },
                     {
                         "name": "rootRaycaster#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ConfigureForEntity",
@@ -30471,7 +30471,7 @@
                     },
                     {
                         "name": "OnPointerClick",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnSubmit",
@@ -30479,7 +30479,7 @@
                     },
                     {
                         "name": "Press",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnFinishSubmit",
@@ -35434,6 +35434,10 @@
                     {
                         "name": "RecalculateMaxHorizontalColliderExtent",
                         "excluded": false
+                    },
+                    {
+                        "name": "IsSoldierBall",
+                        "excluded": false
                     }
                 ]
             },
@@ -35518,6 +35522,14 @@
                     {
                         "name": "NotifyCollisionCellChanged",
                         "excluded": true
+                    },
+                    {
+                        "name": "Unregister",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UnregisterInternal",
+                        "excluded": false
                     }
                 ]
             },
@@ -36328,6 +36340,14 @@
                     {
                         "name": "GetTrackAnchoredPosition",
                         "excluded": false
+                    },
+                    {
+                        "name": "WirePersistentPlayNowButton",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetPersistentPlayNowButtonVisible",
+                        "excluded": false
                     }
                 ]
             },
@@ -36811,7 +36831,7 @@
                 "instanceMethods": [
                     {
                         "name": "CachePosition#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CacheRotation#get",
@@ -37471,7 +37491,7 @@
                     },
                     {
                         "name": "Position#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "init",
@@ -38086,10 +38106,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "FindDueProjectileAttackIndex",
-                        "excluded": false
-                    },
-                    {
                         "name": "RemovePendingProjectileAttackAtSwapBack",
                         "excluded": false
                     },
@@ -38127,6 +38143,14 @@
                     },
                     {
                         "name": "TryGetOverlappingCharacterUnit",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RefreshNextPendingProjectileTime",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryDequeueDueProjectileAttack",
                         "excluded": false
                     }
                 ]
@@ -38765,6 +38789,10 @@
                     },
                     {
                         "name": "ApplyArmyCollection",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IncreaseCharacterGateReward$1",
                         "excluded": false
                     }
                 ]
@@ -41444,6 +41472,372 @@
                     {
                         "name": "$clone",
                         "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "CapacityIncreasePillar",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "BrickLayerPrefab#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Initialize",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PrepareInitialBrickLayer",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleNonWheelCollision",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleWheelCollision",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CoHandleWheelCollisionAfterPulse",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayNonWheelHitEffect",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TriggerBrickFall",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayScalePulse",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CoScalePulse",
+                        "excluded": true
+                    },
+                    {
+                        "name": "StopScalePulse",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnBrickReachedCapacity",
+                        "excluded": true
+                    },
+                    {
+                        "name": "QueueCapacityGain",
+                        "excluded": true
+                    },
+                    {
+                        "name": "FlushQueuedCapacityGain",
+                        "excluded": true
+                    },
+                    {
+                        "name": "QueueDeliveredEvent",
+                        "excluded": true
+                    },
+                    {
+                        "name": "FlushDeliveredEvent",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ApplyCapacityGain",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SpawnReplacementForLayer",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EnsureHitTextEffect",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DespawnInterval",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CoScaleDownAndDespawn",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "WeaponCraft.GoldModifierGate",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Initialize",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetBaseGoldValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateCollectVisual",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnDestroy",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AdjustStatModifierValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleWheelCollision",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CoHandleWheelCollisionAfterPulse",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleNonWheelCollision",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleHealthChange",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RegisterHealthVisualEvents",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UnregisterHealthVisualEvents",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RegisterCapacityBarEvents",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UnregisterCapacityBarEvents",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleCapacityBarUpdated",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleHealthVisualChanged",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateHealthVisual",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayScalePulse",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CoScalePulse",
+                        "excluded": true
+                    },
+                    {
+                        "name": "StopScalePulse",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CashOutGold",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GrantCoinOnProgressTick",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResolveGoldRewardPerProgressTick",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EnsureHitTextEffect",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DespawnInterval",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ApplyDamageAcrossProgressCycles",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CoScaleDownAndDespawn",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "WeaponCraft.WeaponModifierGate",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryReadPositiveIntAfterMarker",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Initialize",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateCollectVirual",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnDestroy",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AdjustStatModifierValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleWheelCollision",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CoHandleWheelCollisionAfterPulse",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleNonWheelCollision",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleHealthChange",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RegisterHealthVisualEvents",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UnregisterHealthVisualEvents",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleHealthVisualChanged",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RecalculateCountCollect",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateHealthVisual",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayScalePulse",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CoScalePulse",
+                        "excluded": true
+                    },
+                    {
+                        "name": "StopScalePulse",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayNonWheelHitEffect",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CraftStoredReward",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TryCraftConfiguredRewards",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ApplyDamageAcrossProgressCycles",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResolveCollectTier",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResolveBaseRewardAmount",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TryResolveRewardFromName",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResolveTierByConfig",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResolveWeaponCraftSystem",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EnsureHitTextEffect",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DespawnInterval",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CoScaleDownAndDespawn",
+                        "excluded": true
                     }
                 ]
             }

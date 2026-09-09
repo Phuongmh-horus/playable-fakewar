@@ -188,9 +188,9 @@ MonoBehaviour:
   bricksRoot: {fileID: 8308781305436913712}
   bricksPerDamage: 1
   reduceBricksPerDamage: 1
-  maxVisualBricksPerHit: 50
-  maxBricksInFlight: 100
-  maxVisualBricksPerBurst: 50
+  maxVisualBricksPerHit: 8
+  maxBricksInFlight: 24
+  maxVisualBricksPerBurst: 8
   minVisualSpawnInterval: 0.05
   forceVisualBricksMatchDamage: 0
   batchCapacityGainPerFrame: 1

@@ -152,9 +152,7 @@ MonoBehaviour:
   scaleUp: 1.08
   scaleUpDuration: 0.08
   scaleDownDuration: 0.15
-  bendAngle: 12
-  bendDuration: 0.08
-  returnDuration: 0.15
+  projectileHitEffectLocalPosition: {x: 0, y: 4, z: -3}
   onlyCenterOscillates: 0
   centerXThreshold: 0.1
 --- !u!114 &7612487940696613836
@@ -240,9 +238,9 @@ MonoBehaviour:
     SfxVolume: 1
     WaitForAction: 0.5
     MaxVfxPerFrame: 0
-  - Type: 14
+  - Type: 16
     VfxPrefab: {fileID: 0}
-    ParentToTarget: 0
+    ParentToTarget: 1
     VfxScale: {x: 2, y: 2, z: 2}
     SfxClip: {fileID: 8300000, guid: 78df047f488dc4547ac19845de5e7d2c, type: 3}
     LoopSfx: 0

@@ -14,10 +14,6 @@ public class CapacityBrick : MonoBehaviour
     };
 
     [SerializeField] private MeshRenderer brickMeshRenderer;
-    [Header("Scale Pulse")]
-    [SerializeField] private float scaleUp = 1.1f;
-    [SerializeField] private float scaleDown = 0.9f;
-    [SerializeField] private float scaleStageDuration = 0.08f;
 
     public float brickWidth;
     public float brickLength;
@@ -49,7 +45,7 @@ public class CapacityBrick : MonoBehaviour
         {
             Debug.LogWarning("Brick Mesh Renderer is not assigned or has zero size.");
         }
-    } 
+    }
 
     public void ActivateBrickEffect()
     {
@@ -86,7 +82,7 @@ public class CapacityBrick : MonoBehaviour
                 callback.Invoke(_capacityValue);
                 deliveredToPillar = true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
 
             }

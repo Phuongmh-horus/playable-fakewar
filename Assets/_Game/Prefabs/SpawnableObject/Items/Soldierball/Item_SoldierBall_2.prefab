@@ -414,7 +414,7 @@ MonoBehaviour:
   colliderSize: {x: 8, y: 5, z: 5}
   LeftOffset: 0
   RightOffset: 0
-  autoAddHitTextFlyEffectAtRuntime: 1
+  autoAddHitTextFlyEffectAtRuntime: 0
   Data:
     Type: 7
     Value: 0
@@ -462,8 +462,8 @@ MonoBehaviour:
   effects:
   - Type: 16
     VfxPrefab: {fileID: 462670460786600360, guid: 285fb53922afad341b016d11032d75ea, type: 3}
-    ParentToTarget: 1
-    VfxScale: {x: 2, y: 2, z: 2}
+    ParentToTarget: 0
+    VfxScale: {x: 3, y: 3, z: 3}
     SfxClip: {fileID: 8300000, guid: 8722649368b212547a32989ae027ecd5, type: 3}
     LoopSfx: 1
     SfxVolume: 1
@@ -507,10 +507,10 @@ MonoBehaviour:
   fallDownDistance: 2.5
   fallDuration: 0.5
   horizontalRandomRange: 2
-  heightOffset: 5
+  heightOffset: 4
   zOffset: -3
-  prewarmPoolCount: 20
-  frameCooldown: 10
+  prewarmPoolCount: 12
+  frameCooldown: 12
 --- !u!1001 &5292538793133632314
 PrefabInstance:
   m_ObjectHideFlags: 0

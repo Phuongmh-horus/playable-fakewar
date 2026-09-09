@@ -21,6 +21,7 @@ Material:
   - _RECEIVE_SHADOWS_OFF
   - _STYLIZEMAINSHAPE_ON
   - _USEMAINUVCUSTOM1ZW_ON
+  - _USEMANUAL_DEBUGDISSOLVE_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -115,8 +116,9 @@ Material:
     - _TextureIntensity: 1
     - _UseColor: 0
     - _UseCustom1YDistortion: 0
+    - _UseDepthFade: 0
     - _UseMainUVCustom1ZW: 1
-    - _UseManual_DebugDissolve: 0
+    - _UseManual_DebugDissolve: 1
     - _UseNoise: 1
     - _ZwriteMode: 0
     m_Colors:

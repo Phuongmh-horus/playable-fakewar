@@ -21,6 +21,12 @@ namespace GamePlay.CombatSystems
             Instance.RegisterInternal(unitTransform, pack, flags);
         }
 
+        public static void Unregister(Transform unitTransform)
+        {
+            if (Instance == null || unitTransform == null) return;
+            Instance.UnregisterInternal(unitTransform);
+        }
+
         private class ManagedActorRefs
         {
             public Transform Transform;
@@ -149,6 +155,8 @@ namespace GamePlay.CombatSystems
         {
             if (unitTransform == null) return;
 
+            UnregisterInternal(unitTransform);
+
             var refs = GetActorRef();
             refs.Transform = unitTransform;
             refs.CollisionCell = CollisionSystem.GetSpatialCell(unitTransform.position);
@@ -175,6 +183,17 @@ namespace GamePlay.CombatSystems
             }
 
             _actors.Add(refs);
+        }
+
+        private void UnregisterInternal(Transform unitTransform)
+        {
+            for (int index = _actors.Count - 1; index >= 0; index--)
+            {
+                if (_actors[index] == null || _actors[index].Transform == unitTransform)
+                {
+                    RemoveAtSwapBack(index);
+                }
+            }
         }
 
         private bool UpdateMovement(ManagedActorRefs actor)
