@@ -1,16 +1,12 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using GamePlay.AnimationSystems;
 using GamePlay.CombatSystems;
 using GamePlay.ComponentSystems;
 using GamePlay.Entities;
 using GamePlay.Effects;
-using GamePlay.Items;
-using GamePlay.Weapons;
 using Pools;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace GamePlay.Characters
 {
@@ -41,6 +37,7 @@ namespace GamePlay.Characters
 
         private int _appliedVisualLevel = -1;
         private bool _projectileTargetRegistered;
+        private bool _combatActorRegistered;
         private bool _isCountedInRuntime;
         public event Action<IAttacker> OnHitComplete;
 
@@ -133,7 +130,7 @@ namespace GamePlay.Characters
             }
 
             RegisterProjectileTarget();
-            CombatSystem.Register(transform, Pack, ActiveFlags);
+            RegisterCombatActor();
         }
 
         public void InitializePreview(int level)
@@ -155,7 +152,7 @@ namespace GamePlay.Characters
             _isAttackDespawnScheduled = false;
 
             RegisterEvents(false);
-            CombatSystem.Unregister(transform);
+            UnregisterCombatActor();
             UnregisterProjectileTarget();
             ClearHits();
             // _isCombatActive = false;
@@ -245,12 +242,15 @@ namespace GamePlay.Characters
 
             bool isObstacle = target != null && IsNonEnemyTarget(target.EntityType);
 
-            if (target != null && SoundManager.Instance != null && CanPlayAttackSfxThisFrame())
-            {
-                var sfx = attackSfx != AudioClipName.None ? attackSfx : AudioClipName.SFX_CharacterAttack;
-                if (sfx != AudioClipName.None)
-                    SoundManager.Instance.PlayOneShot(sfx);
-            }
+            // if (target != null && SoundManager.Instance != null && CanPlayAttackSfxThisFrame())
+            // {
+            //     var sfx = attackSfx != AudioClipName.None ? attackSfx : AudioClipName.SFX_CharacterAttack;
+            //     if (sfx != AudioClipName.None)
+            //     {
+            //         SoundManager.Instance.PlayOneShot(sfx);
+            //         SoundManager.Instance.PlayOneShot(sfx);
+            //     }
+            // }
 
             if (isObstacle)
             {
@@ -284,16 +284,6 @@ namespace GamePlay.Characters
         {
             if (Pack.Animator != null)
                 Pack.Animator.PlayAnimation(animationType, waitForAction, onComplete, layer);
-        }
-
-        public void PlayAttackEffect()
-        {
-            if (SoundManager.Instance != null && CanPlayAttackSfxThisFrame())
-            {
-                var sfx = attackSfx != AudioClipName.None ? attackSfx : AudioClipName.SFX_CharacterAttack;
-                if (sfx != AudioClipName.None)
-                    SoundManager.Instance.PlayOneShot(sfx);
-            }
         }
 
         private Transform EnsureProjectilePoint()
@@ -351,7 +341,7 @@ namespace GamePlay.Characters
             if ((ActiveFlags & CapabilityFlags.Heal) != 0) Pack.Healable.Dispose();
 
             RegisterEvents(false);
-            CombatSystem.Unregister(transform);
+            UnregisterCombatActor();
             UnregisterProjectileTarget();
 
             if (_isCountedInRuntime)
@@ -468,6 +458,7 @@ namespace GamePlay.Characters
 
             _isAttackDespawnScheduled = false;
             RegisterEvents(false);
+            UnregisterCombatActor();
             UnregisterProjectileTarget();
             ClearHits();
             // _isCombatActive = false;
@@ -550,7 +541,7 @@ namespace GamePlay.Characters
             return true;
         }
 
-        private const int AttackSfxFrameInterval = 20;
+        private const int AttackSfxFrameInterval = 30;
 
         private bool CanPlayAttackSfxThisFrame()
         {
@@ -646,6 +637,23 @@ namespace GamePlay.Characters
             if (_projectileTargetRegistered) return;
             EnemyProjectileSystem.RegisterTarget(this);
             _projectileTargetRegistered = true;
+        }
+
+        private void RegisterCombatActor()
+        {
+            CombatSystem.Register(transform, Pack, ActiveFlags);
+            _combatActorRegistered = CombatSystem.Instance != null;
+        }
+
+        private void UnregisterCombatActor()
+        {
+            if (!_combatActorRegistered)
+            {
+                return;
+            }
+
+            CombatSystem.Unregister(transform);
+            _combatActorRegistered = false;
         }
 
         private void UnregisterProjectileTarget()

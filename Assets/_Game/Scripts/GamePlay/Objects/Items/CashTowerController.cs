@@ -7,7 +7,6 @@ using GamePlay.Effects;
 using GamePlay.HealthSystems;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using DG.Tweening;
 
 namespace GamePlay.Managers

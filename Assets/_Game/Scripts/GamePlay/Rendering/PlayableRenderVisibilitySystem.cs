@@ -16,12 +16,19 @@ namespace GamePlay.Rendering
         {
             public Renderer Renderer;
             public VAT_RenderComponent VatRenderer;
-            public Transform Anchor;
             public bool WasEnabled;
+        }
+
+        private struct Group
+        {
+            public Transform Anchor;
+            public int FirstEntry;
+            public int EntryCount;
             public bool IsVisible;
         }
 
         private readonly List<Entry> _entries = new List<Entry>(512);
+        private readonly List<Group> _groups = new List<Group>(128);
         private readonly List<Renderer> _rendererBuffer = new List<Renderer>(32);
         private Transform _focus;
         private float _nextRefreshTime;
@@ -30,6 +37,7 @@ namespace GamePlay.Rendering
         {
             _focus = focus;
             _entries.Clear();
+            _groups.Clear();
             _nextRefreshTime = 0f;
 
             if (items == null)
@@ -47,6 +55,7 @@ namespace GamePlay.Rendering
 
                 _rendererBuffer.Clear();
                 item.GetComponentsInChildren(true, _rendererBuffer);
+                int firstEntry = _entries.Count;
                 for (int rendererIndex = 0; rendererIndex < _rendererBuffer.Count; rendererIndex++)
                 {
                     Renderer renderer = _rendererBuffer[rendererIndex];
@@ -55,13 +64,31 @@ namespace GamePlay.Rendering
                         continue;
                     }
 
+                    VAT_RenderComponent vatRenderer = renderer.GetComponent<VAT_RenderComponent>();
+                    if (vatRenderer != null)
+                    {
+                        // VATSystem may have internally culled a distant actor before this system is configured. 
+                        // That runtime state is not the prefab's authored enabled state and must not permanently lock the actor off.
+                        vatRenderer.SetExternalVisibility(true);
+                    }
+
                     _entries.Add(new Entry
                     {
                         Renderer = renderer,
-                        VatRenderer = renderer.GetComponent<VAT_RenderComponent>(),
+                        VatRenderer = vatRenderer,
+                        WasEnabled = vatRenderer != null || renderer.enabled
+                    });
+                }
+
+                int entryCount = _entries.Count - firstEntry;
+                if (entryCount > 0)
+                {
+                    _groups.Add(new Group
+                    {
                         Anchor = item.transform,
-                        WasEnabled = renderer.enabled,
-                        IsVisible = renderer.enabled
+                        FirstEntry = firstEntry,
+                        EntryCount = entryCount,
+                        IsVisible = true
                     });
                 }
             }
@@ -95,33 +122,50 @@ namespace GamePlay.Rendering
             Vector3 focusPosition = _focus.position;
             Vector3 forward = _focus.forward;
 
-            for (int index = _entries.Count - 1; index >= 0; index--)
+            for (int groupIndex = _groups.Count - 1; groupIndex >= 0; groupIndex--)
             {
-                Entry entry = _entries[index];
-                Renderer renderer = entry.Renderer;
-                if (renderer == null || entry.Anchor == null)
+                Group group = _groups[groupIndex];
+                if (group.Anchor == null)
                 {
-                    RemoveAtSwapBack(index);
+                    RemoveGroupAtSwapBack(groupIndex);
                     continue;
                 }
 
-                float forwardDistance = Vector3.Dot(entry.Anchor.position - focusPosition, forward);
-                bool shouldBeVisible = entry.WasEnabled &&
-                                       forwardDistance >= -BehindDistance &&
+                float forwardDistance = Vector3.Dot(group.Anchor.position - focusPosition, forward);
+                bool shouldBeVisible = forwardDistance >= -BehindDistance &&
                                        forwardDistance <= AheadDistance;
 
-                if (entry.IsVisible != shouldBeVisible)
+                if (group.IsVisible == shouldBeVisible)
                 {
-                    if (entry.VatRenderer != null)
-                    {
-                        entry.VatRenderer.SetExternalVisibility(shouldBeVisible);
-                    }
-                    else
-                    {
-                        renderer.enabled = shouldBeVisible;
-                    }
-                    entry.IsVisible = shouldBeVisible;
-                    _entries[index] = entry;
+                    continue;
+                }
+
+                SetGroupVisible(group, shouldBeVisible);
+                group.IsVisible = shouldBeVisible;
+                _groups[groupIndex] = group;
+            }
+        }
+
+        private void SetGroupVisible(Group group, bool visible)
+        {
+            int lastEntry = Mathf.Min(_entries.Count, group.FirstEntry + group.EntryCount);
+            for (int index = group.FirstEntry; index < lastEntry; index++)
+            {
+                Entry entry = _entries[index];
+                Renderer renderer = entry.Renderer;
+                if (renderer == null)
+                {
+                    continue;
+                }
+
+                bool rendererVisible = visible && entry.WasEnabled;
+                if (entry.VatRenderer != null)
+                {
+                    entry.VatRenderer.SetExternalVisibility(rendererVisible);
+                }
+                else
+                {
+                    renderer.enabled = rendererVisible;
                 }
             }
         }
@@ -143,17 +187,24 @@ namespace GamePlay.Rendering
                     }
                 }
             }
+
+            for (int index = 0; index < _groups.Count; index++)
+            {
+                Group group = _groups[index];
+                group.IsVisible = true;
+                _groups[index] = group;
+            }
         }
 
-        private void RemoveAtSwapBack(int index)
+        private void RemoveGroupAtSwapBack(int index)
         {
-            int lastIndex = _entries.Count - 1;
+            int lastIndex = _groups.Count - 1;
             if (index != lastIndex)
             {
-                _entries[index] = _entries[lastIndex];
+                _groups[index] = _groups[lastIndex];
             }
 
-            _entries.RemoveAt(lastIndex);
+            _groups.RemoveAt(lastIndex);
         }
     }
 }

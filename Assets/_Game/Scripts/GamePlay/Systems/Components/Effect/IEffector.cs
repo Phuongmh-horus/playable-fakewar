@@ -1,5 +1,4 @@
 using System;
-using GamePlay.Effects;
 using UnityEngine;
 
 namespace GamePlay.ComponentSystems

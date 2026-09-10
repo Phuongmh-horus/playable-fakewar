@@ -1182,7 +1182,7 @@ namespace OptimizedFeature.Scripts
             // Re-assert the renderer state after asset binding. This also
             // recovers from a stale prefab/culling state that disabled the
             // renderer before the VAT asset was loaded.
-            _meshRenderer.enabled = _isVisible && !_isRuntimeBatchHidden;
+            _meshRenderer.enabled = IsVisible && !_isRuntimeBatchHidden;
         }
 
         private static Material[] GetCachedMaterialArray(VATAssetDataSO assetData)

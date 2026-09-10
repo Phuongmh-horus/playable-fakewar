@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using GamePlay.ComponentSystems;
 using GamePlay.Entities;
 using GamePlay.CollisionSystems; // [FIX] Added missing namespace
-using GamePlay.Effects;
-using PlayerArmy;
 using UnityEngine;
 
 namespace GamePlay.CombatSystems

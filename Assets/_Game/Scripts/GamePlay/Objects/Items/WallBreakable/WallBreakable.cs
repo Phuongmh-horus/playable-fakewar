@@ -1,8 +1,6 @@
 using GamePlay.AnimationSystems;
 using GamePlay.CombatSystems;
 using GamePlay.Entities;
-using GamePlay.Effects;
-using GamePlay.Items;
 using UnityEngine;
 
 namespace GamePlay.Items

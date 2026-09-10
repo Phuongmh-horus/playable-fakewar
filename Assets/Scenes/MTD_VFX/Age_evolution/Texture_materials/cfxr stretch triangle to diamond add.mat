@@ -25,7 +25,7 @@ Material:
   m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 3100
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -120,5 +120,5 @@ Material:
     - _OverlayTex_Scroll: {r: 0.1, g: 0.1, b: 1, a: 1}
     - _ShadowColor: {r: 0, g: 0, b: 0, a: 1}
     - _SoftParticlesFadeDistance: {r: 0, g: 1, b: 0, a: 0}
-    - _TintColor: {r: 1, g: 1, b: 1, a: 0.5529412}
+    - _TintColor: {r: 1, g: 1, b: 1, a: 0.7490196}
   m_BuildTextureStacks: []

@@ -1,5 +1,4 @@
 using UnityEngine;
-using GamePlay.Effects;
 using GamePlay.Weapons;
 
 namespace CardSystem.Data

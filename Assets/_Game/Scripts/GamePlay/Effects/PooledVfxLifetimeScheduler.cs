@@ -20,7 +20,7 @@ namespace GamePlay.Effects
             public float PlayTime;
         }
 
-        private static Entry[] _activeEntries = new Entry[64];
+        private static Entry[] _activeEntries = new Entry[MaxActiveEntries];
         private static SfxReplayEntry[] _pendingSfxReplays = new SfxReplayEntry[InitialSfxReplayCapacity];
         private static int _count = 0;
         private static int _pendingSfxReplayCount;

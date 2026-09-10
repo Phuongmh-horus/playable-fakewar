@@ -52,6 +52,29 @@ namespace PlayerArmy
             component.PlayEffect(effectType, position, rotation, parent != null ? parent : transform, waitForAction, onComplete);
         }
 
+        public void PlayEffectWithScaleAndColor(
+            EffectType effectType,
+            Vector3 position,
+            Quaternion rotation,
+            Transform parent,
+            float scaleMultiplier,
+            int colorIndex)
+        {
+            var component = ResolveEffectComponent();
+            if (component == null || effectType == EffectType.None)
+            {
+                return;
+            }
+
+            component.PlayEffectWithScaleAndColor(
+                effectType,
+                position,
+                rotation,
+                parent != null ? parent : transform,
+                scaleMultiplier,
+                colorIndex);
+        }
+
         public void PlayOnUnit(ArmyUnit unit, EffectType effectType, Action onComplete = null, float waitForAction = 0f)
         {
             if (unit == null)

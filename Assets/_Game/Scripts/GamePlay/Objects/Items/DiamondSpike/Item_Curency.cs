@@ -1,7 +1,5 @@
 using System;
-using GamePlay.Entities;
 using DG.Tweening;
-using Pools;
 using UnityEngine;
 
 namespace GamePlay.Items

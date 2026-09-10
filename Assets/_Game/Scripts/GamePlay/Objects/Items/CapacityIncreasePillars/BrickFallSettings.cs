@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using GamePlay.ComponentSystems;
 using GamePlay.Items;
 
 [CreateAssetMenu(fileName = "BrickFallSettings", menuName = "Game/Brick Fall Settings")]

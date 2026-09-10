@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 5783931141563337667}
   - component: {fileID: 8098951233318415425}
   - component: {fileID: 5769949427127490634}
+  - component: {fileID: 7967600500816846856}
+  - component: {fileID: 1763239744671910053}
   m_Layer: 0
   m_Name: PlayerArmy
   m_TagString: Untagged
@@ -146,7 +148,7 @@ MonoBehaviour:
   - Type: 18
     VfxPrefab: {fileID: 5489509100550448236, guid: 624921f1a3ed32648902e77fe30cc94c, type: 3}
     ParentToTarget: 1
-    VfxScale: {x: 1, y: 1, z: 1}
+    VfxScale: {x: 8, y: 8, z: 8}
     SfxClip: {fileID: 8300000, guid: db12146efa7b0aa4186a2f6f59f49cf8, type: 3}
     LoopSfx: 0
     SfxVolume: 1
@@ -154,6 +156,46 @@ MonoBehaviour:
     MaxVfxPerFrame: 1
   audioSource: {fileID: 0}
   warnIfNoAudioRouteInEditor: 0
+--- !u!114 &7967600500816846856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2817626840353155447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c59eda737b5baeb409ca60466c9b31e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthComponent: {fileID: 0}
+  healthTextPrefab: {fileID: 6512158636180351403, guid: 5efc501b0b4aa06408c9b9b97d9f516a, type: 3}
+  autoResolveHealthComponent: 1
+  defaultTextPrefabResourcePath: Prefabs/HitDamage
+  flyUpDistance: 2
+  flyUpDuration: 0.25
+  fallDownDistance: 2.5
+  fallDuration: 0.25
+  horizontalRandomRange: 3
+  heightOffset: 7
+  zOffset: 0
+  prewarmPoolCount: 10
+  frameCooldown: 5
+--- !u!114 &1763239744671910053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2817626840353155447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52b00c5c090e8c949bf46d0ddc11318e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flyTextEffect: {fileID: 7967600500816846856}
+  textColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  fontSizeMultiplier: 0.7
 --- !u!1001 &1668683624097713309
 PrefabInstance:
   m_ObjectHideFlags: 0

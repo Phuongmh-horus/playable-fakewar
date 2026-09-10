@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using GamePlay.Crushers;
-using UnityEngine;
 
 namespace GamePlay.Items
 {

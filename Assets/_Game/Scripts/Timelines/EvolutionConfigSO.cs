@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 [CreateAssetMenu(fileName = "EvolutionConfig", menuName = "Game Config/Evolution Config")]
 public class EvolutionConfigSO : ScriptableObject

@@ -30,6 +30,7 @@ namespace GamePlay.CollisionSystems
         private readonly Stack<List<int>> _spatialBucketPool = new Stack<List<int>>(64);
 
         private float _maxHorizontalColliderExtent;
+        private bool _maxHorizontalColliderExtentDirty;
         private int _nextCleanupFrame;
 
         private void Awake()
@@ -153,6 +154,10 @@ namespace GamePlay.CollisionSystems
         {
             get
             {
+                if (_maxHorizontalColliderExtentDirty)
+                {
+                    RecalculateMaxHorizontalColliderExtent();
+                }
                 return _maxHorizontalColliderExtent;
             }
         }
@@ -301,6 +306,7 @@ namespace GamePlay.CollisionSystems
             _transformTargets.Clear();
             ClearSpatialBuckets();
             _maxHorizontalColliderExtent = 0f;
+            _maxHorizontalColliderExtentDirty = false;
         }
 
         // ================= UPDATE LOGIC =================
@@ -415,7 +421,7 @@ namespace GamePlay.CollisionSystems
 
             if (removedExtent >= _maxHorizontalColliderExtent)
             {
-                RecalculateMaxHorizontalColliderExtent();
+                _maxHorizontalColliderExtentDirty = true;
             }
         }
 
@@ -497,12 +503,18 @@ namespace GamePlay.CollisionSystems
 
         private void UpdateMaxHorizontalColliderExtent(ColliderData collider)
         {
-            _maxHorizontalColliderExtent = Mathf.Max(_maxHorizontalColliderExtent, GetHorizontalColliderExtent(collider));
+            float extent = GetHorizontalColliderExtent(collider);
+            if (extent > _maxHorizontalColliderExtent)
+            {
+                _maxHorizontalColliderExtent = extent;
+                _maxHorizontalColliderExtentDirty = false;
+            }
         }
 
         private void RecalculateMaxHorizontalColliderExtent()
         {
             _maxHorizontalColliderExtent = 0f;
+            _maxHorizontalColliderExtentDirty = false;
             for (int i = 0; i < _colliders.Count; i++)
             {
                 UpdateMaxHorizontalColliderExtent(_colliders[i]);

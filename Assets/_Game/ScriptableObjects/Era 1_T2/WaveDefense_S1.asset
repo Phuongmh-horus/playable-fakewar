@@ -129,7 +129,7 @@ MonoBehaviour:
     maxHp: 15
   - Prefab: {fileID: 3360367997036094387, guid: ef8a3aed54a409a4fb48a1e34e0e5c28, type: 3}
     PositionOnMap: 120
-    PositionOffset: {x: -9.5, y: 0.6000061, z: 0}
+    PositionOffset: {x: -10.5, y: 0.6000061, z: 0}
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
@@ -149,7 +149,7 @@ MonoBehaviour:
     maxHp: 50
   - Prefab: {fileID: 3360367997036094387, guid: ef8a3aed54a409a4fb48a1e34e0e5c28, type: 3}
     PositionOnMap: 120
-    PositionOffset: {x: 9.5, y: 0.6000061, z: 0}
+    PositionOffset: {x: 10.5, y: 0.6000061, z: 0}
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 1, y: 1, z: 1}
     propertyOverrides:
@@ -349,14 +349,14 @@ MonoBehaviour:
     maxHp: 50
   - Prefab: {fileID: -3187097488725319018, guid: a95342978fb67cd44a54a3d86e9152f1, type: 3}
     PositionOnMap: 210
-    PositionOffset: {x: -0.020019531, y: 0, z: 0}
+    PositionOffset: {x: -0.02001953, y: 0, z: 0}
     Rotation: {x: -0, y: 0, z: 0}
     Scale: {x: 0.7, y: 0.7, z: 0.7}
     propertyOverrides:
     - rid: 2516020342052880427
     - rid: 2516020342052880428
     overrideMaxHp: 1
-    maxHp: 150
+    maxHp: 100
   - Prefab: {fileID: -3187097488725319018, guid: 2d38a3f3894e954469794c8cec55d784, type: 3}
     PositionOnMap: 210
     PositionOffset: {x: -9.5, y: 0, z: 0}
@@ -2058,7 +2058,7 @@ MonoBehaviour:
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
-        maxHp: 150
+        maxHp: 100
     - rid: 2516020342052880428
       type: {class: SoldierBallOverride, ns: , asm: Assembly-CSharp}
       data:

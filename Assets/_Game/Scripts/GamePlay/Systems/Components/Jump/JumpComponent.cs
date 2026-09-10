@@ -1,7 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using GamePlay.ComponentSystems;
 using GamePlay.Entities;
 using UnityEngine;
 
@@ -17,18 +14,18 @@ namespace GamePlay.ComponentSystems
         [SerializeField] protected EntityType jumpTarget;
 
         // Serialize as basic int/mask for Playable inspector
-        [SerializeField, Tooltip("Auto-calculated from EntityType")] 
+        [SerializeField, Tooltip("Auto-calculated from EntityType")]
         protected uint targetMask;
-        
+
         public uint TargetMask => targetMask;
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         protected override void OnValidate()
         {
             base.OnValidate();
             targetMask = GetTarget();
         }
-        #endif
+#endif
 
         public override void Initialize()
         {
@@ -36,11 +33,11 @@ namespace GamePlay.ComponentSystems
             OnJumperComplete = NoJumperComplete;
             targetMask = GetTarget();
         }
-        
+
         public override void Dispose()
         {
-             base.Dispose();
-             OnJumperComplete = NoJumperComplete;
+            base.Dispose();
+            OnJumperComplete = NoJumperComplete;
         }
 
         public void OnJumpSucceed(IHitable target)
@@ -54,7 +51,7 @@ namespace GamePlay.ComponentSystems
             int targetVal = (int)jumpTarget;
             // Basic safety check for enum range (assuming < 32)
             if (targetVal <= 0 || targetVal >= 32) return 0;
-            
+
             mask |= (1u << targetVal);
             return mask;
         }

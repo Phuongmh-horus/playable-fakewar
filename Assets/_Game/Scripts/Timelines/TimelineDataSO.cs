@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 [CreateAssetMenu(fileName = "NewTimeline", menuName = "Game Config/Timeline", order = 1)]
 public class TimelineDataSO : ScriptableObject

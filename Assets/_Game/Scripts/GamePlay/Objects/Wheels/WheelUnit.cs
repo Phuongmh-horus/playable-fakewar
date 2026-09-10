@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using GamePlay.Entities;
-using GamePlay.Items;
 using GamePlay.Characters;
 using GamePlay.CollisionSystems; // FIX: Added
 using GamePlay.Inputs;

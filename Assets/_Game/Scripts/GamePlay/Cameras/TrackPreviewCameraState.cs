@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "TrackPreviewState", menuName = "Camera/Track Preview State")]

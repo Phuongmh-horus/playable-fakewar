@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
 [CreateAssetMenu(fileName = "DiamondPieceConfig", menuName = "ScriptableObjects/DiamondPieceConfig", order = 1)]
 public class DiamondPieceConfig : ScriptableObject

@@ -9,10 +9,10 @@ using GamePlay.ComponentSystems;
 using GamePlay.Crushers;
 using GamePlay.Entities;
 using GamePlay.Inputs;
+using GamePlay.Items;
 using GamePlay.Weapons;
 using Pools;
 using UnityEngine;
-using DG.Tweening;
 
 namespace PlayerArmy
 {
@@ -42,7 +42,7 @@ namespace PlayerArmy
 
         public CharacterUnit CharacterPrefab => characterPrefab;
         [SerializeField, Min(1)] private int fallbackCharacterLevel = 1;
-        [SerializeField, Min(1)] private int maxActiveSpawnedUnits = 51;
+        [SerializeField, Min(1)] private int maxActiveSpawnedUnits = 37;
         [SerializeField, Min(0f)] private float unitSpacing = 1.2f;
         [SerializeField, Tooltip("Dùng trực tiếp các character đã đặt sẵn trên scene để giảm thời gian spawn lúc boot.")] private bool useSceneUnitsOnly = true;
         [SerializeField, Min(0), Tooltip("Số character inactive tối thiểu chuẩn bị trước cho FireSoldier +1 và SoldierBall.")] private int characterPrewarmReserve = 30;
@@ -149,13 +149,17 @@ namespace PlayerArmy
         private int _pendingSpawnAmount = 0;
         private int _pendingSpawnLevel = -1;
         private bool _pendingSpawnPlayAnimation = false;
+        private ArmyBuffFlyText _buffFlyText;
+        private float _fireSoldierCharacterVfxScale = 1f;
         private const int MaxSpawnsPerFrame = 2;
+        private const float FireSoldierCharacterVfxScaleStep = 0.5f;
 
         public IReadOnlyList<CharacterUnit> Units => characterUnits;
         public PlayerArmyEffectSystem EffectSystem => effectSystem;
         public PlayerArmyState CurrentState => currentState;
         public int ResolvedWeaponDamage => _resolvedWeaponDamage;
         public bool IsActive => currentState != PlayerArmyState.Idle;
+        public bool IsAtUnitCapacity => CountActiveUnits() >= Mathf.Clamp(maxActiveSpawnedUnits, 1, HardMaxActiveSpawnedUnits);
         public Transform BodyTransform => bodyRoot != null ? bodyRoot : transform;
 
         public Transform Transform => transform;
@@ -754,6 +758,54 @@ namespace PlayerArmy
             ApplyCharacterDelta(targetCount - currentCount);
         }
 
+        public void ShowBuffFlyText(StatType statType)
+        {
+            _buffFlyText?.Show(statType);
+        }
+
+        public void PlayFireSoldierUpgradeEffect(StatType statType, bool increasesCharacterCount)
+        {
+            if (increasesCharacterCount)
+            {
+                _fireSoldierCharacterVfxScale += FireSoldierCharacterVfxScaleStep;
+            }
+
+            effectSystem?.PlayEffectWithScaleAndColor(
+                EffectType.Upgrade,
+                GetBodyRoot().position,
+                GetBodyRoot().rotation,
+                GetBodyRoot(),
+                _fireSoldierCharacterVfxScale,
+                GetFireSoldierVfxColorIndex(statType));
+        }
+
+            public void PlaySoldierBallUpgradeEffect()
+            {
+                effectSystem?.PlayEffectWithScaleAndColor(
+                EffectType.Upgrade,
+                GetBodyRoot().position,
+                GetBodyRoot().rotation,
+                GetBodyRoot(),
+                _fireSoldierCharacterVfxScale,
+                1);
+            }
+
+        private static int GetFireSoldierVfxColorIndex(StatType statType)
+        {
+            switch (statType)
+            {
+                case StatType.FireRate:
+                    return 1;
+                case StatType.Damage:
+                    return 1;
+                case StatType.Character:
+                case StatType.CharacterLevel:
+                    return 2;
+                default:
+                    return 0;
+            }
+        }
+
         public void ApplyFireRateModifier(int value)
         {
             if (value <= 0)
@@ -844,22 +896,22 @@ namespace PlayerArmy
             return level;
         }
 
-        public void PlayAnimationForAllUnits(AnimationType animationType, float waitForAction = 0f, int layer = 0)
-        {
-            _unitSnapshotBuffer.Clear();
-            _unitSnapshotBuffer.AddRange(characterUnits);
+        // public void PlayAnimationForAllUnits(AnimationType animationType, float waitForAction = 0f, int layer = 0)
+        // {
+        //     _unitSnapshotBuffer.Clear();
+        //     _unitSnapshotBuffer.AddRange(characterUnits);
 
-            for (int i = 0; i < _unitSnapshotBuffer.Count; i++)
-            {
-                var unit = _unitSnapshotBuffer[i];
-                if (unit == null)
-                {
-                    continue;
-                }
+        //     for (int i = 0; i < _unitSnapshotBuffer.Count; i++)
+        //     {
+        //         var unit = _unitSnapshotBuffer[i];
+        //         if (unit == null)
+        //         {
+        //             continue;
+        //         }
 
-                unit.PlayAnimation(animationType, waitForAction, null, layer);
-            }
-        }
+        //         unit.PlayAnimation(animationType, waitForAction, null, layer);
+        //     }
+        // }
 
         public IReadOnlyList<CardSpawnRequestData> GetQueuedCardRequests() => null;
 
@@ -882,7 +934,13 @@ namespace PlayerArmy
                 effectSystem = GetComponentInChildren<PlayerArmyEffectSystem>(true);
             }
 
+            if (_buffFlyText == null)
+            {
+                _buffFlyText = GetComponent<ArmyBuffFlyText>();
+            }
+
             if (characterUnits == null) characterUnits = new List<CharacterUnit>();
+            _fireSoldierCharacterVfxScale = 1f;
         }
 
 
@@ -1173,6 +1231,7 @@ namespace PlayerArmy
             Vector3 queryStart = myPos - transform.forward * preCullZ;
             Vector3 queryEnd = myPos + transform.forward * preCullZ;
             collisionSystem.QueryIndicesNearSegment(queryStart, queryEnd, preCullX, _collisionQueryIndices);
+            bool unitsRemoved = false;
 
             for (int candidateIndex = 0; candidateIndex < _collisionQueryIndices.Count; candidateIndex++)
             {
@@ -1229,12 +1288,12 @@ namespace PlayerArmy
 
                     if (!_previousEnemyContactIds.Contains(enemyInstanceId))
                     {
-                        ResolveEnemyContact(target, tPos, tHalfX, tHalfZ);
+                        unitsRemoved |= ResolveEnemyContact(target, tPos, tHalfX, tHalfZ);
                     }
                 }
                 else if (collisionSystem.IsSoldierBall(i))
                 {
-                    ResolveSoldierBallContact(tPos, tHalfX, tHalfZ);
+                    unitsRemoved |= ResolveSoldierBallContact(tPos, tHalfX, tHalfZ);
                 }
                 else if (target.EntityType == EntityType.FinishTower)
                 {
@@ -1250,6 +1309,11 @@ namespace PlayerArmy
                         target.OnHit(this);
                     }
                 }
+            }
+
+            if (unitsRemoved)
+            {
+                PruneInactiveSpawnedUnits();
             }
 
             var tmpEnemy = _previousEnemyContactIds;
@@ -1641,7 +1705,6 @@ namespace PlayerArmy
                 }
             }
 
-            unit.PlayAttackEffect();
             return true;
         }
 
@@ -2052,23 +2115,25 @@ namespace PlayerArmy
                    entityType == EntityType.MovingGate;
         }
 
-        private void ResolveEnemyContact(IHitable enemyTarget, Vector3 enemyPos, float enemyHalfX, float enemyHalfZ)
+        private bool ResolveEnemyContact(IHitable enemyTarget, Vector3 enemyPos, float enemyHalfX, float enemyHalfZ)
         {
             if (enemyTarget == null)
             {
-                return;
+                return false;
             }
 
+            bool unitRemoved = false;
             if (TryGetOverlappingCharacterUnit(enemyPos, enemyHalfX, enemyHalfZ, out var victim))
             {
                 victim.OnHit(enemyTarget as IAttacker ?? this);
-                PruneInactiveSpawnedUnits();
+                unitRemoved = true;
             }
 
             enemyTarget.OnHit(this);
+            return unitRemoved;
         }
 
-        private void ResolveSoldierBallContact(Vector3 ballPosition, float ballHalfX, float ballHalfZ)
+        private bool ResolveSoldierBallContact(Vector3 ballPosition, float ballHalfX, float ballHalfZ)
         {
             bool despawnedAny = false;
             for (int i = 0; i < characterUnits.Count; i++)
@@ -2095,10 +2160,7 @@ namespace PlayerArmy
                 despawnedAny = true;
             }
 
-            if (despawnedAny)
-            {
-                PruneInactiveSpawnedUnits();
-            }
+            return despawnedAny;
         }
 
         /// <summary>

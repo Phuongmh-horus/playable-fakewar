@@ -1,5 +1,4 @@
 using GamePlay.Entities;
-using Pools;
 using TMPro;
 using UnityEngine;
 using GamePlay.ComponentSystems;
@@ -45,7 +44,7 @@ namespace GamePlay.Items
                 UpdateHealthText(Pack.Healable.GetCurrentHealth());
             }
 
-            SetRotate(false);
+            SetRotate(true);
         }
 
         protected override void HandleWheelCollision()
@@ -96,7 +95,7 @@ namespace GamePlay.Items
             }
 
             manager.ChangeStatModifierData(Data);
-            manager.RunUpgradeEffect();
+            manager.ActiveArmy?.PlaySoldierBallUpgradeEffect();
         }
 
         protected virtual void OnBreak()
@@ -126,4 +125,3 @@ namespace GamePlay.Items
         }
     }
 }
-

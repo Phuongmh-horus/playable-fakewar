@@ -52,8 +52,8 @@ namespace GamePlay.Items
         [SerializeField] private float scaleUpDuration = 0.08f;
         [SerializeField] private float scaleDownDuration = 0.15f;
 
-        [Header("Projectile Hit Effect")]
-        [SerializeField] private Vector3 projectileHitEffectLocalPosition = new Vector3(0f, 4f, -1f);
+        private Vector3 projectileHitEffectLocalPosition = new Vector3(0f, 3f, 0f);
+        private Vector3 projectileHitEffectLocalRotation = Vector3.zero;
 
         [Header("Oscillation")]
         [SerializeField] private bool onlyCenterOscillates = true;
@@ -323,7 +323,8 @@ namespace GamePlay.Items
 
             _nextHitEffectFrame = Time.frameCount + 12;
             Vector3 hitEffectPosition = transform.TransformPoint(projectileHitEffectLocalPosition);
-            Pack.Effector?.PlayEffect(EffectType.Break, hitEffectPosition, transform.rotation, transform);
+            Quaternion hitEffectRotation = transform.rotation * Quaternion.Euler(projectileHitEffectLocalRotation);
+            Pack.Effector?.PlayEffect(EffectType.Break, hitEffectPosition, hitEffectRotation, transform);
         }
 
         protected override void HandleHealthChange(int current, int max)
@@ -440,6 +441,7 @@ namespace GamePlay.Items
             if (Data != null && Data.Type == StatType.Character)
             {
                 var army = GameplayManager.Instance?.ActiveArmy;
+                bool isArmyFull = army != null && army.IsAtUnitCapacity;
                 if (Data.Operation == StatModifierOperation.Multiply)
                 {
                     army?.ApplyCharacterMultiplier(Data.Multiplier);
@@ -448,15 +450,24 @@ namespace GamePlay.Items
                 {
                     army?.ApplyCharacterDelta(Data.Value);
                 }
+
+                army?.ShowBuffFlyText(isArmyFull ? StatType.Damage : StatType.Character);
+                if (!isArmyFull)
+                {
+                    army?.PlayFireSoldierUpgradeEffect(StatType.Character, true);
+                }
             }
             else if (Data != null)
             {
                 GameplayManager.Instance?.ChangeStatModifierData(Data);
+                GameplayManager.Instance?.ActiveArmy?.PlayFireSoldierUpgradeEffect(Data.Type, false);
             }
-            if (_flyTextEffect != null && Data != null)
-            {
-                _flyTextEffect.ShowCustomText(FormatDisplayValue(), Color.yellow);
-            }
+            // Keep this value text for a future visual pass. It is intentionally disabled
+            // FireSoldier already shows the army buff text
+            // if (_flyTextEffect != null && Data != null)
+            // {
+            //     _flyTextEffect.ShowCustomText(FormatDisplayValue(), Color.yellow);
+            // }
             Pack.Effector?.PlayEffect(EffectType.Land);
         }
 

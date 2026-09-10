@@ -1,6 +1,5 @@
 using GamePlay.Items;
 using GamePlay.ComponentSystems;
-using UnityEngine;
 
 /// <summary>
 /// Trigger khi wheel đến gần đích

@@ -1,10 +1,8 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using GamePlay.Entities;
 using GamePlay.Items;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
 
 public class NewEraTrigger : ItemUnit
 {
@@ -41,29 +39,29 @@ public class NewEraTrigger : ItemUnit
 
     protected override void HandleWheelCollision()
     {
-        if(!GameplayManager.IsGameStarted) return;
+        if (!GameplayManager.IsGameStarted) return;
         GameplayManager.IsGameStarted = false;
 
         // [FIX] Match CashTower: Play Sound
         if (SoundManager.Instance != null && hitByWheelSfx != AudioClipName.None)
             SoundManager.Instance.PlayOneShot(hitByWheelSfx);
         else if (SoundManager.Instance != null)
-             SoundManager.Instance.PlayOneShot(AudioClipName.SFX_Level_Complete); // Fallback default
+            SoundManager.Instance.PlayOneShot(AudioClipName.SFX_Level_Complete); // Fallback default
 
         GameplayManager.Instance.PauseGame();
 
         // Invoke event (e.g. tracking)
         // [FIX] Restore WaitForTrigger logic to avoid double EndGame calls if the event also triggers it (e.g. after Gate Open).
-        if(OnTrigger != null && WaitForTrigger)
+        if (OnTrigger != null && WaitForTrigger)
         {
-             OnTrigger.Invoke();
-             if (_fallbackRoutine != null) StopCoroutine(_fallbackRoutine);
-             _fallbackRoutine = StartCoroutine(FallbackEndGame());
+            OnTrigger.Invoke();
+            if (_fallbackRoutine != null) StopCoroutine(_fallbackRoutine);
+            _fallbackRoutine = StartCoroutine(FallbackEndGame());
         }
         else
         {
-             // [FIX] Always call EndGame to show EndCard if NOT waiting for trigger
-             OnEndGame();
+            // [FIX] Always call EndGame to show EndCard if NOT waiting for trigger
+            OnEndGame();
         }
     }
 

@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class CashSpike : DiamondSpike
 {
     // Logic drop currency và máu đã được gộp chung vào DiamondSpike.

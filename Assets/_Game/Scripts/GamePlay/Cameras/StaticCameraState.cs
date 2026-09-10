@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "StaticCameraState", menuName = "Camera/Static Camera State")]

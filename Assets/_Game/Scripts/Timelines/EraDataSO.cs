@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using GamePlay.Characters;
 using UnityEngine;
 using UnityEngine.Serialization;
 

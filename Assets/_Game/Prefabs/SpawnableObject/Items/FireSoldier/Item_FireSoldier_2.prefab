@@ -152,7 +152,8 @@ MonoBehaviour:
   scaleUp: 1.08
   scaleUpDuration: 0.08
   scaleDownDuration: 0.15
-  projectileHitEffectLocalPosition: {x: 0, y: 4, z: -3}
+  projectileHitEffectLocalPosition: {x: 0, y: 3, z: -3}
+  projectileHitEffectLocalRotation: {x: 0, y: 0, z: 0}
   onlyCenterOscillates: 0
   centerXThreshold: 0.1
 --- !u!114 &7612487940696613836

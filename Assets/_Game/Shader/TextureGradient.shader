@@ -21,9 +21,10 @@ Shader "Unlit/TextureGradient"
         Pass
         {
             CGPROGRAM
+            #pragma target 2.0
             #pragma vertex vert
             #pragma fragment frag
-            #pragma shader_feature_local _GRADIENTTYPE_BASIC _GRADIENTTYPE_RADIAL _GRADIENTTYPE_REFLECTED
+            #pragma shader_feature_local_fragment _GRADIENTTYPE_BASIC _GRADIENTTYPE_RADIAL _GRADIENTTYPE_REFLECTED
             #pragma shader_feature_local _WATER_MOVE
             #pragma multi_compile_fog
             #include "UnityCG.cginc"

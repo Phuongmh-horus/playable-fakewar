@@ -353,7 +353,7 @@ MonoBehaviour:
     VfxScale: {x: 1, y: 1, z: 1}
     SfxClip: {fileID: 8300000, guid: dec430151e9f1c4418bc903ca060b4c0, type: 3}
     LoopSfx: 0
-    SfxVolume: 0.8
+    SfxVolume: 0.7
     WaitForAction: 0
     MaxVfxPerFrame: 1
   audioSource: {fileID: 0}

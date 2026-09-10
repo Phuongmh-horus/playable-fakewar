@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -7,7 +6,7 @@ using Random = UnityEngine.Random;
 
 public class HitTextFlyEffect : MonoBehaviour
 {
-    private const int MaxActiveTexts = 8;
+    private const int MaxActiveTexts = 10;
 
     [SerializeField] private GamePlay.HealthSystems.HealthComponent healthComponent;
     [SerializeField] private TMP_Text healthTextPrefab;
@@ -23,7 +22,7 @@ public class HitTextFlyEffect : MonoBehaviour
     [Header("Custom Text Override")]
     private float customTextScaleMultiplier = 1.3f;
     private float customTextHeightOffsetMultiplier = 1.5f;
-    [SerializeField, Min(0)] private int prewarmPoolCount = 20;
+    [SerializeField, Min(0)] private int prewarmPoolCount = MaxActiveTexts;
     private int maxTextSpawnsPerFrame = 2;
 
     private static readonly Stack<HitTextController> controllerPool = new Stack<HitTextController>();
@@ -140,7 +139,7 @@ public class HitTextFlyEffect : MonoBehaviour
         int prefabId = healthTextPrefab.GetInstanceID();
         if (!warmedTextPrefabIds.Add(prefabId)) return;
 
-        int warmCount = Mathf.Max(0, prewarmPoolCount);
+        int warmCount = Mathf.Clamp(prewarmPoolCount, 0, MaxActiveTexts);
         PoolSystem.Prewarm(healthTextPrefab, warmCount);
     }
 
@@ -150,13 +149,13 @@ public class HitTextFlyEffect : MonoBehaviour
         ShowDefaultText(damage);
     }
 
-    public void ShowCustomText(string text, Color? colorOverride = null)
+    public void ShowCustomText(string text, Color? colorOverride = null, float scaleMultiplier = 1f)
     {
         ShowText(
             text,
             heightOffset * customTextHeightOffsetMultiplier,
             horizontalRandomRange,
-            customTextScaleMultiplier,
+            customTextScaleMultiplier * Mathf.Max(0f, scaleMultiplier),
             colorOverride);
     }
 

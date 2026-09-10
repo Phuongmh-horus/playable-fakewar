@@ -125,7 +125,14 @@
                 "Stubs/MoreMountains.NiceVibrations",
                 "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset",
                 "Assets/Font/MUSEOSANSROUNDED-1000 SDF.asset",
-                "Assets/TextMesh Pro/Sprites/EmojiOne.png"
+                "Assets/TextMesh Pro/Sprites/EmojiOne.png",
+                "Assets/_Game/Animation/Enemy_Basic/Enemy_Basic_New.fbx",
+                "Assets/_Game/Animation/Small-pig/Small_Pig_Base.fbx",
+                "Assets/Kho/Charater/mesh/EN_basic.fbx",
+                "Assets/Kho/Charater/mesh/EN_pig.fbx",
+                "Assets/_Game/Animation/Enemy_Basic/Enemy_Basic_New.fbx",
+                "Assets/Kho/Charater/mesh/EN_basic.fbx",
+                "Assets/Kho/Charater/mesh/EN_pig.fbx"
             ],
             "includes": [
                 "Assets/Kho/Charater/mesh/EN_basic.fbx",
@@ -564,10 +571,6 @@
                 "excluded": true
             },
             {
-                "name": "System.OperationCanceledException",
-                "excluded": true
-            },
-            {
                 "name": "System.OverflowException",
                 "excluded": true
             },
@@ -741,10 +744,6 @@
             },
             {
                 "name": "System.Threading.Thread",
-                "excluded": true
-            },
-            {
-                "name": "System.Threading.Tasks.TaskCanceledException",
                 "excluded": true
             },
             {
@@ -5237,7 +5236,7 @@
             },
             {
                 "name": "UnityEngine.Space",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.SpriteAlignment",
@@ -8970,6 +8969,10 @@
             {
                 "name": "OptimizedFeature.Scripts.VATAnimatorParameterType",
                 "excluded": true
+            },
+            {
+                "name": "GamePlay.Effects.ParticleScaleMode",
+                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -13349,7 +13352,7 @@
                     },
                     {
                         "name": "Count#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "System$Collections$ICollection$IsSynchronized#get",
@@ -13377,11 +13380,11 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getItem",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "System$Collections$Generic$IList$1$getItem",
@@ -17473,11 +17476,11 @@
                     },
                     {
                         "name": "Rotate$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Rotate$2",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RotateAround",
@@ -23490,10 +23493,6 @@
                         "excluded": true
                     },
                     {
-                        "name": "IsArmyMode#get",
-                        "excluded": false
-                    },
-                    {
                         "name": "MainWeapon#get",
                         "excluded": true
                     },
@@ -23598,22 +23597,6 @@
                         "excluded": true
                     },
                     {
-                        "name": "SetMilestoneOverridePosition",
-                        "excluded": true
-                    },
-                    {
-                        "name": "TryPlayMilestone",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CoFinishWinAfterMilestone",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CoFinishWinAfterMilestoneCtaOnly",
-                        "excluded": true
-                    },
-                    {
                         "name": "ExecuteWinEndFlow",
                         "excluded": true
                     },
@@ -23707,6 +23690,10 @@
                     },
                     {
                         "name": "ShouldStripItem",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CacheRuntimeSystems",
                         "excluded": false
                     }
                 ]
@@ -28521,7 +28508,7 @@
                     },
                     {
                         "name": "emission#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "colorBySpeed#get",
@@ -28541,7 +28528,7 @@
                     },
                     {
                         "name": "shape#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sizeBySpeed#get",
@@ -35702,24 +35689,6 @@
                 ]
             },
             {
-                "className": "GamePlay.Effects.VFX_SyncParticleColor",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SyncColorFrom",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
                 "className": "GamePlay.Inputs.InputManager",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -36466,6 +36435,10 @@
                     {
                         "name": "ResolveEffectComponent",
                         "excluded": false
+                    },
+                    {
+                        "name": "PlayEffectWithScaleAndColor",
+                        "excluded": false
                     }
                 ]
             },
@@ -36671,7 +36644,11 @@
                     },
                     {
                         "name": "Tick",
-                        "excluded": true
+                        "excluded": false
+                    },
+                    {
+                        "name": "TickActiveSaws",
+                        "excluded": false
                     }
                 ]
             },
@@ -37210,10 +37187,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "PlayAttackEffect",
-                        "excluded": false
-                    },
-                    {
                         "name": "EnsureProjectilePoint",
                         "excluded": false
                     },
@@ -37299,6 +37272,14 @@
                     },
                     {
                         "name": "CancelScheduledDespawn",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RegisterCombatActor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UnregisterCombatActor",
                         "excluded": false
                     }
                 ]
@@ -37477,6 +37458,14 @@
                     },
                     {
                         "name": "IsUsableScale",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayEffectWithScaleAndColor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayVfx$1",
                         "excluded": false
                     }
                 ]
@@ -37926,10 +37915,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "PlayAnimationForAllUnits",
-                        "excluded": true
-                    },
-                    {
                         "name": "GetQueuedCardRequests",
                         "excluded": true
                     },
@@ -38151,6 +38136,26 @@
                     },
                     {
                         "name": "TryDequeueDueProjectileAttack",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetFireSoldierVfxColorIndex",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsAtUnitCapacity#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShowBuffFlyText",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayFireSoldierUpgradeEffect",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlaySoldierBallUpgradeEffect",
                         "excluded": false
                     }
                 ]
@@ -40978,7 +40983,11 @@
                         "excluded": true
                     },
                     {
-                        "name": "RemoveAtSwapBack",
+                        "name": "SetGroupVisible",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RemoveGroupAtSwapBack",
                         "excluded": true
                     }
                 ]
@@ -41838,6 +41847,214 @@
                     {
                         "name": "CoScaleDownAndDespawn",
                         "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Rendering.PlayableRenderVisibilitySystem.Group",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "System.OperationCanceledException",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "CancellationToken#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CancellationToken#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor5",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor4",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor3",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "System.Threading.Tasks.TaskCanceledException",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Task#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor3",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "PlayerArmy.ArmyBuffFlyText",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "GetText",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Show",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolveDependencies",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Effects.ParticleScaleData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Effects.VfxScaler",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "ApplyScale",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ScaleCurve",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CacheOriginals",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Scale",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ScaleWithColor",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "GamePlay.Effects.VfxScaler.OriginalParticleData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "VfxScalerWithColor",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ScaleWithColor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetColor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyColor",
+                        "excluded": false
                     }
                 ]
             }

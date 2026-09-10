@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using DG.Tweening;
 using System.Collections.Generic;
 using GamePlay.Effects;
@@ -214,6 +213,34 @@ namespace GamePlay.ComponentSystems
             }
         }
 
+        public void PlayEffectWithScaleAndColor(
+            EffectType effectType,
+            Vector3 position,
+            Quaternion rotation,
+            Transform parent,
+            float scaleMultiplier,
+            int colorIndex)
+        {
+            if (!_cacheBuilt)
+            {
+                BuildCache();
+            }
+
+            int typeIndex = (int)effectType;
+            if (_runtime == null || typeIndex < 0 || typeIndex >= _runtime.Length)
+            {
+                return;
+            }
+
+            EffectEntry entry = _runtime[typeIndex];
+            if (entry == null)
+            {
+                return;
+            }
+
+            PlayVfx(effectType, entry, position, rotation, parent, scaleMultiplier, colorIndex);
+        }
+
 
         private static GameObject SafePoolGet(GameObject prefab)
         {
@@ -266,6 +293,18 @@ namespace GamePlay.ComponentSystems
 
         private void PlayVfx(EffectType effectType, EffectEntry entry, Vector3 position, Quaternion rotation, Transform parent)
         {
+            PlayVfx(effectType, entry, position, rotation, parent, 1f, 0);
+        }
+
+        private void PlayVfx(
+            EffectType effectType,
+            EffectEntry entry,
+            Vector3 position,
+            Quaternion rotation,
+            Transform parent,
+            float scaleMultiplier,
+            int colorIndex)
+        {
             if (entry == null || entry.VfxPrefab == null)
             {
                 return;
@@ -305,6 +344,9 @@ namespace GamePlay.ComponentSystems
                 }
                 vfx.transform.localScale = IsUsableScale(entry.VfxScale) ? entry.VfxScale : Vector3.one;
                 vfx.SetActive(true);
+
+                var scaler = vfx.GetComponent<VfxScaler>();
+                scaler?.ScaleWithColor(Mathf.Max(0f, scaleMultiplier), colorIndex);
 
                 var particles = GetCachedParticleSystems(vfx);
                 if (particles == null || particles.Length == 0)

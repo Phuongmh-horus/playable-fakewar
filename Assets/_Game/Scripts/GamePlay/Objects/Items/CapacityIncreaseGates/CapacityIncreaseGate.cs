@@ -5,7 +5,6 @@ using GamePlay.CardSystem;
 using GamePlay.Characters;
 using GamePlay.ComponentSystems;
 using GamePlay.CollisionSystems;
-using GamePlay.Effects;
 using DG.Tweening;
 using UnityEngine;
 

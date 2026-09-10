@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 using GamePlay.Entities;
 
@@ -26,15 +24,15 @@ public class BrickLayer : PoolEntity
         isCached = false;
     }
 
-//     private void Update()
-//     {
-//         if (!isActivated) return;
-//         for (int index = bricks.Count - 1; index >= 0; index--)
-//         {
-//             if (!bricks[index].isActivated) return;
-//             bricks[index].UpdateFall();
-//         }
-//     }
+    //     private void Update()
+    //     {
+    //         if (!isActivated) return;
+    //         for (int index = bricks.Count - 1; index >= 0; index--)
+    //         {
+    //             if (!bricks[index].isActivated) return;
+    //             bricks[index].UpdateFall();
+    //         }
+    //     }
 
     public void ResetLayer(bool forceResetFlying = false)
     {

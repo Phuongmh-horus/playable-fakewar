@@ -1,10 +1,6 @@
 using System.Collections.Generic;
 using GamePlay.AnimationSystems;
-using GamePlay.CombatSystems;
 using GamePlay.ComponentSystems;
-using GamePlay.Weapons;
-using Pools;
-using UnityEngine;
 
 namespace GamePlay.Enemies
 {

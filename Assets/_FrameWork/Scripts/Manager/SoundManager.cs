@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
-using Random = UnityEngine.Random;
 
 public class SoundManager : MonoSingleton<SoundManager>
 {

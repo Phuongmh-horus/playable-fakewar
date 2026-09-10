@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "FollowPlayerState", menuName = "Camera/Follow Player State")]
@@ -90,7 +89,7 @@ public class FollowPlayerCameraState : CameraState
 
     public void SetPlayerTransform(Transform player)
     {
-        
+
         playerTransform = player;
     }
 }

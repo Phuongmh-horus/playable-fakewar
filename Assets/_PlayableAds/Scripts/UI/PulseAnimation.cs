@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 public class PulseAnimationn : MonoBehaviour
 {
 
@@ -9,9 +8,9 @@ public class PulseAnimationn : MonoBehaviour
     // void Start()
     // {
     //     _pulseRoutine = StartCoroutine(PulseRoutine());
-        
+
     // }
-    
+
     private void OnEnable()
     {
         _pulseRoutine = StartCoroutine(PulseRoutine());

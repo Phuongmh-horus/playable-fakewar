@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using GamePlay.Items;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -90,7 +89,7 @@ namespace GamePlay.CardSystem
             {
                 _rectTransform.SetParent(targetSlot, true);
                 Vector3 startLocalPos = _rectTransform.localPosition;
-                
+
                 float targetScale = 1f;
                 if (targetSize != Vector2.zero)
                 {
@@ -106,7 +105,7 @@ namespace GamePlay.CardSystem
                     _rectTransform.localScale = Vector3.one * Mathf.Lerp(scaleAtCenter, targetScale, t);
                     yield return null;
                 }
-                
+
                 _rectTransform.localPosition = Vector3.zero;
                 _rectTransform.localScale = Vector3.one * targetScale;
             }
@@ -127,7 +126,7 @@ namespace GamePlay.CardSystem
                     _rectTransform.localScale = Vector3.one * Mathf.Lerp(scaleAtCenter, targetScale, t);
                     yield return null;
                 }
-                
+
                 _rectTransform.anchoredPosition = destScreen;
                 _rectTransform.localScale = Vector3.one * targetScale;
             }

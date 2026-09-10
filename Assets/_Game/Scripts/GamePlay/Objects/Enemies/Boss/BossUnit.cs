@@ -96,7 +96,6 @@ namespace GamePlay.Enemies
             {
                 return;
             }
-            TryPlayScheduledAttackEffect();
             _nextArmyTargetScanTime = Time.time + 0.1f;
 
             if (TryGetClosestActiveArmyAttacker(_hasEngagedArmy, out var armyAttacker))

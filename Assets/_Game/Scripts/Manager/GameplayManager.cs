@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using GamePlay.AnimationSystems;
 using GamePlay.CollisionSystems;
 using UnityEngine.Events;
 using GamePlay.CombatSystems;
@@ -15,8 +14,6 @@ using GamePlay.Rendering;
 using PlayerArmy;
 using Pools;
 using UnityEngine;
-using UnityEngine.Rendering;
-using System.Reflection;
 
 public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 {
@@ -76,7 +73,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     [Header("Player/Army (New System)")]
     [SerializeField] private PlayerArmySystem playerArmyPrefab;
     public PlayerArmySystem ActiveArmy { get; private set; }
-    private bool IsArmyMode => true;
 
     [Header("Startup Performance")]
     [SerializeField] private int initItemsPerFrame = 5;
@@ -96,10 +92,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
     [Header("VFX Prefabs (Assign in Inspector)")]
     [SerializeField] private List<GameObject> extraVfxPrefabs = new List<GameObject>();
-
-    [Header("Milestone (Playable)")]
-    [SerializeField] private bool showMilestoneOnWin = true;
-    [SerializeField] private float milestoneEndcardDelay = 1.0f;
 
     public static bool IsGameStarted;
     private bool _endGameSfxPlayed;
@@ -179,7 +171,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     {
         float dt = Time.deltaTime;
 
-        if (_inputManager == null) _inputManager = GamePlay.Inputs.InputManager.Instance;
         _inputManager?.ManualUpdate();
         PooledVfxLifetimeScheduler.Tick(Time.time);
         GamePlay.Characters.CharacterUnit.TickScheduledDespawns(Time.time);
@@ -194,17 +185,13 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         }
 
         // Critical effects: every frame (smooth animations)
-        BrickFallMotion.TickActiveMotions(dt);
-        if (!stripUnusedFeatures || !stripCurrencyContent)
-        {
-            CurrencyDropItem.TickActiveDrops(dt);
-        }
-        DebrisBlock.TickActiveBlocks(dt);
-
-        if (_waveSys == null) _waveSys = PlayableWaveDefenseEntitySystem.Instance;
-        if (_combatSys == null) _combatSys = CombatSystem.Instance;
-        if (_enemyProjectileSys == null) _enemyProjectileSys = EnemyProjectileSystem.Instance;
-        if (_enemyManager == null) _enemyManager = EnemyManager.Instance;
+        SawRotate.TickActiveSaws(dt);
+        //BrickFallMotion.TickActiveMotions(dt);
+        // if (!stripUnusedFeatures || !stripCurrencyContent)
+        // {
+        //     CurrencyDropItem.TickActiveDrops(dt);
+        // }
+        // DebrisBlock.TickActiveBlocks(dt);
 
         TryTrimInactivePools();
         ActiveArmy?.ManualUpdate();
@@ -271,19 +258,16 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         OnCurrencyChanged?.Invoke(type, _currencyValues[type], Vector3.zero);
     }
     private Coroutine _startGameRoutine;
-    private Coroutine _endGameRoutine;
     private readonly List<CardSpawnRequestData> _singleRequestBuffer = new List<CardSpawnRequestData>(1);
     private readonly List<IHitable> _collisionHitablesBuffer = new List<IHitable>(128);
     private readonly List<Transform> _collisionTransformsBuffer = new List<Transform>(128);
+    private readonly HashSet<GameObject> _prewarmedVfxBuffer = new HashSet<GameObject>();
     private bool _hasOfferedExplosionShotThisRun;
     private bool _isExplosionShotUnlocked;
     private int _explosionShotDamagePercent;
     private readonly HashSet<StatType> _appliedPrimaryBuffTypes = new HashSet<StatType>();
     public HashSet<string> AcquiredSwordSkills = new HashSet<string>();
     public List<CardSystem.Data.BuffDefinition> ActiveSamuraiBuffs = new List<CardSystem.Data.BuffDefinition>();
-    private MilestoneOnMap _currentMilestone;
-    private bool _hasMilestoneOverride;
-    private Vector3 _milestoneWorldPosOverride;
 
     public Transform PlayerTransform => ActiveArmy != null ? ActiveArmy.BodyTransform : null;
     public float ExplosionShotRadius => explosionShotRadius;
@@ -296,6 +280,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
     private void Start()
     {
+        CacheRuntimeSystems();
         UIFullScreenBlocker.Instance.Lock();
         Application.targetFrameRate = 60;
         QualitySettings.vSyncCount = 0; // Disable VSync to ensure target framerate is respected
@@ -305,66 +290,41 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         StartCoroutine(CoBootAndIntroSequence());
     }
 
+    private void CacheRuntimeSystems()
+    {
+        _inputManager = GamePlay.Inputs.InputManager.Instance;
+        _waveSys = PlayableWaveDefenseEntitySystem.Instance;
+        _combatSys = CombatSystem.Instance;
+        _enemyProjectileSys = EnemyProjectileSystem.Instance;
+        _enemyManager = EnemyManager.Instance;
+    }
+
     private IEnumerator CoBootAndIntroSequence()
     {
         ClearRuntimeTickCaches();
         DataManager.ResetToDefault();
 
-        // 1. Instantly set camera to FollowPlayer and Hide UI
-        if (CameraManager.Instance != null)
+        var cameraManager = CameraManager.Instance;
+        var lunaUi = LunaUIManager.Instance;
+        if (cameraManager != null)
         {
-            CameraManager.Instance.SetCameraStateByName(CameraFollow.CameraStateName.FollowPlayer, CameraFollow.TransitionMode.Instant);
+            cameraManager.SetCameraStateByName(CameraFollow.CameraStateName.FollowPlayer, CameraFollow.TransitionMode.Instant);
         }
 
-        if (LunaUIManager.Instance != null)
+        if (lunaUi != null)
         {
-            LunaUIManager.Instance.SetUIVisibility(false);
+            lunaUi.SetUIVisibility(false);
         }
 
         yield return null;
 
-        // ==============================================================================
-        // [A/B TEST BLOCK] - BẬT/TẮT (COMMENT) CÁC PHASE DƯỚI ĐÂY ĐỂ TEST
-        // ==============================================================================
-
-        // Phần 1: Map, Content, Player Army & Weapon Projectile
         yield return StartCoroutine(CoPhase1_MapContentAndArmy());
 
-        // ==============================================================================
-
-        // 7. Setup Camera and Milestone (Luôn chạy để đảm bảo flow game không bị treo)
-        var trackPreview = CameraManager.Instance.GetCameraFollow().GetStateByName(CameraFollow.CameraStateName.TrackPreview) as TrackPreviewCameraState;
-        if (trackPreview && mapGenerator != null && mapGenerator.activeSegments != null && mapGenerator.activeSegments.Count > 0)
+        if (lunaUi != null)
         {
-            trackPreview.startPoint = mapGenerator.activeSegments[0].EntryPoint;
-            trackPreview.endPoint = mapGenerator.activeSegments[mapGenerator.activeSegments.Count - 1].ExitPoint;
-        }
-
-        var finishView = CameraManager.Instance.GetCameraFollow().GetStateByName(CameraFollow.CameraStateName.Finish) as StaticCameraState;
-        if (finishView && contentGenerator != null && contentGenerator.GateNewEraTrans)
-        {
-            finishView.SetTargetTransform(contentGenerator.GateNewEraTrans);
-        }
-
-        if (_currentMilestone != null)
-        {
-            _currentMilestone.Despawn();
-            _currentMilestone = null;
-        }
-        if (playableEra != null && playableEra.Milestone != null && contentGenerator != null)
-        {
-            _currentMilestone = contentGenerator.SpawnMilestoneItem(playableEra.Milestone);
-            if (_currentMilestone != null) _currentMilestone.gameObject.SetActive(false);
-        }
-
-        EnsureWeaponCraftStarterItem();
-
-        // 8. Start UI Animation and unlock input
-        if (LunaUIManager.Instance != null)
-        {
-            LunaUIManager.Instance.AnimateUIIntro(() =>
+            lunaUi.AnimateUIIntro(() =>
             {
-                LunaUIManager.Instance.ShowTutorial(true);
+                lunaUi.ShowTutorial(true);
                 if (UIFullScreenBlocker.Instance != null) UIFullScreenBlocker.Instance.Unlock(-1, forceUnlockAll: true);
             });
         }
@@ -376,16 +336,23 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
     private IEnumerator CoPhase1_MapContentAndArmy()
     {
-        // Generate Map
-        bool hasPrebakedMap = mapGenerator.GetActiveSegments().Count > 0;
-        bool shouldRegenerateMap = !hasPrebakedMap || (mapGenerator != null && mapGenerator.CurrentMapData != null && playableEra != null && mapGenerator.CurrentMapData != playableEra.MapData);
+        if (mapGenerator == null || playableEra == null)
+        {
+            yield break;
+        }
 
-        if (shouldRegenerateMap && mapGenerator != null && playableEra != null)
+        bool shouldRegenerateMap = mapGenerator.GetActiveSegments().Count == 0 ||
+                                   mapGenerator.CurrentMapData != playableEra.MapData;
+        if (shouldRegenerateMap)
         {
             mapGenerator.GenerateMap(playableEra.MapData);
         }
 
         var playerSpawnRect = mapGenerator.GetSpawnPlayerTransform();
+        if (playerSpawnRect == null)
+        {
+            yield break;
+        }
         Vector3 targetPos = playerSpawnRect.position + Vector3.forward * TurnableSpawnOffset;
 
         // Generate Content
@@ -430,11 +397,11 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             ActiveArmy.SetIdle();
         }
 
-        if (EnemyManager.Instance != null) EnemyManager.Instance.UnregisterAllEnemies();
+        _enemyManager?.UnregisterAllEnemies();
         EnemyProjectileSystem.UnregisterPlayer();
 
         // Prewarm shared army prefabs before content items can borrow character instances for displays.
-        if (IsArmyMode && ActiveArmy != null)
+        if (ActiveArmy != null)
         {
             yield return StartCoroutine(ActiveArmy.PrewarmArmyPrefabsAsync(Mathf.Max(1, spawnItemsPerFrame)));
         }
@@ -442,7 +409,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         // Initialize Content Items
         if (contentGenerator != null && contentGenerator.generatedObjects != null)
         {
-            HashSet<GameObject> prewarmedVfx = new HashSet<GameObject>();
+            _prewarmedVfxBuffer.Clear();
             int batchSize = Mathf.Max(1, initItemsPerFrame);
             for (int i = 0; i < contentGenerator.generatedObjects.Count; i++)
             {
@@ -456,7 +423,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
                         // Ensure it's actually a prefab (not a scene object) to avoid Luna ItemNotFoundException
                         if (!enemyUnit.DieVfxPrefab.scene.IsValid())
                         {
-                            if (prewarmedVfx.Add(enemyUnit.DieVfxPrefab))
+                            if (_prewarmedVfxBuffer.Add(enemyUnit.DieVfxPrefab))
                             {
                                 yield return PoolSystem.EnsurePrewarmAsync(enemyUnit.DieVfxPrefab.transform, 5, batchSize);
                             }
@@ -493,7 +460,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             if (prefab != null)
             {
                 // [FIX] Reduce prewarm count for vfx_hero_upgrade to optimize performance
-                int prewarmCount = prefab.name.ToLower().Contains("upgrade") ? 5 : 10;
+                int prewarmCount = prefab.name.ToLower().Contains("upgrade") ? 5 : 8;
                 yield return PoolSystem.EnsurePrewarmAsync(prefab.transform, prewarmCount, Mathf.Max(1, spawnItemsPerFrame));
             }
         }
@@ -534,8 +501,6 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
         ActiveArmy.PlayEffectAt(EffectType.Upgrade, position, Quaternion.identity, parent);
     }
-
-    // Stub removed to allow generic ChangeStatModifierData to handle EvolutionPoint logic.
 
     private static void ClearRuntimeTickCaches()
     {
@@ -673,7 +638,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
         IsGameStarted = false;
 
-        if (IsArmyMode && ActiveArmy != null)
+        if (ActiveArmy != null)
         {
             ActiveArmy.SetIdle();
 
@@ -788,20 +753,13 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         EnemyManager.Instance?.SetAllEnemiesIdle();
         EnemyProjectileSystem.ClearAllProjectiles();
 
-        if (isWin && ActiveArmy != null)
-        {
-            ActiveArmy.PlayAnimationForAllUnits(AnimationType.ConveyorJump, 0f, 0);
-        }
+        // if (isWin && ActiveArmy != null)
+        // {
+        //     ActiveArmy.PlayAnimationForAllUnits(AnimationType.ConveyorJump, 0f, 0);
+        // }
 
         if (useCtaOnlyEndgameMode && isWin)
         {
-            if (showMilestoneOnWin && TryPlayMilestone())
-            {
-                if (_endGameRoutine != null) StopCoroutine(_endGameRoutine);
-                _endGameRoutine = StartCoroutine(CoFinishWinAfterMilestoneCtaOnly());
-                return;
-            }
-
             CameraManager.Instance.SetCameraStateByName(CameraFollow.CameraStateName.Finish);
 
             var lunaUi = LunaUIManager.Instance;
@@ -819,86 +777,12 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
         if (isWin)
         {
-            if (showMilestoneOnWin && TryPlayMilestone())
-            {
-                if (_endGameRoutine != null) StopCoroutine(_endGameRoutine);
-                _endGameRoutine = StartCoroutine(CoFinishWinAfterMilestone());
-                return;
-            }
-
             ExecuteWinEndFlow();
         }
         else
         {
             ExecuteLoseEndFlow();
         }
-    }
-
-    public void SetMilestoneOverridePosition(Vector3 worldPos)
-    {
-        _hasMilestoneOverride = true;
-        _milestoneWorldPosOverride = worldPos;
-    }
-
-    private bool TryPlayMilestone()
-    {
-        if (_currentMilestone == null || contentGenerator == null) return false;
-        if (_hasMilestoneOverride)
-        {
-            float positionOnMap = _milestoneWorldPosOverride.z - contentGenerator.Position.z;
-            contentGenerator.SetPositionOnMap(_currentMilestone.transform, positionOnMap);
-            _currentMilestone.PlayAnimOpen();
-            _hasMilestoneOverride = false;
-            return true;
-        }
-
-        if (contentGenerator.MilestonePoints == null || contentGenerator.MilestonePoints.Count == 0) return false;
-
-        float maxPos = float.MinValue;
-        foreach (var p in contentGenerator.MilestonePoints)
-        {
-            if (p > maxPos) maxPos = p;
-        }
-
-        if (maxPos <= float.MinValue) return false;
-
-        contentGenerator.SetPositionOnMap(_currentMilestone.transform, maxPos);
-        _currentMilestone.PlayAnimOpen();
-        return true;
-    }
-
-    private IEnumerator CoFinishWinAfterMilestone()
-    {
-        float delay = Mathf.Max(0f, milestoneEndcardDelay);
-        if (delay > 0f)
-            yield return new WaitForSeconds(delay);
-
-        ExecuteWinEndFlow();
-        _endGameRoutine = null;
-    }
-
-    private IEnumerator CoFinishWinAfterMilestoneCtaOnly()
-    {
-        float delay = Mathf.Max(0f, milestoneEndcardDelay);
-        if (delay > 0f)
-            yield return new WaitForSeconds(delay);
-
-        CameraManager.Instance.SetCameraStateByName(CameraFollow.CameraStateName.Finish);
-
-        var lunaUi = LunaUIManager.Instance;
-        if (lunaUi != null)
-            lunaUi.ShowCtaOnlyEndgame();
-        else
-            GameEventBus.OnShowCTA?.Invoke();
-
-        // Spawn a fresh player at the start position for this mode.
-        if (playableEra != null)
-        {
-            if (ActiveArmy != null) ActiveArmy.ClearUnits(true);
-            SpawnPlayerArmy(playableEra);
-        }
-
-        _endGameRoutine = null;
     }
 
     private void ExecuteWinEndFlow()
@@ -1063,6 +947,8 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
                     break;
                 }
         }
+
+        ActiveArmy?.ShowBuffFlyText(statModifierData.Type);
     }
     public bool CanOfferExplosionShotThisRun()
     {
@@ -1165,7 +1051,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         _singleRequestBuffer.Add(new CardSpawnRequestData
         {
             Amount = totalCards,
-            Level = IsArmyMode ? -1 : 1,
+            Level = -1,
             CardType = CardType.Character
         });
         AddCardsToPlayer(_singleRequestBuffer, effect);
@@ -1202,6 +1088,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             {
                 int targetLevel = Mathf.Max(1, soldierBallData.Level);
                 ActiveArmy.UpgradeAllUnitsToLevel(targetLevel);
+                ActiveArmy.ShowBuffFlyText(StatType.CharacterLevel);
             }
 
             return;
@@ -1221,7 +1108,11 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             case StatType.Damage:
                 ActiveArmy.ApplyDamageModifier(value);
                 break;
+            default:
+                return;
         }
+
+        ActiveArmy.ShowBuffFlyText(soldierBallData.Type);
     }
 
     private void EnsureWeaponCraftStarterItem()
