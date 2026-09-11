@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 
 public class HitTextFlyEffect : MonoBehaviour
 {
-    private const int MaxActiveTexts = 10;
+    private const int MaxActiveTexts = 8;
 
     [SerializeField] private GamePlay.HealthSystems.HealthComponent healthComponent;
     [SerializeField] private TMP_Text healthTextPrefab;

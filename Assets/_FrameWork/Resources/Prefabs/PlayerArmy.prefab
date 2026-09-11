@@ -148,7 +148,7 @@ MonoBehaviour:
   - Type: 18
     VfxPrefab: {fileID: 5489509100550448236, guid: 624921f1a3ed32648902e77fe30cc94c, type: 3}
     ParentToTarget: 1
-    VfxScale: {x: 8, y: 8, z: 8}
+    VfxScale: {x: 7, y: 7, z: 7}
     SfxClip: {fileID: 8300000, guid: db12146efa7b0aa4186a2f6f59f49cf8, type: 3}
     LoopSfx: 0
     SfxVolume: 1

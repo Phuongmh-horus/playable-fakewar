@@ -162,6 +162,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
     private PlayableWaveDefenseEntitySystem _waveSys;
     private CombatSystem _combatSys;
+    private CollisionSystem _collisionSys;
     private EnemyProjectileSystem _enemyProjectileSys;
     private EnemyManager _enemyManager;
     private GamePlay.Inputs.InputManager _inputManager;
@@ -197,6 +198,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         ActiveArmy?.ManualUpdate();
         if (_waveSys != null) _waveSys.ManualUpdate();
         if (_combatSys != null) _combatSys.ManualUpdate();
+        if (_collisionSys != null) _collisionSys.ManualUpdate();
         if (_enemyProjectileSys != null) _enemyProjectileSys.ManualUpdate();
         if (_enemyManager != null) _enemyManager.ManualUpdate();
         if (_waveSys != null && _waveSys.EndGameWhenAllMovingEntitiesCleared)
@@ -295,6 +297,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         _inputManager = GamePlay.Inputs.InputManager.Instance;
         _waveSys = PlayableWaveDefenseEntitySystem.Instance;
         _combatSys = CombatSystem.Instance;
+        _collisionSys = CollisionSystem.Instance;
         _enemyProjectileSys = EnemyProjectileSystem.Instance;
         _enemyManager = EnemyManager.Instance;
     }

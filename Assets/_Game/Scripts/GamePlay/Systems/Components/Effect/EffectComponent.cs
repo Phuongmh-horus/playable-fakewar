@@ -239,6 +239,7 @@ namespace GamePlay.ComponentSystems
             }
 
             PlayVfx(effectType, entry, position, rotation, parent, scaleMultiplier, colorIndex);
+            PlaySfx(entry);
         }
 
 
@@ -280,7 +281,11 @@ namespace GamePlay.ComponentSystems
         private void ExecuteEffect(EffectType effectType, EffectEntry entry, Vector3 position, Quaternion rotation, Transform parent)
         {
             PlayVfx(effectType, entry, position, rotation, parent);
+            PlaySfx(entry);
+        }
 
+        private static void PlaySfx(EffectEntry entry)
+        {
             if (entry.SfxClip == null) return;
 
             float sfxVolume = Mathf.Clamp01(entry.SfxVolume);
@@ -315,7 +320,8 @@ namespace GamePlay.ComponentSystems
                 return;
             }
 
-            if (!PooledVfxLifetimeScheduler.CanSchedule())
+            bool isImpactEffect = effectType == EffectType.Hit || effectType == EffectType.Break;
+            if (!PooledVfxLifetimeScheduler.CanSchedule(isImpactEffect))
             {
                 return;
             }
@@ -356,9 +362,9 @@ namespace GamePlay.ComponentSystems
                 }
 
                 float lifeTime = GetParticleLifetime(vfx);
-                PlayParticles(particles, effectType == EffectType.Hit || effectType == EffectType.Break);
+                PlayParticles(particles, isImpactEffect);
 
-                PooledVfxLifetimeScheduler.Schedule(vfx, Mathf.Max(0.1f, lifeTime));
+                PooledVfxLifetimeScheduler.Schedule(vfx, Mathf.Max(0.1f, lifeTime), isImpactEffect);
             }
             catch
             {

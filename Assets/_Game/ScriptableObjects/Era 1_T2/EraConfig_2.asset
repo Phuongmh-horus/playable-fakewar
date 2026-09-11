@@ -19,7 +19,7 @@ MonoBehaviour:
   MapData: {fileID: 11400000, guid: 513373675ef93264da538064965b9a7c, type: 2}
   Milestone: {fileID: 0}
   Contents:
-  - {fileID: 11400000, guid: 7b05894d45c1d7e4eae16b2ff3a8050f, type: 2}
+  - {fileID: 11400000, guid: ace8db681a21ce84ebdab297c8d23a9c, type: 2}
   Turntable: {fileID: 0}
   EvolutionConfig: {fileID: 11400000, guid: 2aecc8a88bb487143b2a694172a24939, type: 2}
   CharacterFactoryUpgradeConfig: {fileID: 0}

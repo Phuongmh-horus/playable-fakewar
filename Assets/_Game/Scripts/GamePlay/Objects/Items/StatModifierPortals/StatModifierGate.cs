@@ -403,7 +403,6 @@ namespace GamePlay.Items
             }
 
             _fireSoldierHealth.SetHealth(resolvedHealth);
-            UpdateImage();
         }
 
         public void CollectByArmy()

@@ -2,7 +2,7 @@
     "version": "7.0.0",
     "projectId": "1bc38d6f8d96f394b8b169b9e5a7dcba",
     "applicationID": 42014,
-    "creativeName": "WS_kichban2_map1_thua",
+    "creativeName": "WS_kichban2_map2_thang",
     "pgServer": "EU",
     "window": {
         "‐⁏": true
@@ -87,6 +87,14 @@
         "assets": {
             "export": [],
             "excludes": [
+                "Assets/Font/MUSEOSANSROUNDED-1000 SDF.asset",
+                "Assets/Kho/Charater/mesh/EN_basic.fbx",
+                "Assets/Kho/Charater/mesh/EN_pig.fbx",
+                "Assets/TextMesh Pro/Sprites/EmojiOne.png",
+                "Assets/_FrameWork/Scenes/S_GamePlay 1_Lose.unity",
+                "Assets/_FrameWork/Scenes/S_GamePlay 1_Win.unity",
+                "Assets/_Game/Animation/Enemy_Basic/Enemy_Basic_New.fbx",
+                "Assets/_Game/Animation/Small-pig/Small_Pig_Base.fbx",
                 "**/Editor/",
                 "**/FacebookSDK/",
                 "**/googleads**/",
@@ -124,12 +132,6 @@
                 "Stubs/Vungle",
                 "Stubs/MoreMountains.NiceVibrations",
                 "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset",
-                "Assets/Font/MUSEOSANSROUNDED-1000 SDF.asset",
-                "Assets/TextMesh Pro/Sprites/EmojiOne.png",
-                "Assets/_Game/Animation/Enemy_Basic/Enemy_Basic_New.fbx",
-                "Assets/_Game/Animation/Small-pig/Small_Pig_Base.fbx",
-                "Assets/Kho/Charater/mesh/EN_basic.fbx",
-                "Assets/Kho/Charater/mesh/EN_pig.fbx",
                 "Assets/_Game/Animation/Enemy_Basic/Enemy_Basic_New.fbx",
                 "Assets/Kho/Charater/mesh/EN_basic.fbx",
                 "Assets/Kho/Charater/mesh/EN_pig.fbx"
@@ -145,9 +147,13 @@
             ]
         },
         "scenes": [
-            "Assets/_FrameWork/Scenes/S_GamePlay 1_Lose.unity"
+            "Assets/_FrameWork/Scenes/S_GamePlay 2_Win.unity"
         ],
-        "disabledScenes": [],
+        "disabledScenes": [
+            "Assets/_FrameWork/Scenes/S_GamePlay 1_Lose.unity",
+            "Assets/_FrameWork/Scenes/S_GamePlay 1_Win.unity",
+            "Assets/_FrameWork/Scenes/S_GamePlay 2_Lose.unity"
+        ],
         "startupScene": 0,
         "packages": {
             "default": {
@@ -23598,7 +23604,7 @@
                     },
                     {
                         "name": "ExecuteWinEndFlow",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ExecuteLoseEndFlow",
@@ -37467,6 +37473,10 @@
                     {
                         "name": "PlayVfx$1",
                         "excluded": false
+                    },
+                    {
+                        "name": "PlaySfx",
+                        "excluded": false
                     }
                 ]
             },
@@ -40194,7 +40204,7 @@
                 "instanceMethods": [
                     {
                         "name": "Reset",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetFrom$1",

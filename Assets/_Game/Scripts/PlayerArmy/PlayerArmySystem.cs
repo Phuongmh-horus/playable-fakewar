@@ -149,6 +149,7 @@ namespace PlayerArmy
         private int _pendingSpawnAmount = 0;
         private int _pendingSpawnLevel = -1;
         private bool _pendingSpawnPlayAnimation = false;
+        private bool _pendingSpawnLayoutReady;
         private ArmyBuffFlyText _buffFlyText;
         private float _fireSoldierCharacterVfxScale = 1f;
         private const int MaxSpawnsPerFrame = 2;
@@ -330,14 +331,14 @@ namespace PlayerArmy
             if (currentState == PlayerArmyState.Active)
             {
                 int frame = Time.frameCount + _tickOffset;
-                if (frame % Mathf.Max(1, pruneTickInterval) == 0)
-                {
-                    PruneInactiveSpawnedUnits();
-                }
-
-                if (frame % Mathf.Max(1, collisionTickInterval) == 0)
+                bool isCollisionTick = frame % Mathf.Max(1, collisionTickInterval) == 0;
+                if (isCollisionTick)
                 {
                     UpdateCollisionChecks();
+                    PruneInactiveSpawnedUnits();
+                }
+                else if (frame % Mathf.Max(1, pruneTickInterval) == 0)
+                {
                     PruneInactiveSpawnedUnits();
                 }
 
@@ -370,6 +371,7 @@ namespace PlayerArmy
 
             unit.ArmyIndex = GetNextAvailableArmyIndex();
             characterUnits.Add(unit);
+            _pendingSpawnLayoutReady = false;
             if (parentToRoot) unit.transform.SetParent(GetBodyRoot(), true);
 
             if (initialize && !useSceneUnitsOnly)
@@ -391,6 +393,7 @@ namespace PlayerArmy
         {
             if (unit == null || !characterUnits.Contains(unit)) return false;
             characterUnits.Remove(unit);
+            _pendingSpawnLayoutReady = false;
             UnregisterRuntimeUnit(unit, deactivate);
             RequestFormationCompact();
             TryTriggerLoseWhenArmyEmpty();
@@ -405,6 +408,7 @@ namespace PlayerArmy
             }
 
             characterUnits.Clear();
+            _pendingSpawnLayoutReady = false;
         }
 
         public CharacterUnit SpawnCharacterUnit(int level, Vector3 position, Quaternion rotation, float? nextAttackTime = null, bool playMoveAnimation = false)
@@ -433,6 +437,7 @@ namespace PlayerArmy
 
             unit.ArmyIndex = index;
             unit.transform.SetPositionAndRotation(position, rotation);
+            _pendingSpawnLayoutReady = false;
 
             return unit;
         }
@@ -525,6 +530,11 @@ namespace PlayerArmy
                 return;
             }
 
+            if (_pendingSpawnAmount <= 0)
+            {
+                _pendingSpawnLayoutReady = false;
+            }
+
             _pendingSpawnAmount += spawnCount;
             _pendingSpawnLevel = level;
             _pendingSpawnPlayAnimation = playMoveAnimation;
@@ -542,12 +552,22 @@ namespace PlayerArmy
             bool playMoveAnimation = _pendingSpawnPlayAnimation;
             float? nextAttackTime = null;
 
+            // Units can be disabled by delayed enemy/boss callbacks between army ticks.
+            // Prune before pooling so a recycled unit cannot still be retained in the list.
             PruneInactiveSpawnedUnits();
+            if (!_pendingSpawnLayoutReady)
+            {
+                BuildOccupiedArmyIndices();
+                ApplyUnitCombatProfile();
+                _pendingSpawnLayoutReady = true;
+            }
+
             int activeUnitCap = Mathf.Clamp(maxActiveSpawnedUnits, 1, HardMaxActiveSpawnedUnits);
             int availableSlots = activeUnitCap - characterUnits.Count;
             if (availableSlots <= 0)
             {
                 _pendingSpawnAmount = 0;
+                _pendingSpawnLayoutReady = false;
                 return;
             }
 
@@ -557,8 +577,6 @@ namespace PlayerArmy
             Quaternion rotation = root.rotation;
 
             int totalCount = activeUnitCap;
-            BuildOccupiedArmyIndices();
-            ApplyUnitCombatProfile();
 
             int spawnedCount = 0;
             for (int i = 0; i < spawnCount; i++)
@@ -574,6 +592,7 @@ namespace PlayerArmy
                 var unit = CreateRuntimeCharacterUnit(resolvedLevel, spawnPosition, rotation, nextAttackTime, playMoveAnimation, false);
                 if (unit == null)
                 {
+                    _occupiedArmyIndices[index] = false;
                     break;
                 }
 
@@ -589,6 +608,10 @@ namespace PlayerArmy
 
 
             _pendingSpawnAmount -= spawnedCount;
+            if (_pendingSpawnAmount <= 0)
+            {
+                _pendingSpawnLayoutReady = false;
+            }
         }
 
         public void PlayEffect(EffectType effectType, Transform anchor = null, Action onComplete = null, float waitForAction = 0f)
@@ -818,17 +841,6 @@ namespace PlayerArmy
             // [FIX] Use multiplier logic to scale down interval without hitting the floor too fast
             float multiplier = 1f / (1f + _fireRateBonusPoints * 0.005f);
             attackInterval = Mathf.Max(0.01f, _baseAttackInterval * multiplier);
-
-            for (int i = 0; i < characterUnits.Count; i++)
-            {
-                var unit = characterUnits[i];
-                if (unit == null || !unit.IsActive)
-                {
-                    continue;
-                }
-
-                //SetNextAttackTime(unit, Time.time + attackInterval, true);
-            }
         }
 
         public void ApplyDamageModifier(int value)
@@ -984,8 +996,6 @@ namespace PlayerArmy
 
         public void ApplyLevelUpgrade(int levelIndex)
         {
-            ApplyUnitCombatProfile();
-
             _currentLevelIndex = Mathf.Max(0, levelIndex);
             RefreshLevelDamageBonus();
             RefreshCombatDamage();
@@ -1044,6 +1054,10 @@ namespace PlayerArmy
 
         private void ResetRuntimeSpawnState()
         {
+            _pendingSpawnAmount = 0;
+            _pendingSpawnLevel = -1;
+            _pendingSpawnPlayAnimation = false;
+            _pendingSpawnLayoutReady = false;
         }
 
         private Vector3 GetHoneycombSpawnPosition(Transform root, int index, int totalCount)
@@ -1231,7 +1245,6 @@ namespace PlayerArmy
             Vector3 queryStart = myPos - transform.forward * preCullZ;
             Vector3 queryEnd = myPos + transform.forward * preCullZ;
             collisionSystem.QueryIndicesNearSegment(queryStart, queryEnd, preCullX, _collisionQueryIndices);
-            bool unitsRemoved = false;
 
             for (int candidateIndex = 0; candidateIndex < _collisionQueryIndices.Count; candidateIndex++)
             {
@@ -1288,12 +1301,12 @@ namespace PlayerArmy
 
                     if (!_previousEnemyContactIds.Contains(enemyInstanceId))
                     {
-                        unitsRemoved |= ResolveEnemyContact(target, tPos, tHalfX, tHalfZ);
+                        ResolveEnemyContact(target, tPos, tHalfX, tHalfZ);
                     }
                 }
                 else if (collisionSystem.IsSoldierBall(i))
                 {
-                    unitsRemoved |= ResolveSoldierBallContact(tPos, tHalfX, tHalfZ);
+                    ResolveSoldierBallContact(tPos, tHalfX, tHalfZ);
                 }
                 else if (target.EntityType == EntityType.FinishTower)
                 {
@@ -1309,11 +1322,6 @@ namespace PlayerArmy
                         target.OnHit(this);
                     }
                 }
-            }
-
-            if (unitsRemoved)
-            {
-                PruneInactiveSpawnedUnits();
             }
 
             var tmpEnemy = _previousEnemyContactIds;
@@ -1885,6 +1893,7 @@ namespace PlayerArmy
 
             if (removedAny)
             {
+                _pendingSpawnLayoutReady = false;
                 RequestFormationCompact();
                 TryTriggerLoseWhenArmyEmpty();
             }
@@ -1964,6 +1973,7 @@ namespace PlayerArmy
             }
 
             _isCompactingFormation = formationIndex > 0;
+            _pendingSpawnLayoutReady = false;
         }
 
         private void TryTriggerLoseWhenArmyEmpty()

@@ -6,11 +6,13 @@ namespace GamePlay.Effects
     public static class PooledVfxLifetimeScheduler
     {
         private const int MaxActiveEntries = 24;
+        private const int MaxActiveImpactEntries = 12;
         private const int InitialSfxReplayCapacity = 16;
         private struct Entry
         {
             public GameObject Vfx;
             public float ExpireTime;
+            public bool IsImpact;
         }
 
         private struct SfxReplayEntry
@@ -23,21 +25,22 @@ namespace GamePlay.Effects
         private static Entry[] _activeEntries = new Entry[MaxActiveEntries];
         private static SfxReplayEntry[] _pendingSfxReplays = new SfxReplayEntry[InitialSfxReplayCapacity];
         private static int _count = 0;
+        private static int _impactCount;
         private static int _pendingSfxReplayCount;
 
-        public static bool CanSchedule()
+        public static bool CanSchedule(bool isImpact = false)
         {
-            return _count < MaxActiveEntries;
+            return _count < MaxActiveEntries && (!isImpact || _impactCount < MaxActiveImpactEntries);
         }
 
-        public static void Schedule(GameObject vfx, float lifetime)
+        public static void Schedule(GameObject vfx, float lifetime, bool isImpact = false)
         {
             if (vfx == null)
             {
                 return;
             }
 
-            if (_count >= MaxActiveEntries)
+            if (!CanSchedule(isImpact))
             {
                 vfx.Despawn();
                 return;
@@ -51,8 +54,14 @@ namespace GamePlay.Effects
             _activeEntries[_count++] = new Entry
             {
                 Vfx = vfx,
-                ExpireTime = Time.time + Mathf.Max(0.05f, lifetime)
+                ExpireTime = Time.time + Mathf.Max(0.05f, lifetime),
+                IsImpact = isImpact
             };
+
+            if (isImpact)
+            {
+                _impactCount++;
+            }
         }
 
         public static void ScheduleSfxReplay(AudioClip clip, float volume, float delay)
@@ -90,12 +99,18 @@ namespace GamePlay.Effects
                     entry.Vfx.Despawn();
                 }
 
+                if (entry.IsImpact)
+                {
+                    _impactCount = Mathf.Max(0, _impactCount - 1);
+                }
+
                 _count--;
                 if (i < _count)
                 {
                     _activeEntries[i] = _activeEntries[_count];
                 }
                 _activeEntries[_count].Vfx = null;
+                _activeEntries[_count].IsImpact = false;
             }
 
             for (int i = _pendingSfxReplayCount - 1; i >= 0; i--)

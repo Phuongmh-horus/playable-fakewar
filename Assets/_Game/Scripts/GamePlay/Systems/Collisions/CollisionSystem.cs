@@ -31,6 +31,7 @@ namespace GamePlay.CollisionSystems
 
         private float _maxHorizontalColliderExtent;
         private bool _maxHorizontalColliderExtentDirty;
+        private int _lastMaxExtentRecalculationFrame = -1;
         private int _nextCleanupFrame;
 
         private void Awake()
@@ -154,7 +155,7 @@ namespace GamePlay.CollisionSystems
         {
             get
             {
-                if (_maxHorizontalColliderExtentDirty)
+                if (_maxHorizontalColliderExtentDirty && _lastMaxExtentRecalculationFrame != Time.frameCount)
                 {
                     RecalculateMaxHorizontalColliderExtent();
                 }
@@ -307,6 +308,7 @@ namespace GamePlay.CollisionSystems
             ClearSpatialBuckets();
             _maxHorizontalColliderExtent = 0f;
             _maxHorizontalColliderExtentDirty = false;
+            _lastMaxExtentRecalculationFrame = -1;
         }
 
         // ================= UPDATE LOGIC =================
@@ -455,7 +457,7 @@ namespace GamePlay.CollisionSystems
             _colliders[index] = collider;
             if (previousExtent >= _maxHorizontalColliderExtent && GetHorizontalColliderExtent(collider) < previousExtent)
             {
-                RecalculateMaxHorizontalColliderExtent();
+                _maxHorizontalColliderExtentDirty = true;
             }
             UpdateMaxHorizontalColliderExtent(collider);
             UpdateSpatialCell(index);
@@ -515,6 +517,7 @@ namespace GamePlay.CollisionSystems
         {
             _maxHorizontalColliderExtent = 0f;
             _maxHorizontalColliderExtentDirty = false;
+            _lastMaxExtentRecalculationFrame = Time.frameCount;
             for (int i = 0; i < _colliders.Count; i++)
             {
                 UpdateMaxHorizontalColliderExtent(_colliders[i]);

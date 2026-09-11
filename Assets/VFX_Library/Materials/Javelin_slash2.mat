@@ -11,8 +11,7 @@ Material:
   m_Shader: {fileID: 4800000, guid: 33b5908c9e4247145b8d7d7efdfbf0ef, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _USENOISE_ON
+  m_ValidKeywords: []
   m_InvalidKeywords:
   - _MAINCLAMPX_ON
   - _MAINCLAMPY_ON
@@ -119,7 +118,7 @@ Material:
     - _UseDepthFade: 0
     - _UseMainUVCustom1ZW: 1
     - _UseManual_DebugDissolve: 1
-    - _UseNoise: 1
+    - _UseNoise: 0
     - _ZwriteMode: 0
     m_Colors:
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
