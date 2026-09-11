@@ -398,9 +398,10 @@ namespace GamePlay.CombatSystems
                 }
 
                 // Active movement
-                float t = Mathf.Clamp01((now - p.StartTime) * p.InvDuration);
+                float elapsed = now - p.StartTime;
+                float t = Mathf.Clamp01(elapsed * p.InvDuration);
 
-                float previousT = Mathf.Clamp01((now - Time.deltaTime - p.StartTime) * p.InvDuration);
+                float previousT = Mathf.Clamp01((elapsed - Time.deltaTime) * p.InvDuration);
                 Vector3 previousPos = EvaluateProjectilePosition(p, previousT);
                 Vector3 pos = EvaluateProjectilePosition(p, t);
                 p.Transform.position = pos;
@@ -414,12 +415,8 @@ namespace GamePlay.CombatSystems
                     // {
                     //     baseRotation = Quaternion.LookRotation(direction);
                     // }
-                    float spinAngle = (now - p.StartTime) * p.RotationSpeed * 57.29578f; // Mathf.Rad2Deg
+                    float spinAngle = elapsed * p.RotationSpeed * 57.29578f; // Mathf.Rad2Deg
                     p.Transform.rotation = baseRotation * Quaternion.AngleAxis(spinAngle, ResolveSpinAxis(p.SpinAxis));
-                }
-                else
-                {
-                    p.Transform.rotation = p.InitialRotation;
                 }
 
                 // Collision check with player
@@ -433,10 +430,6 @@ namespace GamePlay.CombatSystems
                             // Hit -> process immediately & remove immediately
                             p.Attacker.OnAttackSucceed(_playerHitable);
                             _playerHitable.OnHit(p.Attacker);
-                            if (collisionSystem != null)
-                            {
-                                collisionQueryExtent = collisionSystem.MaxHorizontalColliderExtent;
-                            }
 
                             DisposeManaged(ref p);
                             TryDespawnProjectile(p.Transform, p.PoolEntity);
@@ -476,7 +469,6 @@ namespace GamePlay.CombatSystems
                         {
                             p.Attacker.OnAttackSucceed(target);
                             target.OnHit(p.Attacker);
-                            collisionQueryExtent = collisionSystem.MaxHorizontalColliderExtent;
 
                             DisposeManaged(ref p);
                             TryDespawnProjectile(p.Transform, p.PoolEntity);

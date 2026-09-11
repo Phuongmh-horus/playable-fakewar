@@ -68,6 +68,8 @@ namespace GamePlay.Enemies
         private Vector3 _originalBarScale;
 
         private Vector3 _originalLocalPos;
+        private Transform _healthBarTransform;
+        private float _healthBarSpriteHalfWidth;
         [SerializeField, HideInInspector] private bool _healthOverriddenFromContent;
 
 
@@ -207,10 +209,14 @@ namespace GamePlay.Enemies
                 hpBarRenderer.sortingOrder = 50;
 
                 // Cache Scale FIRST
-                _originalBarScale = hpBarRenderer.transform.localScale;
-                _originalLocalPos = hpBarRenderer.transform.localPosition;
-                _healthBarRoot = hpBarRenderer.transform.parent != null
-                    ? hpBarRenderer.transform.parent.gameObject
+                _healthBarTransform = hpBarRenderer.transform;
+                _originalBarScale = _healthBarTransform.localScale;
+                _originalLocalPos = _healthBarTransform.localPosition;
+                _healthBarSpriteHalfWidth = hpBarRenderer.sprite != null
+                    ? hpBarRenderer.sprite.bounds.size.x * 0.5f
+                    : 0f;
+                _healthBarRoot = _healthBarTransform.parent != null
+                    ? _healthBarTransform.parent.gameObject
                     : hpBarRenderer.gameObject;
 
                 // Initialize Visuals
@@ -422,9 +428,14 @@ namespace GamePlay.Enemies
 
             {
 
-                _originalBarScale = hpBarRenderer.transform.localScale;
+                _healthBarTransform = hpBarRenderer.transform;
+                _originalBarScale = _healthBarTransform.localScale;
 
-                _originalLocalPos = hpBarRenderer.transform.localPosition;
+                _originalLocalPos = _healthBarTransform.localPosition;
+
+                _healthBarSpriteHalfWidth = hpBarRenderer.sprite != null
+                    ? hpBarRenderer.sprite.bounds.size.x * 0.5f
+                    : 0f;
 
             }
 
@@ -436,7 +447,7 @@ namespace GamePlay.Enemies
 
 
 
-            hpBarRenderer.transform.localScale = targetScale;
+            _healthBarTransform.localScale = targetScale;
 
 
 
@@ -446,15 +457,12 @@ namespace GamePlay.Enemies
 
             // Formula: Shift = (NewScale - OldScale) * Width * 0.5
 
-            if (hpBarRenderer.sprite != null)
+            if (_healthBarSpriteHalfWidth > 0f)
 
             {
-
-                float spriteWidth = hpBarRenderer.sprite.bounds.size.x;
-
                 float scaleDiff = targetScale.x - _originalBarScale.x; // Negative when shrinking
 
-                float shift = scaleDiff * spriteWidth * 0.5f;
+                float shift = scaleDiff * _healthBarSpriteHalfWidth;
 
 
 
@@ -462,7 +470,9 @@ namespace GamePlay.Enemies
 
                 // Current: Move Right (shift is negative, so -shift is positive).
 
-                hpBarRenderer.transform.localPosition = _originalLocalPos - new Vector3(shift, 0, 0);
+                Vector3 targetPosition = _originalLocalPos;
+                targetPosition.x -= shift;
+                _healthBarTransform.localPosition = targetPosition;
 
             }
 
@@ -472,8 +482,9 @@ namespace GamePlay.Enemies
         {
             if (_healthBarRoot == null)
             {
-                _healthBarRoot = hpBarRenderer.transform.parent != null
-                    ? hpBarRenderer.transform.parent.gameObject
+                _healthBarTransform = hpBarRenderer.transform;
+                _healthBarRoot = _healthBarTransform.parent != null
+                    ? _healthBarTransform.parent.gameObject
                     : hpBarRenderer.gameObject;
             }
 

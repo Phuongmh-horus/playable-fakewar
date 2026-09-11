@@ -80,6 +80,9 @@ namespace GamePlay.Items
         private Vector3 _runtimeSurfaceBaseScale;
         private float _runtimeLayoutReferenceWidth;
         private bool _runtimeLayoutCached;
+        private bool _hasAppliedGateColor;
+        private Color _lastAppliedGateColor;
+        private float _lastProgressFill = float.NaN;
 
         private static void PreparePropertyBlock(Renderer renderer, MaterialPropertyBlock block)
         {
@@ -164,6 +167,7 @@ namespace GamePlay.Items
         {
             _isCollectedByArmy = false;
             _nextHitEffectFrame = 0;
+            _lastProgressFill = float.NaN;
             base.Initialize();
 
             _fireSoldierHealth = Data != null && Data.Type == StatType.Character
@@ -654,16 +658,23 @@ namespace GamePlay.Items
 
         private void UpdateGateColor()
         {
-            if (gateRenderer == null || gateRenderer.sharedMaterials == null || gateRenderer.sharedMaterials.Length == 0) return;
+            if (gateRenderer == null || gateRenderer.sharedMaterial == null) return;
+
+            Color targetColor = IsDecreaseGate() ? decreaseColor : increaseColor;
+            if (_hasAppliedGateColor && _lastAppliedGateColor == targetColor)
+            {
+                return;
+            }
 
             if (_propBlock == null) _propBlock = new MaterialPropertyBlock();
 
             try
             {
                 PreparePropertyBlock(gateRenderer, _propBlock);
-                Color targetColor = IsDecreaseGate() ? decreaseColor : increaseColor;
                 _propBlock.SetColor("_Color", targetColor);
                 gateRenderer.SetPropertyBlock(_propBlock);
+                _lastAppliedGateColor = targetColor;
+                _hasAppliedGateColor = true;
             }
             catch { }
         }
@@ -673,7 +684,7 @@ namespace GamePlay.Items
             if (Data.Armor <= 0)
             {
                 foreach (var part in _armorParts)
-                    if (part != null) part.gameObject.SetActive(false);
+                    if (part != null && part.gameObject.activeSelf) part.gameObject.SetActive(false);
 
                 _maxArmor = 0;
                 _currentActiveParts = 0;
@@ -682,7 +693,7 @@ namespace GamePlay.Items
             }
 
             foreach (var part in _armorParts)
-                if (part != null) part.gameObject.SetActive(true);
+                if (part != null && !part.gameObject.activeSelf) part.gameObject.SetActive(true);
 
             _maxArmor = Data.Armor;
             _currentActiveParts = _armorParts.Count;
@@ -756,7 +767,7 @@ namespace GamePlay.Items
 
             if (Data != null && Data.Type == StatType.Character && _fireSoldierHealth != null)
             {
-                if (hpBar != null) hpBar.SetActive(true);
+                SetHpBarVisible(true);
                 float healthPercent = (float)_fireSoldierHealth.CurrentHealth / Mathf.Max(1, _fireSoldierHealth.MaxHealth);
                 SetProgressFill(healthPercent);
                 return;
@@ -764,11 +775,11 @@ namespace GamePlay.Items
 
             if (Data.Armor <= 0)
             {
-                if (hpBar != null) hpBar.SetActive(false);
+                SetHpBarVisible(false);
                 return;
             }
 
-            if (hpBar != null) hpBar.SetActive(true);
+            SetHpBarVisible(true);
 
             float armorPercent = _maxArmor > 0 ? (float)Data.Armor / _maxArmor : 0f;
 
@@ -779,7 +790,7 @@ namespace GamePlay.Items
         {
             float fillAmount = Mathf.Lerp(0.532f, 0.792f, Mathf.Clamp01(percent));
 
-            if (progressSprite.sharedMaterials == null || progressSprite.sharedMaterials.Length == 0) return;
+            if (progressSprite.sharedMaterial == null || Mathf.Approximately(_lastProgressFill, fillAmount)) return;
 
             if (_progressMpb == null) _progressMpb = new MaterialPropertyBlock();
 
@@ -788,8 +799,17 @@ namespace GamePlay.Items
                 PreparePropertyBlock(progressSprite, _progressMpb);
                 _progressMpb.SetFloat(FillAmountProp, fillAmount);
                 progressSprite.SetPropertyBlock(_progressMpb);
+                _lastProgressFill = fillAmount;
             }
             catch { }
+        }
+
+        private void SetHpBarVisible(bool visible)
+        {
+            if (hpBar != null && hpBar.activeSelf != visible)
+            {
+                hpBar.SetActive(visible);
+            }
         }
 
 

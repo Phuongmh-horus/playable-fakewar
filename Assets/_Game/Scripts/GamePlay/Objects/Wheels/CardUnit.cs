@@ -18,6 +18,7 @@ namespace GamePlay.Crushers
         [SerializeField] private bool forceDiffuseLightingForCard = true;
 
         private readonly List<MeshRenderer> _resolvedOutlineRenderers = new List<MeshRenderer>(4);
+        private bool _outlineRenderersCached;
         private MaterialPropertyBlock _mpb;
         private int _meshColorPropertyId = -1;
         private bool _hasEmissionProperty;
@@ -116,6 +117,11 @@ namespace GamePlay.Crushers
 
         private List<MeshRenderer> GetOutlineRenderers()
         {
+            if (_outlineRenderersCached)
+            {
+                return _resolvedOutlineRenderers;
+            }
+
             _resolvedOutlineRenderers.Clear();
 
             if (outlineRenderer != null && outlineRenderer != meshRenderer)
@@ -137,7 +143,13 @@ namespace GamePlay.Crushers
                 outlineRenderer = _resolvedOutlineRenderers[0];
             }
 
+            _outlineRenderersCached = true;
             return _resolvedOutlineRenderers;
+        }
+
+        private void OnTransformChildrenChanged()
+        {
+            _outlineRenderersCached = false;
         }
 
         private void CacheFallbackVisualState()
@@ -180,24 +192,32 @@ namespace GamePlay.Crushers
 
             if (meshRenderer == null) return;
 
-            if (_mpb == null) _mpb = new MaterialPropertyBlock();
-            
             try
             {
-                meshRenderer.GetPropertyBlock(_mpb);
+                if (!enable)
+                {
+                    // CardUnit owns the body's property block. Clearing it restores
+                    // the shared runtime material without a renderer readback.
+                    meshRenderer.SetPropertyBlock(null);
+                    return;
+                }
+
+                if (_mpb == null) _mpb = new MaterialPropertyBlock();
+                _mpb.Clear();
 
                 if (_meshColorPropertyId != -1)
                 {
-                    Color target = enable
-                        ? Color.Lerp(_defaultMeshColor, new Color(1f, 0.92f, 0.25f, _defaultMeshColor.a), 0.75f)
-                        : _defaultMeshColor;
+                    Color target = Color.Lerp(
+                        _defaultMeshColor,
+                        new Color(1f, 0.92f, 0.25f, _defaultMeshColor.a),
+                        0.75f);
                     target.a = _defaultMeshColor.a;
                     _mpb.SetColor(_meshColorPropertyId, target);
                 }
 
                 if (_hasEmissionProperty)
                 {
-                    _mpb.SetColor(EmissionColorId, enable ? new Color(0.9f, 0.8f, 0.15f) * 2.5f : Color.black);
+                    _mpb.SetColor(EmissionColorId, new Color(0.9f, 0.8f, 0.15f) * 2.5f);
                 }
 
                 meshRenderer.SetPropertyBlock(_mpb);

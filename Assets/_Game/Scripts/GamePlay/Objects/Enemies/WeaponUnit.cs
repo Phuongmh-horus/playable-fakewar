@@ -160,15 +160,36 @@ namespace GamePlay.Weapons
                 return;
             }
 
-            _appliedVisualLevel = safeIndex;
-
-            for (int i = 0; i < visualModels.Length; i++)
+            if (_appliedVisualLevel < 0 || _appliedVisualLevel >= visualModels.Length)
             {
-                if (visualModels[i] != null)
+                for (int i = 0; i < visualModels.Length; i++)
                 {
-                    visualModels[i].SetActive(i == safeIndex);
+                    GameObject model = visualModels[i];
+                    if (model == null) continue;
+
+                    bool shouldBeActive = i == safeIndex;
+                    if (model.activeSelf != shouldBeActive)
+                    {
+                        model.SetActive(shouldBeActive);
+                    }
                 }
             }
+            else
+            {
+                GameObject previousModel = visualModels[_appliedVisualLevel];
+                if (previousModel != null && previousModel.activeSelf)
+                {
+                    previousModel.SetActive(false);
+                }
+
+                GameObject nextModel = visualModels[safeIndex];
+                if (nextModel != null && !nextModel.activeSelf)
+                {
+                    nextModel.SetActive(true);
+                }
+            }
+
+            _appliedVisualLevel = safeIndex;
         }
     }
 }

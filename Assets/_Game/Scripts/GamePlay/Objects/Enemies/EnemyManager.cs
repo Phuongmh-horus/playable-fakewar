@@ -14,9 +14,9 @@ namespace GamePlay.Enemies
     public class EnemyManager : MonoSingleton<EnemyManager>
     {
         private readonly List<EnemyData> _enemies = new List<EnemyData>(64);
+        private readonly Stack<EnemyData> _enemyDataPool = new Stack<EnemyData>(64);
         public int EnemyCount => _enemies.Count;
 
-        private EnemyData _currentEnemy;
         private bool _isGameplayPaused = true;
         private bool _needsCleanup;
         private readonly List<AttackComponent> _attackComponentsBuffer = new List<AttackComponent>(8);
@@ -39,11 +39,9 @@ namespace GamePlay.Enemies
                 return;
             }
 
-            var data = new EnemyData
-            {
-                Causer = causer,
-                IsActive = true
-            };
+            EnemyData data = _enemyDataPool.Count > 0 ? _enemyDataPool.Pop() : new EnemyData();
+            data.Causer = causer;
+            data.IsActive = true;
 
             _enemies.Add(data);
             causer.PlayAnimation(_isGameplayPaused ? AnimationType.Idle : AnimationType.Move);
@@ -120,6 +118,8 @@ namespace GamePlay.Enemies
                 var enemy = _enemies[i];
                 if (enemy == null) continue;
                 enemy.IsActive = false;
+                enemy.Causer = null;
+                _enemyDataPool.Push(enemy);
             }
 
             _enemies.Clear();
@@ -140,6 +140,13 @@ namespace GamePlay.Enemies
                     _enemies[i] = _enemies[last];
                 }
                 _enemies.RemoveAt(last);
+
+                if (enemy != null)
+                {
+                    enemy.IsActive = false;
+                    enemy.Causer = null;
+                    _enemyDataPool.Push(enemy);
+                }
             }
         }
     }

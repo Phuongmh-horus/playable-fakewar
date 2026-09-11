@@ -29,6 +29,7 @@ namespace GamePlay.Items
 
         private int m_levelCard;
         private bool _isActiveVisual;
+        private bool _visualStateInitialized;
 
         public StatModifierData StatData => _statData;
         public int LevelCard => m_levelCard;
@@ -97,10 +98,12 @@ namespace GamePlay.Items
             }
 
             RefreshLockVisual();
+            _visualStateInitialized = true;
         }
 
         public void SetActiveVisual()
         {
+            if (_visualStateInitialized && _isActiveVisual) return;
             _isActiveVisual = true;
             ApplyVisualState();
         }
@@ -108,6 +111,7 @@ namespace GamePlay.Items
         [ContextMenu("Set InActive Visual")]
         public void SetNormalVisual()
         {
+            if (_visualStateInitialized && !_isActiveVisual) return;
             _isActiveVisual = false;
             ApplyVisualState();
         }
@@ -213,12 +217,19 @@ namespace GamePlay.Items
 
             if (LockImage != null)
             {
-                LockImage.SetActive(!isUnlocked);
+                bool shouldShowLock = !isUnlocked;
+                if (LockImage.activeSelf != shouldShowLock)
+                {
+                    LockImage.SetActive(shouldShowLock);
+                }
             }
 
             if (UnlockImage != null)
             {
-                UnlockImage.SetActive(isUnlocked);
+                if (UnlockImage.activeSelf != isUnlocked)
+                {
+                    UnlockImage.SetActive(isUnlocked);
+                }
             }
         }
 

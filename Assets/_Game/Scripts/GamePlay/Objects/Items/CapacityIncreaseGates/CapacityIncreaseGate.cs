@@ -38,6 +38,7 @@ namespace GamePlay.Items
         private readonly List<UpgradeResolution> _upgradeResolutionBuffer = new List<UpgradeResolution>(8);
         private static bool _hasConsumedForcedExplosionGate;
         private EffectComponent _gateEffectComponent;
+        private bool _textDepthConfigured;
         private struct UpgradeResolution
         {
             public IncreaseElement Element;
@@ -67,7 +68,10 @@ namespace GamePlay.Items
 
         public override void Initialize()
         {
-            _gateEffectComponent = GetComponent<EffectComponent>();
+            if (_gateEffectComponent == null)
+            {
+                _gateEffectComponent = GetComponent<EffectComponent>();
+            }
             _hasCollided = false; // Reset lock on init
             EnsureGateSetup();
 
@@ -166,6 +170,8 @@ namespace GamePlay.Items
 
         private void FixTextDepthImmediate()
         {
+            if (_textDepthConfigured) return;
+
             var texts = GetComponentsInChildren<TMPro.TMP_Text>(true);
             if (texts == null || texts.Length == 0) return;
 
@@ -197,6 +203,8 @@ namespace GamePlay.Items
                     }
                 }
             }
+
+            _textDepthConfigured = true;
         }
 
         private void ClearBelts()

@@ -432,6 +432,7 @@ namespace PlayerArmy
                 return null;
             }
 
+            // Public direct spawns can race the deferred prune after a pooled unit dies.
             if (!characterUnits.Contains(unit))
             {
                 characterUnits.Add(unit);
@@ -599,10 +600,8 @@ namespace PlayerArmy
                 }
 
                 spawnedCount++;
-                if (!characterUnits.Contains(unit))
-                {
-                    characterUnits.Add(unit);
-                }
+                // A successful pool spawn cannot already be active in this army.
+                characterUnits.Add(unit);
 
                 unit.ArmyIndex = index;
                 unit.transform.SetPositionAndRotation(spawnPosition, rotation);
@@ -1187,7 +1186,10 @@ namespace PlayerArmy
             float baseSmoothness = 0.15f;
             float effectiveSmoothness = Mathf.Clamp01(baseSmoothness * Mathf.Max(1f, strafeFollowMultiplier) * (dt * 60f));
             float newX = Mathf.Lerp(localPos.x, tempTargetX, effectiveSmoothness);
-            root.localPosition = new Vector3(newX, localPos.y, localPos.z);
+            if (newX != localPos.x)
+            {
+                root.localPosition = new Vector3(newX, localPos.y, localPos.z);
+            }
 
             float lateralVelocity = (dt > 0f) ? (newX - localPos.x) / dt : 0f;
             _targetX = tempTargetX;

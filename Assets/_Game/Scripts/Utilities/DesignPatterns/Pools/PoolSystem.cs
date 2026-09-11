@@ -22,12 +22,16 @@ namespace Pools
         private static readonly Dictionary<IPoolable, Pool> PoolByInstance = new Dictionary<IPoolable, Pool>(1024);
         private static readonly Dictionary<int, Pool> PoolByGameObjectId = new Dictionary<int, Pool>(1024);
         private static readonly Dictionary<int, IPoolable> PoolableByGameObjectId = new Dictionary<int, IPoolable>(1024);
+        private static readonly List<Pool> TrimCandidates = new List<Pool>(64);
+        private static int _nextTrimCandidateIndex;
         public static void ClearAllPools()
         {
             Pools.Clear();
             PoolByInstance.Clear();
             PoolByGameObjectId.Clear();
             PoolableByGameObjectId.Clear();
+            TrimCandidates.Clear();
+            _nextTrimCandidateIndex = 0;
             if (_root != null)
             {
 #if UNITY_EDITOR
@@ -280,28 +284,39 @@ namespace Pools
             int retainedCount = Mathf.Max(0, retainPerPool);
             int remainingBudget = maxDestroyCount;
             int destroyedCount = 0;
+            float now = Time.time;
 
+            TrimCandidates.Clear();
             foreach (var pool in Pools.Values)
             {
-                if (remainingBudget <= 0)
-                {
-                    break;
-                }
-
-                if (quietPeriod > 0f && Time.time - pool.LastActivityTime < quietPeriod)
+                if (quietPeriod > 0f && now - pool.LastActivityTime < quietPeriod)
                 {
                     continue;
                 }
 
-                int overflowCount = pool.Inactive.Count - retainedCount;
-                if (overflowCount <= 0)
+                if (pool.Inactive.Count > retainedCount)
                 {
-                    continue;
+                    TrimCandidates.Add(pool);
                 }
+            }
 
-                int trimCount = Mathf.Min(overflowCount, remainingBudget);
-                for (int index = 0; index < trimCount; index++)
+            int candidateCount = TrimCandidates.Count;
+            if (candidateCount == 0)
+            {
+                _nextTrimCandidateIndex = 0;
+                return 0;
+            }
+
+            int startIndex = _nextTrimCandidateIndex % candidateCount;
+            bool removedInPass = true;
+            while (remainingBudget > 0 && removedInPass)
+            {
+                removedInPass = false;
+                for (int offset = 0; offset < candidateCount && remainingBudget > 0; offset++)
                 {
+                    Pool pool = TrimCandidates[(startIndex + offset) % candidateCount];
+                    if (pool.Inactive.Count <= retainedCount) continue;
+
                     IPoolable instance = pool.Inactive.Pop();
                     Component component = instance as Component;
                     if (component == null)
@@ -316,9 +331,11 @@ namespace Pools
                     Object.Destroy(component.gameObject);
                     destroyedCount++;
                     remainingBudget--;
+                    removedInPass = true;
                 }
             }
 
+            _nextTrimCandidateIndex = (startIndex + 1) % candidateCount;
             return destroyedCount;
         }
 

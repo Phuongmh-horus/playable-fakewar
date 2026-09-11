@@ -38,6 +38,8 @@ namespace GamePlay.CardSystem
 
         /// <summary>Danh sách các card đã thu thập (chỉ lưu config để truy vấn).</summary>
         private readonly List<CardInfoData> _collectedCards = new List<CardInfoData>();
+        private Camera _mainCamera;
+        private RectTransform _canvasRect;
 
         public void Clear()
         {
@@ -65,6 +67,7 @@ namespace GamePlay.CardSystem
                 return;
             }
             Instance = this;
+            CacheCanvasReferences();
         }
 
         public void PrewarmCards()
@@ -74,10 +77,7 @@ namespace GamePlay.CardSystem
             int slotCapacity = cardSlots != null && cardSlots.Count > 0 ? cardSlots.Count : 8;
             int amountToPrewarm = Mathf.Clamp(slotCapacity * 2, 5, 15);
 
-            for (int i = 0; i < amountToPrewarm; i++)
-            {
-                PoolSystem.Prewarm(cardVisualPrefab, 1);
-            }
+            PoolSystem.Prewarm(cardVisualPrefab, amountToPrewarm);
         }
 
         /// <summary>
@@ -121,8 +121,8 @@ namespace GamePlay.CardSystem
             Vector3 centerLocalPos = new Vector3(screenCenter.x + offsetX, screenCenter.y + offsetY, 0f);
             Vector3 destLocalPos = centerLocalPos;
 
-            var visualGo = cardVisualPrefab.gameObject.Spawn();
-            var visual = visualGo.GetComponent<CardInfoVisual>();
+            var visual = cardVisualPrefab.Spawn();
+            if (visual == null) return;
             visual.transform.SetParent(targetCanvas.transform, false);
 
 
@@ -192,7 +192,7 @@ namespace GamePlay.CardSystem
             {
                 // BuffDef.VisualPrefab MUST have RectTransform pre-attached in Editor
                 Debug.LogWarning($"[BuffCardSystem] Custom prefab '{customPrefab.name}' missing RectTransform. Add it in Editor to avoid runtime GC.");
-                visual.SetActive(false);
+                visual.Despawn();
                 return;
             }
 
@@ -222,7 +222,7 @@ namespace GamePlay.CardSystem
             rect.localScale = Vector3.one * scaleAtCenter;
 
             // Phase A: Fly to center
-            yield return StartCoroutine(CoFlyTo(rect, start, center, flyToCenterDuration, scaleAtCenter, scaleAtCenter));
+            yield return CoFlyTo(rect, start, center, flyToCenterDuration, scaleAtCenter, scaleAtCenter);
 
             // Phase B: Reveal (No scaling per user request)
             rect.localScale = Vector3.one * scaleAtCenter;
@@ -315,7 +315,8 @@ namespace GamePlay.CardSystem
         {
             if (targetCanvas == null) return Vector2.zero;
 
-            Camera mainCam = Camera.main;
+            CacheCanvasReferences();
+            Camera mainCam = _mainCamera;
             Camera uiCam = targetCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : targetCanvas.worldCamera;
             if (uiCam == null && targetCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
             {
@@ -323,7 +324,7 @@ namespace GamePlay.CardSystem
             }
 
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                targetCanvas.GetComponent<RectTransform>(),
+                _canvasRect,
                 new Vector2(Screen.width * 0.5f, Screen.height * 0.5f),
                 uiCam,
                 out Vector2 localCenter
@@ -336,8 +337,10 @@ namespace GamePlay.CardSystem
         {
             if (targetCanvas == null) return worldPos;
 
+            CacheCanvasReferences();
+
             // 1. Get screen point using the 3D main camera
-            Camera mainCam = Camera.main;
+            Camera mainCam = _mainCamera;
             Vector2 screenPoint = mainCam != null ? (Vector2)mainCam.WorldToScreenPoint(worldPos) : RectTransformUtility.WorldToScreenPoint(null, worldPos);
 
             // 2. Map screen point to UI using the UI camera
@@ -348,13 +351,26 @@ namespace GamePlay.CardSystem
             }
 
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                targetCanvas.GetComponent<RectTransform>(),
+                _canvasRect,
                 screenPoint,
                 uiCam,
                 out Vector2 localPoint
             );
 
             return localPoint;
+        }
+
+        private void CacheCanvasReferences()
+        {
+            if (_mainCamera == null)
+            {
+                _mainCamera = Camera.main;
+            }
+
+            if (_canvasRect == null && targetCanvas != null)
+            {
+                _canvasRect = targetCanvas.transform as RectTransform;
+            }
         }
     }
 }

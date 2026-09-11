@@ -14,3 +14,4 @@
 - For a simple prefab hierarchy issue, prefer fixing the hierarchy over adding a serialized runtime target; place UI outside a rotating mesh parent, and gate decorative ticks with the existing gameplay-start state when the requested timing matches it.
 - For max-unit feedback, evaluate the current active unit count at the collision that grants the reward; do not persist a historical "was full" flag, because deaths must restore the `+ unit` result.
 - FireSoldier collection intentionally keeps its `FormatDisplayValue()` (`+N`/`xN`) fly-text code commented out: army buff text already communicates the reward, and enabling both spams the screen. Preserve the commented block for a future visual pass; do not delete it during cleanup or optimization.
+- Treat playable performance work as iterative: after a measured CPU/RAM improvement, re-profile the new dominant hotspots and continue system-wide instead of assuming the first optimized batch is sufficient.

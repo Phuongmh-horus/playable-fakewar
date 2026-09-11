@@ -17,7 +17,6 @@ Shader "OptimizedFeature/VAT_Unlit_Luna_NoOutline"
         _FrameIndexUpper ("Target State Frame Index", Float) = 0
         _BlendWeight ("Cross-fade Blend Weight (0 to 1)", Float) = 0
         [HideInInspector] _VATFrameData ("VAT Frame Data", Vector) = (0, 0, 0, 0)
-        [HideInInspector] _VATBatchMode ("VAT Runtime Batch Mode", Float) = 0
     }
 
     SubShader
@@ -41,13 +40,8 @@ Shader "OptimizedFeature/VAT_Unlit_Luna_NoOutline"
             struct appdata
             {
                 float4 vertex : POSITION;
-                float4 color : COLOR; // Vertex Color: Reserved for future Animation Layer mask
                 float2 uv : TEXCOORD0;
                 float2 uv2 : TEXCOORD1; // uv2.x = Vertex Index
-                float4 vatBatchTransform0 : TEXCOORD2;
-                float4 vatBatchTransform1 : TEXCOORD3;
-                float4 vatBatchTransform2 : TEXCOORD4;
-                float4 vatBatchFrame : TEXCOORD5;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -55,7 +49,6 @@ Shader "OptimizedFeature/VAT_Unlit_Luna_NoOutline"
             {
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             sampler2D _MainTex;
@@ -68,12 +61,11 @@ Shader "OptimizedFeature/VAT_Unlit_Luna_NoOutline"
             {
                 v2f o;
                 UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_TRANSFER_INSTANCE_ID(v, o);
 
                 float4 instanceFrameData = UNITY_ACCESS_INSTANCED_PROP(VATProps, _VATFrameData);
-                float frameLower = _VATBatchMode > 0.5 ? v.vatBatchFrame.x : instanceFrameData.x;
-                float frameUpper = _VATBatchMode > 0.5 ? v.vatBatchFrame.y : instanceFrameData.y;
-                float blendW = _VATBatchMode > 0.5 ? v.vatBatchFrame.z : instanceFrameData.z;
+                float frameLower = instanceFrameData.x;
+                float frameUpper = instanceFrameData.y;
+                float blendW = instanceFrameData.z;
 
                 float textureWidth = max(1.0, _VATTextureWidth);
                 float textureHeight = max(1.0, _VATTextureHeight);
@@ -100,14 +92,6 @@ Shader "OptimizedFeature/VAT_Unlit_Luna_NoOutline"
 
                 // Unpack from normalized [0, 1] range to Object Space Bounding Box
                 float3 objectPos = lerp(_BoundingMin.xyz, _BoundingMax.xyz, rawPos);
-                if (_VATBatchMode > 0.5)
-                {
-                    objectPos = ApplyVATBatchTransform(
-                        objectPos,
-                        v.vatBatchTransform0,
-                        v.vatBatchTransform1,
-                        v.vatBatchTransform2);
-                }
 
                 o.vertex = UnityObjectToClipPos(float4(objectPos, 1.0));
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);

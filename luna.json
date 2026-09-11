@@ -147,12 +147,12 @@
             ]
         },
         "scenes": [
-            "Assets/_FrameWork/Scenes/S_GamePlay 2_Win.unity"
+            "Assets/_FrameWork/Scenes/S_GamePlay 2_Lose.unity"
         ],
         "disabledScenes": [
             "Assets/_FrameWork/Scenes/S_GamePlay 1_Lose.unity",
             "Assets/_FrameWork/Scenes/S_GamePlay 1_Win.unity",
-            "Assets/_FrameWork/Scenes/S_GamePlay 2_Lose.unity"
+            "Assets/_FrameWork/Scenes/S_GamePlay 2_Win.unity"
         ],
         "startupScene": 0,
         "packages": {
@@ -38813,6 +38813,10 @@
                     {
                         "name": "IncreaseCharacterGateReward$1",
                         "excluded": false
+                    },
+                    {
+                        "name": "SetHpBarVisible",
+                        "excluded": true
                     }
                 ]
             },
