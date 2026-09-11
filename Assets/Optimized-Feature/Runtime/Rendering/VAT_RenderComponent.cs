@@ -11,9 +11,6 @@ namespace OptimizedFeature.Scripts
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public class VAT_RenderComponent : MonoBehaviour
     {
-        private static readonly Dictionary<int, Material[]> MaterialArraysByAssetId =
-            new Dictionary<int, Material[]>(64);
-
         private sealed class RuntimeParameterValue
         {
             public int Id;
@@ -50,11 +47,9 @@ namespace OptimizedFeature.Scripts
             new List<RuntimeParameterValue>();
 
         // --- Shader Property Cache ---
-        // A MeshRenderer has one MaterialPropertyBlock per material slot. Luna's
-        // generic SetPropertyBlock overload only updates the first slot for a
-        // multi-material mesh, leaving every sub-renderer at its material default
-        // frame. Keep a block for each baked material and write it by index.
-        private MaterialPropertyBlock[] _propertyBlocks;
+        // The indexed overload must update every material slot. Unity copies the
+        // supplied block, so one reusable block is enough for all slots.
+        private MaterialPropertyBlock _propertyBlock;
         private int _materialSlotCount;
         private int _frameDataId;
 
@@ -62,8 +57,6 @@ namespace OptimizedFeature.Scripts
         private bool _isVisible = true;
         private bool _isExternallyVisible = true;
         private bool _isRuntimeBatchHidden;
-        private readonly List<Renderer> _childRenderers = new List<Renderer>();
-        private readonly List<Renderer> _rendererQueryBuffer = new List<Renderer>();
         private readonly List<VATWeaponRenderComponent> _weaponRenderComponents =
             new List<VATWeaponRenderComponent>();
         private readonly List<VATWeaponRenderComponent> _weaponQueryBuffer =
@@ -102,20 +95,6 @@ namespace OptimizedFeature.Scripts
             _stateA = new VATAnimStateData(string.Empty, 0, 0, 0);
             _stateB = new VATAnimStateData(string.Empty, 0, 0, 0);
             RebuildAnimatorRuntimeData();
-
-            // Avoid the array-returning overload: projectile pool activation must
-            // not allocate when VAT components initialize for the first time.
-            GetComponentsInChildren(true, _rendererQueryBuffer);
-            int rendererCount = _rendererQueryBuffer.Count;
-            for (int i = 0; i < rendererCount; i++)
-            {
-                Renderer renderer = _rendererQueryBuffer[i];
-                if (renderer != null && renderer != _meshRenderer)
-                {
-                    _childRenderers.Add(renderer);
-                }
-            }
-            _rendererQueryBuffer.Clear();
 
             RefreshWeaponSubRenders();
         }
@@ -646,15 +625,10 @@ namespace OptimizedFeature.Scripts
             bool visible = _isVisible && _isExternallyVisible;
             if (_meshRenderer != null)
             {
-                _meshRenderer.enabled = visible && !_isRuntimeBatchHidden;
-            }
-
-            int count = _childRenderers.Count;
-            for (int i = 0; i < count; i++)
-            {
-                if (_childRenderers[i] != null)
+                bool shouldEnable = visible && !_isRuntimeBatchHidden;
+                if (_meshRenderer.enabled != shouldEnable)
                 {
-                    _childRenderers[i].enabled = visible;
+                    _meshRenderer.enabled = shouldEnable;
                 }
             }
 
@@ -674,7 +648,11 @@ namespace OptimizedFeature.Scripts
             _isRuntimeBatchHidden = hidden;
             if (_meshRenderer != null)
             {
-                _meshRenderer.enabled = IsVisible && !hidden;
+                bool shouldEnable = IsVisible && !hidden;
+                if (_meshRenderer.enabled != shouldEnable)
+                {
+                    _meshRenderer.enabled = shouldEnable;
+                }
             }
 
             if (!hidden)
@@ -1161,45 +1139,42 @@ namespace OptimizedFeature.Scripts
             if (_meshRenderer != null && _vatAssetData.BakedMaterials != null &&
                 _vatAssetData.BakedMaterials.Count > 0)
             {
-                _meshRenderer.sharedMaterials = GetCachedMaterialArray(_vatAssetData);
+                _meshRenderer.sharedMaterials = _vatAssetData.GetBakedMaterialArray();
             }
 
-            EnsurePropertyBlocks(GetBakedMaterialCount());
-            _materialSlotCount = _propertyBlocks.Length;
-            for (int materialIndex = 0; materialIndex < _propertyBlocks.Length; materialIndex++)
+            EnsurePropertyBlock();
+            _materialSlotCount = GetBakedMaterialCount();
+            _propertyBlock.Clear();
+            _propertyBlock.SetVector(_frameDataId, new Vector4(
+                _currentFrameLower, _currentFrameUpper, _currentBlendWeight, 0f));
+            for (int materialIndex = 0; materialIndex < _materialSlotCount; materialIndex++)
             {
-                MaterialPropertyBlock propertyBlock = _propertyBlocks[materialIndex];
                 // VAT texture, bounds and layout are immutable for an asset and
                 // are serialized on the shared baked Material. Only animation
                 // state belongs in the per-renderer block; this keeps identical
                 // VAT instances eligible for GPU instancing.
-                propertyBlock.Clear();
-                propertyBlock.SetVector(_frameDataId, new Vector4(
-                    _currentFrameLower, _currentFrameUpper, _currentBlendWeight, 0f));
-                _meshRenderer.SetPropertyBlock(propertyBlock, materialIndex);
+                _meshRenderer.SetPropertyBlock(_propertyBlock, materialIndex);
             }
 
             // Re-assert the renderer state after asset binding. This also
             // recovers from a stale prefab/culling state that disabled the
             // renderer before the VAT asset was loaded.
-            _meshRenderer.enabled = IsVisible && !_isRuntimeBatchHidden;
-        }
-
-        private static Material[] GetCachedMaterialArray(VATAssetDataSO assetData)
-        {
-            int assetId = assetData.GetInstanceID();
-            if (MaterialArraysByAssetId.TryGetValue(assetId, out Material[] materials))
+            bool shouldEnable = IsVisible && !_isRuntimeBatchHidden;
+            if (_meshRenderer.enabled != shouldEnable)
             {
-                return materials;
+                _meshRenderer.enabled = shouldEnable;
             }
-
-            materials = assetData.BakedMaterials.ToArray();
-            MaterialArraysByAssetId[assetId] = materials;
-            return materials;
         }
 
         private void UpdateShaderFrames(int frameLower, int frameUpper, float blendWeight)
         {
+            if (_currentFrameLower == frameLower &&
+                _currentFrameUpper == frameUpper &&
+                _currentBlendWeight == blendWeight)
+            {
+                return;
+            }
+
             _currentFrameLower = frameLower;
             _currentFrameUpper = frameUpper;
             _currentBlendWeight = blendWeight;
@@ -1221,15 +1196,14 @@ namespace OptimizedFeature.Scripts
 
         private void ApplyCurrentFrameToRenderer()
         {
-            if (_meshRenderer == null || _propertyBlocks == null) return;
+            if (_meshRenderer == null || _propertyBlock == null) return;
 
             Vector4 frameData = new Vector4(
                 _currentFrameLower, _currentFrameUpper, _currentBlendWeight, 0f);
-            for (int materialIndex = 0; materialIndex < _propertyBlocks.Length; materialIndex++)
+            _propertyBlock.SetVector(_frameDataId, frameData);
+            for (int materialIndex = 0; materialIndex < _materialSlotCount; materialIndex++)
             {
-                MaterialPropertyBlock propertyBlock = _propertyBlocks[materialIndex];
-                propertyBlock.SetVector(_frameDataId, frameData);
-                _meshRenderer.SetPropertyBlock(propertyBlock, materialIndex);
+                _meshRenderer.SetPropertyBlock(_propertyBlock, materialIndex);
             }
         }
 
@@ -1241,14 +1215,11 @@ namespace OptimizedFeature.Scripts
                 : 1;
         }
 
-        private void EnsurePropertyBlocks(int materialCount)
+        private void EnsurePropertyBlock()
         {
-            if (_propertyBlocks != null && _propertyBlocks.Length == materialCount) return;
-
-            _propertyBlocks = new MaterialPropertyBlock[materialCount];
-            for (int i = 0; i < materialCount; i++)
+            if (_propertyBlock == null)
             {
-                _propertyBlocks[i] = new MaterialPropertyBlock();
+                _propertyBlock = new MaterialPropertyBlock();
             }
         }
     }

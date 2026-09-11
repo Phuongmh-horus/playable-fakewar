@@ -11,6 +11,8 @@ namespace OptimizedFeature.Scripts
     [CreateAssetMenu(fileName = "VATItemAsset", menuName = "VAT/VAT Item Asset")]
     public class VATWeaponAssetSO : ScriptableObject
     {
+        private static readonly Material[] EmptyMaterials = new Material[0];
+
         public Texture2D VATTexture;
         public Mesh BakedStaticMesh;
         public Vector3 BoundingMin;
@@ -21,10 +23,12 @@ namespace OptimizedFeature.Scripts
         public List<Material> BakedMaterials = new List<Material>();
 
         private Dictionary<int, VATClipInfo> _clipHashCache;
+        [System.NonSerialized] private Material[] _bakedMaterialArray;
 
         private void OnEnable()
         {
             _clipHashCache = null;
+            _bakedMaterialArray = null;
             if (Clips == null) Clips = new List<VATClipInfo>();
             if (BakedMaterials == null) BakedMaterials = new List<Material>();
         }
@@ -41,6 +45,31 @@ namespace OptimizedFeature.Scripts
                 }
             }
             _clipHashCache = null;
+            _bakedMaterialArray = null;
+        }
+
+        public Material[] GetBakedMaterialArray()
+        {
+            int count = BakedMaterials == null ? 0 : BakedMaterials.Count;
+            bool rebuild = _bakedMaterialArray == null || _bakedMaterialArray.Length != count;
+            if (!rebuild)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    if (_bakedMaterialArray[i] != BakedMaterials[i])
+                    {
+                        rebuild = true;
+                        break;
+                    }
+                }
+            }
+
+            if (rebuild)
+            {
+                _bakedMaterialArray = count == 0 ? EmptyMaterials : BakedMaterials.ToArray();
+            }
+
+            return _bakedMaterialArray;
         }
 
         public VATClipInfo GetClip(int stateHash)

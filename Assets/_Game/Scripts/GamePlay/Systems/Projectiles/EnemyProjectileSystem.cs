@@ -117,6 +117,7 @@ namespace GamePlay.CombatSystems
             public Vector3 P1;
             public Vector3 P2;
             public Vector3 Direction;
+            public Vector3 LastPosition;
 
             public float StartTime;
             public float Duration;
@@ -287,6 +288,7 @@ namespace GamePlay.CombatSystems
                 P1 = p1,
                 P2 = p2,
                 Direction = dir,
+                LastPosition = p0,
                 StartTime = Time.time,
                 Duration = Mathf.Max(0.01f, duration),
                 InvDuration = 1f / Mathf.Max(0.01f, duration),
@@ -401,9 +403,9 @@ namespace GamePlay.CombatSystems
                 float elapsed = now - p.StartTime;
                 float t = Mathf.Clamp01(elapsed * p.InvDuration);
 
-                float previousT = Mathf.Clamp01((elapsed - Time.deltaTime) * p.InvDuration);
-                Vector3 previousPos = EvaluateProjectilePosition(p, previousT);
+                Vector3 previousPos = p.LastPosition;
                 Vector3 pos = EvaluateProjectilePosition(p, t);
+                p.LastPosition = pos;
                 p.Transform.position = pos;
 
                 if (Mathf.Abs(p.RotationSpeed) > 0.001f)

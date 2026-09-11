@@ -107,6 +107,17 @@ namespace GamePlay.Crushers
             public Color BaseColor;
         }
 
+        private struct CardDropAnimation
+        {
+            public Transform Transform;
+            public Vector3 StartLocal;
+            public Vector3 TargetLocal;
+            public float Duration;
+            public float Elapsed;
+            public CardSpawnEffectType EffectType;
+            public bool PlayedLandingSfx;
+        }
+
         public event Action<WheelState> OnStateChanged = delegate { };
 
         // IHitable Implementation
@@ -191,6 +202,8 @@ namespace GamePlay.Crushers
         private void ClearCardsOnly()
         {
             _cachedTotalCards = 0;
+            _cachedNonCharacterCardCount = 0;
+            _cardDropAnimations.Clear();
 
             if (_slotsMap != null)
             {
@@ -203,7 +216,9 @@ namespace GamePlay.Crushers
 
             foreach (var c in _cardsMap)
             {
-                if (c != null) Destroy(c.gameObject);
+                if (c == null) continue;
+                DOTween.Kill(c.Transform);
+                c.Despawn();
             }
 
             _cardsMap.Clear();
@@ -366,8 +381,11 @@ namespace GamePlay.Crushers
         private List<CardUnit>[] _visualSlotsMap;
         private List<CardUnit> _cardsMap = new List<CardUnit>();
         private List<WheelCardRuntimeData> _runtimeCards = new List<WheelCardRuntimeData>();
+        private readonly List<CardDropAnimation> _cardDropAnimations = new List<CardDropAnimation>(32);
+        private Coroutine _cardDropRoutine;
         private readonly Queue<CharacterUnit> _activeSpawnedUnits = new Queue<CharacterUnit>();
         private int _cachedTotalCards = 0;
+        private int _cachedNonCharacterCardCount;
         private List<CardSpawnRequestData> _queuedRequests = new List<CardSpawnRequestData>();
         private readonly List<CardSpawnRequestData> _singleCardRequestBuffer = new List<CardSpawnRequestData>(1);
         private readonly List<WheelCardRuntimeData> _rebuildCardsBuffer = new List<WheelCardRuntimeData>(32);
@@ -478,6 +496,12 @@ namespace GamePlay.Crushers
             }
 
             ClearActiveSpawnedUnits();
+            if (_cardDropRoutine != null)
+            {
+                StopCoroutine(_cardDropRoutine);
+                _cardDropRoutine = null;
+            }
+            _cardDropAnimations.Clear();
         }
 
         private void RegisterWheelEvents(bool register)
@@ -992,7 +1016,7 @@ namespace GamePlay.Crushers
             if (effectType == CardSpawnEffectType.None)
                 cardIns.Transform.localPosition = targetLocalPos;
             else
-                StartCoroutine(CoAnimateCard(cardIns.Transform, targetLocalPos, effectType));
+                AddCardDropAnimation(cardIns.Transform, targetLocalPos, effectType);
 
             // Cache
             _cardsMap.Add(cardIns);
@@ -1001,6 +1025,7 @@ namespace GamePlay.Crushers
             slotList.Add(storedCard);
             _runtimeCards.Add(storedCard);
             _cachedTotalCards++;
+            if (!storedCard.IsCharacter) _cachedNonCharacterCardCount++;
 
             UpdateAnchorVisibility(slotIdx);
 
@@ -1042,40 +1067,99 @@ namespace GamePlay.Crushers
             return true;
         }
 
-        private IEnumerator CoAnimateCard(Transform cardTrans, Vector3 targetLocal, CardSpawnEffectType type)
+        private void AddCardDropAnimation(Transform cardTrans, Vector3 targetLocal, CardSpawnEffectType type)
         {
-            // Simple Lerp
-            float duration = 0.4f;
-            if (variable != null) duration = variable.DropDuration;
+            if (cardTrans == null) return;
+
+            float duration = variable != null ? variable.DropDuration : 0.4f;
 
             Vector3 startLocal = targetLocal + Vector3.up * 5f; // Drop from high
             if (type == CardSpawnEffectType.FlyIn) startLocal = Vector3.zero; // From center?
+            cardTrans.localPosition = startLocal;
 
-            float t = 0;
-            bool playedLandingSfx = false;
-            while (t < 1f)
+            if (duration <= 0f)
             {
-                t += Time.deltaTime / duration;
-                float k = Mathf.Clamp01(t);
-                cardTrans.localPosition = Vector3.Lerp(startLocal, targetLocal, k);
+                cardTrans.localPosition = targetLocal;
+                if (type != CardSpawnEffectType.None) PlayAddCardSfx();
+                return;
+            }
 
-                if (!playedLandingSfx && type != CardSpawnEffectType.None)
-                {
-                    // Reference wheel plays DropCardSfx when the card is close to landing.
-                    if (k >= 0.7f)
-                    {
-                        playedLandingSfx = true;
-                        PlayAddCardSfx();
-                    }
-                }
+            _cardDropAnimations.Add(new CardDropAnimation
+            {
+                Transform = cardTrans,
+                StartLocal = startLocal,
+                TargetLocal = targetLocal,
+                Duration = duration,
+                Elapsed = 0f,
+                EffectType = type,
+                PlayedLandingSfx = false
+            });
+
+            if (_cardDropRoutine == null)
+                _cardDropRoutine = StartCoroutine(CoUpdateCardDropAnimations());
+        }
+
+        private IEnumerator CoUpdateCardDropAnimations()
+        {
+            while (_cardDropAnimations.Count > 0)
+            {
+                UpdateCardDropAnimations(Time.deltaTime);
                 yield return null;
             }
-            cardTrans.localPosition = targetLocal;
+            _cardDropRoutine = null;
+        }
 
-            if (!playedLandingSfx && type != CardSpawnEffectType.None)
+        private void UpdateCardDropAnimations(float deltaTime)
+        {
+            for (int i = _cardDropAnimations.Count - 1; i >= 0; i--)
             {
-                PlayAddCardSfx();
+                CardDropAnimation animation = _cardDropAnimations[i];
+                if (animation.Transform == null)
+                {
+                    RemoveCardDropAnimationAt(i);
+                    continue;
+                }
+
+                animation.Elapsed += deltaTime;
+                float progress = Mathf.Clamp01(animation.Elapsed / animation.Duration);
+                animation.Transform.localPosition = Vector3.Lerp(animation.StartLocal, animation.TargetLocal, progress);
+
+                if (!animation.PlayedLandingSfx && animation.EffectType != CardSpawnEffectType.None && progress >= 0.7f)
+                {
+                    animation.PlayedLandingSfx = true;
+                    PlayAddCardSfx();
+                }
+
+                if (progress >= 1f)
+                {
+                    animation.Transform.localPosition = animation.TargetLocal;
+                    if (!animation.PlayedLandingSfx && animation.EffectType != CardSpawnEffectType.None)
+                    {
+                        PlayAddCardSfx();
+                    }
+                    RemoveCardDropAnimationAt(i);
+                    continue;
+                }
+
+                _cardDropAnimations[i] = animation;
             }
+        }
+
+        private void CancelCardDropAnimation(Transform cardTransform)
+        {
+            for (int i = _cardDropAnimations.Count - 1; i >= 0; i--)
+            {
+                if (_cardDropAnimations[i].Transform != cardTransform) continue;
+                RemoveCardDropAnimationAt(i);
+                return;
+            }
+        }
+
+        private void RemoveCardDropAnimationAt(int index)
+        {
+            int last = _cardDropAnimations.Count - 1;
+            _cardDropAnimations[index] = _cardDropAnimations[last];
+            _cardDropAnimations.RemoveAt(last);
         }
 
 
@@ -1085,12 +1169,7 @@ namespace GamePlay.Crushers
             // [FIX] Ensure we have cards to remove
             if (_cardsMap.Count == 0 || _runtimeCards.Count == 0) return;
 
-            int heroCardCount = 0;
-            for (int i = 0; i < _runtimeCards.Count; i++)
-            {
-                if (!_runtimeCards[i].IsCharacter) heroCardCount++;
-            }
-            int minKeep = heroCardCount > 0 ? 2 : 1;
+            int minKeep = _cachedNonCharacterCardCount > 0 ? 2 : 1;
             int removable = Mathf.Max(0, _cardsMap.Count - minKeep);
             if (removable <= 0) return;
 
@@ -1100,16 +1179,20 @@ namespace GamePlay.Crushers
             {
                 int lastIndex = _cardsMap.Count - 1;
                 var cardToRemove = _cardsMap[lastIndex];
+                WheelCardRuntimeData runtimeCardToRemove = _runtimeCards[lastIndex];
 
                 int slotIdx = (_slotsMap != null && _slotsMap.Length > 0) ? (lastIndex % _slotsMap.Length) : -1;
 
                 if (cardToRemove != null)
                 {
+                    CancelCardDropAnimation(cardToRemove.Transform);
                     PlayCardRemoveAnimation(cardToRemove);
                 }
 
                 _cardsMap.RemoveAt(lastIndex);
                 _runtimeCards.RemoveAt(lastIndex);
+                if (!runtimeCardToRemove.IsCharacter)
+                    _cachedNonCharacterCardCount = Mathf.Max(0, _cachedNonCharacterCardCount - 1);
 
                 if (slotIdx >= 0 && slotIdx < _slotsMap.Length)
                 {
@@ -1183,6 +1266,7 @@ namespace GamePlay.Crushers
                 float rotT = Mathf.SmoothStep(0, 1, t);
                 card.Transform.rotation = Quaternion.Slerp(startRot, landRot, rotT);
             })
+            .SetId(card.Transform)
             .SetEase(Ease.Linear)
             .OnComplete(() =>
             {
@@ -1208,10 +1292,11 @@ namespace GamePlay.Crushers
                 card.Transform.position = new Vector3(x, variable.TargetGroundY + arc, z);
                 card.Transform.rotation = startRot;
             })
+            .SetId(card.Transform)
             .SetEase(Ease.OutQuad)
             .OnComplete(() =>
             {
-                if (card != null) { Destroy(card.gameObject); }
+                if (card != null) card.Despawn();
             });
         }
 

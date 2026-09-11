@@ -31,6 +31,16 @@ public class HitTextFlyEffect : MonoBehaviour
     private static readonly Dictionary<int, int> textSpawnCountsThisFrame = new Dictionary<int, int>(8);
     private static int textSpawnFrame = -1;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStaticState()
+    {
+        controllerPool.Clear();
+        activeControllers.Clear();
+        warmedTextPrefabIds.Clear();
+        textSpawnCountsThisFrame.Clear();
+        textSpawnFrame = -1;
+    }
+
     public bool LimitToOneTextPerFrame { get; set; } = true;
     [SerializeField, Tooltip("Số frame tối thiểu giữa 2 lần fly text")] private int frameCooldown = 5;
     private int _lastHitFrame = -1;

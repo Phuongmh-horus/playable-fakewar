@@ -30,8 +30,17 @@ public class StaticCameraState : CameraState
             if (camera != null)
             {
                 Vector3 lookPos = lookAtTarget.position + lookAtOffset;
-                camera.transform.localPosition = lookPos;
-                camera.transform.localRotation = Quaternion.Euler(rotation);
+                Transform cameraTransform = camera.transform;
+                if ((cameraTransform.localPosition - lookPos).sqrMagnitude > 0.000001f)
+                {
+                    cameraTransform.localPosition = lookPos;
+                }
+
+                Quaternion targetRotation = Quaternion.Euler(rotation);
+                if (Mathf.Abs(Quaternion.Dot(cameraTransform.localRotation, targetRotation)) < 0.999999f)
+                {
+                    cameraTransform.localRotation = targetRotation;
+                }
             }
         }
     }

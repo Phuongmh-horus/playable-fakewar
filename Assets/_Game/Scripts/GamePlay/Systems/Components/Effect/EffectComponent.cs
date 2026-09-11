@@ -35,7 +35,15 @@ namespace GamePlay.ComponentSystems
         [SerializeField] private List<EffectEntry> effects = new List<EffectEntry>();
 
         private EffectEntry[] _runtime;
-        private static readonly Dictionary<int, ParticleSystem[]> s_particleSystemsCache = new Dictionary<int, ParticleSystem[]>(128);
+        private sealed class RuntimeVfxData
+        {
+            public ParticleSystem[] Particles;
+            public VfxScaler Scaler;
+            public float Lifetime;
+            public bool ImpactOneShotConfigured;
+        }
+
+        private static readonly Dictionary<int, RuntimeVfxData> s_runtimeVfxCache = new Dictionary<int, RuntimeVfxData>(128);
         private static readonly List<int> s_destroyedParticleCacheKeys = new List<int>(32);
         private static readonly Dictionary<int, bool> s_uiVfxPrefabCache = new Dictionary<int, bool>(64);
         private static readonly Dictionary<int, int> s_vfxSpawnCountsThisFrame = new Dictionary<int, int>(64);
@@ -61,7 +69,18 @@ namespace GamePlay.ComponentSystems
 
         private void OnDisable()
         {
+            DOTween.Kill(this);
             StopActiveLoopingSfx();
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetRuntimeCaches()
+        {
+            s_runtimeVfxCache.Clear();
+            s_destroyedParticleCacheKeys.Clear();
+            s_uiVfxPrefabCache.Clear();
+            s_vfxSpawnCountsThisFrame.Clear();
+            s_vfxSpawnFrame = -1;
         }
 
         public override void Initialize()
@@ -366,20 +385,19 @@ namespace GamePlay.ComponentSystems
                 vfx.transform.localScale = IsUsableScale(entry.VfxScale) ? entry.VfxScale : Vector3.one;
                 vfx.SetActive(true);
 
-                var scaler = vfx.GetComponent<VfxScaler>();
-                scaler?.ScaleWithColor(Mathf.Max(0f, scaleMultiplier), colorIndex);
+                RuntimeVfxData runtimeData = GetRuntimeVfxData(vfx);
+                runtimeData.Scaler?.ScaleWithColor(Mathf.Max(0f, scaleMultiplier), colorIndex);
 
-                var particles = GetCachedParticleSystems(vfx);
+                ParticleSystem[] particles = runtimeData.Particles;
                 if (particles == null || particles.Length == 0)
                 {
                     vfx.transform.Despawn();
                     return;
                 }
 
-                float lifeTime = GetParticleLifetime(vfx);
-                PlayParticles(particles, isImpactEffect);
+                PlayParticles(runtimeData, isImpactEffect);
 
-                PooledVfxLifetimeScheduler.Schedule(vfx, Mathf.Max(0.1f, lifeTime), isImpactEffect);
+                PooledVfxLifetimeScheduler.Schedule(vfx, Mathf.Max(0.1f, runtimeData.Lifetime), isImpactEffect);
             }
             catch
             {
@@ -469,19 +487,29 @@ namespace GamePlay.ComponentSystems
             return cached;
         }
 
-        private static void PlayParticles(ParticleSystem[] particles, bool forceOneShot)
+        private static void PlayParticles(RuntimeVfxData runtimeData, bool forceOneShot)
         {
+            ParticleSystem[] particles = runtimeData.Particles;
+            bool configureOneShot = forceOneShot && !runtimeData.ImpactOneShotConfigured;
+
             for (int i = 0; i < particles.Length; i++)
             {
                 var ps = particles[i];
                 if (ps == null) continue;
-                if (forceOneShot)
+                if (configureOneShot)
                 {
                     var main = ps.main;
                     main.loop = false;
                 }
-                ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-                ps.Play(true);
+                // The cached array already contains every child. Recursive playback here
+                // restarts the same descendants once per ancestor (O(N^2) on large VFX).
+                ps.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
+                ps.Play(false);
+            }
+
+            if (configureOneShot)
+            {
+                runtimeData.ImpactOneShotConfigured = true;
             }
         }
 
@@ -511,25 +539,30 @@ namespace GamePlay.ComponentSystems
             _activeLoopingClip = null;
         }
 
-        private static ParticleSystem[] GetCachedParticleSystems(GameObject vfxObject)
+        private static RuntimeVfxData GetRuntimeVfxData(GameObject vfxObject)
         {
             if (vfxObject == null) return null;
 
             int key = vfxObject.GetInstanceID();
-            if (s_particleSystemsCache.TryGetValue(key, out var cached) && cached != null)
+            if (s_runtimeVfxCache.TryGetValue(key, out RuntimeVfxData cached) && cached != null && cached.Particles != null)
                 return cached;
 
-            cached = vfxObject.GetComponentsInChildren<ParticleSystem>(true);
-            s_particleSystemsCache[key] = cached;
+            cached = new RuntimeVfxData
+            {
+                Particles = vfxObject.GetComponentsInChildren<ParticleSystem>(true),
+                Scaler = vfxObject.GetComponent<VfxScaler>()
+            };
+            cached.Lifetime = GetParticleLifetime(cached.Particles);
+            s_runtimeVfxCache[key] = cached;
             return cached;
         }
 
         public static void CleanupDestroyedRuntimeCaches()
         {
             s_destroyedParticleCacheKeys.Clear();
-            foreach (var pair in s_particleSystemsCache)
+            foreach (var pair in s_runtimeVfxCache)
             {
-                ParticleSystem[] particles = pair.Value;
+                ParticleSystem[] particles = pair.Value.Particles;
                 bool hasLiveParticle = false;
                 if (particles != null)
                 {
@@ -551,13 +584,12 @@ namespace GamePlay.ComponentSystems
 
             for (int index = 0; index < s_destroyedParticleCacheKeys.Count; index++)
             {
-                s_particleSystemsCache.Remove(s_destroyedParticleCacheKeys[index]);
+                s_runtimeVfxCache.Remove(s_destroyedParticleCacheKeys[index]);
             }
         }
 
-        private static float GetParticleLifetime(GameObject vfxObject)
+        private static float GetParticleLifetime(ParticleSystem[] particleSystems)
         {
-            var particleSystems = GetCachedParticleSystems(vfxObject);
             if (particleSystems == null || particleSystems.Length == 0) return 0f;
 
             float maxLifetime = 0f;

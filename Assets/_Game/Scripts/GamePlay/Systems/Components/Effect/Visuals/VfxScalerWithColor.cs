@@ -8,6 +8,8 @@ public class VfxScalerWithColor : VfxScaler
 
     [SerializeField] private ParticleSystem[] targetParticle;
     [SerializeField] private Color[] particleColor = new Color[0];
+    private Color _lastColor;
+    private bool _hasAppliedColor;
 
     public override void ScaleWithColor(float multiplier = 1f, int colorIndex = 0)
     {
@@ -25,6 +27,10 @@ public class VfxScalerWithColor : VfxScaler
     public void ApplyColor(Color color)
     {
         if (targetParticle == null || targetParticle.Length == 0) return;
+        if (_hasAppliedColor && _lastColor == color) return;
+
+        _lastColor = color;
+        _hasAppliedColor = true;
 
         for (int i = 0; i < targetParticle.Length; i++)
         {

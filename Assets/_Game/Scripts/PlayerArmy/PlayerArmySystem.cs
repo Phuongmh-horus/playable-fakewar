@@ -123,9 +123,14 @@ namespace PlayerArmy
         private float _projectileFireResumeTime = float.NegativeInfinity;
         private static readonly Dictionary<int, Vector2Int[]> s_honeycombRingCache = new Dictionary<int, Vector2Int[]>(16);
 
-        private readonly List<IHitable> _frameAttackableTargets = new List<IHitable>(32);
-        private readonly List<Transform> _frameAttackableTransforms = new List<Transform>(32);
-        private readonly List<float> _frameAttackableHalfWidths = new List<float>(32);
+        private struct CachedAttackTarget
+        {
+            public IHitable Target;
+            public Transform Transform;
+            public float HalfWidth;
+        }
+
+        private readonly List<CachedAttackTarget> _frameAttackableTargets = new List<CachedAttackTarget>(32);
 
         private const int HardMaxActiveSpawnedUnits = 51;
         private const float HoneycombForwardStepFactor = 0.8660254f;
@@ -1360,19 +1365,20 @@ namespace PlayerArmy
             }
 
             _frameAttackableTargets.Clear();
-            _frameAttackableTransforms.Clear();
-            _frameAttackableHalfWidths.Clear();
             bool needsDirectTargetCache = attackMode != PlayerArmyAttackMode.ThrownProjectile;
             var collisionSystem = needsDirectTargetCache ? CollisionSystem.Instance : null;
             if (collisionSystem != null && collisionSystem.Count > 0)
             {
                 Vector2 attackWindow = ResolveAttackWindow();
                 Vector3 armyPosition = Position;
+                Vector3 armyForward = transform.forward;
+                uint targetMask = TargetMask;
                 float attackRange = Mathf.Max(0.1f, attackWindow.y);
                 collisionSystem.QueryIndicesNearSegment(
-                    armyPosition - transform.forward * attackRange,
-                    armyPosition + transform.forward * attackRange,
+                    armyPosition - armyForward * attackRange,
+                    armyPosition + armyForward * attackRange,
                     Mathf.Max(attackWindow.x, attackRange),
+                    targetMask,
                     _collisionQueryIndices);
 
                 for (int candidateIndex = 0; candidateIndex < _collisionQueryIndices.Count; candidateIndex++)
@@ -1386,14 +1392,17 @@ namespace PlayerArmy
 
                     var colData = collisionSystem.GetColliderData(i);
                     uint categoryBits = colData.CategoryBits != 0 ? colData.CategoryBits : (uint)(1 << (int)target.EntityType);
-                    if ((TargetMask & categoryBits) == 0) continue;
+                    if ((targetMask & categoryBits) == 0) continue;
 
                     float targetHalfWidth = colData.Size.x > colData.Size.z ? colData.Size.x : colData.Size.z;
                     if (targetHalfWidth < 0) targetHalfWidth = -targetHalfWidth;
 
-                    _frameAttackableTargets.Add(target);
-                    _frameAttackableTransforms.Add(targetTr);
-                    _frameAttackableHalfWidths.Add(targetHalfWidth);
+                    _frameAttackableTargets.Add(new CachedAttackTarget
+                    {
+                        Target = target,
+                        Transform = targetTr,
+                        HalfWidth = targetHalfWidth
+                    });
                 }
             }
 
@@ -1446,7 +1455,8 @@ namespace PlayerArmy
             }
 
             Vector2 attackWindow = ResolveAttackWindow();
-            Vector3 origin = unit.transform.position + unit.transform.forward * Mathf.Max(0f, attackOriginOffset);
+            Transform unitTransform = unit.transform;
+            Vector3 origin = unitTransform.position + unitTransform.forward * Mathf.Max(0f, attackOriginOffset);
             if (!TryFindBestForwardTarget(unit, origin, Mathf.Max(0.1f, attackWindow.y), attackWindow.x, out var targetInfo))
             {
                 return false;
@@ -1456,14 +1466,14 @@ namespace PlayerArmy
 
             int effectiveDamage = ResolveEffectiveAttackDamage();
             var attackSource = GetUnitAttackSource();
-            attackSource.SetupSource(unit.transform, origin, attackWindow, effectiveDamage, TargetMask);
+            attackSource.SetupSource(unitTransform, origin, attackWindow, effectiveDamage, TargetMask);
             attackSource.OnAttackSucceed(targetInfo.Target);
             targetInfo.Target.OnHit(attackSource);
             OnAttackComplete?.Invoke(targetInfo.Target);
             attackSource.Dispose();
             if (effectSystem != null)
             {
-                effectSystem.PlayEffectAt(EffectType.Attack, targetInfo.Position, Quaternion.identity, unit.transform, null, 0f);
+                effectSystem.PlayEffectAt(EffectType.Attack, targetInfo.Position, Quaternion.identity, unitTransform, null, 0f);
             }
 
             return true;
@@ -1661,12 +1671,13 @@ namespace PlayerArmy
                 return false;
             }
 
-            Vector3 forward = unit.transform.forward;
+            Transform unitTransform = unit.transform;
+            Vector3 forward = unitTransform.forward;
             Transform projectilePoint = unit.ProjectilePoint;
             Vector3 startPoint = projectilePoint != null
                 ? projectilePoint.position
-                : unit.transform.position + forward * Mathf.Max(0f, attackOriginOffset);
-            Quaternion rotation = unit.transform.rotation;
+                : unitTransform.position + forward * Mathf.Max(0f, attackOriginOffset);
+            Quaternion rotation = unitTransform.rotation;
             float distance = Mathf.Max(0.1f, projectileDistance);
             int damage = ResolveEffectiveAttackDamage() * Mathf.Max(1, logicalShotCount);
 
@@ -1734,8 +1745,9 @@ namespace PlayerArmy
                 return false;
             }
 
-            Vector3 forward = unit.transform.forward;
-            Vector3 right = unit.transform.right;
+            Transform unitTransform = unit.transform;
+            Vector3 forward = unitTransform.forward;
+            Vector3 right = unitTransform.right;
             float halfWidth = Mathf.Max(0.05f, width * 0.5f);
             float bestForward = float.MaxValue;
             IHitable bestTarget = null;
@@ -1743,16 +1755,18 @@ namespace PlayerArmy
 
             for (int i = 0; i < _frameAttackableTargets.Count; i++)
             {
-                var target = _frameAttackableTargets[i];
+                CachedAttackTarget cachedTarget = _frameAttackableTargets[i];
+                var target = cachedTarget.Target;
                 if (ReferenceEquals(target, unit))
                 {
                     continue;
                 }
 
-                var targetTransform = _frameAttackableTransforms[i];
-                float targetHalfWidth = _frameAttackableHalfWidths[i];
+                var targetTransform = cachedTarget.Transform;
+                float targetHalfWidth = cachedTarget.HalfWidth;
 
-                Vector3 delta = targetTransform.position - origin;
+                Vector3 targetPosition = targetTransform.position;
+                Vector3 delta = targetPosition - origin;
                 float forwardDistance = Vector3.Dot(delta, forward);
                 if (forwardDistance < 0f || forwardDistance > range || forwardDistance >= bestForward)
                 {
@@ -1769,7 +1783,7 @@ namespace PlayerArmy
 
                 bestForward = forwardDistance;
                 bestTarget = target;
-                bestPosition = targetTransform.position;
+                bestPosition = targetPosition;
             }
 
             if (bestTarget == null)

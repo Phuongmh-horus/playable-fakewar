@@ -20,6 +20,8 @@ namespace GamePlay.CardSystem
     /// </summary>
     public class BuffCardSystem : MonoBehaviour
     {
+        private static readonly WaitForSeconds CustomRevealWait = new WaitForSeconds(0.5f);
+
         public static BuffCardSystem Instance { get; private set; }
 
         [Header("References")]
@@ -127,8 +129,8 @@ namespace GamePlay.CardSystem
 
 
             float originalScale = 1f;
-            var rect = visual.GetComponent<RectTransform>();
-            var prefabRect = cardVisualPrefab.GetComponent<RectTransform>();
+            var rect = visual.transform as RectTransform;
+            var prefabRect = cardVisualPrefab.transform as RectTransform;
             if (prefabRect != null && rect != null)
             {
                 rect.anchorMin = new Vector2(0.5f, 0.5f);
@@ -187,7 +189,7 @@ namespace GamePlay.CardSystem
             var visual = customPrefab.gameObject.Spawn();
             visual.transform.SetParent(targetCanvas.transform, false);
 
-            var rect = visual.GetComponent<RectTransform>();
+            var rect = visual.transform as RectTransform;
             if (rect == null)
             {
                 // BuffDef.VisualPrefab MUST have RectTransform pre-attached in Editor
@@ -197,7 +199,7 @@ namespace GamePlay.CardSystem
             }
 
             float originalScale = 1f;
-            var prefabRect = customPrefab.GetComponent<RectTransform>();
+            var prefabRect = customPrefab.transform as RectTransform;
             if (prefabRect != null && rect != null)
             {
                 rect.anchorMin = new Vector2(0.5f, 0.5f);
@@ -228,12 +230,7 @@ namespace GamePlay.CardSystem
             rect.localScale = Vector3.one * scaleAtCenter;
 
             // Small delay before flying to destination
-            float elapsed = 0f;
-            while (elapsed < 0.5f)
-            {
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
+            yield return CustomRevealWait;
             rect.localScale = Vector3.one * scaleAtCenter;
 
             // Phase C: Fly to dest
@@ -248,11 +245,12 @@ namespace GamePlay.CardSystem
                     targetScale = targetSize.x / Mathf.Max(rect.sizeDelta.x, 0.01f);
                 }
 
-                elapsed = 0f;
+                float elapsed = 0f;
+                float inverseDuration = flyToDestDuration > 0f ? 1f / flyToDestDuration : 0f;
                 while (elapsed < flyToDestDuration)
                 {
                     elapsed += Time.deltaTime;
-                    float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / flyToDestDuration));
+                    float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed * inverseDuration));
                     rect.localPosition = Vector3.Lerp(startLocalPos, Vector3.zero, t);
                     rect.localScale = Vector3.one * Mathf.Lerp(scaleAtCenter, targetScale, t);
                     yield return null;
@@ -269,11 +267,12 @@ namespace GamePlay.CardSystem
                     targetScale = targetSize.x / Mathf.Max(rect.sizeDelta.x, 0.01f);
                 }
 
-                elapsed = 0f;
+                float elapsed = 0f;
+                float inverseDuration = flyToDestDuration > 0f ? 1f / flyToDestDuration : 0f;
                 while (elapsed < flyToDestDuration)
                 {
                     elapsed += Time.deltaTime;
-                    float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / flyToDestDuration));
+                    float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed * inverseDuration));
                     rect.anchoredPosition = Vector3.Lerp(center, dest, t);
                     rect.localScale = Vector3.one * Mathf.Lerp(scaleAtCenter, targetScale, t);
                     yield return null;
@@ -297,10 +296,11 @@ namespace GamePlay.CardSystem
             }
 
             float elapsed = 0f;
+            float inverseDuration = 1f / duration;
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
-                float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
+                float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed * inverseDuration));
                 if (targetSlot != null) rect.position = Vector3.Lerp(from, targetSlot.position, t);
                 else rect.anchoredPosition = Vector3.Lerp(from, to, t);
                 rect.localScale = Vector3.one * Mathf.Lerp(startScale, targetScale, t);

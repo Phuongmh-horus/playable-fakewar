@@ -36,6 +36,7 @@ namespace WeaponCraft
 
         private Canvas _canvas;
         private Camera _uiCam;
+        private Camera _worldCamera;
         private bool _isDestroyed;
         private WeaponCraftConfigSO _prewarmedConfig;
         private WaitForSeconds _mergeSpawnDelayWait;
@@ -95,8 +96,9 @@ namespace WeaponCraft
         private void ResolveCanvas()
         {
             _canvas = GetComponentInParent<Canvas>();
+            _worldCamera = Camera.main;
             _uiCam = _canvas != null && _canvas.renderMode != RenderMode.ScreenSpaceOverlay
-                    ? (_canvas.worldCamera ?? Camera.main) : null;
+                    ? (_canvas.worldCamera ?? _worldCamera) : null;
         }
 
         // ── Prewarm ───────────────────────────────────────────────────────────────
@@ -476,22 +478,16 @@ namespace WeaponCraft
             if (_canvas != null)
             {
                 Camera eventCam = _canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : _uiCam;
-                Vector2 screenPt = Camera.main != null ? (Vector2)Camera.main.WorldToScreenPoint(worldPos)
-                                                       : new Vector2(Screen.width * .5f, Screen.height * .5f);
+                if (_worldCamera == null) _worldCamera = Camera.main;
+                Vector2 screenPt = _worldCamera != null ? (Vector2)_worldCamera.WorldToScreenPoint(worldPos)
+                                                        : new Vector2(Screen.width * .5f, Screen.height * .5f);
                 if (RectTransformUtility.ScreenPointToLocalPointInRectangle(root, screenPt, eventCam, out Vector2 local))
                     return local;
             }
             return root.InverseTransformPoint(worldPos);
         }
 
-        private static RectTransform GetRT(GameObject go) => go != null ? go.GetComponent<RectTransform>() : null;
-
-        private static Vector2[] FillArray(Vector2 value, int count)
-        {
-            var arr = new Vector2[count];
-            for (int i = 0; i < count; i++) arr[i] = value;
-            return arr;
-        }
+        private static RectTransform GetRT(GameObject go) => go != null ? go.transform as RectTransform : null;
 
         private sealed class SlotEntry
         {

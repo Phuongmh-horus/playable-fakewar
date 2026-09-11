@@ -13,8 +13,6 @@ namespace OptimizedFeature.Scripts
     {
         private static readonly int FrameDataId = Shader.PropertyToID("_VATFrameData");
         private static readonly Material[] EmptyMaterials = new Material[0];
-        private static readonly Dictionary<int, Material[]> MaterialArraysByAssetId =
-            new Dictionary<int, Material[]>(64);
 
         [SerializeField] private MeshFilter _meshFilter;
         [SerializeField] private MeshRenderer _meshRenderer;
@@ -22,7 +20,7 @@ namespace OptimizedFeature.Scripts
         [SerializeField] private VATWeaponAssetSO _weaponAsset;
         [SerializeField] private VAT_RenderComponent _frameSource;
 
-        private MaterialPropertyBlock[] _propertyBlocks;
+        private MaterialPropertyBlock _propertyBlock;
         private int _materialSlotCount;
         private bool _isVisible = true;
         private bool _isRuntimeBatchHidden;
@@ -102,7 +100,11 @@ namespace OptimizedFeature.Scripts
             _isVisible = visible;
             if (_meshRenderer != null)
             {
-                _meshRenderer.enabled = visible && _weaponAsset != null && !_isRuntimeBatchHidden;
+                bool shouldEnable = visible && _weaponAsset != null && !_isRuntimeBatchHidden;
+                if (_meshRenderer.enabled != shouldEnable)
+                {
+                    _meshRenderer.enabled = shouldEnable;
+                }
             }
         }
 
@@ -113,7 +115,11 @@ namespace OptimizedFeature.Scripts
             _isRuntimeBatchHidden = hidden;
             if (_meshRenderer != null)
             {
-                _meshRenderer.enabled = _isVisible && _weaponAsset != null && !hidden;
+                bool shouldEnable = _isVisible && _weaponAsset != null && !hidden;
+                if (_meshRenderer.enabled != shouldEnable)
+                {
+                    _meshRenderer.enabled = shouldEnable;
+                }
             }
 
             if (!hidden)
@@ -138,18 +144,17 @@ namespace OptimizedFeature.Scripts
 
         private void ApplyCurrentFrameToRenderer()
         {
-            if (_weaponAsset == null || _meshRenderer == null || _propertyBlocks == null)
+            if (_weaponAsset == null || _meshRenderer == null || _propertyBlock == null)
             {
                 return;
             }
 
             Vector4 frameData = new Vector4(
                 _currentFrameLower, _currentFrameUpper, _currentBlendWeight, 0f);
-            for (int materialIndex = 0; materialIndex < _propertyBlocks.Length; materialIndex++)
+            _propertyBlock.SetVector(FrameDataId, frameData);
+            for (int materialIndex = 0; materialIndex < _materialSlotCount; materialIndex++)
             {
-                MaterialPropertyBlock propertyBlock = _propertyBlocks[materialIndex];
-                propertyBlock.SetVector(FrameDataId, frameData);
-                _meshRenderer.SetPropertyBlock(propertyBlock, materialIndex);
+                _meshRenderer.SetPropertyBlock(_propertyBlock, materialIndex);
             }
         }
 
@@ -240,7 +245,8 @@ namespace OptimizedFeature.Scripts
                 _meshFilter.sharedMesh = null;
                 _meshRenderer.sharedMaterials = EmptyMaterials;
                 _meshRenderer.enabled = false;
-                _propertyBlocks = null;
+                _propertyBlock = null;
+                _materialSlotCount = 0;
                 return;
             }
 
@@ -250,54 +256,31 @@ namespace OptimizedFeature.Scripts
             int materialCount = hasBakedMaterials ? _weaponAsset.BakedMaterials.Count : 1;
             if (hasBakedMaterials)
             {
-                _meshRenderer.sharedMaterials = GetCachedMaterialArray(_weaponAsset);
+                _meshRenderer.sharedMaterials = _weaponAsset.GetBakedMaterialArray();
             }
 
-            EnsurePropertyBlocks(materialCount);
-            _materialSlotCount = _propertyBlocks.Length;
-            for (int materialIndex = 0; materialIndex < _propertyBlocks.Length; materialIndex++)
+            EnsurePropertyBlock();
+            _materialSlotCount = materialCount;
+            _propertyBlock.Clear();
+            for (int materialIndex = 0; materialIndex < _materialSlotCount; materialIndex++)
             {
-                MaterialPropertyBlock propertyBlock = _propertyBlocks[materialIndex];
                 // Immutable VAT data is stored on the shared baked Material.
                 // Keep this block exclusively for per-instance animation state.
-                propertyBlock.Clear();
-                _meshRenderer.SetPropertyBlock(propertyBlock, materialIndex);
+                _meshRenderer.SetPropertyBlock(_propertyBlock, materialIndex);
             }
 
-            _meshRenderer.enabled = _isVisible && !_isRuntimeBatchHidden;
+            bool shouldEnable = _isVisible && !_isRuntimeBatchHidden;
+            if (_meshRenderer.enabled != shouldEnable)
+            {
+                _meshRenderer.enabled = shouldEnable;
+            }
         }
 
-        private static Material[] GetCachedMaterialArray(VATWeaponAssetSO weaponAsset)
+        private void EnsurePropertyBlock()
         {
-            int assetId = weaponAsset.GetInstanceID();
-            if (MaterialArraysByAssetId.TryGetValue(assetId, out Material[] materials))
+            if (_propertyBlock == null)
             {
-                return materials;
-            }
-
-            List<Material> bakedMaterials = weaponAsset.BakedMaterials;
-            if (bakedMaterials == null || bakedMaterials.Count == 0)
-            {
-                MaterialArraysByAssetId[assetId] = EmptyMaterials;
-                return EmptyMaterials;
-            }
-
-            materials = bakedMaterials.ToArray();
-            MaterialArraysByAssetId[assetId] = materials;
-            return materials;
-        }
-
-        private void EnsurePropertyBlocks(int materialCount)
-        {
-            if (_propertyBlocks != null && _propertyBlocks.Length == materialCount)
-            {
-                return;
-            }
-
-            _propertyBlocks = new MaterialPropertyBlock[materialCount];
-            for (int i = 0; i < materialCount; i++)
-            {
-                _propertyBlocks[i] = new MaterialPropertyBlock();
+                _propertyBlock = new MaterialPropertyBlock();
             }
         }
     }

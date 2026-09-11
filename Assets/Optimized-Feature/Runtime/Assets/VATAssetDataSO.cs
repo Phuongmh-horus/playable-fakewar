@@ -96,6 +96,8 @@ namespace OptimizedFeature.Scripts
     [CreateAssetMenu(fileName = "VATAssetData", menuName = "VAT/VAT Asset Data")]
     public class VATAssetDataSO : ScriptableObject
     {
+        private static readonly Material[] EmptyMaterials = new Material[0];
+
         public Texture2D VATTexture;
         public Mesh BakedStaticMesh;
         public Vector3 BoundingMin;
@@ -112,6 +114,7 @@ namespace OptimizedFeature.Scripts
 
         public List<VATClipInfo> Clips = new List<VATClipInfo>();
         public List<Material> BakedMaterials = new List<Material>();
+        [System.NonSerialized] private Material[] _bakedMaterialArray;
 
         // Optional VAT payloads for item/sub-render channels. Every item
         // shares the body clip frame manifest, while retaining independent
@@ -226,11 +229,13 @@ namespace OptimizedFeature.Scripts
         {
             _clipHashCache = null;
             _weaponHashCache = null;
+            _bakedMaterialArray = null;
             EnsureLegacyAnimatorLists();
         }
 
         private void OnValidate()
         {
+            _bakedMaterialArray = null;
             if (Clips != null)
             {
                 for (int i = 0; i < Clips.Count; i++)
@@ -256,6 +261,30 @@ namespace OptimizedFeature.Scripts
             _clipHashCache = null;
             _weaponHashCache = null;
             EnsureLegacyAnimatorLists();
+        }
+
+        public Material[] GetBakedMaterialArray()
+        {
+            int count = BakedMaterials == null ? 0 : BakedMaterials.Count;
+            bool rebuild = _bakedMaterialArray == null || _bakedMaterialArray.Length != count;
+            if (!rebuild)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    if (_bakedMaterialArray[i] != BakedMaterials[i])
+                    {
+                        rebuild = true;
+                        break;
+                    }
+                }
+            }
+
+            if (rebuild)
+            {
+                _bakedMaterialArray = count == 0 ? EmptyMaterials : BakedMaterials.ToArray();
+            }
+
+            return _bakedMaterialArray;
         }
 
         private void EnsureLegacyAnimatorLists()

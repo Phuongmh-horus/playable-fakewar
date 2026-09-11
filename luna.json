@@ -8979,6 +8979,14 @@
             {
                 "name": "GamePlay.Effects.ParticleScaleMode",
                 "excluded": false
+            },
+            {
+                "name": "GamePlay.Crushers.WheelUnit.CardDropAnimation",
+                "excluded": true
+            },
+            {
+                "name": "GamePlay.ComponentSystems.EffectComponent.RuntimeVfxData",
+                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -13104,7 +13112,7 @@
                     },
                     {
                         "name": "Clear",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Contains",
@@ -35435,6 +35443,10 @@
                     {
                         "name": "QueryIndicesNearSegment$1",
                         "excluded": false
+                    },
+                    {
+                        "name": "ResolveIsSoldierBall",
+                        "excluded": false
                     }
                 ]
             },
@@ -36125,6 +36137,10 @@
                     {
                         "name": "ShowCustomNumber",
                         "excluded": false
+                    },
+                    {
+                        "name": "ResetStaticState",
+                        "excluded": false
                     }
                 ]
             },
@@ -36597,6 +36613,10 @@
                     {
                         "name": "FindPoolableInParents",
                         "excluded": false
+                    },
+                    {
+                        "name": "ResetStaticState",
+                        "excluded": false
                     }
                 ]
             },
@@ -36654,6 +36674,10 @@
                     },
                     {
                         "name": "TickActiveSaws",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResetStaticState",
                         "excluded": false
                     }
                 ]
@@ -36804,6 +36828,14 @@
                     },
                     {
                         "name": "SetPlayerTransform",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EaseOutQuart",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetTargetRotationCached",
                         "excluded": false
                     }
                 ]
@@ -37395,10 +37427,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "GetCachedParticleSystems",
-                        "excluded": false
-                    },
-                    {
                         "name": "GetParticleLifetime",
                         "excluded": false
                     },
@@ -37480,6 +37508,14 @@
                     },
                     {
                         "name": "TryBeginEffect",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResetRuntimeCaches",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetRuntimeVfxData",
                         "excluded": false
                     }
                 ]
@@ -40481,10 +40517,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "GetCachedMaterialArray",
-                        "excluded": false
-                    },
-                    {
                         "name": "DefaultStateHash#get",
                         "excluded": true
                     },
@@ -40737,7 +40769,7 @@
                         "excluded": false
                     },
                     {
-                        "name": "EnsurePropertyBlocks",
+                        "name": "EnsurePropertyBlock",
                         "excluded": false
                     }
                 ]
@@ -40835,6 +40867,10 @@
                     {
                         "name": "GetWeaponAsset",
                         "excluded": true
+                    },
+                    {
+                        "name": "GetBakedMaterialArray",
+                        "excluded": false
                     }
                 ]
             },
@@ -40943,6 +40979,10 @@
                     {
                         "name": "ScheduleSfxReplay",
                         "excluded": false
+                    },
+                    {
+                        "name": "ResetRuntimeState",
+                        "excluded": false
                     }
                 ]
             },
@@ -40952,7 +40992,7 @@
                 "instanceMethods": [
                     {
                         "name": "getDefaultValue",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
@@ -41173,6 +41213,10 @@
                     {
                         "name": "GetClip",
                         "excluded": true
+                    },
+                    {
+                        "name": "GetBakedMaterialArray",
+                        "excluded": false
                     }
                 ]
             },
@@ -41182,10 +41226,6 @@
                 "instanceMethods": [
                     {
                         "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetCachedMaterialArray",
                         "excluded": false
                     },
                     {
@@ -41265,7 +41305,7 @@
                         "excluded": false
                     },
                     {
-                        "name": "EnsurePropertyBlocks",
+                        "name": "EnsurePropertyBlock",
                         "excluded": false
                     }
                 ]
@@ -41417,6 +41457,14 @@
                     {
                         "name": "TryCollectByArmy",
                         "excluded": false
+                    },
+                    {
+                        "name": "ExpandActiveSlot",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryApplyExpansionStep",
+                        "excluded": false
                     }
                 ]
             },
@@ -41482,7 +41530,7 @@
                 "instanceMethods": [
                     {
                         "name": "getDefaultValue",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
@@ -42073,6 +42121,32 @@
                     {
                         "name": "ApplyColor",
                         "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "PlayerArmy.PlayerArmySystem.CachedAttackTarget",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
                     }
                 ]
             }

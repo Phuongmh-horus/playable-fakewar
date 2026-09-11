@@ -65,6 +65,16 @@ namespace GamePlay.Rendering
                     }
 
                     VAT_RenderComponent vatRenderer = renderer.GetComponent<VAT_RenderComponent>();
+                    if (vatRenderer == null &&
+                        renderer.GetComponent<VATWeaponRenderComponent>() != null)
+                    {
+                        // The parent VAT renderer owns weapon visibility and also
+                        // accounts for an unequipped/null weapon asset. Registering
+                        // this renderer again would duplicate native state writes
+                        // and could incorrectly re-enable an empty weapon renderer.
+                        continue;
+                    }
+
                     if (vatRenderer != null)
                     {
                         // VATSystem may have internally culled a distant actor before this system is configured. 
@@ -165,7 +175,10 @@ namespace GamePlay.Rendering
                 }
                 else
                 {
-                    renderer.enabled = rendererVisible;
+                    if (renderer.enabled != rendererVisible)
+                    {
+                        renderer.enabled = rendererVisible;
+                    }
                 }
             }
         }
@@ -183,7 +196,10 @@ namespace GamePlay.Rendering
                     }
                     else
                     {
-                        entry.Renderer.enabled = entry.WasEnabled;
+                        if (entry.Renderer.enabled != entry.WasEnabled)
+                        {
+                            entry.Renderer.enabled = entry.WasEnabled;
+                        }
                     }
                 }
             }

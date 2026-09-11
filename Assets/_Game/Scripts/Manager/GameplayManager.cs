@@ -171,10 +171,11 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     private void Update()
     {
         float dt = Time.deltaTime;
+        float now = Time.time;
 
         _inputManager?.ManualUpdate();
-        PooledVfxLifetimeScheduler.Tick(Time.time);
-        GamePlay.Characters.CharacterUnit.TickScheduledDespawns(Time.time);
+        PooledVfxLifetimeScheduler.Tick(now);
+        GamePlay.Characters.CharacterUnit.TickScheduledDespawns(now);
         HitTextFlyEffect.TickActiveControllers(dt);
 
         // Gameplay-only transient systems do not need to run during boot/intro.
@@ -194,7 +195,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         // }
         // DebrisBlock.TickActiveBlocks(dt);
 
-        TryTrimInactivePools();
+        TryTrimInactivePools(now);
         ActiveArmy?.ManualUpdate();
         if (_waveSys != null) _waveSys.ManualUpdate();
         if (_combatSys != null) _combatSys.ManualUpdate();
@@ -212,14 +213,14 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         }
     }
 
-    private void TryTrimInactivePools()
+    private void TryTrimInactivePools(float now)
     {
-        if (!trimInactivePools || Time.time < _nextPoolTrimTime)
+        if (!trimInactivePools || now < _nextPoolTrimTime)
         {
             return;
         }
 
-        _nextPoolTrimTime = Time.time + poolTrimInterval;
+        _nextPoolTrimTime = now + poolTrimInterval;
         if (PoolSystem.TrimInactive(retainedPoolInstances, pooledObjectsDestroyedPerTrim, poolTrimQuietPeriod) > 0)
         {
             EffectComponent.CleanupDestroyedRuntimeCaches();

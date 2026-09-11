@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using GamePlay.ComponentSystems;
+using GamePlay.Entities;
 using GamePlay.Items;
 using UnityEngine;
 
@@ -253,7 +254,7 @@ namespace GamePlay.CollisionSystems
                     _transformTargets[tr] = target;
                     _masks[existingIndex] = 1u << (int)target.EntityType;
                     _colliders[existingIndex] = target.GetColliderData();
-                    _isSoldierBalls[existingIndex] = tr.GetComponentInParent<SoldierBall>() != null;
+                    _isSoldierBalls[existingIndex] = ResolveIsSoldierBall(target, tr);
                     UpdateMaxHorizontalColliderExtent(_colliders[existingIndex]);
                     UpdateSpatialCell(existingIndex);
                     return;
@@ -268,7 +269,7 @@ namespace GamePlay.CollisionSystems
 
             var colData = target.GetColliderData();
             _colliders.Add(colData);
-            _isSoldierBalls.Add(tr.GetComponentInParent<SoldierBall>() != null);
+            _isSoldierBalls.Add(ResolveIsSoldierBall(target, tr));
             _spatialCells.Add(GetSpatialCell(target.Position));
             _targetIndices[target] = _targets.Count - 1;
             _transformTargets[tr] = target;
@@ -538,6 +539,17 @@ namespace GamePlay.CollisionSystems
         private static float GetHorizontalColliderExtent(ColliderData collider)
         {
             return Mathf.Max(Mathf.Abs(collider.Size.x), Mathf.Abs(collider.Size.z));
+        }
+
+        private static bool ResolveIsSoldierBall(IHitable target, Transform tr)
+        {
+            EntityType entityType = target.EntityType;
+            if (entityType != EntityType.FinishTower && entityType != EntityType.Obstacle)
+            {
+                return false;
+            }
+
+            return tr.GetComponentInParent<SoldierBall>() != null;
         }
 
         private static bool IsUnityNull(object obj)

@@ -10,6 +10,12 @@ public class SawRotate : MonoBehaviour
 
     public static readonly List<SawRotate> ActiveSaws = new List<SawRotate>();
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStaticState()
+    {
+        ActiveSaws.Clear();
+    }
+
     public static void TickActiveSaws(float deltaTime)
     {
         for (int index = ActiveSaws.Count - 1; index >= 0; index--)

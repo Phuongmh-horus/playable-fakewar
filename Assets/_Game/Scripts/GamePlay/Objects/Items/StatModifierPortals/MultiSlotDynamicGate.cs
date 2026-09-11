@@ -159,13 +159,34 @@ namespace GamePlay.Items
 
         public bool TryExpandActiveSlot(StatModifierGate slot)
         {
+            return ExpandActiveSlot(slot, 1) > 0;
+        }
+
+        public int ExpandActiveSlot(StatModifierGate slot, int maxSteps)
+        {
             InitializeLayout();
             int slotIndex = GetSlotIndex(slot);
-            if (slotIndex < 0 || slotIndex != _activeSlotIndex || _slotCount < 2)
+            if (slotIndex < 0 || slotIndex != _activeSlotIndex || _slotCount < 2 || maxSteps <= 0)
             {
-                return false;
+                return 0;
             }
 
+            int appliedSteps = 0;
+            while (appliedSteps < maxSteps && TryApplyExpansionStep(slotIndex))
+            {
+                appliedSteps++;
+            }
+
+            if (appliedSteps > 0)
+            {
+                RebuildGateGeometry();
+            }
+
+            return appliedSteps;
+        }
+
+        private bool TryApplyExpansionStep(int slotIndex)
+        {
             float transfer = Mathf.Min(defaultWidthGrowPercent, GetPassiveRoom(slotIndex));
             if (transfer <= WidthEpsilon)
             {
@@ -223,7 +244,6 @@ namespace GamePlay.Items
             }
 
             _widthPercents[slotIndex] += actualTransfer;
-            RebuildGateGeometry();
             return true;
         }
 

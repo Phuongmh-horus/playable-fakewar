@@ -16,6 +16,8 @@ namespace GamePlay.CardSystem
         [SerializeField] private Image iconImage;
 
         private RectTransform _rectTransform;
+        private float _cachedRevealDuration = -1f;
+        private WaitForSeconds _cachedRevealWait;
 
         private void Awake()
         {
@@ -79,10 +81,20 @@ namespace GamePlay.CardSystem
             _rectTransform.localScale = Vector3.one * scaleAtCenter;
 
             // Phase A: bay ra trung tâm màn hình
-            yield return StartCoroutine(FlyTo(startScreen, centerScreen, dur1, scaleAtCenter));
+            yield return FlyTo(startScreen, centerScreen, dur1, scaleAtCenter);
 
             // Phase B: reveal � doi sang sprite thuc te + hien icon
-            yield return StartCoroutine(RevealCard(data, dur2, scaleAtCenter));
+            UpdateVisual(data);
+            if (dur2 > 0f)
+            {
+                if (_cachedRevealWait == null || !Mathf.Approximately(_cachedRevealDuration, dur2))
+                {
+                    _cachedRevealDuration = dur2;
+                    _cachedRevealWait = new WaitForSeconds(dur2);
+                }
+                yield return _cachedRevealWait;
+            }
+            _rectTransform.localScale = Vector3.one * scaleAtCenter;
 
             // Phase C: bay ve vi tri dich, dong thoi lerp size ve targetSlot
             if (targetSlot != null)
@@ -167,27 +179,21 @@ namespace GamePlay.CardSystem
             }
         }
 
-        private IEnumerator RevealCard(CardInfoData data, float duration, float scaleAtCenter)
+        private IEnumerator FlyTo(Vector3 start, Vector3 end, float duration, float targetScale = 1f, float startScale = 1f)
         {
-            UpdateVisual(data);
-
-            float elapsed = 0f;
-            while (elapsed < duration)
+            if (duration <= 0f)
             {
-                elapsed += Time.deltaTime;
-                yield return null;
+                _rectTransform.anchoredPosition = end;
+                _rectTransform.localScale = Vector3.one * targetScale;
+                yield break;
             }
 
-            _rectTransform.localScale = Vector3.one * scaleAtCenter;
-        }
-
-        private IEnumerator FlyTo(Vector3 start, Vector3 end, float duration, float targetScale = 1f, float startScale = 1f, RectTransform targetSlot = null)
-        {
+            float inverseDuration = 1f / duration;
             float elapsed = 0f;
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
-                float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
+                float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed * inverseDuration));
                 _rectTransform.anchoredPosition = Vector3.Lerp(start, end, t);
                 _rectTransform.localScale = Vector3.one * Mathf.Lerp(startScale, targetScale, t);
                 yield return null;

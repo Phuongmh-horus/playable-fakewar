@@ -7,7 +7,7 @@ namespace GamePlay.Effects
     {
         private const int MaxActiveEntries = 24;
         private const int MaxActiveImpactEntries = 12;
-        private const int InitialSfxReplayCapacity = 16;
+        private const int MaxPendingSfxReplays = 16;
         private struct Entry
         {
             public GameObject Vfx;
@@ -23,10 +23,20 @@ namespace GamePlay.Effects
         }
 
         private static Entry[] _activeEntries = new Entry[MaxActiveEntries];
-        private static SfxReplayEntry[] _pendingSfxReplays = new SfxReplayEntry[InitialSfxReplayCapacity];
+        private static SfxReplayEntry[] _pendingSfxReplays = new SfxReplayEntry[MaxPendingSfxReplays];
         private static int _count = 0;
         private static int _impactCount;
         private static int _pendingSfxReplayCount;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetRuntimeState()
+        {
+            System.Array.Clear(_activeEntries, 0, _activeEntries.Length);
+            System.Array.Clear(_pendingSfxReplays, 0, _pendingSfxReplays.Length);
+            _count = 0;
+            _impactCount = 0;
+            _pendingSfxReplayCount = 0;
+        }
 
         public static bool CanSchedule(bool isImpact = false)
         {
@@ -40,15 +50,33 @@ namespace GamePlay.Effects
                 return;
             }
 
+            // A pooled instance can be returned/reused before its previous lifetime
+            // expires. Refresh its entry so an old schedule cannot despawn the reuse.
+            for (int i = 0; i < _count; i++)
+            {
+                if (_activeEntries[i].Vfx != vfx) continue;
+
+                if (_activeEntries[i].IsImpact != isImpact)
+                {
+                    if (isImpact && _impactCount >= MaxActiveImpactEntries)
+                    {
+                        vfx.Despawn();
+                        return;
+                    }
+
+                    _impactCount += isImpact ? 1 : -1;
+                    _impactCount = Mathf.Max(0, _impactCount);
+                }
+
+                _activeEntries[i].ExpireTime = Time.time + Mathf.Max(0.05f, lifetime);
+                _activeEntries[i].IsImpact = isImpact;
+                return;
+            }
+
             if (!CanSchedule(isImpact))
             {
                 vfx.Despawn();
                 return;
-            }
-
-            if (_count >= _activeEntries.Length)
-            {
-                System.Array.Resize(ref _activeEntries, _activeEntries.Length * 2);
             }
 
             _activeEntries[_count++] = new Entry
@@ -71,10 +99,18 @@ namespace GamePlay.Effects
                 return;
             }
 
-            if (_pendingSfxReplayCount >= _pendingSfxReplays.Length)
+            // Coalesce repeated loop requests for the same clip. The immediate sound
+            // already played; retaining one replay avoids an audio burst and unbounded
+            // clip references while many targets are hit together.
+            for (int i = 0; i < _pendingSfxReplayCount; i++)
             {
-                System.Array.Resize(ref _pendingSfxReplays, _pendingSfxReplays.Length * 2);
+                if (_pendingSfxReplays[i].Clip != clip) continue;
+
+                _pendingSfxReplays[i].Volume = Mathf.Max(_pendingSfxReplays[i].Volume, Mathf.Clamp01(volume));
+                return;
             }
+
+            if (_pendingSfxReplayCount >= MaxPendingSfxReplays) return;
 
             _pendingSfxReplays[_pendingSfxReplayCount++] = new SfxReplayEntry
             {

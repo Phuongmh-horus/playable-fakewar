@@ -14,6 +14,8 @@ namespace GamePlay.Effects
 
         // Cache [dataIndex][particleIndex]
         private OriginalParticleData[][] _originalData;
+        private float _lastMultiplier;
+        private bool _hasAppliedScale;
 
         // ──────────────────────────────────────────────
         private struct OriginalParticleData
@@ -68,6 +70,11 @@ namespace GamePlay.Effects
         public void Scale(float multiplier = 1f)
         {
             if (_originalData == null) CacheOriginals();
+            if (particleScaleData == null || _originalData == null) return;
+            if (_hasAppliedScale && Mathf.Approximately(_lastMultiplier, multiplier)) return;
+
+            _lastMultiplier = multiplier;
+            _hasAppliedScale = true;
 
             for (int i = 0; i < particleScaleData.Length; i++)
             {

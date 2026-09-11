@@ -379,23 +379,24 @@ namespace GamePlay.Items
             }
             else
             {
-                while (remainingDamage > 0)
+                if (remainingDamage < resolvedHealth)
                 {
-                    int damageThisCycle = Mathf.Min(remainingDamage, resolvedHealth);
-                    remainingDamage -= damageThisCycle;
+                    resolvedHealth -= remainingDamage;
+                }
+                else
+                {
+                    remainingDamage -= resolvedHealth;
+                    int completedCycles = 1 + remainingDamage / maxHealth;
+                    int residualDamage = remainingDamage % maxHealth;
+                    resolvedHealth = residualDamage == 0 ? maxHealth : maxHealth - residualDamage;
 
-                    if (damageThisCycle < resolvedHealth)
-                    {
-                        resolvedHealth -= damageThisCycle;
-                        break;
-                    }
+                    int appliedRewards = _multiSlotGate.ExpandActiveSlot(this, completedCycles);
 
-                    if (_multiSlotGate.TryExpandActiveSlot(this))
+                    if (appliedRewards > 0)
                     {
-                        IncreaseCharacterGateReward();
+                        IncreaseCharacterGateReward(appliedRewards);
                         rewardChanged = true;
                     }
-                    resolvedHealth = maxHealth;
                 }
             }
 

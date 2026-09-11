@@ -24,6 +24,19 @@ namespace Pools
         private static readonly Dictionary<int, IPoolable> PoolableByGameObjectId = new Dictionary<int, IPoolable>(1024);
         private static readonly List<Pool> TrimCandidates = new List<Pool>(64);
         private static int _nextTrimCandidateIndex;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticState()
+        {
+            Pools.Clear();
+            PoolByInstance.Clear();
+            PoolByGameObjectId.Clear();
+            PoolableByGameObjectId.Clear();
+            TrimCandidates.Clear();
+            _nextTrimCandidateIndex = 0;
+            _root = null;
+        }
+
         public static void ClearAllPools()
         {
             Pools.Clear();

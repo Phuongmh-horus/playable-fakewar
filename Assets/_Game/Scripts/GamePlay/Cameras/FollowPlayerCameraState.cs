@@ -11,6 +11,9 @@ public class FollowPlayerCameraState : CameraState
     public float followSpeed = 5f;
     public float rotationSpeed = 5f;
 
+    private Vector3 _cachedRotationOffset = new Vector3(float.NaN, float.NaN, float.NaN);
+    private Quaternion _cachedTargetRotation;
+
     private void Reset()
     {
         CameraStateName = CameraFollow.CameraStateName.FollowPlayer;
@@ -42,14 +45,15 @@ public class FollowPlayerCameraState : CameraState
 
         // Smooth interpolation with easing (matching CameraFollow transition style)
         // Different speeds for X axis vs Y/Z axes
-        float tX = Time.deltaTime * followSpeedX;
-        float tYZ = Time.deltaTime * followSpeed;
+        float dt = Time.deltaTime;
+        float tX = dt * followSpeedX;
+        float tYZ = dt * followSpeed;
         tX = Mathf.Clamp01(tX);
         tYZ = Mathf.Clamp01(tYZ);
 
         // Apply OutQuart easing (same as CameraFollow transitions)
-        float easedTX = 1f - Mathf.Pow(1f - tX, 4f);
-        float easedTYZ = 1f - Mathf.Pow(1f - tYZ, 4f);
+        float easedTX = EaseOutQuart(tX);
+        float easedTYZ = EaseOutQuart(tYZ);
 
         Vector3 newPosition = new Vector3(
             Mathf.Lerp(currentPosition.x, desiredPosition.x, easedTX),
@@ -59,11 +63,13 @@ public class FollowPlayerCameraState : CameraState
         camera.transform.position = newPosition;
 
         // Apply rotation
-        Quaternion targetRotation = Quaternion.Euler(rotationOffset);
-        float rotationT = Time.deltaTime * rotationSpeed;
-        rotationT = Mathf.Clamp01(rotationT);
-        float easedRotationT = 1f - Mathf.Pow(1f - rotationT, 4f);
-        camera.transform.rotation = Quaternion.Slerp(camera.transform.rotation, targetRotation, easedRotationT);
+        Quaternion targetRotation = GetTargetRotationCached();
+        Quaternion currentRotation = camera.transform.rotation;
+        if (Mathf.Abs(Quaternion.Dot(currentRotation, targetRotation)) < 0.999999f)
+        {
+            float rotationT = Mathf.Clamp01(dt * rotationSpeed);
+            camera.transform.rotation = Quaternion.Slerp(currentRotation, targetRotation, EaseOutQuart(rotationT));
+        }
     }
 
     public override void OnExit(CameraFollow cameraFollow)
@@ -84,7 +90,25 @@ public class FollowPlayerCameraState : CameraState
 
     public override Quaternion GetTargetRotation(CameraFollow cameraFollow)
     {
-        return Quaternion.Euler(rotationOffset);
+        return GetTargetRotationCached();
+    }
+
+    private Quaternion GetTargetRotationCached()
+    {
+        if (_cachedRotationOffset != rotationOffset)
+        {
+            _cachedRotationOffset = rotationOffset;
+            _cachedTargetRotation = Quaternion.Euler(rotationOffset);
+        }
+
+        return _cachedTargetRotation;
+    }
+
+    private static float EaseOutQuart(float value)
+    {
+        float inverse = 1f - value;
+        float squared = inverse * inverse;
+        return 1f - squared * squared;
     }
 
     public void SetPlayerTransform(Transform player)
