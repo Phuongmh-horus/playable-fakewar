@@ -21,6 +21,7 @@ namespace WeaponCraft
 
         private WeaponCraftConfigSO _config;
         private SlotEntry[] _slotData;
+        private GameObject[] _activeSlotVisuals;
 
         // Maps SlotIndex -> (Tier -> pre-instantiated GameObject)
         private Dictionary<int, GameObject>[] _slotVisuals;
@@ -39,12 +40,19 @@ namespace WeaponCraft
         private WeaponCraftConfigSO _prewarmedConfig;
         private WaitForSeconds _mergeSpawnDelayWait;
         private readonly WaitForSeconds _milestoneHoldWait = new WaitForSeconds(0.3f);
+        private bool _isBound;
 
         public event System.Action<WeaponItem> OnMergeCompleted;
         public int SlotCount => slots.Count;
 
         public void Bind(WeaponCraftConfigSO config)
         {
+            if (_isBound && _config == config)
+            {
+                return;
+            }
+
+            _isBound = true;
             _config = config;
             EnsureSlotData();
             ResolveCanvas();
@@ -68,8 +76,14 @@ namespace WeaponCraft
         private void EnsureSlotData()
         {
             int n = slots.Count;
-            if (_slotData != null && _slotData.Length == n) return;
+            if (_slotData != null && _slotData.Length == n &&
+                _activeSlotVisuals != null && _activeSlotVisuals.Length == n &&
+                _slotVisuals != null && _slotVisuals.Length == n)
+            {
+                return;
+            }
             _slotData = new SlotEntry[n];
+            _activeSlotVisuals = new GameObject[n];
             _slotVisuals = new Dictionary<int, GameObject>[n];
             for (int i = 0; i < n; i++)
             {
@@ -149,16 +163,9 @@ namespace WeaponCraft
         {
             if (slotIndex < 0 || slotIndex >= slots.Count) return;
             var visuals = _slotVisuals[slotIndex];
+            GameObject previous = _activeSlotVisuals[slotIndex];
 
-            // Turn off all
-            foreach (var kvp in visuals)
-                if (kvp.Value != null) kvp.Value.SetActive(false);
-
-            if (visuals.TryGetValue(tier, out var go) && go != null)
-            {
-                go.SetActive(true);
-            }
-            else
+            if (!visuals.TryGetValue(tier, out var go) || go == null)
             {
                 // Fallback: instantiate if missing
                 WeaponCraftConfigSO.TierVisualEntry configVis = null;
@@ -186,6 +193,17 @@ namespace WeaponCraft
                     Debug.LogWarning($"[WeaponCraftVisualSystem] Slot {slotIndex} does not have a visual for tier {tier} pre-attached on the scene!");
                 }
             }
+
+            if (previous != null && previous != go && previous.activeSelf)
+            {
+                previous.SetActive(false);
+            }
+
+            if (go != null && !go.activeSelf)
+            {
+                go.SetActive(true);
+            }
+            _activeSlotVisuals[slotIndex] = go;
         }
 
         private void EnsureTierTag(GameObject go, int tier)
@@ -202,12 +220,12 @@ namespace WeaponCraft
             if (entry.Item != null) _itemToSlot.Remove(entry.Item);
             entry.Item = null;
 
-            // Turn off all visuals in this slot
-            var visuals = _slotVisuals[index];
-            foreach (var kvp in visuals)
+            GameObject activeVisual = _activeSlotVisuals[index];
+            if (activeVisual != null && activeVisual.activeSelf)
             {
-                if (kvp.Value != null) kvp.Value.SetActive(false);
+                activeVisual.SetActive(false);
             }
+            _activeSlotVisuals[index] = null;
         }
 
         private void ClearAllSlots()
@@ -233,11 +251,30 @@ namespace WeaponCraft
         public void SyncVisuals(List<WeaponItem> items)
         {
             EnsureSlotData();
-            ClearAllSlots();
-            if (items == null) return;
+            _itemToSlot.Clear();
+            int itemCount = items != null ? items.Count : 0;
 
-            int n = Mathf.Min(items.Count, _slotData.Length);
-            for (int i = 0; i < n; i++) AddInstant(items[i], i);
+            for (int i = 0; i < _slotData.Length; i++)
+            {
+                WeaponItem nextItem = i < itemCount ? items[i] : null;
+                SlotEntry entry = _slotData[i];
+                if (nextItem == null)
+                {
+                    ClearSlot(i);
+                    continue;
+                }
+
+                bool needsVisualRefresh = entry.Item == null ||
+                                          entry.Item.Tier != nextItem.Tier ||
+                                          _activeSlotVisuals[i] == null ||
+                                          !_activeSlotVisuals[i].activeSelf;
+                entry.Item = nextItem;
+                _itemToSlot[nextItem] = i;
+                if (needsVisualRefresh)
+                {
+                    TurnOnSlotVisual(i, nextItem.Tier);
+                }
+            }
         }
 
         // ── Main Animation Flow ───────────────────────────────────────────────────

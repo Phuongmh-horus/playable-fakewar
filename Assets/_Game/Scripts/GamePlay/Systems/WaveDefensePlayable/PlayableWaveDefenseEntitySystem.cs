@@ -36,6 +36,7 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
         public Transform Transform;
         public float MoveSpeed;
         public bool IsAttractive;
+        public float AttractionThresholdSquared;
         public Vector2Int CollisionCell;
     }
 
@@ -135,13 +136,8 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
             {
                 Vector3 toPlayer = playerPos - currentPos;
                 toPlayer.y = 0f;
-                float entryAttractionThreshold = attractionThreshold;
-                if (entry.Item is BossUnit bossUnit)
-                {
-                    entryAttractionThreshold = bossUnit.AttractionThreshold;
-                }
-
-                if (toPlayer.sqrMagnitude <= entryAttractionThreshold * entryAttractionThreshold && toPlayer.sqrMagnitude > 0.0001f)
+                float distanceSquared = toPlayer.sqrMagnitude;
+                if (distanceSquared <= entry.AttractionThresholdSquared && distanceSquared > 0.0001f)
                 {
                     targetDir = toPlayer.normalized;
                     Quaternion targetRot = Quaternion.LookRotation(targetDir, Vector3.up);
@@ -187,6 +183,9 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
         bool isGate = item.EntityType == EntityType.MovingGate;
         bool isPowerGate = item.EntityType == EntityType.PowerGate;
         bool isAttractive = item.EntityType == EntityType.Enemy || item.EntityType == EntityType.Boss;
+        float entryAttractionThreshold = item is BossUnit bossUnit
+            ? bossUnit.AttractionThreshold
+            : attractionThreshold;
 
         _entries.Add(new Entry
         {
@@ -194,6 +193,7 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
             Transform = item.Transform,
             MoveSpeed = isGate ? gateMoveSpeed : (isPowerGate ? moveSpeed + 3f : moveSpeed),
             IsAttractive = isAttractive,
+            AttractionThresholdSquared = entryAttractionThreshold * entryAttractionThreshold,
             CollisionCell = CollisionSystem.GetSpatialCell(item.Transform.position)
         });
     }

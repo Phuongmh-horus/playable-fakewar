@@ -15,16 +15,13 @@ namespace Pools
             public readonly HashSet<IPoolable> Active = new HashSet<IPoolable>();
             public Component PrefabComponent;
             public Transform Root;
+            public float LastActivityTime;
         }
 
         private static readonly Dictionary<int, Pool> Pools = new Dictionary<int, Pool>(64);
         private static readonly Dictionary<IPoolable, Pool> PoolByInstance = new Dictionary<IPoolable, Pool>(1024);
         private static readonly Dictionary<int, Pool> PoolByGameObjectId = new Dictionary<int, Pool>(1024);
         private static readonly Dictionary<int, IPoolable> PoolableByGameObjectId = new Dictionary<int, IPoolable>(1024);
-        private static float _lastSpawnTime;
-
-        public static float SecondsSinceLastSpawn => Mathf.Max(0f, Time.time - _lastSpawnTime);
-
         public static void ClearAllPools()
         {
             Pools.Clear();
@@ -225,7 +222,7 @@ namespace Pools
             PoolByInstance[instance] = pool;
             PoolByGameObjectId[((Component)instance).gameObject.GetInstanceID()] = pool;
             PoolableByGameObjectId[((Component)instance).gameObject.GetInstanceID()] = instance;
-            _lastSpawnTime = Time.time;
+            pool.LastActivityTime = Time.time;
             return ((Component)instance).gameObject.GetComponent(prefab.GetType());
         }
 
@@ -241,7 +238,8 @@ namespace Pools
             pool = new Pool
             {
                 PrefabComponent = prefab,
-                Root = new GameObject(poolName).transform
+                Root = new GameObject(poolName).transform,
+                LastActivityTime = Time.time
             };
 
             if (root != null && pool.Root.parent != root)
@@ -269,9 +267,10 @@ namespace Pools
             PoolableByGameObjectId[go.GetInstanceID()] = instance;
             go.SetActive(false);
             pool.Inactive.Push(instance);
+            pool.LastActivityTime = Time.time;
         }
 
-        public static int TrimInactive(int retainPerPool, int maxDestroyCount)
+        public static int TrimInactive(int retainPerPool, int maxDestroyCount, float quietPeriod = 0f)
         {
             if (!Application.isPlaying || maxDestroyCount <= 0 || Pools.Count == 0)
             {
@@ -287,6 +286,11 @@ namespace Pools
                 if (remainingBudget <= 0)
                 {
                     break;
+                }
+
+                if (quietPeriod > 0f && Time.time - pool.LastActivityTime < quietPeriod)
+                {
+                    continue;
                 }
 
                 int overflowCount = pool.Inactive.Count - retainedCount;
@@ -365,6 +369,7 @@ namespace Pools
             poolableComponent.transform.SetParent(pool.Root, false);
 
             pool.Inactive.Push(poolable);
+            pool.LastActivityTime = Time.time;
         }
 
         private static IPoolable FindPoolableInParents(Transform transform)

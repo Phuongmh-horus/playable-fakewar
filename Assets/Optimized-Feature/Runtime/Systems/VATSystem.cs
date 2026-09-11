@@ -31,7 +31,6 @@ namespace OptimizedFeature.Scripts
                 return;
             }
 
-            _runtimeMeshBatcher = new VATRuntimeMeshBatcher();
             ProcessPendingRequests();
         }
 
@@ -78,12 +77,6 @@ namespace OptimizedFeature.Scripts
         private void OnDestroy()
         {
             if (Instance != this) return;
-
-            if (_runtimeMeshBatcher != null)
-            {
-                _runtimeMeshBatcher.Dispose();
-                _runtimeMeshBatcher = null;
-            }
 
             // Preserve live components if a replacement manager is created after
             // a scene transition. Invalid Unity references are filtered and the
@@ -140,11 +133,6 @@ namespace OptimizedFeature.Scripts
         [Tooltip("Camera used for VAT frustum culling. If empty or destroyed, VATSystem falls back to Camera.main.")]
         [SerializeField] private Camera _mainCamera;
         private float _cullTimer = 0f;
-
-        [Header("Runtime Mesh Batching")]
-        [Tooltip("Combines compatible VAT renderers with the same mesh and material into runtime meshes.")]
-        [SerializeField] private bool _enableRuntimeMeshBatching = true;
-        private VATRuntimeMeshBatcher _runtimeMeshBatcher;
 
         private void Update()
         {
@@ -217,17 +205,6 @@ namespace OptimizedFeature.Scripts
                 }
             }
 
-            if (_runtimeMeshBatcher != null)
-            {
-                if (_enableRuntimeMeshBatching)
-                {
-                    _runtimeMeshBatcher.UpdateBatches(_registeredAnimators);
-                }
-                else
-                {
-                    _runtimeMeshBatcher.Clear();
-                }
-            }
         }
     }
 }

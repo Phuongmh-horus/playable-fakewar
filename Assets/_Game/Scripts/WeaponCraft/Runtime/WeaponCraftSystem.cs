@@ -36,7 +36,6 @@ namespace WeaponCraft
         private readonly List<PendingItem> _batchBuffer = new List<PendingItem>(16);
         private readonly List<List<int>> _milestoneBuffer = new List<List<int>>(8);
         private readonly Stack<List<int>> _milestoneTierPool = new Stack<List<int>>(8);
-        private readonly List<WeaponItem> _mergeSourceBuffer = new List<WeaponItem>(4);
         private readonly Dictionary<int, int> _tierCountsBuffer = new Dictionary<int, int>(8);
 
         // ── Events / Properties ───────────────────────────────────────────────────
@@ -181,16 +180,18 @@ namespace WeaponCraft
                     int tier = FindLowestMergeable(mergeCount, maxTier);
                     if (tier < 0) break;
 
-                    // Collect sources
-                    _mergeSourceBuffer.Clear();
-                    for (int i = _items.Count - 1; i >= 0 && _mergeSourceBuffer.Count < mergeCount; i--)
-                        if (_items[i].Tier == tier) _mergeSourceBuffer.Add(_items[i]);
-
-                    // Remove sources
-                    for (int i = 0; i < _mergeSourceBuffer.Count; i++)
+                    int removedCount = 0;
+                    for (int i = _items.Count - 1; i >= 0 && removedCount < mergeCount; i--)
                     {
-                        _items.Remove(_mergeSourceBuffer[i]);
-                        _seqMap.Remove(_mergeSourceBuffer[i]);
+                        WeaponItem source = _items[i];
+                        if (source.Tier != tier)
+                        {
+                            continue;
+                        }
+
+                        _items.RemoveAt(i);
+                        _seqMap.Remove(source);
+                        removedCount++;
                     }
 
                     // Create result

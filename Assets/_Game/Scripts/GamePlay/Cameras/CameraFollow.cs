@@ -192,11 +192,12 @@ public class CameraFollow : MonoBehaviour
         {
             currentState.OnUpdate(this);
 
-            mainCamera.fieldOfView = Mathf.Lerp(
-                mainCamera.fieldOfView,
-                currentState.GetTargetFOV(),
-                Time.deltaTime * 5f
-            );
+            float currentFov = mainCamera.fieldOfView;
+            float targetFov = currentState.GetTargetFOV();
+            if (Mathf.Abs(currentFov - targetFov) > 0.001f)
+            {
+                mainCamera.fieldOfView = Mathf.Lerp(currentFov, targetFov, Time.deltaTime * 5f);
+            }
         }
     }
 

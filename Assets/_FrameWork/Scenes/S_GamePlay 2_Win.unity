@@ -103375,7 +103375,6 @@ MonoBehaviour:
   _enableCulling: 1
   _cullInterval: 0.1
   _mainCamera: {fileID: 1932555552}
-  _enableRuntimeMeshBatching: 1
 --- !u!4 &1528210599
 Transform:
   m_ObjectHideFlags: 0

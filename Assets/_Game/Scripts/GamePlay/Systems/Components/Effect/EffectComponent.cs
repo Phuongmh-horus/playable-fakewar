@@ -163,20 +163,13 @@ namespace GamePlay.ComponentSystems
                     BuildCache();
 
                 int typeIndex = (int)effectType;
-                if (typeIndex >= 0 && typeIndex < _lastPlayTimes.Length)
+                if (!TryBeginEffect(typeIndex))
                 {
-                    float lastTime = _lastPlayTimes[typeIndex];
-                    if (Time.time - lastTime < 0.05f)
+                    if (onComplete != null)
                     {
-                        // Rapid fire block
-                        if (onComplete != null)
-                        {
-                            if (waitForAction <= 0f) onComplete.Invoke();
-
-                        }
-                        return;
+                        if (waitForAction <= 0f) onComplete.Invoke();
                     }
-                    _lastPlayTimes[typeIndex] = Time.time;
+                    return;
                 }
 
                 bool hasEntry = _runtime != null && typeIndex >= 0 && typeIndex < _runtime.Length && _runtime[typeIndex] != null;
@@ -227,6 +220,11 @@ namespace GamePlay.ComponentSystems
             }
 
             int typeIndex = (int)effectType;
+            if (!TryBeginEffect(typeIndex))
+            {
+                return;
+            }
+
             if (_runtime == null || typeIndex < 0 || typeIndex >= _runtime.Length)
             {
                 return;
@@ -240,6 +238,23 @@ namespace GamePlay.ComponentSystems
 
             PlayVfx(effectType, entry, position, rotation, parent, scaleMultiplier, colorIndex);
             PlaySfx(entry);
+        }
+
+        private bool TryBeginEffect(int typeIndex)
+        {
+            if (_lastPlayTimes == null || typeIndex < 0 || typeIndex >= _lastPlayTimes.Length)
+            {
+                return true;
+            }
+
+            float now = Time.time;
+            if (now - _lastPlayTimes[typeIndex] < 0.05f)
+            {
+                return false;
+            }
+
+            _lastPlayTimes[typeIndex] = now;
+            return true;
         }
 
 

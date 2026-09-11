@@ -95,6 +95,8 @@ namespace PlayerArmy
         private bool _formationDirty;
         private int _formationCompactFrame;
         private bool _isCompactingFormation;
+        private int _formationCompactActiveCount;
+        private readonly Vector3[] _formationCompactLocalTargets = new Vector3[HardMaxActiveSpawnedUnits];
 
         private HashSet<int> _currentEnemyContactIds = new HashSet<int>();
         private HashSet<int> _previousEnemyContactIds = new HashSet<int>();
@@ -726,7 +728,6 @@ namespace PlayerArmy
 
                     unit.gameObject.SetActive(true);
                     unit.Initialize(targetLevel, true);
-                    unit.Setup(targetLevel);
                     unit.PlayAnimation(ResolveRuntimeUnitAnimation(), 0f, null, 0);
                 }
                 return;
@@ -1810,7 +1811,6 @@ namespace PlayerArmy
             }
 
             unit.Initialize(level, true);
-            unit.Setup(level);
 
             int currentLevelIndex = ArmyUpgradeManager.Instance != null ? ArmyUpgradeManager.Instance.CurrentLevel : 0;
 
@@ -1925,9 +1925,21 @@ namespace PlayerArmy
 
             Transform root = GetBodyRoot();
             int activeCount = CountActiveUnits();
+            if (activeCount != _formationCompactActiveCount)
+            {
+                BeginFormationCompact();
+                if (!_isCompactingFormation)
+                {
+                    return;
+                }
+            }
+
             int formationIndex = 0;
             bool reachedAllTargets = true;
             float maxStep = Mathf.Max(0.1f, formationCompactSpeed) * Mathf.Max(0f, deltaTime);
+            Vector3 rootPosition = root.position;
+            Vector3 rootRight = root.right;
+            Vector3 rootForward = root.forward;
 
             for (int i = 0; i < characterUnits.Count; i++)
             {
@@ -1937,9 +1949,11 @@ namespace PlayerArmy
                     continue;
                 }
 
-                Vector3 targetPosition = GetHoneycombSpawnPosition(root, formationIndex, activeCount);
-                unit.transform.position = Vector3.MoveTowards(unit.transform.position, targetPosition, maxStep);
-                if ((unit.transform.position - targetPosition).sqrMagnitude > 0.0001f)
+                Vector3 localTarget = _formationCompactLocalTargets[formationIndex];
+                Vector3 targetPosition = rootPosition + rootRight * localTarget.x + rootForward * localTarget.z;
+                Vector3 nextPosition = Vector3.MoveTowards(unit.transform.position, targetPosition, maxStep);
+                unit.transform.position = nextPosition;
+                if ((nextPosition - targetPosition).sqrMagnitude > 0.0001f)
                 {
                     reachedAllTargets = false;
                 }
@@ -1970,6 +1984,12 @@ namespace PlayerArmy
 
                 unit.ArmyIndex = formationIndex;
                 formationIndex++;
+            }
+
+            _formationCompactActiveCount = formationIndex;
+            for (int i = 0; i < formationIndex; i++)
+            {
+                _formationCompactLocalTargets[i] = GetHoneycombLocalPosition(i, formationIndex);
             }
 
             _isCompactingFormation = formationIndex > 0;

@@ -220,12 +220,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         }
 
         _nextPoolTrimTime = Time.time + poolTrimInterval;
-        if (PoolSystem.SecondsSinceLastSpawn < poolTrimQuietPeriod)
-        {
-            return;
-        }
-
-        if (PoolSystem.TrimInactive(retainedPoolInstances, pooledObjectsDestroyedPerTrim) > 0)
+        if (PoolSystem.TrimInactive(retainedPoolInstances, pooledObjectsDestroyedPerTrim, poolTrimQuietPeriod) > 0)
         {
             EffectComponent.CleanupDestroyedRuntimeCaches();
         }

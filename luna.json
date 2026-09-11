@@ -2,7 +2,7 @@
     "version": "7.0.0",
     "projectId": "1bc38d6f8d96f394b8b169b9e5a7dcba",
     "applicationID": 42014,
-    "creativeName": "WS_kichban2_map2_thang",
+    "creativeName": "WS_kichban2_map2_thua",
     "pgServer": "EU",
     "window": {
         "‐⁏": true
@@ -11452,7 +11452,7 @@
                     },
                     {
                         "name": "Current#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "System$Collections$IEnumerator$Current#get",
@@ -35431,6 +35431,10 @@
                     {
                         "name": "IsSoldierBall",
                         "excluded": false
+                    },
+                    {
+                        "name": "QueryIndicesNearSegment$1",
+                        "excluded": false
                     }
                 ]
             },
@@ -36571,10 +36575,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "SecondsSinceLastSpawn#get",
-                        "excluded": false
-                    },
-                    {
                         "name": "EnsurePrewarmAsync",
                         "excluded": false
                     },
@@ -37477,6 +37477,10 @@
                     {
                         "name": "PlaySfx",
                         "excluded": false
+                    },
+                    {
+                        "name": "TryBeginEffect",
+                        "excluded": false
                     }
                 ]
             },
@@ -38030,7 +38034,7 @@
                     },
                     {
                         "name": "GetHoneycombLocalPosition",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "TryReserveSpawnSlot",

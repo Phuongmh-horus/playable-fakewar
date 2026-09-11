@@ -173,27 +173,42 @@ namespace GamePlay.Characters
                 return;
             }
 
-            _appliedVisualLevel = safeIndex;
-
-            for (int i = 0; i < visualModels.Length; i++)
+            if (_appliedVisualLevel < 0 || _appliedVisualLevel >= visualModels.Length)
             {
-                if (visualModels[i] != null)
+                for (int i = 0; i < visualModels.Length; i++)
                 {
-                    bool isActive = (i == safeIndex);
-                    if (visualModels[i].activeSelf != isActive)
+                    GameObject model = visualModels[i];
+                    if (model == null)
                     {
-                        visualModels[i].SetActive(isActive);
+                        continue;
                     }
 
-                    if (isActive)
+                    bool isActive = i == safeIndex;
+                    if (model.activeSelf != isActive)
                     {
-                        if (Pack.Animator != null && Pack.Animator is AnimationComponent animComp)
-                        {
-                            animComp.SetAnimatorLevel(i);
-                        }
-
+                        model.SetActive(isActive);
                     }
                 }
+            }
+            else
+            {
+                GameObject previousModel = visualModels[_appliedVisualLevel];
+                if (previousModel != null && previousModel.activeSelf)
+                {
+                    previousModel.SetActive(false);
+                }
+
+                GameObject nextModel = visualModels[safeIndex];
+                if (nextModel != null && !nextModel.activeSelf)
+                {
+                    nextModel.SetActive(true);
+                }
+            }
+
+            _appliedVisualLevel = safeIndex;
+            if (visualModels[safeIndex] != null && Pack.Animator is AnimationComponent animComp)
+            {
+                animComp.SetAnimatorLevel(safeIndex);
             }
         }
 

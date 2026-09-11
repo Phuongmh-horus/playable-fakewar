@@ -170,6 +170,15 @@ namespace GamePlay.CollisionSystems
         /// </summary>
         public void QueryIndicesNearSegment(Vector3 from, Vector3 to, float padding, List<int> results)
         {
+            QueryIndicesNearSegment(from, to, padding, uint.MaxValue, results);
+        }
+
+        /// <summary>
+        /// Mask-filtered query variant. Filtering inside each bucket avoids copying
+        /// unrelated nearby entities into the caller's candidate buffer.
+        /// </summary>
+        public void QueryIndicesNearSegment(Vector3 from, Vector3 to, float padding, uint requiredMask, List<int> results)
+        {
             if (results == null) return;
 
             results.Clear();
@@ -194,6 +203,8 @@ namespace GamePlay.CollisionSystems
                     for (int i = 0; i < bucket.Count; i++)
                     {
                         int index = bucket[i];
+                        if ((uint)index >= (uint)_masks.Count || (_masks[index] & requiredMask) == 0) continue;
+
                         var transform = GetTransform(index);
                         if (transform == null) continue;
 

@@ -366,6 +366,9 @@ namespace GamePlay.CombatSystems
             if (_collisionSystem == null) _collisionSystem = CollisionSystem.Instance;
             var collisionSystem = _collisionSystem;
             int collisionCount = collisionSystem != null ? collisionSystem.Count : 0;
+            float collisionQueryExtent = collisionCount > 0
+                ? collisionSystem.MaxHorizontalColliderExtent
+                : 0f;
 
             // Iterate backwards for safe remove
             for (int i = _projectiles.Count - 1; i >= 0; i--)
@@ -430,6 +433,10 @@ namespace GamePlay.CombatSystems
                             // Hit -> process immediately & remove immediately
                             p.Attacker.OnAttackSucceed(_playerHitable);
                             _playerHitable.OnHit(p.Attacker);
+                            if (collisionSystem != null)
+                            {
+                                collisionQueryExtent = collisionSystem.MaxHorizontalColliderExtent;
+                            }
 
                             DisposeManaged(ref p);
                             TryDespawnProjectile(p.Transform, p.PoolEntity);
@@ -442,8 +449,13 @@ namespace GamePlay.CombatSystems
                 // This includes character, enemy, and item targets in the shared spatial index.
                 if (collisionSystem != null && collisionCount > 0 && p.Attacker != null)
                 {
-                    float queryPadding = p.Radius + collisionSystem.MaxHorizontalColliderExtent;
-                    collisionSystem.QueryIndicesNearSegment(previousPos, pos, queryPadding, _collisionQueryIndices);
+                    float queryPadding = p.Radius + collisionQueryExtent;
+                    collisionSystem.QueryIndicesNearSegment(
+                        previousPos,
+                        pos,
+                        queryPadding,
+                        projectileTargetMask,
+                        _collisionQueryIndices);
                     for (int candidateIndex = 0; candidateIndex < _collisionQueryIndices.Count; candidateIndex++)
                     {
                         int k = _collisionQueryIndices[candidateIndex];
@@ -464,6 +476,7 @@ namespace GamePlay.CombatSystems
                         {
                             p.Attacker.OnAttackSucceed(target);
                             target.OnHit(p.Attacker);
+                            collisionQueryExtent = collisionSystem.MaxHorizontalColliderExtent;
 
                             DisposeManaged(ref p);
                             TryDespawnProjectile(p.Transform, p.PoolEntity);

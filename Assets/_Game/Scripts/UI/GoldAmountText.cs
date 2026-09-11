@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -27,6 +26,11 @@ public class CurrencyAmountText : MonoBehaviour
 
     private readonly List<Image> iconPool = new List<Image>(8);
     private readonly List<Image> _activeIconsBuffer = new List<Image>(8);
+    private Vector2[] _controlBuffer = new Vector2[8];
+    private RectTransform[] _rectBuffer = new RectTransform[8];
+    private bool _isGainAnimationActive;
+    private Coroutine _gainRoutine;
+    private int _latestAmount;
     private int lastAmount = int.MinValue;
     private Camera _cachedMainCamera;
 
@@ -66,6 +70,23 @@ public class CurrencyAmountText : MonoBehaviour
             StopCoroutine(initializeRoutine);
             initializeRoutine = null;
         }
+
+        if (_gainRoutine != null)
+        {
+            StopCoroutine(_gainRoutine);
+            _gainRoutine = null;
+        }
+
+        for (int i = 0; i < _activeIconsBuffer.Count; i++)
+        {
+            Image icon = _activeIconsBuffer[i];
+            if (icon != null)
+            {
+                icon.gameObject.SetActive(false);
+            }
+        }
+        _activeIconsBuffer.Clear();
+        _isGainAnimationActive = false;
 
         Unsubscribe();
     }
@@ -133,6 +154,8 @@ public class CurrencyAmountText : MonoBehaviour
             return;
         }
 
+        _latestAmount = amount;
+
         bool canAnimateGain = animateOnGoldGain &&
                               gainIconPrefab != null &&
                               goldIcon != null &&
@@ -140,9 +163,11 @@ public class CurrencyAmountText : MonoBehaviour
                               lastAmount != int.MinValue &&
                               amount > lastAmount;
 
-        if (canAnimateGain)
+        if (canAnimateGain && !_isGainAnimationActive)
         {
-            StartCoroutine(PlayGainAnimation(amount, worldPosition, UpdateTextDisplay));
+            _isGainAnimationActive = true;
+            Coroutine routine = StartCoroutine(PlayGainAnimation(worldPosition));
+            _gainRoutine = _isGainAnimationActive ? routine : null;
         }
         else
         {
@@ -162,10 +187,11 @@ public class CurrencyAmountText : MonoBehaviour
         lastAmount = amount;
     }
 
-    private IEnumerator PlayGainAnimation(int newAmount, Vector3 worldPosition, Action<int> onComplete = null)
+    private IEnumerator PlayGainAnimation(Vector3 worldPosition)
     {
         if (goldText == null || animationCanvas == null)
         {
+            CompleteGainAnimation();
             yield break;
         }
 
@@ -173,24 +199,28 @@ public class CurrencyAmountText : MonoBehaviour
         RectTransform root = animationRoot != null ? animationRoot : canvas.transform as RectTransform;
         if (root == null)
         {
+            CompleteGainAnimation();
             yield break;
         }
 
         Camera sourceCamera = GetMainCamera();
         if (sourceCamera == null)
         {
+            CompleteGainAnimation();
             yield break;
         }
 
         Vector3 sourceScreen = sourceCamera.WorldToScreenPoint(worldPosition + worldSourceOffset);
         if (sourceScreen.z <= 0f)
         {
+            CompleteGainAnimation();
             yield break;
         }
 
         Camera eventCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? GetMainCamera() : null;
         if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(root, sourceScreen, eventCamera, out Vector2 startLocal))
         {
+            CompleteGainAnimation();
             yield break;
         }
 
@@ -208,10 +238,17 @@ public class CurrencyAmountText : MonoBehaviour
 
         if (_activeIconsBuffer.Count > 0)
         {
-            yield return StartCoroutine(AnimateIconsBurst(_activeIconsBuffer, startLocal, endLocal));
+            yield return AnimateIconsBurst(_activeIconsBuffer, startLocal, endLocal);
         }
 
-        onComplete?.Invoke(newAmount);
+        CompleteGainAnimation();
+    }
+
+    private void CompleteGainAnimation()
+    {
+        _gainRoutine = null;
+        _isGainAnimationActive = false;
+        UpdateTextDisplay(_latestAmount);
     }
 
     private IEnumerator AnimateIconsBurst(List<Image> icons, Vector2 startLocal, Vector2 endLocal)
@@ -222,8 +259,14 @@ public class CurrencyAmountText : MonoBehaviour
         }
 
         int count = icons.Count;
-        var controls = new Vector2[count];
-        var rects = new RectTransform[count];
+        if (_controlBuffer.Length < count)
+        {
+            _controlBuffer = new Vector2[count];
+            _rectBuffer = new RectTransform[count];
+        }
+
+        Vector2[] controls = _controlBuffer;
+        RectTransform[] rects = _rectBuffer;
 
         for (int i = 0; i < count; i++)
         {
