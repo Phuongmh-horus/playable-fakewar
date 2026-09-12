@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c2079c0368c943943aafbc09708e34e6, type: 3}
-  m_Name: WaveDefense
+  m_Name: WaveDefense 1
   m_EditorClassIdentifier: 
   ContentId: 0
   ContentName: WaveDefense
@@ -1598,11 +1598,11 @@ MonoBehaviour:
     PositionOnMap: 440.6
     PositionOffset: {x: 0, y: 0, z: 0}
     Rotation: {x: 0, y: 180, z: 0}
-    Scale: {x: 1.7, y: 1.7, z: 1.7}
+    Scale: {x: 1.5, y: 1.5, z: 1.5}
     propertyOverrides:
     - rid: 5408492838299369722
     overrideMaxHp: 1
-    maxHp: 3000
+    maxHp: 2000
   - Prefab: {fileID: 3360367997036094387, guid: ef8a3aed54a409a4fb48a1e34e0e5c28, type: 3}
     PositionOnMap: 443.28003
     PositionOffset: {x: 10.5, y: 0, z: 0}
@@ -3226,7 +3226,7 @@ MonoBehaviour:
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:
         overrideMaxHp: 1
-        maxHp: 3000
+        maxHp: 2000
     - rid: 5408492838299369723
       type: {class: HealthComponentOverride, ns: , asm: Assembly-CSharp}
       data:

@@ -420,7 +420,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
                 ? initialCards
                 : BuildInitialArmyCardsFromRuntimeState();
             ActiveArmy.AddCards(seedCards, CardSpawnEffectType.DropWithoutAction);
-            ActiveArmy.SetActive();
+            ActiveArmy.SetIdle();
         }
 
         if (EnemyManager.Instance != null) EnemyManager.Instance.UnregisterAllEnemies();

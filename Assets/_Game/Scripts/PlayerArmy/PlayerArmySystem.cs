@@ -55,7 +55,6 @@ namespace PlayerArmy
         [Header("Damage Settings")]
         [SerializeField, Min(1)] private int _baseAttackDamage = 5;
         [SerializeField, Min(1)] private int damageBonusPerUpgrade = 5;
-        [SerializeField] private int _baseProjectileDamage = 5;
         private int attackDamage = 5;
 
         [Header("Projectile")]
@@ -121,7 +120,7 @@ namespace PlayerArmy
         private readonly List<Transform> _frameAttackableTransforms = new List<Transform>(32);
         private readonly List<float> _frameAttackableHalfWidths = new List<float>(32);
 
-        private const int HardMaxActiveSpawnedUnits = 51;
+        private const int HardMaxActiveSpawnedUnits = 37;
         private const float HoneycombForwardStepFactor = 0.8660254f;
         private static readonly Vector2Int[] HoneycombDirections = new Vector2Int[6]
         {
@@ -144,7 +143,7 @@ namespace PlayerArmy
         private int _pendingSpawnAmount = 0;
         private int _pendingSpawnLevel = -1;
         private bool _pendingSpawnPlayAnimation = false;
-        private const int MaxSpawnsPerFrame = 5;
+        private const int MaxSpawnsPerFrame = 2;
 
         public IReadOnlyList<CharacterUnit> Units => characterUnits;
         public PlayerArmyEffectSystem EffectSystem => effectSystem;
@@ -661,7 +660,7 @@ namespace PlayerArmy
                     if (characterUnits[i] != null)
                     {
                         characterUnits[i].PlayAnimation(AnimationType.Attack, 0f, null, 0);
-                        SetNextAttackTime(characterUnits[i], Time.time, true);
+                        SetNextAttackTime(characterUnits[i], Time.time, false);
                     }
                 }
             }
@@ -727,7 +726,7 @@ namespace PlayerArmy
             _fireRateBonusPoints += value;
 
             // [FIX] Use multiplier logic to scale down interval without hitting the floor too fast
-            float multiplier = 1f / (1f + _fireRateBonusPoints * 0.005f);
+            float multiplier = 1f / (1f + _fireRateBonusPoints * 0.004f);
             attackInterval = Mathf.Max(0.01f, _baseAttackInterval * multiplier);
             projectileDuration = Mathf.Max(0.01f, _baseProjectileDuration * multiplier);
 

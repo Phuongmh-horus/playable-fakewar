@@ -8,4 +8,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_FrameWork/Scenes/S_GamePlay 1_Lose.unity
     guid: 49b1f51cb1b56694a93342f086c60c89
+  - enabled: 1
+    path: Assets/_FrameWork/Scenes/S_GamePlay 2_Win.unity
+    guid: d44204fa5b0c81c4f9ed1f8cd73b026e
+  - enabled: 1
+    path: Assets/_FrameWork/Scenes/S_GamePlay 2_Lose.unity
+    guid: 2eb2c073a704968419bc02085e879316
+  - enabled: 1
+    path: Assets/_FrameWork/Scenes/S_GamePlay 1_Win.unity
+    guid: da9edb4e39a0d7e4fb752367caa0cfcd
   m_configObjects: {}

@@ -42,6 +42,9 @@ public class LunaUIManager : MonoBehaviour
     [SerializeField] private float ctaImpactStartAngle = -18f;
     [SerializeField] private float ctaImpactDuration = 0.18f;
 
+    [Header("Play Now Button")]
+    [SerializeField] private Button persistentPlayNowButton;
+
     [Header("Behavior")]
     [SerializeField] private bool pauseOnTutorial = true;
     [SerializeField] private bool pauseOnEndcard = true;
@@ -104,6 +107,7 @@ public class LunaUIManager : MonoBehaviour
 
         EnsureEndcardCanvasGroup();
         WireCTAButtons();
+        WirePersistentPlayNowButton();
 
         if (tutorialHand != null)
         {
@@ -261,6 +265,7 @@ public class LunaUIManager : MonoBehaviour
     private void ShowEndcard()
     {
         ShowTutorial(false);
+        SetPersistentPlayNowButtonVisible(false);
 
         EnsureEventSystem();
         if (_endcardRoutine != null) StopCoroutine(_endcardRoutine);
@@ -532,6 +537,24 @@ public class LunaUIManager : MonoBehaviour
             if (btn == null) continue;
             btn.onClick.RemoveListener(OnCTAClicked);
             btn.onClick.AddListener(OnCTAClicked);
+        }
+    }
+
+    private void WirePersistentPlayNowButton()
+    {
+        if (persistentPlayNowButton == null) return;
+
+        SetPersistentPlayNowButtonVisible(true);
+        persistentPlayNowButton.interactable = true;
+        persistentPlayNowButton.onClick.RemoveListener(OnCTAClicked);
+        persistentPlayNowButton.onClick.AddListener(OnCTAClicked);
+    }
+
+    private void SetPersistentPlayNowButtonVisible(bool visible)
+    {
+        if (persistentPlayNowButton != null)
+        {
+            persistentPlayNowButton.gameObject.SetActive(visible);
         }
     }
 
