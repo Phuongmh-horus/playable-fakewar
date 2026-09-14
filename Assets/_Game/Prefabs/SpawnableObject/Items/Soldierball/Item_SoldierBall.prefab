@@ -293,7 +293,7 @@ MonoBehaviour:
   size: {x: 1, y: 1}
   shapeType: 1
   colliderOffsets: {x: 0, y: 2, z: 0}
-  colliderSize: {x: 7.6, y: 5, z: 5}
+  colliderSize: {x: 7, y: 5, z: 5}
   LeftOffset: 0
   RightOffset: 0
   autoAddHitTextFlyEffectAtRuntime: 0
@@ -301,9 +301,17 @@ MonoBehaviour:
     Type: 0
     Value: 0
     Armor: 0
+    ShowArmyBuffFlyText: 0
+    ArmyBuffFlyTextLabel: 
+    ArmyBuffFlyTextPercent: 0
     ChangeType: 0
     Level: 0
   upgradeShowObject: {fileID: 1633899723340787415}
+  upgradeRiseHeight: 1
+  upgradeRiseDuration: 0.15
+  upgradeFlyDuration: 0.25
+  upgradePeakScale: 1.25
+  breakEffectDespawnDelay: 0.3
   healthText: {fileID: 2011504282769430059}
   wheelRotate: {fileID: 7330599078449074547}
   IsStopMove: 0
@@ -323,7 +331,7 @@ MonoBehaviour:
   CacheTransform: {fileID: 7946232523800976864}
   poolEntity: {fileID: -3187097488725319018}
   shapeType: 1
-  colliderSize: {x: 7.6, y: 5, z: 5}
+  colliderSize: {x: 7, y: 5, z: 5}
   isActive: 1
   isCustomCaster: 0
   hitTransform: {fileID: 0}
@@ -342,11 +350,20 @@ MonoBehaviour:
   CacheTransform: {fileID: 7946232523800976864}
   poolEntity: {fileID: -3187097488725319018}
   effects:
-  - Type: 16
+  - Type: 14
     VfxPrefab: {fileID: 462670460786600360, guid: 285fb53922afad341b016d11032d75ea, type: 3}
     ParentToTarget: 0
     VfxScale: {x: 3, y: 3, z: 3}
-    SfxClip: {fileID: 8300000, guid: 8722649368b212547a32989ae027ecd5, type: 3}
+    SfxClip: {fileID: 8300000, guid: 283db3691cee9b140b03a3958d041f39, type: 3}
+    LoopSfx: 0
+    SfxVolume: 1
+    WaitForAction: 0
+    MaxVfxPerFrame: 1
+  - Type: 16
+    VfxPrefab: {fileID: 2433282508537954060, guid: 3ef3ae421f71c5c4e97fe12dc2fc6312, type: 3}
+    ParentToTarget: 1
+    VfxScale: {x: 2, y: 2, z: 2}
+    SfxClip: {fileID: 8300000, guid: c5e54479c2650b5499a9f9d7ce2f4f1e, type: 3}
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0
@@ -411,15 +428,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalScale.x
-      value: 3
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalScale.y
-      value: 3
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalScale.z
-      value: 3
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalPosition.x

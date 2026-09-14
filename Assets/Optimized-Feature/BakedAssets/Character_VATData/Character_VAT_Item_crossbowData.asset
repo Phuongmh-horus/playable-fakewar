@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   VATTexture: {fileID: 2800000, guid: 3e7c1c1adc942314b85d71eef45692f7, type: 3}
   BakedStaticMesh: {fileID: 4300000, guid: 94a9a9ddd4f3aa54b8492fb88aa2475d, type: 2}
-  BoundingMin: {x: -0.6319357, y: 0.8331232, z: -0.13126491}
-  BoundingMax: {x: 0.8405577, y: 1.5306522, z: 1.0430233}
+  BoundingMin: {x: -0.6380515, y: 0.06746044, z: -2.365817}
+  BoundingMax: {x: 1.0505335, y: 1.552953, z: 1.0080315}
   TotalVertices: 537
-  TotalFrames: 104
+  TotalFrames: 74
   Clips:
-  - ClipName: Character_Idle
-    _stateHash: -1591233909
+  - ClipName: Character_Idle_Baked
+    _stateHash: 1899044031
     StartFrame: 0
     EndFrame: 44
     FrameRate: 30
@@ -31,16 +31,10 @@ MonoBehaviour:
     EndFrame: 59
     FrameRate: 30
     IsLooping: 1
-  - ClipName: Character_Move_Left
-    _stateHash: -382897628
+  - ClipName: Enemy_Die
+    _stateHash: 1610008322
     StartFrame: 60
-    EndFrame: 81
-    FrameRate: 30
-    IsLooping: 1
-  - ClipName: Character_Move_Right
-    _stateHash: 486165137
-    StartFrame: 82
-    EndFrame: 103
+    EndFrame: 73
     FrameRate: 30
     IsLooping: 1
   BakedMaterials:

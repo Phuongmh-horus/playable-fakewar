@@ -144,11 +144,18 @@ namespace GamePlay.Enemies
             }
 
             _deathHandled = true;
+            _isDying = true;
             _isAttacked = true;
             UpdateImage(current, max);
             UpdateHealthText(current);
             _scheduledAttackEffectTime = -1f;
             PlayDeathVfx();
+            EnemyManager.Instance?.UnregisterEnemy(this);
+            GameplayManager.Instance?.TryEndGameWhenAllEnemiesDefeated();
+            if (Pack.Hitable != null)
+            {
+                GamePlay.CollisionSystems.CollisionSystem.Unregister(Pack.Hitable);
+            }
             PlayAnimation(AnimationType.Death, deathAnimationDuration, DespawnInterval);
             Pack.Effector?.PlayEffect(EffectType.Die, transform.position, transform.rotation);
             PlayDieEffectPerFrame();

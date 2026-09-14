@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   VATTexture: {fileID: 2800000, guid: 64227d10a456b9a43b08939b6293475c, type: 3}
   BakedStaticMesh: {fileID: 4300000, guid: 908f0e48eaff5dd419bc1f08e24db2ff, type: 2}
-  BoundingMin: {x: -0.5810536, y: -0.08287894, z: -0.85967594}
-  BoundingMax: {x: 0.5010591, y: 1.839142, z: 0.713597}
+  BoundingMin: {x: -0.98565763, y: -0.11550764, z: -2.023636}
+  BoundingMax: {x: 1.0446284, y: 1.8400923, z: 0.89718604}
   TotalVertices: 1030
-  TotalFrames: 104
+  TotalFrames: 74
   ModelScale: {x: 3, y: 3, z: 3}
   Clips:
-  - ClipName: Character_Idle
-    _stateHash: -1591233909
+  - ClipName: Character_Idle_Baked
+    _stateHash: 1899044031
     StartFrame: 0
     EndFrame: 44
     FrameRate: 30
@@ -32,18 +32,12 @@ MonoBehaviour:
     EndFrame: 59
     FrameRate: 30
     IsLooping: 1
-  - ClipName: Character_Move_Left
-    _stateHash: -382897628
+  - ClipName: Enemy_Die
+    _stateHash: 1610008322
     StartFrame: 60
-    EndFrame: 81
+    EndFrame: 73
     FrameRate: 30
-    IsLooping: 1
-  - ClipName: Character_Move_Right
-    _stateHash: 486165137
-    StartFrame: 82
-    EndFrame: 103
-    FrameRate: 30
-    IsLooping: 1
+    IsLooping: 0
   BakedMaterials:
   - {fileID: 2100000, guid: 27e02e1b6ec503a40a7dd7ffe58f7f1c, type: 2}
   - {fileID: 2100000, guid: e97e959dc0f325c4d98b903f4b889742, type: 2}
@@ -51,9 +45,6 @@ MonoBehaviour:
   - WeaponName: crossbow
     _weaponHash: -1392870959
     WeaponAsset: {fileID: 11400000, guid: 519c304f66180674d8543c9fed628155, type: 2}
-  - WeaponName: pistol
-    _weaponHash: 302095958
-    WeaponAsset: {fileID: 11400000, guid: 2f6a338de5683c940a92c23167eed617, type: 2}
   - WeaponName: gun
     _weaponHash: 1043670821
     WeaponAsset: {fileID: 11400000, guid: e6cde7ba6668f0243978b3acf9e7e4d2, type: 2}

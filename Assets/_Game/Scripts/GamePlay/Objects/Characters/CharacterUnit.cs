@@ -24,8 +24,6 @@ namespace GamePlay.Characters
         [SerializeField] private Transform projectilePoint;
         [SerializeField] private Transform bodyscalable;
 
-        [Header("Sound Effects")]
-        [SerializeField] private AudioClipName attackSfx = AudioClipName.SFX_CharacterAttack;
         [SerializeField, Min(0f)] private float obstacleAttackDespawnDelay = 0.5f;
         [SerializeField, Min(0f)] private float enemyAttackDespawnDelay = 0.5f;
 
@@ -59,12 +57,13 @@ namespace GamePlay.Characters
         [SerializeField] private float dieVfxLifetime = 1.2f;
         [SerializeField] private int maxDeathVfxPerFrame = 5;
         [SerializeField] private bool playDeathVfxOnAttackDespawn = false;
+        [SerializeField, Min(0f)] private float deathAnimationDuration = 0.5f;
         private static float s_lastDeathVfxTime = -999f;
         private static int s_lastDeathVfxFrame = -1;
-        private static int s_lastAttackSfxFrame = -1;
         private static int s_lastAttackVfxFrame = -1;
         private const int AttackEffectFrameInterval = 15;
         private bool _isAttackDespawnScheduled;
+        private bool _isDying;
 
         private struct ScheduledDespawn
         {
@@ -114,6 +113,7 @@ namespace GamePlay.Characters
 
             ResetTransientRuntimeState();
             Setup(level);
+            SetDeathDesaturation(0f);
 
             if ((ActiveFlags & CapabilityFlags.Move) != 0) Pack.Mover.Initialize();
             if ((ActiveFlags & CapabilityFlags.Attack) != 0) Pack.Attacker.Initialize();
@@ -137,6 +137,7 @@ namespace GamePlay.Characters
         {
             ResetTransientRuntimeState();
             Setup(level);
+            SetDeathDesaturation(0f);
 
             if ((ActiveFlags & CapabilityFlags.Animator) != 0)
             {
@@ -257,16 +258,6 @@ namespace GamePlay.Characters
 
             bool isObstacle = target != null && IsNonEnemyTarget(target.EntityType);
 
-            // if (target != null && SoundManager.Instance != null && CanPlayAttackSfxThisFrame())
-            // {
-            //     var sfx = attackSfx != AudioClipName.None ? attackSfx : AudioClipName.SFX_CharacterAttack;
-            //     if (sfx != AudioClipName.None)
-            //     {
-            //         SoundManager.Instance.PlayOneShot(sfx);
-            //         SoundManager.Instance.PlayOneShot(sfx);
-            //     }
-            // }
-
             if (isObstacle)
             {
                 float despawnDelay = ResolveAttackDespawnDelay(obstacleAttackDespawnDelay);
@@ -291,7 +282,7 @@ namespace GamePlay.Characters
         {
             if (current <= 0)
             {
-                DespawnInterval();
+                BeginDeath();
             }
         }
 
@@ -376,7 +367,8 @@ namespace GamePlay.Characters
             Despawn();
         }
 
-        public bool IsActive => isActiveAndEnabled;
+        public bool IsActive => isActiveAndEnabled && !_isDying;
+        public bool IsDying => _isDying;
 
         public Vector3 Position => Transform.position;
 
@@ -391,14 +383,29 @@ namespace GamePlay.Characters
 
         public void OnHit(IAttacker source)
         {
-            if (_isAttackDespawnScheduled)
+            if (_isAttackDespawnScheduled || _isDying)
                 return;
 
             // EnemyUnit and BossUnit both resolve their attack through this
             // IHitable path. Make the death-VFX intent explicit rather than
             // relying on DespawnInterval's optional-parameter default.
-            RecycleImmediate(playDeathVfx: true);
+            BeginDeath();
             OnHitComplete?.Invoke(source);
+        }
+
+        private void BeginDeath()
+        {
+            if (_isDying || !isActiveAndEnabled)
+                return;
+
+            _isDying = true;
+            SetDeathDesaturation(1f);
+            UnregisterCombatActor();
+            UnregisterProjectileTarget();
+            GameplayManager.Instance?.TryEndGameWhenArmyDefeated();
+            PlayDeathVfx();
+            Pack.Animator?.PlayAnimation(AnimationType.Death, 0f, null, 0);
+            ScheduleAttackDespawn(ResolveDeathAnimationDuration(), false);
         }
 
         private void ScheduleAttackDespawn(float delay, bool playDeathVfx)
@@ -472,6 +479,7 @@ namespace GamePlay.Characters
             CancelScheduledDespawn();
 
             _isAttackDespawnScheduled = false;
+            _isDying = false;
             RegisterEvents(false);
             UnregisterCombatActor();
             UnregisterProjectileTarget();
@@ -492,6 +500,22 @@ namespace GamePlay.Characters
                 return delay;
 
             return Mathf.Max(delay, attackClipLength);
+        }
+
+        private float ResolveDeathAnimationDuration()
+        {
+            float duration = Mathf.Max(0f, deathAnimationDuration);
+            if (Pack.Animator is IAnimationClipLengthProvider clipLengthProvider)
+            {
+                duration = Mathf.Max(duration, clipLengthProvider.GetAnimationClipLength(AnimationType.Death));
+            }
+
+            return duration;
+        }
+
+        private void SetDeathDesaturation(float amount)
+        {
+            (Pack.Animator as VATAnimationComponent)?.SetDeathDesaturation(amount);
         }
 
         // -----------------------------------------------------------------------
@@ -553,18 +577,6 @@ namespace GamePlay.Characters
             }
 
             s_lastDeathVfxFrame = currentFrame;
-            return true;
-        }
-
-        private const int AttackSfxFrameInterval = 30;
-
-        private bool CanPlayAttackSfxThisFrame()
-        {
-            int currentFrame = Time.frameCount;
-            if (s_lastAttackSfxFrame >= 0 && currentFrame - s_lastAttackSfxFrame < AttackSfxFrameInterval)
-                return false;
-
-            s_lastAttackSfxFrame = currentFrame;
             return true;
         }
 

@@ -28,7 +28,6 @@ namespace GamePlay.AnimationSystems
 
         [Header("Mappings")]
         [SerializeField] private List<AnimationMapping> mappings = new List<AnimationMapping>();
-        [SerializeField, Min(0f)] private float defaultCrossFadeTime = 0.08f;
 
         [Header("Spawn Priority")]
         [Tooltip("Animation được play ngay và resolve đồng bộ khi Initialize() chạy, để tránh trượt/T-pose lúc vừa spawn.")]

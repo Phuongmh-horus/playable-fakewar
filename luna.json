@@ -2,7 +2,7 @@
     "version": "7.0.0",
     "projectId": "1bc38d6f8d96f394b8b169b9e5a7dcba",
     "applicationID": 42014,
-    "creativeName": "WS_kichban2_map2_thua",
+    "creativeName": "WS_kichban3_map1",
     "pgServer": "EU",
     "window": {
         "‐⁏": true
@@ -143,17 +143,25 @@
                 "Assets/Resources/DOTweenSettings.asset",
                 "Assets/TextMesh Pro/Resources/TMP Settings.asset",
                 "Assets/_Game/Animation/Enemy_Basic/Enemy_Basic_New.fbx",
-                "Assets/_Game/Animation/Small-pig/Small_Pig_Base.fbx"
+                "Assets/_Game/Animation/Small-pig/Small_Pig_Base.fbx",
+                "Assets/Kho/Charater/texture/T_EN_basic.tga",
+                "Assets/Kho/Charater/texture/T_EN_basic_2.tga",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_Sword_VATData/Enemy_Basic_Sword_VAT_Body_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_Sword_VATData/Enemy_Basic_Sword_VAT_Item_Item_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Body_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Item_Item_Texture.png",
+                "Assets/Kho/Charater/texture/T_MC_basic.tga",
+                "Assets/Kho/Charater/texture/T_Color.tga",
+                "Assets/Kho/Charater/texture/T_VK_sungtruong.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Body_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_crossbow_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_gun_Texture.png"
             ]
         },
         "scenes": [
-            "Assets/_FrameWork/Scenes/S_GamePlay 2_Lose.unity"
+            "Assets/_FrameWork/Scenes/S_GamePlay 1.unity"
         ],
-        "disabledScenes": [
-            "Assets/_FrameWork/Scenes/S_GamePlay 1_Lose.unity",
-            "Assets/_FrameWork/Scenes/S_GamePlay 1_Win.unity",
-            "Assets/_FrameWork/Scenes/S_GamePlay 2_Win.unity"
-        ],
+        "disabledScenes": [],
         "startupScene": 0,
         "packages": {
             "default": {
@@ -22965,6 +22973,10 @@
                     {
                         "name": "ResetValue",
                         "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
                     }
                 ]
             },
@@ -23298,6 +23310,10 @@
                     },
                     {
                         "name": "ManualUpdate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AreAllActiveEnemiesDefeated#get",
                         "excluded": false
                     }
                 ]
@@ -23708,6 +23724,14 @@
                     },
                     {
                         "name": "CacheRuntimeSystems",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryEndGameWhenAllEnemiesDefeated",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryEndGameWhenArmyDefeated",
                         "excluded": false
                     }
                 ]
@@ -32036,7 +32060,7 @@
                     },
                     {
                         "name": "ClearMeshInfo",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ClearAllMeshInfo",
@@ -32572,7 +32596,7 @@
                     },
                     {
                         "name": "ClearMesh$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "UpdateGeometry$1",
@@ -36343,6 +36367,10 @@
                     {
                         "name": "SetPersistentPlayNowButtonVisible",
                         "excluded": false
+                    },
+                    {
+                        "name": "SetEndcardOutcomeVisible",
+                        "excluded": false
                     }
                 ]
             },
@@ -36430,6 +36458,10 @@
                     },
                     {
                         "name": "RegisterItem",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EvaluateItemMoveSpeed",
                         "excluded": false
                     }
                 ]
@@ -37246,7 +37278,7 @@
                     },
                     {
                         "name": "ScheduleAttackDespawn",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ResetTransientRuntimeState",
@@ -37262,10 +37294,6 @@
                     },
                     {
                         "name": "CanSpawnDeathVfxThisFrame",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CanPlayAttackSfxThisFrame",
                         "excluded": false
                     },
                     {
@@ -37318,6 +37346,22 @@
                     },
                     {
                         "name": "UnregisterCombatActor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsDying#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BeginDeath",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolveDeathAnimationDuration",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetDeathDesaturation",
                         "excluded": false
                     }
                 ]
@@ -38122,7 +38166,7 @@
                     },
                     {
                         "name": "AddCharacterReward",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ApplyCharacterDelta",
@@ -38206,6 +38250,22 @@
                     },
                     {
                         "name": "PlaySoldierBallUpgradeEffect",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HasLivingUnits#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpgradeEffectPosition#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShowBuffFlyText$1",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryPlayProjectileAttackSfx",
                         "excluded": false
                     }
                 ]
@@ -38449,6 +38509,18 @@
                     {
                         "name": "SetHealthBarVisible",
                         "excluded": false
+                    },
+                    {
+                        "name": "IsActive$1#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BeginDeath",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetDeathDesaturation",
+                        "excluded": false
                     }
                 ]
             },
@@ -38673,7 +38745,23 @@
                         "excluded": false
                     },
                     {
-                        "name": "TryPlayBreakEffect",
+                        "name": "BeginBreakSequence",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CoPlayBreakSequence",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CacheUpgradeShowVisual",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RestoreUpgradeShowVisual",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryPlayHitEffect",
                         "excluded": false
                     }
                 ]
@@ -40406,7 +40494,7 @@
                 "instanceMethods": [
                     {
                         "name": "VatAssetData#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Renderer#get",
@@ -40426,7 +40514,7 @@
                     },
                     {
                         "name": "CurrentStateHash#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "IsBlending#get",
@@ -40771,6 +40859,10 @@
                     {
                         "name": "EnsurePropertyBlock",
                         "excluded": false
+                    },
+                    {
+                        "name": "SetDeathDesaturation",
+                        "excluded": false
                     }
                 ]
             },
@@ -40952,7 +41044,7 @@
                     },
                     {
                         "name": "$clone",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -41307,6 +41399,10 @@
                     {
                         "name": "EnsurePropertyBlock",
                         "excluded": false
+                    },
+                    {
+                        "name": "SetDeathDesaturation",
+                        "excluded": false
                     }
                 ]
             },
@@ -41366,7 +41462,7 @@
                     },
                     {
                         "name": "GetAnimationClipLength",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ResolveStateName",
@@ -41378,6 +41474,10 @@
                     },
                     {
                         "name": "InvokePendingCompletion",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetDeathDesaturation",
                         "excluded": false
                     }
                 ]
@@ -42033,6 +42133,14 @@
                     {
                         "name": "ResolveDependencies",
                         "excluded": false
+                    },
+                    {
+                        "name": "FormatPercent",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Show$1",
+                        "excluded": false
                     }
                 ]
             },
@@ -42228,11 +42336,11 @@
                         "name": "Assets/Kho/Assets/texture/color.png"
                     },
                     {
-                        "maxWidth": 512,
-                        "maxHeight": 512,
+                        "maxWidth": 256,
+                        "maxHeight": 256,
                         "format": "jpeg",
-                        "compression": "quantSize",
-                        "quality": 65,
+                        "compression": "none",
+                        "quality": 70,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_VK_sungtruong.png"
@@ -42251,8 +42359,8 @@
                         "maxWidth": 512,
                         "maxHeight": 512,
                         "format": "jpeg",
-                        "compression": "quantSize",
-                        "quality": 65,
+                        "compression": "none",
+                        "quality": 70,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_EN_basic.tga"
@@ -42291,8 +42399,8 @@
                         "maxWidth": 512,
                         "maxHeight": 512,
                         "format": "jpeg",
-                        "compression": "quantSize",
-                        "quality": 65,
+                        "compression": "none",
+                        "quality": 70,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_Color.tga"
@@ -42371,7 +42479,7 @@
                         "maxWidth": 256,
                         "maxHeight": 256,
                         "format": "jpeg",
-                        "compression": "quantQuality",
+                        "compression": "none",
                         "quality": 70,
                         "script": "",
                         "ext": "",
@@ -42391,8 +42499,8 @@
                         "maxWidth": 512,
                         "maxHeight": 512,
                         "format": "jpeg",
-                        "compression": "quantSize",
-                        "quality": 65,
+                        "compression": "none",
+                        "quality": 70,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Kho/Charater/texture/T_EN_basic_2.tga"
@@ -42519,30 +42627,30 @@
                     },
                     {
                         "maxWidth": 1030,
-                        "maxHeight": 104,
+                        "maxHeight": 74,
                         "format": "png32",
                         "compression": "none",
-                        "quality": 65,
+                        "quality": 100,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Body_Texture.png"
                     },
                     {
                         "maxWidth": 537,
-                        "maxHeight": 104,
+                        "maxHeight": 74,
                         "format": "png32",
                         "compression": "none",
-                        "quality": 65,
+                        "quality": 100,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_crossbow_Texture.png"
                     },
                     {
                         "maxWidth": 178,
-                        "maxHeight": 104,
+                        "maxHeight": 74,
                         "format": "png32",
                         "compression": "none",
-                        "quality": 65,
+                        "quality": 100,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_gun_Texture.png"
@@ -42558,11 +42666,11 @@
                         "name": "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_pistol_Texture.png"
                     },
                     {
-                        "maxWidth": 1237,
-                        "maxHeight": 62,
+                        "maxWidth": 1101,
+                        "maxHeight": 31,
                         "format": "png32",
                         "compression": "none",
-                        "quality": 65,
+                        "quality": 100,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Body_Texture.png"
@@ -42586,6 +42694,36 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/VFX_Library/Textures/TX_VFX_Noise05.png"
+                    },
+                    {
+                        "maxWidth": 1101,
+                        "maxHeight": 31,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_Sword_VATData/Enemy_Basic_Sword_VAT_Body_Texture.png"
+                    },
+                    {
+                        "maxWidth": 88,
+                        "maxHeight": 31,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_Sword_VATData/Enemy_Basic_Sword_VAT_Item_Item_Texture.png"
+                    },
+                    {
+                        "maxWidth": 88,
+                        "maxHeight": 31,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 100,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Item_Item_Texture.png"
                     }
                 ]
             },
@@ -42633,8 +42771,8 @@
                     {
                         "channels": 1,
                         "startTime": "00:00.000",
-                        "endTime": "00:00.650",
-                        "lengthInSeconds": 0.6499999761581421,
+                        "endTime": "00:00.500",
+                        "lengthInSeconds": 0.5,
                         "bitrate": 64,
                         "script": "",
                         "ext": "",
@@ -42643,8 +42781,8 @@
                     {
                         "channels": 1,
                         "startTime": "00:00.000",
-                        "endTime": "00:00.800",
-                        "lengthInSeconds": 0.800000011920929,
+                        "endTime": "00:00.502",
+                        "lengthInSeconds": 0.5019999742507935,
                         "bitrate": 64,
                         "script": "",
                         "ext": "",
@@ -42653,8 +42791,8 @@
                     {
                         "channels": 1,
                         "startTime": "00:00.000",
-                        "endTime": "00:00.800",
-                        "lengthInSeconds": 0.800000011920929,
+                        "endTime": "00:00.550",
+                        "lengthInSeconds": 0.550000011920929,
                         "bitrate": 64,
                         "script": "",
                         "ext": "",
@@ -42662,9 +42800,9 @@
                     },
                     {
                         "channels": 1,
-                        "startTime": "00:00.000",
-                        "endTime": "00:00.700",
-                        "lengthInSeconds": 0.699999988079071,
+                        "startTime": "00:00.100",
+                        "endTime": "00:00.550",
+                        "lengthInSeconds": 0.45000001788139346,
                         "bitrate": 64,
                         "script": "",
                         "ext": "",
@@ -42679,6 +42817,106 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/_Game/Sounds/SFX_Punch_Attack.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:00.500",
+                        "lengthInSeconds": 0.5,
+                        "bitrate": 64,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Sounds/sfx_break_wood.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.150",
+                        "endTime": "00:00.504",
+                        "lengthInSeconds": 0.3540000021457672,
+                        "bitrate": 64,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Sounds/SFX_Ehemy_Attack.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:00.250",
+                        "lengthInSeconds": 0.25,
+                        "bitrate": 64,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Sounds/sfx_gun_fire.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:00.250",
+                        "lengthInSeconds": 0.25,
+                        "bitrate": 64,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Sounds/SFX_RateUs.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:00.250",
+                        "lengthInSeconds": 0.25,
+                        "bitrate": 64,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Sounds/sfx_enemy_boar.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:00.100",
+                        "lengthInSeconds": 0.10000000149011612,
+                        "bitrate": 64,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Sounds/sfx_hitimpact_meat.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:00.100",
+                        "lengthInSeconds": 0.10000000149011612,
+                        "bitrate": 64,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Sounds/sfx_bow_fire.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:00.100",
+                        "lengthInSeconds": 0.10000000149011612,
+                        "bitrate": 64,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Sounds/sfx_hitimpact_wood.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.030",
+                        "endTime": "00:00.100",
+                        "lengthInSeconds": 0.07000000029802323,
+                        "bitrate": 64,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Sounds/SFX_Impact_1.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:00.000",
+                        "lengthInSeconds": 0.0,
+                        "bitrate": 64,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Sounds/SFX_Attack.ogg"
                     }
                 ]
             },

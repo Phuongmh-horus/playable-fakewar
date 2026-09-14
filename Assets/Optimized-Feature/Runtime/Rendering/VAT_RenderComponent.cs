@@ -52,6 +52,8 @@ namespace OptimizedFeature.Scripts
         private MaterialPropertyBlock _propertyBlock;
         private int _materialSlotCount;
         private int _frameDataId;
+        private int _deathDesaturationId;
+        private float _deathDesaturation;
 
         // --- Visibility ---
         private bool _isVisible = true;
@@ -82,6 +84,16 @@ namespace OptimizedFeature.Scripts
         public int CurrentFrameLower => _currentFrameLower;
         public int CurrentFrameUpper => _currentFrameUpper;
         public float CurrentBlendWeight => _currentBlendWeight;
+
+        public void SetDeathDesaturation(float amount)
+        {
+            _deathDesaturation = Mathf.Clamp01(amount);
+            ApplyCurrentFrameToRenderer();
+            for (int i = 0; i < _weaponRenderComponents.Count; i++)
+            {
+                _weaponRenderComponents[i]?.SetDeathDesaturation(_deathDesaturation);
+            }
+        }
 
         private void Awake()
         {
@@ -453,6 +465,7 @@ namespace OptimizedFeature.Scripts
                 if (weapon != null && !_weaponRenderComponents.Contains(weapon))
                 {
                     _weaponRenderComponents.Add(weapon);
+                    weapon.SetDeathDesaturation(_deathDesaturation);
                 }
             }
             _weaponQueryBuffer.Clear();
@@ -1120,6 +1133,7 @@ namespace OptimizedFeature.Scripts
         private void InitializeShaderPropertyIds()
         {
             _frameDataId = Shader.PropertyToID("_VATFrameData");
+            _deathDesaturationId = Shader.PropertyToID("_DeathDesaturation");
         }
 
         private void ApplyVATAssetData()
@@ -1147,6 +1161,7 @@ namespace OptimizedFeature.Scripts
             _propertyBlock.Clear();
             _propertyBlock.SetVector(_frameDataId, new Vector4(
                 _currentFrameLower, _currentFrameUpper, _currentBlendWeight, 0f));
+            _propertyBlock.SetFloat(_deathDesaturationId, _deathDesaturation);
             for (int materialIndex = 0; materialIndex < _materialSlotCount; materialIndex++)
             {
                 // VAT texture, bounds and layout are immutable for an asset and
@@ -1201,6 +1216,7 @@ namespace OptimizedFeature.Scripts
             Vector4 frameData = new Vector4(
                 _currentFrameLower, _currentFrameUpper, _currentBlendWeight, 0f);
             _propertyBlock.SetVector(_frameDataId, frameData);
+            _propertyBlock.SetFloat(_deathDesaturationId, _deathDesaturation);
             for (int materialIndex = 0; materialIndex < _materialSlotCount; materialIndex++)
             {
                 _meshRenderer.SetPropertyBlock(_propertyBlock, materialIndex);

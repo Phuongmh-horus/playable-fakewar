@@ -153,6 +153,7 @@ MonoBehaviour:
   RightOffset: 0
   autoAddHitTextFlyEffectAtRuntime: 0
   waitAttackAnimation: 0.5
+  enemyDeathAnimationDuration: 0.5
   isHandleKillHero: 1
   isKillHeroAsPercent: 1
   heroToRemain: 70
@@ -168,7 +169,7 @@ MonoBehaviour:
   dieVfxLifetime: 1.2
   _healthOverriddenFromContent: 0
   delayBetweenAttacks: 1
-  bossAttractionThreshold: 20
+  bossAttractionThreshold: 25
   armyAttackRange: 1.5
   deathAnimationDuration: 1
   attackEffectDelay: 0.48
@@ -202,8 +203,7 @@ MonoBehaviour:
   - Type: 7
     StateName: Dead
     CrossFadeTime: 0.2
-  defaultCrossFadeTime: 0.2
-  initialAnimationType: 1
+  initialAnimationType: 2
   priorityAnimationTypes: 0205
 --- !u!114 &3036404202336357057
 MonoBehaviour:

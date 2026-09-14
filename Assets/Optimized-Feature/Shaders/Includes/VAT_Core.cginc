@@ -27,6 +27,7 @@ inline float3 ApplyVATBatchTransform(
 
 UNITY_INSTANCING_BUFFER_START(VATProps)
     UNITY_DEFINE_INSTANCED_PROP(float4, _VATFrameData)
+    UNITY_DEFINE_INSTANCED_PROP(float, _DeathDesaturation)
 UNITY_INSTANCING_BUFFER_END(VATProps)
 
 /// <summary>

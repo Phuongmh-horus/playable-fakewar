@@ -13,6 +13,7 @@ namespace GamePlay.AnimationSystems
         [Header("VAT State Names")]
         [SerializeField] private string idleStateName = "";
         [SerializeField] private string attackStateName = "";
+        [SerializeField] private string deathStateName = "";
         [SerializeField] private string MoveStateName = "";
         [SerializeField] private string moveLeftStateName = "";
         [SerializeField] private string moveRightStateName = "";
@@ -55,19 +56,23 @@ namespace GamePlay.AnimationSystems
         public void PlayAnimation(AnimationType animationType, float waitForAction = 0.5f, Action onComplete = null, int layer = 0)
         {
             string stateName = ResolveStateName(animationType);
-            if (vatRenderer != null && !string.IsNullOrEmpty(stateName) && _currentAnimation != animationType)
+            if (vatRenderer != null && !string.IsNullOrEmpty(stateName))
             {
                 int stateHash = VATClipInfo.GenerateHash(stateName);
-                if (crossFadeDuration > 0f && _currentAnimation != AnimationType.None)
+                bool stateChanged = _currentAnimation != animationType || vatRenderer.CurrentStateHash != stateHash;
+                if (stateChanged && animationType != AnimationType.Death && crossFadeDuration > 0f && vatRenderer.CurrentStateHash != 0)
                 {
                     vatRenderer.CrossFade(stateHash, crossFadeDuration);
                 }
-                else
+                else if (stateChanged)
                 {
                     vatRenderer.Play(stateHash);
                 }
 
-                _currentAnimation = animationType;
+                if (stateChanged)
+                {
+                    _currentAnimation = animationType;
+                }
             }
 
             if (onComplete == null)
@@ -102,6 +107,12 @@ namespace GamePlay.AnimationSystems
             return (clip.EndFrame - clip.StartFrame + 1) / clip.FrameRate;
         }
 
+        public void SetDeathDesaturation(float amount)
+        {
+            ResolveVATRenderer();
+            vatRenderer?.SetDeathDesaturation(amount);
+        }
+
         private string ResolveStateName(AnimationType animationType)
         {
             switch (animationType)
@@ -112,6 +123,8 @@ namespace GamePlay.AnimationSystems
                     return MoveStateName;
                 case AnimationType.Attack:
                     return attackStateName;
+                case AnimationType.Death:
+                    return deathStateName;
                 case AnimationType.MoveLeft:
                     return moveLeftStateName;
                 case AnimationType.MoveRight:

@@ -17,6 +17,24 @@ namespace GamePlay.Enemies
         private readonly Stack<EnemyData> _enemyDataPool = new Stack<EnemyData>(64);
         public int EnemyCount => _enemies.Count;
 
+        public bool AreAllActiveEnemiesDefeated
+        {
+            get
+            {
+                if (_enemies.Count == 0) return false;
+                for (int i = 0; i < _enemies.Count; i++)
+                {
+                    EnemyData enemy = _enemies[i];
+                    if (enemy != null && enemy.IsActive && enemy.Causer != null)
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
         private bool _isGameplayPaused = true;
         private bool _needsCleanup;
         private readonly List<AttackComponent> _attackComponentsBuffer = new List<AttackComponent>(8);

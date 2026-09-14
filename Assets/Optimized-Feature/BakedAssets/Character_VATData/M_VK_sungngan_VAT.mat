@@ -235,7 +235,7 @@ Material:
     - _NormalStrength: 1
     - _NormalUV: 0
     - _NormalUV2: 0
-    - _NumFrames: 104
+    - _NumFrames: 74
     - _NumVertices: 537
     - _OcclusionStrength: 1
     - _Outline: 1
@@ -306,7 +306,7 @@ Material:
     - _UVTileV3U2: 0
     - _UVTileV3U3: 0
     - _VATBatchMode: 0
-    - _VATTextureHeight: 104
+    - _VATTextureHeight: 74
     - _VATTextureWidth: 537
     - _VertexColors: 0
     - _VertexColorsAmount: 1
@@ -318,8 +318,8 @@ Material:
     - _AnimeColor1: {r: 1, g: 1, b: 1, a: 1}
     - _AnimeColor2: {r: 1.35, g: 1.35, b: 1.35, a: 1}
     - _AnimeColor3: {r: 2, g: 2, b: 2, a: 1}
-    - _BoundingMax: {r: 0.8405577, g: 1.5306522, b: 1.0430233, a: 0}
-    - _BoundingMin: {r: -0.6319357, g: 0.8331232, b: -0.13126491, a: 0}
+    - _BoundingMax: {r: 1.0505335, g: 1.552953, b: 1.0080315, a: 0}
+    - _BoundingMin: {r: -0.6380515, g: 0.06746044, b: -2.365817, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DetailColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

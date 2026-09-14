@@ -21,6 +21,7 @@ namespace GamePlay.Enemies
     {
         [Header("Animation Settings")]
         [SerializeField] protected float waitAttackAnimation = 0.5f;
+        [SerializeField, Min(0f)] private float enemyDeathAnimationDuration = 0.5f;
         [SerializeField] protected bool isHandleKillHero;
         [SerializeField] protected bool isKillHeroAsPercent;
         [SerializeField] protected float heroToRemain = 3f;
@@ -60,6 +61,7 @@ namespace GamePlay.Enemies
 
         private bool _despawnHandled;
         private bool _deathVfxHandled;
+        protected bool _isDying;
 
         private bool _initialized; // [FIX] Prevent double initialization in Luna
 
@@ -181,6 +183,7 @@ namespace GamePlay.Enemies
             _initialized = true;
 
             base.Initialize();
+            SetDeathDesaturation(0f);
             Pack.Animator?.PlayAnimation(AnimationType.Idle, 0f, null, 0); // [FIX] Start with Idle for enemies
 
             // [FIX] Ensure Hit capability and register to CollisionSystem explicitly
@@ -198,6 +201,7 @@ namespace GamePlay.Enemies
             EnsureHitTextEffect(false);
             _despawnHandled = false;
             _deathVfxHandled = false;
+            _isDying = false;
             _isAttacked = false;
             _pendingArmyHitTarget = null;
 
@@ -284,8 +288,7 @@ namespace GamePlay.Enemies
 
         protected override void HandleWheelCollision()
         {
-            PlayDeathVfx();
-            base.HandleWheelCollision();
+            BeginDeath();
         }
 
         public virtual void HandlePlayerArmyMeleeContact(IAttacker armySource)
@@ -350,15 +353,52 @@ namespace GamePlay.Enemies
 
             if (current <= 0)
             {
-                PlayDeathVfx();
-                if (dieVfxPrefab == null)
-                {
-                    PlayDieEffectPerFrame();
-                }
+                BeginDeath();
+                return;
             }
 
-
             base.HandleHealthChange(current, max);
+        }
+
+        private void BeginDeath()
+        {
+            if (_isDying || _despawnHandled)
+            {
+                return;
+            }
+
+            _isDying = true;
+            SetDeathDesaturation(1f);
+            _isAttacked = true;
+            _pendingArmyHitTarget = null;
+            EnemyManager.Instance?.UnregisterEnemy(this);
+            GameplayManager.Instance?.TryEndGameWhenAllEnemiesDefeated();
+            PlayableWaveDefenseEntitySystem.Instance?.Unregister(this);
+            if (Pack.Hitable != null)
+            {
+                CollisionSystem.Unregister(Pack.Hitable);
+            }
+
+            PlayDeathVfx();
+            if (dieVfxPrefab == null)
+            {
+                PlayDieEffectPerFrame();
+            }
+
+            float duration = Mathf.Max(0f, enemyDeathAnimationDuration);
+            if (Pack.Animator is IAnimationClipLengthProvider clipLengthProvider)
+            {
+                duration = Mathf.Max(duration, clipLengthProvider.GetAnimationClipLength(AnimationType.Death));
+            }
+
+            PlayAnimation(AnimationType.Death, duration, DespawnInterval);
+        }
+
+        public new bool IsActive => base.IsActive && !_isDying;
+
+        private void SetDeathDesaturation(float amount)
+        {
+            (Pack.Animator as VATAnimationComponent)?.SetDeathDesaturation(amount);
         }
 
         public void SetHealthOverLevel(int maxHealth)

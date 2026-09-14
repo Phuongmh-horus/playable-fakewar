@@ -22,9 +22,18 @@ namespace PlayerArmy
         }
 #endif
 
+        public void Show(StatModifierData statData)
+        {
+            string text = GetText(statData);
+            if (!string.IsNullOrEmpty(text))
+            {
+                flyTextEffect?.ShowCustomText(text, textColor, fontSizeMultiplier);
+            }
+        }
+
         public void Show(StatType statType)
         {
-            flyTextEffect?.ShowCustomText(GetText(statType), textColor, fontSizeMultiplier);
+            Show(new StatModifierData { Type = statType, ShowArmyBuffFlyText = true });
         }
 
         private void ResolveDependencies()
@@ -35,21 +44,42 @@ namespace PlayerArmy
             }
         }
 
-        private static string GetText(StatType statType)
+        private static string GetText(StatModifierData statData)
         {
-            switch (statType)
+            if (statData == null || !statData.ShowArmyBuffFlyText)
+            {
+                return string.Empty;
+            }
+
+            switch (statData.Type)
             {
                 case StatType.FireRate:
-                    return "+ firerate";
+                    return FormatPercent(statData, "FIRE", 10);
                 case StatType.Damage:
-                    return "+ damage";
-                case StatType.Character:
-                    return "+ unit";
+                    return FormatPercent(statData, "ATK", 20);
                 case StatType.CharacterLevel:
-                    return "upgrade";
+                    return "UPGRADE";
+                case StatType.Character:
+                    return string.Empty;
                 default:
-                    return "+ damage";
+                    return string.Empty;
             }
+        }
+
+        private static string FormatPercent(StatModifierData statData, string defaultLabel, int defaultMultiplier)
+        {
+            int percent = statData.ArmyBuffFlyTextPercent > 0
+                ? statData.ArmyBuffFlyTextPercent
+                : Mathf.Max(0, statData.Value * defaultMultiplier);
+            if (percent <= 0)
+            {
+                return string.Empty;
+            }
+
+            string label = string.IsNullOrWhiteSpace(statData.ArmyBuffFlyTextLabel)
+                ? defaultLabel
+                : statData.ArmyBuffFlyTextLabel.Trim();
+            return $"{label} + {percent}%";
         }
     }
 }

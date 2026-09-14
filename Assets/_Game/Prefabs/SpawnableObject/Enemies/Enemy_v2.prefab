@@ -282,6 +282,7 @@ MonoBehaviour:
   RightOffset: 0
   autoAddHitTextFlyEffectAtRuntime: 0
   waitAttackAnimation: 1
+  enemyDeathAnimationDuration: 0.5
   isHandleKillHero: 0
   isKillHeroAsPercent: 0
   heroToRemain: 3
@@ -373,6 +374,7 @@ MonoBehaviour:
   vatRenderer: {fileID: 514931183555216478}
   idleStateName: Small_Pig_Idle
   attackStateName: 
+  deathStateName: 
   MoveStateName: Small_Pig_Move
   moveLeftStateName: 
   moveRightStateName: 

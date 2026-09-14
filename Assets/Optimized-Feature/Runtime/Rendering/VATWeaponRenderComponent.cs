@@ -12,6 +12,7 @@ namespace OptimizedFeature.Scripts
     public class VATWeaponRenderComponent : MonoBehaviour
     {
         private static readonly int FrameDataId = Shader.PropertyToID("_VATFrameData");
+        private static readonly int DeathDesaturationId = Shader.PropertyToID("_DeathDesaturation");
         private static readonly Material[] EmptyMaterials = new Material[0];
 
         [SerializeField] private MeshFilter _meshFilter;
@@ -27,6 +28,7 @@ namespace OptimizedFeature.Scripts
         private int _currentFrameLower;
         private int _currentFrameUpper;
         private float _currentBlendWeight;
+        private float _deathDesaturation;
 
         public VATWeaponAssetSO WeaponAsset => _weaponAsset;
         public int WeaponHash => _weaponHash;
@@ -142,6 +144,12 @@ namespace OptimizedFeature.Scripts
             ApplyCurrentFrameToRenderer();
         }
 
+        public void SetDeathDesaturation(float amount)
+        {
+            _deathDesaturation = Mathf.Clamp01(amount);
+            ApplyCurrentFrameToRenderer();
+        }
+
         private void ApplyCurrentFrameToRenderer()
         {
             if (_weaponAsset == null || _meshRenderer == null || _propertyBlock == null)
@@ -152,6 +160,7 @@ namespace OptimizedFeature.Scripts
             Vector4 frameData = new Vector4(
                 _currentFrameLower, _currentFrameUpper, _currentBlendWeight, 0f);
             _propertyBlock.SetVector(FrameDataId, frameData);
+            _propertyBlock.SetFloat(DeathDesaturationId, _deathDesaturation);
             for (int materialIndex = 0; materialIndex < _materialSlotCount; materialIndex++)
             {
                 _meshRenderer.SetPropertyBlock(_propertyBlock, materialIndex);
@@ -262,6 +271,7 @@ namespace OptimizedFeature.Scripts
             EnsurePropertyBlock();
             _materialSlotCount = materialCount;
             _propertyBlock.Clear();
+            _propertyBlock.SetFloat(DeathDesaturationId, _deathDesaturation);
             for (int materialIndex = 0; materialIndex < _materialSlotCount; materialIndex++)
             {
                 // Immutable VAT data is stored on the shared baked Material.

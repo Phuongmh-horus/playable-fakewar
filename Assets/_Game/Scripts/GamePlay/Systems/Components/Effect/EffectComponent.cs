@@ -19,7 +19,7 @@ namespace GamePlay.ComponentSystems
             public bool ParentToTarget = true;
             public Vector3 VfxScale = Vector3.one;
 
-            [Header("SFX (Optional)")]
+            [Header("SFX")]
             public AudioClip SfxClip;
             public bool LoopSfx;
             [Range(0f, 1f)] public float SfxVolume = 1f;

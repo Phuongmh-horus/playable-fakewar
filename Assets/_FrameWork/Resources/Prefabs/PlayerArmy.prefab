@@ -77,10 +77,10 @@ MonoBehaviour:
   characterPrefab: {fileID: 6269225836784746350, guid: cb7e9bb3f342a1241b11f627e3cbb76d, type: 3}
   weaponProjectilePrefab: {fileID: 1917486832313472047, guid: 0785d7b4421d72d4fb1f5abdc6753a85, type: 3}
   fallbackCharacterLevel: 1
-  maxActiveSpawnedUnits: 37
+  maxActiveSpawnedUnits: 29
   unitSpacing: 1.5
   useSceneUnitsOnly: 1
-  characterPrewarmReserve: 36
+  characterPrewarmReserve: 28
   attackMode: 2
   meleeAttackSize: {x: 1.4, y: 2.2}
   rangedAttackSize: {x: 1.8, y: 6}
@@ -91,16 +91,19 @@ MonoBehaviour:
   projectileDistance: 50
   projectileDuration: 0.5
   projectileRotationSpeed: -800
-  maxProjectileLaunchesPerFrame: 3
-  maxLogicalShotsPerProjectile: 1
+  maxProjectileLaunchesPerFrame: 5
+  maxLogicalShotsPerProjectile: 2
   maxAttackEvaluationsPerTick: 24
   unitscalevalue: 1
+  bowAttackSfx: {fileID: 8300000, guid: 9f68c403a68e97041affbfa0fae7b37e, type: 3}
+  gunAttackSfx: {fileID: 8300000, guid: 36cb9835f7ebb5446814db6600850d63, type: 3}
+  gunAttackLevelIndex: 1
   inputManager: {fileID: 5783931141563337667}
   effectSystem: {fileID: 16920303580411128}
   collisionTickInterval: 2
   attackTickInterval: 2
   pruneTickInterval: 15
-  formationCompactDelayFrames: 60
+  formationCompactDelayFrames: 30
   characterUnits:
   - {fileID: 7977750878149802929}
 --- !u!114 &5783931141563337667

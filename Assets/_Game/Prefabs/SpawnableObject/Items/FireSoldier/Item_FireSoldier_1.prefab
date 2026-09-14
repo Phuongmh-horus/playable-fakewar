@@ -26,7 +26,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.2, y: 1, z: 1}
+  m_LocalScale: {x: 1.3, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6609645166203088127}
@@ -59,7 +59,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7108007955070156979}
@@ -133,6 +133,9 @@ MonoBehaviour:
     Type: 4
     Value: 1
     Armor: 0
+    ShowArmyBuffFlyText: 0
+    ArmyBuffFlyTextLabel: 
+    ArmyBuffFlyTextPercent: 0
     Operation: 0
     Multiplier: 1
   valueText: {fileID: 4924048394309986732}
@@ -185,8 +188,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a392e452bed495b8987bcb6ab3686d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 50
-  currentHealth: 50
+  maxHealth: 5
+  currentHealth: 5
   isImmortal: 1
 --- !u!114 &-4877352769531665167
 MonoBehaviour:

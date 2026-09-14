@@ -28,6 +28,8 @@ public class LunaUIManager : MonoBehaviour
     [Header("Endcard")]
     [SerializeField] private GameObject endcardRoot;
     [SerializeField] private GameObject endcardSingle;
+    [SerializeField] private GameObject endcardWinPanel;
+    [SerializeField] private GameObject endcardLosePanel;
     [SerializeField] private float endcardDelay = 0.5f;
     [SerializeField] private float endcardFadeDuration = 0.4f;
     [SerializeField] private CanvasGroup endcardCanvasGroup;
@@ -244,7 +246,7 @@ public class LunaUIManager : MonoBehaviour
 
     private void HandleGameEnd(bool isWin)
     {
-        ShowEndcard();
+        ShowEndcard(isWin);
     }
 
     private void HandleShowCTA()
@@ -262,17 +264,17 @@ public class LunaUIManager : MonoBehaviour
         SetCTAButtonsVisible(true);
     }
 
-    private void ShowEndcard()
+    private void ShowEndcard(bool isWin)
     {
         ShowTutorial(false);
         SetPersistentPlayNowButtonVisible(false);
 
         EnsureEventSystem();
         if (_endcardRoutine != null) StopCoroutine(_endcardRoutine);
-        _endcardRoutine = StartCoroutine(EndcardRoutine());
+        _endcardRoutine = StartCoroutine(EndcardRoutine(isWin));
     }
 
-    private IEnumerator EndcardRoutine()
+    private IEnumerator EndcardRoutine(bool isWin)
     {
         float delay = Mathf.Max(0f, endcardDelay);
         if (delay > 0f)
@@ -281,6 +283,7 @@ public class LunaUIManager : MonoBehaviour
         EnsureEndcardCanvasGroup();
         if (endcardRoot != null) endcardRoot.SetActive(true);
         if (endcardSingle != null) endcardSingle.SetActive(true);
+        SetEndcardOutcomeVisible(isWin);
 
         if (endcardCanvasGroup != null)
         {
@@ -311,6 +314,12 @@ public class LunaUIManager : MonoBehaviour
         }
 
         _endcardRoutine = null;
+    }
+
+    private void SetEndcardOutcomeVisible(bool isWin)
+    {
+        if (endcardWinPanel != null) endcardWinPanel.SetActive(isWin);
+        if (endcardLosePanel != null) endcardLosePanel.SetActive(!isWin);
     }
 
     private void EnsureEndcardCanvasGroup()

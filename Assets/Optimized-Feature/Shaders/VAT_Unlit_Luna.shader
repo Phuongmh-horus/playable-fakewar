@@ -15,6 +15,7 @@ Shader "OptimizedFeature/VAT_Unlit_Luna"
         _FrameIndexUpper ("Target State Frame Index", Float) = 0
         _BlendWeight ("Cross-fade Blend Weight (0 to 1)", Float) = 0
         [HideInInspector] _VATFrameData ("VAT Frame Data", Vector) = (0, 0, 0, 0)
+        [HideInInspector] _DeathDesaturation ("Death Desaturation", Range(0, 1)) = 0
 
         [HeaderGroup(Outline)]
         [Toggle(OUTLINE)] _Outline ("Enable Outline", Float) = 0
@@ -63,6 +64,7 @@ Shader "OptimizedFeature/VAT_Unlit_Luna"
             {
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             sampler2D _MainTex;
@@ -73,6 +75,7 @@ Shader "OptimizedFeature/VAT_Unlit_Luna"
             {
                 v2f o;
                 UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_TRANSFER_INSTANCE_ID(v, o);
 
                 float4 instanceFrameData = UNITY_ACCESS_INSTANCED_PROP(VATProps, _VATFrameData);
                 float frameLower = instanceFrameData.x;
@@ -112,7 +115,10 @@ Shader "OptimizedFeature/VAT_Unlit_Luna"
 
             fixed4 frag(v2f i) : SV_Target
             {
+                UNITY_SETUP_INSTANCE_ID(i);
                 fixed4 col = tex2D(_MainTex, i.uv) * _Color;
+                fixed grayscale = dot(col.rgb, fixed3(0.299, 0.587, 0.114));
+                col.rgb = lerp(col.rgb, grayscale.xxx, saturate(UNITY_ACCESS_INSTANCED_PROP(VATProps, _DeathDesaturation)));
                 return col;
             }
             ENDCG

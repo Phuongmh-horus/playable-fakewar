@@ -33,9 +33,6 @@ namespace PlayerArmy
         [SerializeField] private float collisionCheckRangeZ = 25f;
         [SerializeField] private Vector2 collisionSize = new Vector2(3f, 3f);
 
-        private const float LateralAnimationThreshold = 0.05f;
-        private AnimationType _currentMovementAnimation = AnimationType.None;
-
         [Header("Spawn")]
         [SerializeField] private CharacterUnit characterPrefab;
         [SerializeField] private WeaponUnit weaponProjectilePrefab;
@@ -55,7 +52,7 @@ namespace PlayerArmy
         [Header("Damage Settings")]
         [SerializeField, Min(1)] private int _baseAttackDamage = 5;
         [SerializeField, Min(0)] private int damageBonusPerUpgrade = 50;
-        private int attackDamage = 5;
+        private int attackDamage;
 
         [Header("Projectile")]
         [SerializeField, Min(0.05f)] private float attackInterval = 0.75f;
@@ -67,7 +64,12 @@ namespace PlayerArmy
         private int maxLogicalShotsPerProjectile = 1;
         [SerializeField, Tooltip("Maximum army units evaluated for an attack per tick.")]
         private int maxAttackEvaluationsPerTick = 24;
-        [SerializeField, Min(0f)] private float unitscalevalue = 1.35f;
+        [SerializeField, Min(0f)] private float unitscalevalue = 1.3f;
+
+        [Header("Attack SFX")]
+        [SerializeField] private AudioClip bowAttackSfx;
+        [SerializeField] private AudioClip gunAttackSfx;
+        [SerializeField, Min(0)] private int gunAttackLevelIndex = 1;
 
         [Header("Refs")]
         [SerializeField] private InputManager inputManager;
@@ -78,7 +80,7 @@ namespace PlayerArmy
         [SerializeField, Min(1)] private int attackTickInterval = 2;
         [SerializeField, Min(1)] private int pruneTickInterval = 15;
         [SerializeField, Min(1), Tooltip("Frames to wait after a character loss before compacting the honeycomb formation.")]
-        private int formationCompactDelayFrames = 60;
+        private int formationCompactDelayFrames = 30;
         private float formationCompactSpeed = 20f;
 
         [Header("Runtime Units")]
@@ -150,6 +152,7 @@ namespace PlayerArmy
         private readonly Dictionary<string, int> _samuraiAttackCounters = new Dictionary<string, int>();
         private float _lastSwordSkillIncrementTime = -1f;
         private int _lastLaunchFrame = -1;
+        private int _lastProjectileAttackSfxFrame = -1;
         private int _currentAttackEvalIndex = 0;
         private float _nextPendingProjectileTime = float.PositiveInfinity;
 
@@ -161,12 +164,30 @@ namespace PlayerArmy
         private float _fireSoldierCharacterVfxScale = 1f;
         private const int MaxSpawnsPerFrame = 2;
         private const float FireSoldierCharacterVfxScaleStep = 0.5f;
+        private const int ProjectileAttackSfxFrameInterval = 12;
 
         public IReadOnlyList<CharacterUnit> Units => characterUnits;
+        public bool HasLivingUnits
+        {
+            get
+            {
+                for (int i = 0; i < characterUnits.Count; i++)
+                {
+                    CharacterUnit unit = characterUnits[i];
+                    if (unit != null && unit.IsActive && !unit.IsDying)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
         public PlayerArmyEffectSystem EffectSystem => effectSystem;
         public PlayerArmyState CurrentState => currentState;
         public int ResolvedWeaponDamage => _resolvedWeaponDamage;
         public bool IsActive => currentState != PlayerArmyState.Idle;
+        public Vector3 UpgradeEffectPosition => GetBodyRoot().position;
         public bool IsAtUnitCapacity => CountActiveUnits() >= Mathf.Clamp(maxActiveSpawnedUnits, 1, HardMaxActiveSpawnedUnits);
         public Transform BodyTransform => bodyRoot != null ? bodyRoot : transform;
 
@@ -667,7 +688,6 @@ namespace PlayerArmy
         public void SetIdle()
         {
             currentState = PlayerArmyState.Idle;
-            _currentMovementAnimation = AnimationType.Idle;
             ClearPendingProjectileAttacks();
             ClearContactState();
             foreach (var unit in characterUnits)
@@ -682,7 +702,6 @@ namespace PlayerArmy
         public void SetActive()
         {
             currentState = PlayerArmyState.Active;
-            _currentMovementAnimation = AnimationType.Attack;
             ClearPendingProjectileAttacks();
             ClearContactState();
             if (characterUnits != null)
@@ -786,6 +805,11 @@ namespace PlayerArmy
             ApplyCharacterDelta(targetCount - currentCount);
         }
 
+        public void ShowBuffFlyText(StatModifierData statData)
+        {
+            _buffFlyText?.Show(statData);
+        }
+
         public void ShowBuffFlyText(StatType statType)
         {
             _buffFlyText?.Show(statType);
@@ -807,16 +831,16 @@ namespace PlayerArmy
                 GetFireSoldierVfxColorIndex(statType));
         }
 
-            public void PlaySoldierBallUpgradeEffect()
-            {
-                effectSystem?.PlayEffectWithScaleAndColor(
-                EffectType.Upgrade,
-                GetBodyRoot().position,
-                GetBodyRoot().rotation,
-                GetBodyRoot(),
-                _fireSoldierCharacterVfxScale,
-                1);
-            }
+        public void PlaySoldierBallUpgradeEffect()
+        {
+            effectSystem?.PlayEffectWithScaleAndColor(
+            EffectType.Upgrade,
+            GetBodyRoot().position,
+            GetBodyRoot().rotation,
+            GetBodyRoot(),
+            _fireSoldierCharacterVfxScale,
+            1);
+        }
 
         private static int GetFireSoldierVfxColorIndex(StatType statType)
         {
@@ -1196,7 +1220,6 @@ namespace PlayerArmy
                 root.localPosition = new Vector3(newX, localPos.y, localPos.z);
             }
 
-            float lateralVelocity = (dt > 0f) ? (newX - localPos.x) / dt : 0f;
             _targetX = tempTargetX;
 
             Vector2Int formationCell = CollisionSystem.GetSpatialCell(root.position);
@@ -1207,27 +1230,6 @@ namespace PlayerArmy
                 _hasFormationSpatialCell = true;
             }
 
-            AnimationType targetAnimation = lateralVelocity < -LateralAnimationThreshold
-                ? AnimationType.MoveLeft
-                : lateralVelocity > LateralAnimationThreshold
-                    ? AnimationType.MoveRight
-                    : AnimationType.Attack;
-
-            if (_currentMovementAnimation == targetAnimation)
-            {
-                return;
-            }
-
-            _currentMovementAnimation = targetAnimation;
-
-            for (int i = 0; i < characterUnits.Count; i++)
-            {
-                var unit = characterUnits[i];
-                if (unit != null && unit.IsActive)
-                {
-                    unit.PlayAnimation(targetAnimation, 0f, null, 0);
-                }
-            }
         }
 
         private void UpdateCollisionChecks()
@@ -1471,10 +1473,6 @@ namespace PlayerArmy
             targetInfo.Target.OnHit(attackSource);
             OnAttackComplete?.Invoke(targetInfo.Target);
             attackSource.Dispose();
-            if (effectSystem != null)
-            {
-                effectSystem.PlayEffectAt(EffectType.Attack, targetInfo.Position, Quaternion.identity, unitTransform, null, 0f);
-            }
 
             return true;
         }
@@ -1686,6 +1684,8 @@ namespace PlayerArmy
                 return false;
             }
 
+            TryPlayProjectileAttackSfx();
+
             // Samurai Sword Skill Logic
             if (GameplayManager.Instance != null && GameplayManager.Instance.ActiveSamuraiBuffs.Count > 0)
             {
@@ -1728,6 +1728,25 @@ namespace PlayerArmy
             }
 
             return true;
+        }
+
+        private void TryPlayProjectileAttackSfx()
+        {
+            int currentFrame = Time.frameCount;
+            if (_lastProjectileAttackSfxFrame >= 0 &&
+                currentFrame - _lastProjectileAttackSfxFrame < ProjectileAttackSfxFrameInterval)
+            {
+                return;
+            }
+
+            AudioClip attackSfx = _currentLevelIndex >= gunAttackLevelIndex ? gunAttackSfx : bowAttackSfx;
+            if (attackSfx == null || SoundManager.Instance == null)
+            {
+                return;
+            }
+
+            _lastProjectileAttackSfxFrame = currentFrame;
+            SoundManager.Instance.PlayOneShot(attackSfx);
         }
 
         private struct ForwardTargetInfo
@@ -1851,15 +1870,7 @@ namespace PlayerArmy
                 return AnimationType.Idle;
             }
 
-            switch (_currentMovementAnimation)
-            {
-                case AnimationType.MoveLeft:
-                case AnimationType.MoveRight:
-                case AnimationType.Attack:
-                    return _currentMovementAnimation;
-                default:
-                    return AnimationType.Attack;
-            }
+            return AnimationType.Attack;
         }
 
         private void RegisterRuntimeUnit(CharacterUnit unit)
@@ -1897,6 +1908,14 @@ namespace PlayerArmy
             for (int i = characterUnits.Count - 1; i >= 0; i--)
             {
                 var unit = characterUnits[i];
+                if (unit != null && unit.IsDying)
+                {
+                    CollisionSystem.Unregister(unit);
+                    characterUnits.RemoveAt(i);
+                    removedAny = true;
+                    continue;
+                }
+
                 if (unit != null && unit.IsActive)
                 {
                     continue;
@@ -2202,7 +2221,7 @@ namespace PlayerArmy
                     continue;
                 }
 
-                unit.RecycleImmediate(true);
+                unit.OnHit(this);
                 despawnedAny = true;
             }
 
@@ -2257,7 +2276,7 @@ namespace PlayerArmy
 
             for (int i = 0; i < unitsToKill; i++)
             {
-                _finishTowerHitUnitsBuffer[i].RecycleImmediate(true);
+                _finishTowerHitUnitsBuffer[i].OnHit(this);
             }
 
             // Đảm bảo tháp nhận sát thương / sự kiện va chạm từ army

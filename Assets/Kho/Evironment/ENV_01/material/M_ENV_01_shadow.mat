@@ -8,10 +8,12 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M_ENV_01_shadow
-  m_Shader: {fileID: 4800000, guid: 703f6563ff59ebb4b9169018f8d8bd5e, type: 3}
+  m_Shader: {fileID: 4800000, guid: 30c2da7238b75c0459992487fa558549, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _FADEX_ON
+  - _FADEY_ON
   m_InvalidKeywords:
   - AMBIENT
   - ANIME_SOFT
@@ -174,11 +176,13 @@ Material:
     - _DiffuseContrast: 1
     - _DiffusePerPixel: 0
     - _DiffuseWrap: 0
-    - _DstBlend: 0
+    - _DstBlend: 10
     - _EmissiveAnimated: 0
     - _EmissiveAnimationIntensity: 1
     - _EmissiveAnimationMin: 0
     - _EmissiveAnimationSpeed: 1
+    - _FadeX: 1
+    - _FadeY: 1
     - _Flat: 0
     - _Fog: 1
     - _GlossMapScale: 1
@@ -298,10 +302,11 @@ Material:
     - _AnimeColor1: {r: 1, g: 1, b: 1, a: 1}
     - _AnimeColor2: {r: 1.35, g: 1.35, b: 1.35, a: 1}
     - _AnimeColor3: {r: 2, g: 2, b: 2, a: 1}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.69803923, g: 0.47843137, b: 0.24313726, a: 1}
     - _DetailColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Emissive: {r: 0, g: 0, b: 0, a: 0}
+    - _Fade: {r: 0, g: 0, b: 0, a: 1}
     - _HeightColorsColor: {r: 1, g: 1, b: 1, a: 1}
     - _Layer1Color: {r: 1, g: 1, b: 1, a: 1}
     - _Layer2Color: {r: 1, g: 1, b: 1, a: 1}

@@ -33,6 +33,16 @@ namespace GamePlay.Items
         [Tooltip("Giá trị giáp")]
         public int Armor;
 
+        [Header("Army Buff Fly Text")]
+        [Tooltip("Tắt nếu item này không được hiện fly text trên army.")]
+        public bool ShowArmyBuffFlyText = true;
+
+        [Tooltip("Để trống để dùng nhãn mặc định, ví dụ ATK hoặc FIRE.")]
+        public string ArmyBuffFlyTextLabel;
+
+        [Tooltip("Lớn hơn 0 để override phần trăm hiển thị cho riêng item này.")]
+        public int ArmyBuffFlyTextPercent;
+
         // QUAN TRỌNG: phải virtual để các Data con (CapacityIncreaseFactoryData...) override được
         public virtual void AdjustValue(int amount)
         {

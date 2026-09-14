@@ -16,6 +16,9 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
     [SerializeField, Min(0f)] private float gateMoveSpeed = 8f;
     [SerializeField, Min(0f)] private float rotationSpeed = 5f;
 
+    [SerializeField, Tooltip("The Z position at which the item's movement speed reduces.")]
+    private float itemMoveSpeedEndZ = 70f;
+
     [Header("Homing")]
     [SerializeField, Min(0f)] private float attractionThreshold = 10f;
     [SerializeField] private float despawnZOffset = -20f;
@@ -35,6 +38,7 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
         public ItemUnit Item;
         public Transform Transform;
         public float MoveSpeed;
+        public bool UseItemSpeedRamp;
         public bool IsAttractive;
         public float AttractionThresholdSquared;
         public Vector2Int CollisionCell;
@@ -145,7 +149,10 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
                 }
             }
 
-            currentPos += targetDir * entry.MoveSpeed * dt;
+            float currentMoveSpeed = entry.UseItemSpeedRamp
+                ? EvaluateItemMoveSpeed(currentPos.z, playerZ + despawnZOffset)
+                : entry.MoveSpeed;
+            currentPos += targetDir * currentMoveSpeed * dt;
             entry.Transform.position = currentPos;
             NotifyCollisionCellChanged(ref entry, currentPos);
 
@@ -180,9 +187,8 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
             return;
         }
 
-        bool isGate = item.EntityType == EntityType.MovingGate;
-        bool isPowerGate = item.EntityType == EntityType.PowerGate;
-        bool isAttractive = item.EntityType == EntityType.Enemy || item.EntityType == EntityType.Boss;
+        bool isEnemyOrBoss = item.EntityType == EntityType.Enemy || item.EntityType == EntityType.Boss;
+        bool isAttractive = isEnemyOrBoss;
         float entryAttractionThreshold = item is BossUnit bossUnit
             ? bossUnit.AttractionThreshold
             : attractionThreshold;
@@ -191,11 +197,29 @@ public class PlayableWaveDefenseEntitySystem : MonoBehaviour
         {
             Item = item,
             Transform = item.Transform,
-            MoveSpeed = isGate ? gateMoveSpeed : (isPowerGate ? moveSpeed + 3f : moveSpeed),
+            MoveSpeed = moveSpeed,
+            UseItemSpeedRamp = !isEnemyOrBoss,
             IsAttractive = isAttractive,
             AttractionThresholdSquared = entryAttractionThreshold * entryAttractionThreshold,
             CollisionCell = CollisionSystem.GetSpatialCell(item.Transform.position)
         });
+    }
+
+    private float EvaluateItemMoveSpeed(float currentZ, float despawnZ)
+    {
+        float endSpeed = Mathf.Max(0f, gateMoveSpeed - 6f);
+        if (currentZ >= itemMoveSpeedEndZ || despawnZ >= itemMoveSpeedEndZ)
+        {
+            return gateMoveSpeed;
+        }
+
+        if (currentZ <= despawnZ)
+        {
+            return endSpeed;
+        }
+
+        float progress = Mathf.InverseLerp(despawnZ, itemMoveSpeedEndZ, currentZ);
+        return Mathf.Lerp(endSpeed, gateMoveSpeed, progress);
     }
 
     private static void NotifyCollisionCellChanged(ref Entry entry, Vector3 position)

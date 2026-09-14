@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 92849928321394109}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: -4.88, z: 0}
+  m_LocalPosition: {x: 0, y: -5.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -328,7 +328,7 @@ MonoBehaviour:
   size: {x: 1, y: 1}
   shapeType: 1
   colliderOffsets: {x: 0, y: 2, z: 0}
-  colliderSize: {x: 8, y: 5, z: 5}
+  colliderSize: {x: 6.6, y: 5, z: 5}
   LeftOffset: 0
   RightOffset: 0
   autoAddHitTextFlyEffectAtRuntime: 0
@@ -336,9 +336,17 @@ MonoBehaviour:
     Type: 3
     Value: 5
     Armor: 0
+    ShowArmyBuffFlyText: 1
+    ArmyBuffFlyTextLabel: ATK
+    ArmyBuffFlyTextPercent: 100
     ChangeType: 0
     Level: 0
   upgradeShowObject: {fileID: 92849928321394109}
+  upgradeRiseHeight: 2
+  upgradeRiseDuration: 0.25
+  upgradeFlyDuration: 0.25
+  upgradePeakScale: 1.25
+  breakEffectDespawnDelay: 0.4
   healthText: {fileID: 5826389342598505721}
   wheelRotate: {fileID: 4758353015966747975}
   IsStopMove: 0
@@ -358,7 +366,7 @@ MonoBehaviour:
   CacheTransform: {fileID: 7946232523800976864}
   poolEntity: {fileID: -3187097488725319018}
   shapeType: 1
-  colliderSize: {x: 8, y: 5, z: 5}
+  colliderSize: {x: 6.6, y: 5, z: 5}
   isActive: 1
   isCustomCaster: 0
   hitTransform: {fileID: 0}
@@ -377,11 +385,20 @@ MonoBehaviour:
   CacheTransform: {fileID: 7946232523800976864}
   poolEntity: {fileID: -3187097488725319018}
   effects:
-  - Type: 16
+  - Type: 14
     VfxPrefab: {fileID: 462670460786600360, guid: 285fb53922afad341b016d11032d75ea, type: 3}
     ParentToTarget: 0
     VfxScale: {x: 3, y: 3, z: 3}
-    SfxClip: {fileID: 8300000, guid: 8722649368b212547a32989ae027ecd5, type: 3}
+    SfxClip: {fileID: 8300000, guid: 283db3691cee9b140b03a3958d041f39, type: 3}
+    LoopSfx: 0
+    SfxVolume: 1
+    WaitForAction: 0
+    MaxVfxPerFrame: 1
+  - Type: 16
+    VfxPrefab: {fileID: 2433282508537954060, guid: 3ef3ae421f71c5c4e97fe12dc2fc6312, type: 3}
+    ParentToTarget: 1
+    VfxScale: {x: 2, y: 2, z: 2}
+    SfxClip: {fileID: 8300000, guid: c5e54479c2650b5499a9f9d7ce2f4f1e, type: 3}
     LoopSfx: 0
     SfxVolume: 1
     WaitForAction: 0
@@ -410,7 +427,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5534066927484507522}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c59eda737b5baeb409ca60466c9b31e4, type: 3}
   m_Name: 
@@ -439,7 +456,7 @@ GameObject:
   - component: {fileID: 3596489375111143461}
   - component: {fileID: 2173188931425219508}
   m_Layer: 0
-  m_Name: FireRate
+  m_Name: Damage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -522,15 +539,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalScale.x
-      value: 3
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalScale.y
-      value: 3
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalScale.z
-      value: 3
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalPosition.x

@@ -95,6 +95,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
     public static bool IsGameStarted;
     private bool _endGameSfxPlayed;
+    private bool _endGameResolved;
     private WeaponCraft.WeaponItem _mainWeapon;
 
     private Dictionary<CurrencyType, int> _currencyValues = new Dictionary<CurrencyType, int>();
@@ -352,7 +353,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         {
             yield break;
         }
-        Vector3 targetPos = playerSpawnRect.position + Vector3.forward * TurnableSpawnOffset;
+        Vector3 targetPos = playerSpawnRect.position + Vector3.right * 2f + Vector3.forward * TurnableSpawnOffset;
 
         // Generate Content
         if (contentGenerator != null)
@@ -586,6 +587,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     public void StartGame(bool activeTurnable = false)
     {
         _endGameSfxPlayed = false;
+        _endGameResolved = false;
         _hasOfferedExplosionShotThisRun = false;
         _isExplosionShotUnlocked = false;
         _explosionShotDamagePercent = 0;
@@ -667,7 +669,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
         }
 
         ActiveArmy = Instantiate(playerArmyPrefab, transform);
-        ActiveArmy.transform.position = playerSpawnRect.position + Vector3.forward * TurnableSpawnOffset;
+        ActiveArmy.transform.position = playerSpawnRect.position + Vector3.right * 2f + Vector3.forward * TurnableSpawnOffset;
         ActiveArmy.transform.rotation = playerSpawnRect.rotation;
 
         if (mapGenerator != null)
@@ -747,6 +749,12 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     /// </summary>
     public void EndGame(bool isWin)
     {
+        if (_endGameResolved)
+        {
+            return;
+        }
+
+        _endGameResolved = true;
         IsGameStarted = false;
         ActiveArmy?.SetIdle();
         EnemyManager.Instance?.SetAllEnemiesIdle();
@@ -814,6 +822,32 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     public void EndGame()
     {
         EndGame(true);
+    }
+
+    public void TryEndGameWhenAllEnemiesDefeated()
+    {
+        if (!IsGameStarted || _endGameResolved || _enemyManager == null)
+        {
+            return;
+        }
+
+        if (_enemyManager.AreAllActiveEnemiesDefeated)
+        {
+            EndGame(true);
+        }
+    }
+
+    public void TryEndGameWhenArmyDefeated()
+    {
+        if (!IsGameStarted || _endGameResolved || ActiveArmy == null)
+        {
+            return;
+        }
+
+        if (!ActiveArmy.HasLivingUnits)
+        {
+            EndGame(false);
+        }
     }
 
     public void OnCashTowerDestroyed()
@@ -947,7 +981,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
                 }
         }
 
-        ActiveArmy?.ShowBuffFlyText(statModifierData.Type);
+        ActiveArmy?.ShowBuffFlyText(statModifierData);
     }
     public bool CanOfferExplosionShotThisRun()
     {
@@ -1087,7 +1121,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
             {
                 int targetLevel = Mathf.Max(1, soldierBallData.Level);
                 ActiveArmy.UpgradeAllUnitsToLevel(targetLevel);
-                ActiveArmy.ShowBuffFlyText(StatType.CharacterLevel);
+                ActiveArmy.ShowBuffFlyText(soldierBallData);
             }
 
             return;
@@ -1101,6 +1135,9 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
         switch (soldierBallData.Type)
         {
+            case StatType.Character:
+                ActiveArmy.AddCharacterReward(value);
+                break;
             case StatType.FireRate:
                 ActiveArmy.ApplyFireRateModifier(value);
                 break;
@@ -1111,7 +1148,7 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
                 return;
         }
 
-        ActiveArmy.ShowBuffFlyText(soldierBallData.Type);
+        ActiveArmy.ShowBuffFlyText(soldierBallData);
     }
 
     private void EnsureWeaponCraftStarterItem()

@@ -14,31 +14,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   VATTexture: {fileID: 2800000, guid: 35c4dc6b8f4229049967bc1dfa75cd78, type: 3}
   BakedStaticMesh: {fileID: 4300000, guid: 3d15f3dac0b34224f8bcd535c2474013, type: 2}
-  BoundingMin: {x: -0.57906973, y: -0.059606753, z: -0.78836155}
-  BoundingMax: {x: 0.47717366, y: 2.0422795, z: 0.7078161}
-  TotalVertices: 1237
-  TotalFrames: 62
+  BoundingMin: {x: -0.8372073, y: -0.11682961, z: -2.0578957}
+  BoundingMax: {x: 0.8994705, y: 1.8254117, z: 0.7478191}
+  TotalVertices: 1101
+  TotalFrames: 31
   ModelScale: {x: 1, y: 1, z: 1}
   Clips:
-  - ClipName: Enemy_basic_idle
-    _stateHash: 332393917
+  - ClipName: Enemy_Basic_Run
+    _stateHash: -1185952408
     StartFrame: 0
-    EndFrame: 44
+    EndFrame: 16
     FrameRate: 30
     IsLooping: 1
-  - ClipName: Enemy_basic_run
-    _stateHash: 533051944
-    StartFrame: 45
-    EndFrame: 61
+  - ClipName: Enemy_Die
+    _stateHash: 1610008322
+    StartFrame: 17
+    EndFrame: 30
     FrameRate: 30
-    IsLooping: 1
+    IsLooping: 0
   BakedMaterials:
-  - {fileID: 2100000, guid: bd934f57a172bed449eac413afb45200, type: 2}
-  - {fileID: 2100000, guid: 0f99de55cd863da4b8360c33fcd4e7f9, type: 2}
-  - {fileID: 2100000, guid: 1fb9352618d248a4c885c9b3f4f15d3c, type: 2}
-  WeaponAssets: []
-  DefaultWeaponAsset: {fileID: 0}
-  DefaultStateName: 332393917
+  - {fileID: 2100000, guid: d71ac369b0be481458adedf36d20f95b, type: 2}
+  WeaponAssets:
+  - WeaponName: Item
+    _weaponHash: 526680070
+    WeaponAsset: {fileID: 11400000, guid: ea79c87247b91584793c3d4bc602bf6e, type: 2}
+  DefaultWeaponAsset: {fileID: 11400000, guid: ea79c87247b91584793c3d4bc602bf6e, type: 2}
+  DefaultStateName: -1185952408
   AnimatorAsset: {fileID: 0}
   _legacyAnimatorParameters: []
   _legacyAnimatorTransitions: []
