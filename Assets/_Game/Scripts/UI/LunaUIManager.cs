@@ -25,6 +25,10 @@ public class LunaUIManager : MonoBehaviour
     [SerializeField] private float textScaleUp = 1.08f;
     [SerializeField] private float textScaleDuration = 0.7f;
 
+    [Header("Tutorial Input")]
+    [SerializeField, Min(0f)] private float tutorialTapMaxDistance = 24f;
+    [SerializeField, Min(0f)] private float tutorialRightSwipeMinDistance = 80f;
+
     [Header("Endcard")]
     [SerializeField] private GameObject endcardRoot;
     [SerializeField] private GameObject endcardSingle;
@@ -185,6 +189,9 @@ public class LunaUIManager : MonoBehaviour
     }
 
     private Coroutine _tutorialInputRoutine;
+    private Vector2 _tutorialPointerStartPosition;
+    private int _tutorialPointerFingerId = -1;
+    private bool _isTrackingTutorialPointer;
 
     public void ShowTutorial(bool show)
     {
@@ -209,6 +216,8 @@ public class LunaUIManager : MonoBehaviour
                 StopCoroutine(_tutorialInputRoutine);
                 _tutorialInputRoutine = null;
             }
+
+            ResetTutorialPointer();
         }
     }
 
@@ -222,7 +231,7 @@ public class LunaUIManager : MonoBehaviour
                 _tutorialPauseApplied = true;
             }
 
-            if (Input.GetMouseButtonDown(0) || Input.touchCount > 0)
+            if (TryConsumeTutorialStartInput())
             {
                 StartGameplayFromTutorial();
                 yield break;
@@ -242,6 +251,96 @@ public class LunaUIManager : MonoBehaviour
         }
 
         GameEventBus.OnGameStart?.Invoke();
+    }
+
+    private bool TryConsumeTutorialStartInput()
+    {
+        if (Input.touchCount > 0)
+        {
+            for (int i = 0; i < Input.touchCount; i++)
+            {
+                Touch touch = Input.GetTouch(i);
+                if (!_isTrackingTutorialPointer && touch.phase == TouchPhase.Began)
+                {
+                    _isTrackingTutorialPointer = true;
+                    _tutorialPointerFingerId = touch.fingerId;
+                    _tutorialPointerStartPosition = touch.position;
+                    continue;
+                }
+
+                if (!_isTrackingTutorialPointer || touch.fingerId != _tutorialPointerFingerId)
+                {
+                    continue;
+                }
+
+                if (touch.phase == TouchPhase.Moved &&
+                    IsValidTutorialRightSwipe(touch.position - _tutorialPointerStartPosition))
+                {
+                    ResetTutorialPointer();
+                    return true;
+                }
+
+                if (touch.phase == TouchPhase.Ended)
+                {
+                    bool shouldStart = IsValidTutorialStartGesture(touch.position - _tutorialPointerStartPosition);
+                    ResetTutorialPointer();
+                    return shouldStart;
+                }
+
+                if (touch.phase == TouchPhase.Canceled)
+                {
+                    ResetTutorialPointer();
+                }
+            }
+
+            return false;
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            _isTrackingTutorialPointer = true;
+            _tutorialPointerFingerId = -1;
+            _tutorialPointerStartPosition = Input.mousePosition;
+        }
+
+        if (_isTrackingTutorialPointer && Input.GetMouseButton(0) &&
+            IsValidTutorialRightSwipe((Vector2)Input.mousePosition - _tutorialPointerStartPosition))
+        {
+            ResetTutorialPointer();
+            return true;
+        }
+
+        if (_isTrackingTutorialPointer && Input.GetMouseButtonUp(0))
+        {
+            bool shouldStart = IsValidTutorialStartGesture((Vector2)Input.mousePosition - _tutorialPointerStartPosition);
+            ResetTutorialPointer();
+            return shouldStart;
+        }
+
+        return false;
+    }
+
+    private bool IsValidTutorialStartGesture(Vector2 delta)
+    {
+        if (delta.sqrMagnitude <= tutorialTapMaxDistance * tutorialTapMaxDistance)
+        {
+            return true;
+        }
+
+        return IsValidTutorialRightSwipe(delta);
+    }
+
+    private bool IsValidTutorialRightSwipe(Vector2 delta)
+    {
+        return delta.x >= tutorialRightSwipeMinDistance &&
+               Mathf.Abs(delta.x) >= Mathf.Abs(delta.y);
+    }
+
+    private void ResetTutorialPointer()
+    {
+        _isTrackingTutorialPointer = false;
+        _tutorialPointerFingerId = -1;
+        _tutorialPointerStartPosition = Vector2.zero;
     }
 
     private void HandleGameEnd(bool isWin)

@@ -397,7 +397,7 @@ MonoBehaviour:
   defaultMaxHealth: 15
   dieVfxPrefab: {fileID: 0}
   dieVfxOffset: {x: 0, y: 3, z: 0}
-  dieVfxLifetime: 1.2
+  dieVfxLifetime: 0.5
   _healthOverriddenFromContent: 0
 --- !u!114 &3036404202336357057
 MonoBehaviour:
