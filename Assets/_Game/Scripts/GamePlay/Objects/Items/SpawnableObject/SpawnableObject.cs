@@ -31,6 +31,10 @@ public class SpawnableObject
     public bool overrideMaxHp;
     public int maxHp = 10;
 
+    [Tooltip("Fallback for Luna: enable the SoldierBall hint without SerializeReference.")]
+    public bool overrideHintArrow;
+    public bool showHintArrow;
+
     /// <summary>
     /// Apply các override lên ItemUnit instance sau khi spawn
     /// </summary>
@@ -56,6 +60,11 @@ public class SpawnableObject
                 if (itemUnit is EnemyUnit enemyUnit)
                     enemyUnit.MarkHealthOverriddenFromContent();
             }
+        }
+
+        if (itemUnit is SoldierBall soldierBall && overrideHintArrow)
+        {
+            soldierBall.SetHintArrowVisible(showHintArrow);
         }
     }
 }

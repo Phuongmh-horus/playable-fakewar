@@ -661,13 +661,12 @@ namespace GamePlay.Crushers
                     myPos,
                     myPos,
                     Mathf.Max(preCullX, preCullZ),
+                    myMask,
                     _collisionCandidateIndices);
 
                 for (int candidateIndex = 0; candidateIndex < _collisionCandidateIndices.Count; candidateIndex++)
                 {
                     int i = _collisionCandidateIndices[candidateIndex];
-                    uint targetMask = collisionSystem.GetMask(i);
-                    if ((myMask & targetMask) == 0) continue;
 
                     var targetTr = collisionSystem.GetTransform(i);
                     if (targetTr == null) continue;

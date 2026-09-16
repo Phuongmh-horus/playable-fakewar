@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 92849928321394109}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: -5.33, z: 0}
+  m_LocalPosition: {x: 0, y: -5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -582,7 +582,7 @@ MonoBehaviour:
   size: {x: 1, y: 1}
   shapeType: 1
   colliderOffsets: {x: 0, y: 2, z: 0}
-  colliderSize: {x: 6.6, y: 5, z: 5}
+  colliderSize: {x: 7.7, y: 5, z: 5}
   LeftOffset: 0
   RightOffset: 0
   autoAddHitTextFlyEffectAtRuntime: 0
@@ -597,13 +597,14 @@ MonoBehaviour:
     Level: 0
   upgradeShowObject: {fileID: 92849928321394109}
   upgradeRiseHeight: 2
-  upgradeRiseDuration: 0.25
-  upgradeFlyDuration: 0.25
-  upgradePeakScale: 1.25
-  breakEffectDespawnDelay: 0.4
+  upgradeRiseDuration: 0.3
+  upgradeFlyDuration: 0.2
+  upgradePeakScale: 1.4
+  breakEffectDespawnDelay: 0.5
   healthText: {fileID: 5826389342598505721}
   wheelRotate: {fileID: 4758353015966747975}
   IsStopMove: 0
+  hintArrowVisual: {fileID: 0}
   effectComponent: {fileID: 2018191943066992144}
 --- !u!114 &8138363187892157136
 MonoBehaviour:
@@ -620,7 +621,7 @@ MonoBehaviour:
   CacheTransform: {fileID: 7946232523800976864}
   poolEntity: {fileID: -3187097488725319018}
   shapeType: 1
-  colliderSize: {x: 6.6, y: 5, z: 5}
+  colliderSize: {x: 7.7, y: 5, z: 5}
   isActive: 1
   isCustomCaster: 0
   hitTransform: {fileID: 0}
@@ -709,15 +710,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalScale.x
-      value: 2.5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalScale.y
-      value: 2.5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalScale.z
-      value: 2.5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalPosition.x

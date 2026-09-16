@@ -372,8 +372,9 @@ namespace GamePlay.CombatSystems
                 ? collisionSystem.MaxHorizontalColliderExtent
                 : 0f;
 
-            // Iterate backwards for safe remove
-            for (int i = _projectiles.Count - 1; i >= 0; i--)
+            // Hit callbacks can clear the list re-entrantly. Keep the traversal valid
+            // without allocating a defensive copy every tick.
+            for (int i = _projectiles.Count - 1; i >= 0 && i < _projectiles.Count; i--)
             {
                 var p = _projectiles[i];
                 uint projectileTargetMask = p.TargetMask;

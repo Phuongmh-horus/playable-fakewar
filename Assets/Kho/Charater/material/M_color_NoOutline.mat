@@ -11,9 +11,7 @@ Material:
   m_Shader: {fileID: 4800000, guid: 124e8c1d64ac24c13aa406f05ca2d222, type: 3}
   m_Parent: {fileID: 2100000, guid: bf02fb73d7d56c54ba8f8b1234c143a3, type: 2}
   m_ModifiedSerializedProperties: 16
-  m_ValidKeywords:
-  - DIFFUSE
-  - _LIGHTMAPUV_UV1
+  m_ValidKeywords: []
   m_InvalidKeywords:
   - AMBIENT
   - ANIME_SOFT
@@ -29,6 +27,7 @@ Material:
   - _LAYER2UV_UV1
   - _LAYER3BLEND_ALPHA_BLEND
   - _LAYER3UV_UV1
+  - _LIGHTMAPUV_UV1
   - _MATCAPBLEND_MULTIPLY
   - _NORMALUV2_UV1
   - _NORMALUV_UV1
@@ -40,7 +39,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2000
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses:
   - ALWAYS
@@ -54,12 +53,20 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _Brightness: 1.5
+    - _Contrast: 2
     - _Cull: 2
     - _Cutout: 0
     - _DestBlend: 0
+    - _Diffuse: 0
+    - _DiffuseBrightness: 0.5
+    - _DiffuseContrast: 0.01
+    - _IgnoreMainTexAlpha: 0
     - _Outline: 0
     - _Preset: 0
+    - _Saturation: 1
     - _SourceBlend: 1
     - _ZWrite: 1
-    m_Colors: []
+    m_Colors:
+    - _Color: {r: 1, g: 0.93712306, b: 0, a: 1}
   m_BuildTextureStacks: []

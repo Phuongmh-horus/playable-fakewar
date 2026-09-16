@@ -259,12 +259,10 @@ namespace GamePlay.CombatSystems
 
             float maxDx = broadPhaseRangeX + attackerSize + broadPhasePadding;
             float maxDz = broadPhaseRangeZ + attackerSize + broadPhasePadding;
-            collisionSystem.QueryIndicesNearSegment(actorPos, actorPos, Mathf.Max(maxDx, maxDz), _collisionQueryIndices);
+            collisionSystem.QueryIndicesNearSegment(actorPos, actorPos, Mathf.Max(maxDx, maxDz), attackerMask, _collisionQueryIndices);
             for (int candidateIndex = 0; candidateIndex < _collisionQueryIndices.Count; candidateIndex++)
             {
                 int idx = _collisionQueryIndices[candidateIndex];
-                uint targetMask = collisionSystem.GetMask(idx);
-                if ((attackerMask & targetMask) == 0) continue;
 
                 var targetTr = collisionSystem.GetTransform(idx);
                 if (targetTr == null) continue;

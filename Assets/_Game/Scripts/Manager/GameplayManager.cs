@@ -54,11 +54,15 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
     [Header("End Game Audio")]
     [SerializeField] private AudioClipName winEndcardSfx = AudioClipName.SFX_Level_Complete;
     [SerializeField] private AudioClipName loseEndcardSfx = AudioClipName.SFX_CharacterDie;
-    [Header("Explosion Shot Buff")]
-    [SerializeField, Min(0f)] private float explosionShotRadius = 3.25f;
-    [SerializeField, Min(0)] private int explosionShotBasePercent = 90;
 
-    [SerializeField, Min(0)] private int explosionShotUpgradePercent = 35;
+    // [Header("Explosion Shot Buff")]
+    // [SerializeField, Min(0f)] 
+    private float explosionShotRadius = 3.25f;
+    // [SerializeField, Min(0)] 
+    private int explosionShotBasePercent = 90;
+
+    // [SerializeField, Min(0)]
+    private int explosionShotUpgradePercent = 35;
 
     [Header("Refs")]
     [SerializeField] private MapGenerator mapGenerator;
@@ -67,11 +71,11 @@ public class GameplayManager : MonoSingleton<GameplayManager>, IGameplayFlow
 
     [Header("Player/Wheel")]
     [HideInInspector] public WheelUnit Turnable;
-    public float TurnableSpawnOffset = 7.5f;
-    public bool followHorizontal = true;
+
 
     [Header("Player/Army (New System)")]
     [SerializeField] private PlayerArmySystem playerArmyPrefab;
+    public float TurnableSpawnOffset = 10f;
     public PlayerArmySystem ActiveArmy { get; private set; }
 
     [Header("Startup Performance")]

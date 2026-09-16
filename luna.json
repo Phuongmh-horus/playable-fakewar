@@ -2,7 +2,7 @@
     "version": "7.0.0",
     "projectId": "1bc38d6f8d96f394b8b169b9e5a7dcba",
     "applicationID": 42014,
-    "creativeName": "WS_kichban3_map1",
+    "creativeName": "WS_kichban3_map2",
     "pgServer": "EU",
     "window": {
         "‐⁏": true
@@ -139,29 +139,31 @@
             "includes": [
                 "Assets/Kho/Charater/mesh/EN_basic.fbx",
                 "Assets/Kho/Charater/mesh/EN_pig.fbx",
+                "Assets/Kho/Charater/texture/T_Color.tga",
+                "Assets/Kho/Charater/texture/T_EN_basic.tga",
+                "Assets/Kho/Charater/texture/T_EN_basic_2.tga",
+                "Assets/Kho/Charater/texture/T_MC_basic.tga",
+                "Assets/Kho/Charater/texture/T_VK_sungtruong.png",
                 "Assets/Optimized-Feature/BakedAssets/",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Body_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_crossbow_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_gun_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Body_Texture.png",
+                "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Item_Item_Texture.png",
                 "Assets/Resources/DOTweenSettings.asset",
                 "Assets/TextMesh Pro/Resources/TMP Settings.asset",
                 "Assets/_Game/Animation/Enemy_Basic/Enemy_Basic_New.fbx",
                 "Assets/_Game/Animation/Small-pig/Small_Pig_Base.fbx",
-                "Assets/Kho/Charater/texture/T_EN_basic.tga",
-                "Assets/Kho/Charater/texture/T_EN_basic_2.tga",
                 "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_Sword_VATData/Enemy_Basic_Sword_VAT_Body_Texture.png",
-                "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_Sword_VATData/Enemy_Basic_Sword_VAT_Item_Item_Texture.png",
-                "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Body_Texture.png",
-                "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Item_Item_Texture.png",
-                "Assets/Kho/Charater/texture/T_MC_basic.tga",
-                "Assets/Kho/Charater/texture/T_Color.tga",
-                "Assets/Kho/Charater/texture/T_VK_sungtruong.png",
-                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Body_Texture.png",
-                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_crossbow_Texture.png",
-                "Assets/Optimized-Feature/BakedAssets/Character_VATData/Character_VAT_Item_gun_Texture.png"
+                "Assets/Optimized-Feature/BakedAssets/Enemy_Basic_Sword_VATData/Enemy_Basic_Sword_VAT_Item_Item_Texture.png"
             ]
         },
         "scenes": [
+            "Assets/_FrameWork/Scenes/S_GamePlay 2.unity"
+        ],
+        "disabledScenes": [
             "Assets/_FrameWork/Scenes/S_GamePlay 1.unity"
         ],
-        "disabledScenes": [],
         "startupScene": 0,
         "packages": {
             "default": {
@@ -17566,7 +17568,7 @@
                     },
                     {
                         "name": "Find",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "FindChild",
@@ -18202,7 +18204,7 @@
                     },
                     {
                         "name": "material#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sharedMaterial#get",
@@ -18242,7 +18244,7 @@
                     },
                     {
                         "name": "materials#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "bounds#get",
@@ -18250,7 +18252,7 @@
                     },
                     {
                         "name": "sortingOrder#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sortingOrder#set",
@@ -18258,15 +18260,15 @@
                     },
                     {
                         "name": "sortingLayerID#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sortingLayerID#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sortingLayerIndex#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sortingLayerIndex#set",
@@ -36371,6 +36373,22 @@
                     {
                         "name": "SetEndcardOutcomeVisible",
                         "excluded": false
+                    },
+                    {
+                        "name": "TryConsumeTutorialStartInput",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsValidTutorialStartGesture",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsValidTutorialRightSwipe",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResetTutorialPointer",
+                        "excluded": false
                     }
                 ]
             },
@@ -38267,6 +38285,10 @@
                     {
                         "name": "TryPlayProjectileAttackSfx",
                         "excluded": false
+                    },
+                    {
+                        "name": "TryConsumeUpgradeEffectBudget",
+                        "excluded": false
                     }
                 ]
             },
@@ -38763,6 +38785,14 @@
                     {
                         "name": "TryPlayHitEffect",
                         "excluded": false
+                    },
+                    {
+                        "name": "SetHintArrowVisible",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsHintArrowVisible#get",
+                        "excluded": true
                     }
                 ]
             },
@@ -42257,6 +42287,36 @@
                         "excluded": true
                     }
                 ]
+            },
+            {
+                "className": "GamePlay.Items.SoldierBallHintArrow",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CreateGlow",
+                        "excluded": false
+                    }
+                ]
             }
         ],
         "stubberDataList": [],
@@ -42724,6 +42784,66 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Optimized-Feature/BakedAssets/Enemy_VATData/Enemy_VAT_Item_Item_Texture.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "quantQuality",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Resources/Sprites/Ingame.spriteatlas"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "quantQuality",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Resources/Sprites/Ingame/LogoGame.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "jpeg",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Resources/Sprites/Ingame/icon 2.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "quantQuality",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Resources/Sprites/Ingame/Win_Endcard.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "quantQuality",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Game/Resources/Sprites/Ingame/Button_Play now.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Kho/Assets/texture/T_road_patern.png"
                     }
                 ]
             },

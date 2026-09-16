@@ -251,6 +251,7 @@ public class LunaUIManager : MonoBehaviour
         }
 
         GameEventBus.OnGameStart?.Invoke();
+        SetPersistentPlayNowButtonVisible(true);
     }
 
     private bool TryConsumeTutorialStartInput()
@@ -358,6 +359,7 @@ public class LunaUIManager : MonoBehaviour
         EnsureEventSystem();
         if (tutorialLayer != null) tutorialLayer.SetActive(false);
         if (endcardRoot != null) endcardRoot.SetActive(false);
+        SetPersistentPlayNowButtonVisible(false);
 
         _useCtaOnlyPulse = true;
         SetCTAButtonsVisible(true);
@@ -652,7 +654,7 @@ public class LunaUIManager : MonoBehaviour
     {
         if (persistentPlayNowButton == null) return;
 
-        SetPersistentPlayNowButtonVisible(true);
+        SetPersistentPlayNowButtonVisible(false);
         persistentPlayNowButton.interactable = true;
         persistentPlayNowButton.onClick.RemoveListener(OnCTAClicked);
         persistentPlayNowButton.onClick.AddListener(OnCTAClicked);

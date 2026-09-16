@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Ingame
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 1
+      m_CompressionQuality: 100
+      m_CrunchedCompression: 1
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_IgnorePlatformSupport: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 8
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 0
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 0644330ff1381794f9840245ecaebb6d, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+    packedSpriteRenderDataKeys:
+    - 5de9232203b783247b19b104724e9bf9: 21300000
+    - 02452f06cd9e35d40b2f5f3ffdc39166: 21300000
+    - a5b6d1b615b0cfb4c86708a76111361c: 21300000
+    - dac67d283174bb845b8aabb6b0d49ec2: 21300000
+    - a4d0999c7268b514cbd81e22d36aa1f2: 21300000
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 5de9232203b783247b19b104724e9bf9, type: 3}
+  - {fileID: 21300000, guid: 02452f06cd9e35d40b2f5f3ffdc39166, type: 3}
+  - {fileID: 21300000, guid: a5b6d1b615b0cfb4c86708a76111361c, type: 3}
+  - {fileID: 21300000, guid: dac67d283174bb845b8aabb6b0d49ec2, type: 3}
+  - {fileID: 21300000, guid: a4d0999c7268b514cbd81e22d36aa1f2, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - Arrow3
+  - Arrow2
+  - Hand
+  - Hand2
+  - Arrow1
+  m_RenderDataMap: {}
+  m_Tag: Ingame
+  m_IsVariant: 0

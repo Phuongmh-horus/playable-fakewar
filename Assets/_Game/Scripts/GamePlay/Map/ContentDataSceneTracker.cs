@@ -286,6 +286,12 @@ namespace GamePlay.Map
                 ? content.SpawnableObjects[matchedIndex]
                 : null;
 
+            if (existing != null)
+            {
+                spawnable.overrideHintArrow = existing.overrideHintArrow;
+                spawnable.showHintArrow = existing.showHintArrow;
+            }
+
             if (keepExistingOverridesWhenMatched && existing != null)
             {
                 CloneOverrides(existing.propertyOverrides, spawnable.propertyOverrides);
@@ -356,7 +362,8 @@ namespace GamePlay.Map
                 Value = soldierBall.Data.Value,
                 Level = soldierBall.Data.Level,
                 LeftOffset = soldierBall.LeftOffset,
-                RightOffset = soldierBall.RightOffset
+                RightOffset = soldierBall.RightOffset,
+                ShowHintArrow = soldierBall.IsHintArrowVisible
             });
         }
 

@@ -403,7 +403,11 @@ namespace GamePlay.Enemies
 
         public void SetHealthOverLevel(int maxHealth)
         {
-            HealthComponent healthComponent = Pack.Healable as HealthComponent;
+            HealthComponent healthComponent = _healthComponent;
+            if (healthComponent == null)
+            {
+                healthComponent = Pack.Healable as HealthComponent;
+            }
             if (healthComponent == null)
             {
                 healthComponent = GetComponent<HealthComponent>();
@@ -412,8 +416,6 @@ namespace GamePlay.Enemies
             if (healthComponent == null) return;
 
             healthComponent.SetMaxHealth(maxHealth, refill: true);
-            UpdateImage(healthComponent.CurrentHealth, healthComponent.MaxHealth);
-            UpdateHealthText(healthComponent.CurrentHealth);
         }
 
         protected void HandleKillHero()

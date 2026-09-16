@@ -26,10 +26,10 @@ public class CapacityIncreasePillar : StatModifierItem<StatModifierCapacityData>
     [SerializeField, FormerlySerializedAs("halveBricksPerDamage")]
     private bool reduceBricksPerDamage = false;
     [SerializeField] private int maxVisualBricksPerHit = 8;
-    [SerializeField] private int maxBricksInFlight = 28;
-    [SerializeField] private int maxVisualBricksPerBurst = 3;
+    [SerializeField] private int maxBricksInFlight = 24;
+    [SerializeField] private int maxVisualBricksPerBurst = 8;
     [SerializeField] private float minVisualSpawnInterval = 0.05f;
-    [SerializeField] private bool forceVisualBricksMatchDamage = true;
+    [SerializeField] private bool forceVisualBricksMatchDamage = false;
     [SerializeField] private bool batchCapacityGainPerFrame = true;
     [SerializeField] private BrickLayer brickLayer;
     public BrickLayer BrickLayerPrefab => brickLayer;

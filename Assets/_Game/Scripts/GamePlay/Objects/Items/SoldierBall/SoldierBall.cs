@@ -24,6 +24,9 @@ namespace GamePlay.Items
         [SerializeField] private SawRotate wheelRotate;
         public bool IsStopMove = true;
 
+        [Header("Hint Arrow")]
+        [SerializeField] private GameObject hintArrowVisual;
+
         [Header("Effects")]
         [SerializeField] protected EffectComponent effectComponent;
         private bool _hasAppliedBreakBuff;
@@ -32,6 +35,27 @@ namespace GamePlay.Items
         private Transform _upgradeShowTransform;
         private Vector3 _upgradeShowLocalPosition;
         private Vector3 _upgradeShowLocalScale;
+        private bool _showHintArrow;
+
+        public bool IsHintArrowVisible => _showHintArrow;
+
+        public void SetHintArrowVisible(bool visible)
+        {
+            _showHintArrow = visible;
+            if (hintArrowVisual == null)
+            {
+                Transform arrowTransform = transform.Find("Arrow");
+                if (arrowTransform != null)
+                {
+                    hintArrowVisual = arrowTransform.gameObject;
+                }
+            }
+
+            if (hintArrowVisual != null)
+            {
+                hintArrowVisual.SetActive(visible);
+            }
+        }
 
         public override void Initialize()
         {
@@ -44,6 +68,7 @@ namespace GamePlay.Items
             _breakSequenceStarted = false;
             _nextHitEffectFrame = 0;
             RestoreUpgradeShowVisual();
+            SetHintArrowVisible(_showHintArrow);
 
             base.Initialize();
 
@@ -94,6 +119,7 @@ namespace GamePlay.Items
             }
 
             _breakSequenceStarted = true;
+            SetHintArrowVisible(false);
             PlayableWaveDefenseEntitySystem.Instance?.Unregister(this);
             if (Pack.Hitable != null)
             {

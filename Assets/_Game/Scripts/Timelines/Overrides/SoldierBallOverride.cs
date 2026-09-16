@@ -11,6 +11,7 @@ public class SoldierBallOverride : ItemUnitPropertyOverride
     public int Level;
     public float LeftOffset;
     public float RightOffset;
+    public bool ShowHintArrow;
 
     public override void ApplyOverrides(ItemUnit itemUnit)
     {
@@ -25,5 +26,6 @@ public class SoldierBallOverride : ItemUnitPropertyOverride
         target.Data.Level = Level;
         target.LeftOffset = LeftOffset;
         target.RightOffset = RightOffset;
+        target.SetHintArrowVisible(ShowHintArrow);
     }
 }

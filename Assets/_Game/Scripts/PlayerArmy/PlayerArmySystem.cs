@@ -162,9 +162,11 @@ namespace PlayerArmy
         private bool _pendingSpawnLayoutReady;
         private ArmyBuffFlyText _buffFlyText;
         private float _fireSoldierCharacterVfxScale = 1f;
+        private float _nextUpgradeEffectTime;
         private const int MaxSpawnsPerFrame = 2;
         private const float FireSoldierCharacterVfxScaleStep = 0.5f;
         private const int ProjectileAttackSfxFrameInterval = 12;
+        private const float UpgradeEffectMinInterval = 0.05f;
 
         public IReadOnlyList<CharacterUnit> Units => characterUnits;
         public bool HasLivingUnits
@@ -822,6 +824,11 @@ namespace PlayerArmy
                 _fireSoldierCharacterVfxScale += FireSoldierCharacterVfxScaleStep;
             }
 
+            if (!TryConsumeUpgradeEffectBudget())
+            {
+                return;
+            }
+
             effectSystem?.PlayEffectWithScaleAndColor(
                 EffectType.Upgrade,
                 GetBodyRoot().position,
@@ -833,13 +840,29 @@ namespace PlayerArmy
 
         public void PlaySoldierBallUpgradeEffect()
         {
+            if (!TryConsumeUpgradeEffectBudget())
+            {
+                return;
+            }
+
             effectSystem?.PlayEffectWithScaleAndColor(
             EffectType.Upgrade,
             GetBodyRoot().position,
             GetBodyRoot().rotation,
             GetBodyRoot(),
             _fireSoldierCharacterVfxScale,
-            1);
+                1);
+        }
+
+        private bool TryConsumeUpgradeEffectBudget()
+        {
+            if (Time.time < _nextUpgradeEffectTime)
+            {
+                return false;
+            }
+
+            _nextUpgradeEffectTime = Time.time + UpgradeEffectMinInterval;
+            return true;
         }
 
         private static int GetFireSoldierVfxColorIndex(StatType statType)
@@ -982,6 +1005,7 @@ namespace PlayerArmy
 
             if (characterUnits == null) characterUnits = new List<CharacterUnit>();
             _fireSoldierCharacterVfxScale = 1f;
+            _nextUpgradeEffectTime = 0f;
         }
 
 
@@ -1254,16 +1278,11 @@ namespace PlayerArmy
             float preCullZ = Mathf.Max(myHalfZ + targetExtent, collisionCheckRangeZ);
             Vector3 queryStart = myPos - transform.forward * preCullZ;
             Vector3 queryEnd = myPos + transform.forward * preCullZ;
-            collisionSystem.QueryIndicesNearSegment(queryStart, queryEnd, preCullX, _collisionQueryIndices);
+            collisionSystem.QueryIndicesNearSegment(queryStart, queryEnd, preCullX, myMask, _collisionQueryIndices);
 
             for (int candidateIndex = 0; candidateIndex < _collisionQueryIndices.Count; candidateIndex++)
             {
                 int i = _collisionQueryIndices[candidateIndex];
-                uint categoryBits = collisionSystem.GetMask(i);
-                if ((myMask & categoryBits) == 0)
-                {
-                    continue;
-                }
 
                 var targetTr = collisionSystem.GetTransform(i);
                 if (targetTr == null)

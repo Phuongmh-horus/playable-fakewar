@@ -15,26 +15,18 @@ namespace GamePlay.Enemies
     {
         private readonly List<EnemyData> _enemies = new List<EnemyData>(64);
         private readonly Stack<EnemyData> _enemyDataPool = new Stack<EnemyData>(64);
+        private readonly Dictionary<EnemyUnit, EnemyData> _enemyLookup = new Dictionary<EnemyUnit, EnemyData>(64);
         public int EnemyCount => _enemies.Count;
 
         public bool AreAllActiveEnemiesDefeated
         {
             get
             {
-                if (_enemies.Count == 0) return false;
-                for (int i = 0; i < _enemies.Count; i++)
-                {
-                    EnemyData enemy = _enemies[i];
-                    if (enemy != null && enemy.IsActive && enemy.Causer != null)
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
+                return _enemies.Count > 0 && _activeEnemyCount == 0;
             }
         }
 
+        private int _activeEnemyCount;
         private bool _isGameplayPaused = true;
         private bool _needsCleanup;
         private readonly List<AttackComponent> _attackComponentsBuffer = new List<AttackComponent>(8);
@@ -49,32 +41,34 @@ namespace GamePlay.Enemies
         {
             if (causer == null) return;
 
-            for (int i = 0; i < _enemies.Count; i++)
+            if (_enemyLookup.TryGetValue(causer, out EnemyData data))
             {
-                if (_enemies[i] == null || _enemies[i].Causer != causer) continue;
-                _enemies[i].IsActive = true;
+                if (!data.IsActive)
+                {
+                    data.IsActive = true;
+                    _activeEnemyCount++;
+                }
                 causer.PlayAnimation(_isGameplayPaused ? AnimationType.Idle : AnimationType.Move);
                 return;
             }
 
-            EnemyData data = _enemyDataPool.Count > 0 ? _enemyDataPool.Pop() : new EnemyData();
+            data = _enemyDataPool.Count > 0 ? _enemyDataPool.Pop() : new EnemyData();
             data.Causer = causer;
             data.IsActive = true;
 
             _enemies.Add(data);
+            _enemyLookup.Add(causer, data);
+            _activeEnemyCount++;
             causer.PlayAnimation(_isGameplayPaused ? AnimationType.Idle : AnimationType.Move);
         }
 
         public void UnregisterEnemy(EnemyUnit causer)
         {
-            for (int i = 0; i < _enemies.Count; i++)
+            if (causer != null && _enemyLookup.TryGetValue(causer, out EnemyData enemy) && enemy.IsActive)
             {
-                var enemy = _enemies[i];
-                if (enemy == null || enemy.Causer != causer) continue;
-
                 enemy.IsActive = false;
+                _activeEnemyCount = System.Math.Max(0, _activeEnemyCount - 1);
                 _needsCleanup = true;
-                break;
             }
 
             if (!enabled) enabled = true;
@@ -141,6 +135,8 @@ namespace GamePlay.Enemies
             }
 
             _enemies.Clear();
+            _enemyLookup.Clear();
+            _activeEnemyCount = 0;
             _needsCleanup = false;
             enabled = false;
         }
@@ -161,6 +157,10 @@ namespace GamePlay.Enemies
 
                 if (enemy != null)
                 {
+                    if (enemy.Causer != null)
+                    {
+                        _enemyLookup.Remove(enemy.Causer);
+                    }
                     enemy.IsActive = false;
                     enemy.Causer = null;
                     _enemyDataPool.Push(enemy);

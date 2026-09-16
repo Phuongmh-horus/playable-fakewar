@@ -212,9 +212,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7013264714211308406}
-  - component: {fileID: 5050800279645204565}
+  - component: {fileID: 4810400306084372463}
   m_Layer: 0
-  m_Name: IconCharacter_Sungtruong
+  m_Name: Icon_Sungtruong
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -228,14 +228,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2557058921183699781}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -1, z: -0, w: 0}
+  m_LocalRotation: {x: 0.008590442, y: -0.03140685, z: -0.10427423, w: 0.99401546}
   m_LocalPosition: {x: 0, y: 12, z: 0}
-  m_LocalScale: {x: 1.6000001, y: 1.6000001, z: 1.6000001}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1287897007415136162}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &5050800279645204565
+  m_LocalEulerAnglesHint: {x: 0.603, y: -3.683, z: -11.996}
+--- !u!212 &4810400306084372463
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -247,15 +247,15 @@ SpriteRenderer:
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
-  m_MotionVectors: 2
-  m_LightProbeUsage: 0
-  m_ReflectionProbeUsage: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 271930816aa30c04ba172f5b9c79cd86, type: 2}
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -276,7 +276,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: a1228a9f6facb9943b0a775c9dcdd166, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bf9e21806f172f94abe0bf53af49b630, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -412,7 +412,7 @@ MonoBehaviour:
   size: {x: 1, y: 1}
   shapeType: 1
   colliderOffsets: {x: 0, y: 2, z: 0}
-  colliderSize: {x: 6.6, y: 5, z: 5}
+  colliderSize: {x: 7.7, y: 5, z: 5}
   LeftOffset: 0
   RightOffset: 0
   autoAddHitTextFlyEffectAtRuntime: 0
@@ -427,13 +427,14 @@ MonoBehaviour:
     Level: 2
   upgradeShowObject: {fileID: 92849928321394109}
   upgradeRiseHeight: 2
-  upgradeRiseDuration: 0.25
-  upgradeFlyDuration: 0.25
-  upgradePeakScale: 1.25
-  breakEffectDespawnDelay: 0.4
+  upgradeRiseDuration: 0.3
+  upgradeFlyDuration: 0.2
+  upgradePeakScale: 1.4
+  breakEffectDespawnDelay: 0.5
   healthText: {fileID: 5826389342598505721}
   wheelRotate: {fileID: 4758353015966747975}
   IsStopMove: 0
+  hintArrowVisual: {fileID: 0}
   effectComponent: {fileID: 2018191943066992144}
 --- !u!114 &8138363187892157136
 MonoBehaviour:
@@ -450,7 +451,7 @@ MonoBehaviour:
   CacheTransform: {fileID: 7946232523800976864}
   poolEntity: {fileID: -3187097488725319018}
   shapeType: 1
-  colliderSize: {x: 6.6, y: 5, z: 5}
+  colliderSize: {x: 7.7, y: 5, z: 5}
   isActive: 1
   isCustomCaster: 0
   hitTransform: {fileID: 0}
@@ -539,15 +540,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalScale.x
-      value: 2.5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalScale.y
-      value: 2.5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalScale.z
-      value: 2.5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 48b43e3d602848144afe98fe425f50b1, type: 3}
       propertyPath: m_LocalPosition.x
